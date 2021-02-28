@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using ChunkTasks;
 using DataComponents;
-using Jobs;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace MonoBehaviours
 {
@@ -13,6 +13,7 @@ namespace MonoBehaviours
         public int GeneratedAreaSize = 10;
         public int CleanAreaSizeOffset = 2;
         public GameObject ChunkPrefab;
+        public GameObject ParentChunkObject;
         public Transform PlayerTransform;
 
         private ChunkGrid _chunkGrid;
@@ -22,9 +23,15 @@ namespace MonoBehaviours
         {
             _chunkGrid = new ChunkGrid();
             ProceduralGenerator.UpdateEvent += ProceduralGeneratorUpdate;
+            GlobalConfig.UpdateEvent += GlobalConfigUpdate;
+            var restrict = GlobalConfig.StaticGlobalConfig.RestrictGridSize;
+            if (restrict > 0)
+            {
+                GeneratedAreaSize = restrict;
+            }
         }
 
-        private void ProceduralGeneratorUpdate(object sender, EventArgs e)
+        private void ResetGrid()
         {
             var flooredAroundPosition = new Vector2(Mathf.Floor(PlayerTransform.position.x), Mathf.Floor(PlayerTransform.position.y));
             _chunkGrid.Dispose();
@@ -32,17 +39,42 @@ namespace MonoBehaviours
             Generate(flooredAroundPosition);
         }
 
+        private void ProceduralGeneratorUpdate(object sender, EventArgs e)
+        {
+            ResetGrid();
+        }
+
+        private void GlobalConfigUpdate(object sender, EventArgs e)
+        {
+            var restrict = GlobalConfig.StaticGlobalConfig.RestrictGridSize;
+            if (restrict > 0 && restrict != GeneratedAreaSize || !GlobalConfig.StaticGlobalConfig.EnableSimulation)
+            {
+                GeneratedAreaSize = restrict;
+                ResetGrid();
+            }
+        }
+
         private void FixedUpdate()
         {
             var flooredAroundPosition = new Vector2(Mathf.Floor(PlayerTransform.position.x), Mathf.Floor(PlayerTransform.position.y));
             Generate(flooredAroundPosition);
             Clean(flooredAroundPosition);
-            Simulate();
+            if (GlobalConfig.StaticGlobalConfig.EnableSimulation)
+            {
+                if (GlobalConfig.StaticGlobalConfig.StepByStep && Input.GetKeyDown(KeyCode.Space))
+                {
+                    Simulate();
+                }
+                else if (!GlobalConfig.StaticGlobalConfig.PauseSimulation)
+                {
+                    Simulate();
+                }
+            }
         }
 
         private void Generate(Vector2 aroundPosition)
         {
-            var generateJobs = new List<GenerateJob>();
+            var generateJobs = new List<GenerationTask>();
             var generateTasks = new List<Task>();
 
             for (var x = 0; x < GeneratedAreaSize; ++x)
@@ -56,7 +88,7 @@ namespace MonoBehaviours
                     var chunk = new Chunk(pos);
                     _chunkGrid.ChunkMap.Add(pos, chunk);
 
-                    var generateJob = new GenerateJob
+                    var generateJob = new GenerationTask
                     {
                         ChunkPos = pos,
                         BlockColors = chunk.BlockColors,
@@ -67,6 +99,7 @@ namespace MonoBehaviours
                     generateJobs.Add(generateJob);
                     generateTasks.Add(handle);
                     chunk.GameObject = Instantiate(ChunkPrefab, new Vector3(pos.x, pos.y, 0), Quaternion.identity);
+                    chunk.GameObject.transform.parent = ParentChunkObject.transform;
                     chunk.GameObject.SetActive(true);
                 }
             }
@@ -77,9 +110,16 @@ namespace MonoBehaviours
                 var chunk = _chunkGrid.ChunkMap[generateJobs[i].ChunkPos];
                 handle.Wait();
                 var texture = new Texture2D(Chunk.Size, Chunk.Size, TextureFormat.RGBA32, false);
+                texture.wrapMode = TextureWrapMode.Clamp;
+                texture.filterMode = FilterMode.Point;
                 texture.LoadRawTextureData(chunk.BlockColors);
                 texture.Apply();
-                chunk.GameObject.GetComponent<SpriteRenderer>().sprite = Sprite.Create(texture, new Rect(new Vector2(0, 0), new Vector2(Chunk.Size, Chunk.Size)), new Vector2(0.5f, 0.5f), Chunk.Size, 0, SpriteMeshType.FullRect);
+                chunk.GameObject.GetComponent<SpriteRenderer>().sprite = Sprite.Create(
+                    texture,
+                    new Rect(new Vector2(0, 0), new Vector2(Chunk.Size, Chunk.Size)), new Vector2(0.5f, 0.5f),
+                    Chunk.Size, 
+                    0,
+                    SpriteMeshType.FullRect);
                 chunk.Texture = texture;
             }
         }
@@ -131,15 +171,22 @@ namespace MonoBehaviours
             {
                 foreach (var task in batch)
                 {
-                    task.Start();
+                    if (GlobalConfig.StaticGlobalConfig.MonothreadSimulate)
+                    {
+                        task.RunSynchronously();
+                    }
+                    else
+                    {
+                        task.Start();
+                    }
                 }
-            
-                foreach (var task in batch)
+
+                foreach (var task in batch.Where(task => !GlobalConfig.StaticGlobalConfig.MonothreadSimulate))
                 {
                     task.Wait();
                 }
             }
-            
+
             foreach (var chunk in _chunkGrid.ChunkMap.Values)
             {
                 chunk.Texture.LoadRawTextureData(chunk.BlockColors);
@@ -161,7 +208,7 @@ namespace MonoBehaviours
                 GetNeighborChunkBlocksColors(chunk, 0, 1),
                 GetNeighborChunkBlocksColors(chunk, 1, 1)
             };
-            return new Task(() => new ChunkNeighborhood(chunks).Simulate());
+            return new Task(() => new SimulationTask(chunks).Execute());
         }
 
         private Chunk GetNeighborChunkBlocksColors(Chunk origin, int xOffset, int yOffset)

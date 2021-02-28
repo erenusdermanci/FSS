@@ -1,13 +1,11 @@
 ﻿using DataComponents;
 using MonoBehaviours;
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
-namespace Jobs
+namespace ChunkTasks
 {
-    public class GenerateJob : IJob
+    public class GenerationTask : IChunkTask
     {
         public Vector2 ChunkPos;
         public byte[] BlockColors;
@@ -34,12 +32,12 @@ namespace Jobs
 
         private Constants.Blocks GetBlockFromNoise(float noise)
         {
-            var thresholds = ProceduralGenerator.StaticNoiseConfig.BlockThresholds;
+            var thresholds = ProceduralGenerator.StaticNoiseConfig.blockThresholds;
 
             for (var i = 0; i < thresholds.Count; ++i)
             {
-                if (noise <= thresholds[i].BlockThreshold)
-                    return thresholds[i].BlockTypeName;
+                if (noise <= thresholds[i].threshold)
+                    return thresholds[i].type;
             }
 
             return Constants.Blocks.Border;

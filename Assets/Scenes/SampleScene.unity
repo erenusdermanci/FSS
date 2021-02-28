@@ -123,6 +123,85 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &184035030
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 184035031}
+  - component: {fileID: 184035032}
+  m_Layer: 0
+  m_Name: GlobalConfig
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &184035031
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 184035030}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &184035032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 184035030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2eac50e61800e3e4c9065e4d664f01b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  globalConfig:
+    MonothreadSimulate: 0
+    RestrictGridSize: 0
+    EnableSimulation: 1
+    PauseSimulation: 1
+    StepByStep: 1
+--- !u!1 &289311129
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 289311130}
+  m_Layer: 0
+  m_Name: Chunks
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &289311130
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289311129}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &411182148
 GameObject:
   m_ObjectHideFlags: 0
@@ -353,26 +432,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   noiseConfig:
-    octaves: 3
-    persistence: -0.77
-    frequency: 0.29
-    amplitude: 3.26
+    octaves: 2
+    persistence: 1
+    frequency: 1
+    amplitude: 2
     frequencyMultiplier: 2
-    BlockThresholds:
-    - BlockTypeName: 4
-      BlockThreshold: 0.2
-    - BlockTypeName: 5
-      BlockThreshold: 0.25
-    - BlockTypeName: 0
-      BlockThreshold: 0.5
-    - BlockTypeName: 3
-      BlockThreshold: 0.7
-    - BlockTypeName: 2
-      BlockThreshold: 0.9
-    - BlockTypeName: 1
-      BlockThreshold: 1
-    - BlockTypeName: 6
-      BlockThreshold: 42
+    xOffset: 10000
+    yOffset: 10000
+    blockThresholds:
+    - type: 4
+      threshold: 0.2
+    - type: 5
+      threshold: 0.25
+    - type: 0
+      threshold: 0.5
+    - type: 3
+      threshold: 0.7
+    - type: 2
+      threshold: 0.9
+    - type: 1
+      threshold: 1
 --- !u!4 &1823546992
 Transform:
   m_ObjectHideFlags: 0
@@ -419,6 +498,7 @@ MonoBehaviour:
   GeneratedAreaSize: 10
   CleanAreaSizeOffset: 2
   ChunkPrefab: {fileID: 4355043635256820449, guid: 06d685a9f16828647bdfc9410c666e9d, type: 3}
+  ParentChunkObject: {fileID: 289311129}
   PlayerTransform: {fileID: 411182151}
 --- !u!4 &1929728654
 Transform:

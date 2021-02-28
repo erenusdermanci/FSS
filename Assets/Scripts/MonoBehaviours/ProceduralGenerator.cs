@@ -1,34 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace MonoBehaviours
 {
-    // [CustomPropertyDrawer(typeof(ProceduralGenerator.Octave))]
-    // public class OctaveSliderDrawer : PropertyDrawer
-    // {
-    //     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-    //     {
-    //         var frequencyProp = property.FindPropertyRelative("frequency");
-    //         var amplitudeProp = property.FindPropertyRelative("amplitude");
-    //         
-    //         EditorGUI.BeginChangeCheck();
-    //
-    //         var scale = 1.0f;
-    //         var frequencyScale = EditorGUI.Slider(new Rect(position.x, position.y, 150, 20), scale, 1, 100);
-    //         var amplitudeScale = EditorGUI.Slider(new Rect(position.x, position.y + 30, 150, 20), scale, 1, 100);
-    //
-    //         if (EditorGUI.EndChangeCheck())
-    //         {
-    //             frequencyProp.floatValue = frequencyScale;
-    //             amplitudeProp.floatValue = amplitudeScale;
-    //         }
-    //     }
-    // }
-    
     public class ProceduralGenerator : MonoBehaviour
     {
+        [Serializable]
+        public struct BlockThresholdStruct
+        {
+            public Constants.Blocks type;
+            public float threshold;
+
+            public BlockThresholdStruct(Constants.Blocks type, float threshold)
+            {
+                this.type = type;
+                this.threshold = threshold;
+            }
+        }
+
         [Serializable]
         public struct NoiseConfig
         {
@@ -37,7 +27,9 @@ namespace MonoBehaviours
             public float frequency;
             public float amplitude;
             public float frequencyMultiplier;
-            public List<BlockThresholdStruct> BlockThresholds;
+            public float xOffset;
+            public float yOffset;
+            public List<BlockThresholdStruct> blockThresholds;
 
             public NoiseConfig(NoiseConfig other)
             {
@@ -46,21 +38,38 @@ namespace MonoBehaviours
                 frequency = other.frequency;
                 amplitude = other.amplitude;
                 frequencyMultiplier = other.frequencyMultiplier;
-                BlockThresholds = other.BlockThresholds;
+                xOffset = other.xOffset;
+                yOffset = other.yOffset;
+                blockThresholds = new List<BlockThresholdStruct>();
+                for (var i = 0; i < other.blockThresholds.Count; i++)
+                {
+                    blockThresholds.Add(new BlockThresholdStruct(
+                        other.blockThresholds[i].type,
+                        other.blockThresholds[i].threshold));
+                }
             }
-            
+
             public bool Equals(NoiseConfig other)
             {
-                if (Math.Abs(persistence - other.persistence) > 0.01f
-                    || octaves != other.octaves
-                    || Math.Abs(frequency - other.frequency) > 0.01f
-                    || Math.Abs(amplitude - other.amplitude) > 0.01f
-                    || Math.Abs(frequencyMultiplier - other.frequencyMultiplier) > 0.01f)
+                if (blockThresholds.Count == other.blockThresholds.Count)
                 {
-                    return false;
+                    for (var i = 0; i < blockThresholds.Count; ++i)
+                    {
+                        if (!blockThresholds[i].threshold.EqualsEpsilon(other.blockThresholds[i].threshold))
+                            return false;
+                        if (blockThresholds[i].type != other.blockThresholds[i].type)
+                            return false;
+                    }
                 }
 
-                return true;
+                return octaves == other.octaves &&
+                       persistence.EqualsEpsilon(other.persistence) &&
+                       frequency.EqualsEpsilon(other.frequency) &&
+                       amplitude.EqualsEpsilon(other.amplitude) &&
+                       frequencyMultiplier.EqualsEpsilon(other.frequencyMultiplier) &&
+                       blockThresholds.Count == other.blockThresholds.Count &&
+                       xOffset.EqualsEpsilon(other.xOffset) &&
+                       yOffset.EqualsEpsilon(other.yOffset);
             }
         }
 
@@ -79,50 +88,28 @@ namespace MonoBehaviours
             if (StaticNoiseConfig.Equals(noiseConfig))
                 return;
             StaticNoiseConfig = new NoiseConfig(noiseConfig);
-            
+
             UpdateEvent?.Invoke(this, null);
         }
-        
-        public static float OctavePerlin(float x, float y) {
+
+        public static float OctavePerlin(float x, float y)
+        {
             var total = 0.0f;
             var frequency = StaticNoiseConfig.frequency;
             var amplitude = StaticNoiseConfig.amplitude;
-            int octaves = StaticNoiseConfig.octaves;
+            var octaves = StaticNoiseConfig.octaves;
             var maxValue = 0.0f;
-            for(var i = 0; i < octaves; i++)
+            for (var i = 0; i < octaves; i++)
             {
-                total += Mathf.PerlinNoise(x * frequency, y * frequency) * amplitude;
-        
+                total += Mathf.PerlinNoise((x + StaticNoiseConfig.xOffset) * frequency, (y + StaticNoiseConfig.yOffset) * frequency) * amplitude;
                 maxValue += amplitude;
-        
                 amplitude *= StaticNoiseConfig.persistence;
                 frequency *= StaticNoiseConfig.frequencyMultiplier;
             }
-    
-            return total / maxValue;
+
+            var noise = total / maxValue;
+
+            return noise;
         }
-
-        //public static float OctaveNoise(float x, float y)
-        //{
-        //    var octaveFrequencies = StaticNoiseConfig.octaves.Select(o => o.frequency).ToArray();
-        //    var octaveAmplitudes = StaticNoiseConfig.octaves.Select(o => o.amplitude).ToArray();
-        //    float noise = 0;
-        //    for (var i = 0; i < octaveFrequencies.Length; ++i)
-        //    {
-        //        // noise = Mathf.PerlinNoise(x, y);
-        //        // noise = amplitude * Mathf.PerlinNoise(freq * x, freq * y)
-        //        noise += octaveAmplitudes[i] * Mathf.PerlinNoise(
-        //            octaveFrequencies[i] * x, 
-        //            octaveFrequencies[i] * y);
-        //    }
-        //    return noise;
-        //}
-    }
-
-    [Serializable]
-    public struct BlockThresholdStruct
-    {
-        public Constants.Blocks BlockTypeName;
-        public float BlockThreshold;
     }
 }
