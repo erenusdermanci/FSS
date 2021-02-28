@@ -159,7 +159,7 @@
     },
     "com.unity.mathematics": {
       "version": "1.2.1",
-      "depth": 0,
+      "depth": 2,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"

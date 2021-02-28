@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ChunkTasks;
 using DataComponents;
+using Unity.Collections;
 using UnityEngine;
 
 namespace MonoBehaviours
@@ -19,8 +21,12 @@ namespace MonoBehaviours
         private ChunkGrid _chunkGrid;
         private const int BatchNumber = 4;
 
+        private bool UserPressedSpace = false;
+        private NativeArray<Unity.Mathematics.Random> RandomArray { get; set; }
+
         private void Awake()
         {
+            InitializeRandom();
             _chunkGrid = new ChunkGrid();
             ProceduralGenerator.UpdateEvent += ProceduralGeneratorUpdate;
             GlobalConfig.UpdateEvent += GlobalConfigUpdate;
@@ -29,6 +35,25 @@ namespace MonoBehaviours
             {
                 GeneratedAreaSize = restrict;
             }
+
+        }
+		
+		private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+                UserPressedSpace = true;
+        }
+
+        private void InitializeRandom()
+        {
+            ThreadPool.GetMaxThreads(out var workerThreads, out _);
+            var randomArray = new Unity.Mathematics.Random[workerThreads];
+            var seed = new System.Random();
+
+            for (var i = 0; i < workerThreads; ++i)
+                randomArray[i] = new Unity.Mathematics.Random((uint)seed.Next());
+
+            RandomArray = new NativeArray<Unity.Mathematics.Random>(randomArray, Allocator.Persistent);
         }
 
         private void ResetGrid()
@@ -61,14 +86,13 @@ namespace MonoBehaviours
             Clean(flooredAroundPosition);
             if (GlobalConfig.StaticGlobalConfig.EnableSimulation)
             {
-                if (GlobalConfig.StaticGlobalConfig.StepByStep && Input.GetKeyDown(KeyCode.Space))
+                if (GlobalConfig.StaticGlobalConfig.StepByStep && UserPressedSpace)
                 {
+                    UserPressedSpace = false;
                     Simulate();
                 }
                 else if (!GlobalConfig.StaticGlobalConfig.PauseSimulation)
-                {
                     Simulate();
-                }
             }
         }
 
@@ -160,11 +184,11 @@ namespace MonoBehaviours
                 if (chunkPos.x % 2 == 0 && chunkPos.y % 2 == 0)
                     batchPool[0].Add(CreateSimulateTaskForChunkNeighborhood(chunk));
                 else if(chunkPos.x % 2 == 0 && chunkPos.y % 2 == 1)
-                    batchPool[0].Add(CreateSimulateTaskForChunkNeighborhood(chunk));
+                    batchPool[1].Add(CreateSimulateTaskForChunkNeighborhood(chunk));
                 else if(chunkPos.x % 2 == 1 && chunkPos.y % 2 == 0)
-                    batchPool[0].Add(CreateSimulateTaskForChunkNeighborhood(chunk));
+                    batchPool[2].Add(CreateSimulateTaskForChunkNeighborhood(chunk));
                 else
-                    batchPool[0].Add(CreateSimulateTaskForChunkNeighborhood(chunk));
+                    batchPool[3].Add(CreateSimulateTaskForChunkNeighborhood(chunk));
             }
             
             foreach (var batch in batchPool)
@@ -181,9 +205,12 @@ namespace MonoBehaviours
                     }
                 }
 
-                foreach (var task in batch.Where(task => !GlobalConfig.StaticGlobalConfig.MonothreadSimulate))
+                if (!GlobalConfig.StaticGlobalConfig.MonothreadSimulate)
                 {
-                    task.Wait();
+                    foreach (var task in batch)
+                    {
+                        task.Wait();
+                    }
                 }
             }
 
@@ -208,7 +235,7 @@ namespace MonoBehaviours
                 GetNeighborChunkBlocksColors(chunk, 0, 1),
                 GetNeighborChunkBlocksColors(chunk, 1, 1)
             };
-            return new Task(() => new SimulationTask(chunks).Execute());
+            return new Task(() => new SimulationTask(chunks, RandomArray).Execute());
         }
 
         private Chunk GetNeighborChunkBlocksColors(Chunk origin, int xOffset, int yOffset)
