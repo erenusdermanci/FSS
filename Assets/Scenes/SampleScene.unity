@@ -172,6 +172,7 @@ MonoBehaviour:
     EnableSimulation: 1
     PauseSimulation: 0
     StepByStep: 0
+    OutlineChunks: 1
 --- !u!1 &289311129
 GameObject:
   m_ObjectHideFlags: 0
@@ -240,7 +241,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 411182148}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -332,7 +333,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a160d838ff8b4b4693ac20007e008c7, type: 3}
   m_Name: 
@@ -432,13 +433,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   noiseConfig:
-    octaves: 3
-    persistence: 0.69
-    frequency: 0.91
-    amplitude: 2.84
+    octaves: 2
+    persistence: 5.5
+    frequency: 0.87
+    amplitude: 2.6
     frequencyMultiplier: 2
-    xOffset: 10000
-    yOffset: 10000
+    xOffset: 10951
+    yOffset: 5080
     blockThresholds:
     - type: 4
       threshold: 0.2
@@ -500,6 +501,7 @@ MonoBehaviour:
   ChunkPrefab: {fileID: 4355043635256820449, guid: 06d685a9f16828647bdfc9410c666e9d, type: 3}
   ParentChunkObject: {fileID: 289311129}
   PlayerTransform: {fileID: 411182151}
+  DebugBorderPrefab: {fileID: 4382140988505616142, guid: 52abb169da52f684ab65913b392a02e3, type: 3}
 --- !u!4 &1929728654
 Transform:
   m_ObjectHideFlags: 0

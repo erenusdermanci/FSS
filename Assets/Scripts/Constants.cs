@@ -22,7 +22,7 @@ public static class Constants
         [(int)Blocks.Air] = new Color32(0, 0, 0, 0),
         [(int)Blocks.Oil] = new Color32(51, 38, 0, 255),
         [(int)Blocks.Water] = new Color32(15, 94, 156, 255),
-        [(int)Blocks.Sand] = new Color32(76, 70, 50, 255),
+        [(int)Blocks.Sand] = new Color32(155, 134, 69, 255),
         [(int)Blocks.Stone] = new Color32(149, 148, 139, 255),
         [(int)Blocks.Metal] = new Color32(75, 75, 75, 255),
         [(int)Blocks.Border] = new Color32(255, 0, 0, 255),

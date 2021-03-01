@@ -12,6 +12,7 @@ namespace MonoBehaviours
 {
     public class ChunkManager : MonoBehaviour
     {
+        // PROPERTIES
         public int GeneratedAreaSize = 10;
         public int CleanAreaSizeOffset = 2;
         public GameObject ChunkPrefab;
@@ -21,7 +22,10 @@ namespace MonoBehaviours
         private ChunkGrid _chunkGrid;
         private const int BatchNumber = 4;
 
+        // DEBUG PROPERTIES
+        public GameObject DebugBorderPrefab;
         private bool UserPressedSpace = false;
+
         private NativeArray<Unity.Mathematics.Random> RandomArray { get; set; }
 
         private void Awake()
@@ -77,6 +81,47 @@ namespace MonoBehaviours
                 GeneratedAreaSize = restrict;
                 ResetGrid();
             }
+
+            if (!GlobalConfig.StaticGlobalConfig.OutlineChunks)
+            {
+                ClearOutline(); // yes this will run through the chunkmap, but only when globalconfig is updated
+                // so its "fine"
+            }
+        }
+
+        private void ClearOutline()
+        {
+            // Clean last frame
+            foreach (var chunk in _chunkGrid.ChunkMap)
+            {
+                if (chunk.Value.GameObject.transform.childCount > 0)
+                {
+                    for (int i = 0; i < chunk.Value.GameObject.transform.childCount; i++)
+                    {
+                        var existingChild = chunk.Value.GameObject.transform.GetChild(i)?.gameObject;
+                        if (existingChild != null)
+                        {
+                            existingChild.SetActive(false);
+                            Destroy(existingChild);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void OutlineChunks()
+        {
+            ClearOutline();
+
+            // Draw this frame
+            foreach (var chunk in _chunkGrid.ChunkMap)
+            {
+                var pos = chunk.Key;
+                var borderChunk = Instantiate(DebugBorderPrefab, new Vector3(pos.x, pos.y, 0), Quaternion.identity);
+                borderChunk.transform.parent = chunk.Value.GameObject.transform;
+                borderChunk.GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 63); // transparent white
+                borderChunk.SetActive(true);
+            }
         }
 
         private void FixedUpdate()
@@ -93,6 +138,10 @@ namespace MonoBehaviours
                 }
                 else if (!GlobalConfig.StaticGlobalConfig.PauseSimulation)
                     Simulate();
+            }
+            if (GlobalConfig.StaticGlobalConfig.OutlineChunks)
+            {
+                OutlineChunks();
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using DataComponents;
+﻿using System;
+using DataComponents;
 using System.Threading;
 using Unity.Collections;
 using static Constants;
@@ -7,6 +8,8 @@ namespace ChunkTasks
 {
     public class SimulationTask : IChunkTask
     {
+        public int[] BlockCounts;
+
         private readonly Chunk[] _chunks;
         private readonly NativeArray<Unity.Mathematics.Random> _randomArray;
         private Unity.Mathematics.Random _rng;
@@ -15,6 +18,7 @@ namespace ChunkTasks
         {
             _chunks = chunks;
             _randomArray = randomArray;
+            BlockCounts = new int[Enum.GetNames(typeof(Blocks)).Length];
         }
 
         public void Execute()
@@ -32,10 +36,10 @@ namespace ChunkTasks
                     switch (block)
                     {
                         case (int)Blocks.Oil:
-                            SimulateOil(block);
+                            SimulateWater(block, x, y);
                             break;
                         case (int)Blocks.Water:
-                            SimulateWater(block);
+                            SimulateWater(block, x, y);
                             break;
                         case (int)Blocks.Sand:
                             SimulateSand(block, x, y);
@@ -47,172 +51,314 @@ namespace ChunkTasks
                         default:
                             throw new System.NotImplementedException();
                     }
+
+                    BlockCounts[_chunks[0].BlockTypes[y * Chunk.Size + x]] += 1;
                 }
             }
         }
 
-        #region Block Logic
+        #region Block logic
 
         private void SimulateOil(int block)
         {
 
         }
 
-        private void SimulateWater(int block)
+        private unsafe void SimulateWater(int block, int x, int y)
         {
+            // DOWN IS PRIORITY!
+            var targetBlocks = stackalloc int[4];
+            targetBlocks[0] = GetBlock(x, y - 1);
+            targetBlocks[1] = GetBlock(x, y - 2);
+            targetBlocks[2] = GetBlock(x, y - 3);
+            targetBlocks[3] = GetBlock(x, y - 4);
 
+            var firstTargetAvailable = 0;
+            var secondTargetAvailable = 0;
+            var thirdTargetAvailable = 0;
+            var fourthTargetAvailable = 0;
+
+            if (targetBlocks[0] < block)
+            {
+                firstTargetAvailable = 1;
+            }
+
+            if (targetBlocks[0] <= block)
+            {
+                if (targetBlocks[1] < block)
+                {
+                    secondTargetAvailable = 1;
+                }
+
+                if (targetBlocks[1] <= block)
+                {
+                    if (targetBlocks[2] < block)
+                    {
+                        thirdTargetAvailable = 1;
+                    }
+
+                    if (targetBlocks[2] <= block)
+                    {
+                        if (targetBlocks[3] < block)
+                        {
+                            fourthTargetAvailable = 1;
+                        }
+                    }
+                }
+            }
+
+            // start determining the index to put block @
+            int index = 0;
+            int range = firstTargetAvailable + secondTargetAvailable + thirdTargetAvailable + fourthTargetAvailable;
+            if (range > 1)
+            {
+                // random
+                index = _rng.NextInt(0, range);
+            }
+            else if (firstTargetAvailable == 1)
+            {
+                index = 0;
+            }
+            else if (secondTargetAvailable == 1)
+            {
+                index = 1;
+            }
+            else if (thirdTargetAvailable == 1)
+            {
+                index = 2;
+            }
+            else if (fourthTargetAvailable == 1)
+            {
+                index = 3;
+            }
+            else // none available directly down
+            {
+                // WE COULDNT MOVE DIRECTLY DOWN, NOW WE CHECK AROUND X AS WELL
+                targetBlocks[0] = GetBlock(x - 1, y - 1);
+                targetBlocks[1] = GetBlock(x + 1, y - 1);
+
+                if (targetBlocks[0] < block) // available slot
+                {
+                    firstTargetAvailable = 1;
+                }
+
+                if (targetBlocks[1] < block)
+                {
+                    secondTargetAvailable = 1;
+                }
+
+                range = firstTargetAvailable + secondTargetAvailable;
+                // start determining the index to put block
+                if (range > 1)
+                {
+                    // random
+                    index = _rng.NextInt(0, range);
+                }
+                else if (firstTargetAvailable == 1)
+                {
+                    index = 0;
+                }
+                else if (secondTargetAvailable == 1)
+                {
+                    index = 1;
+                }
+                else // COULD NOT MOVE LEFT DOWN RIGHT DOWN, we move HORIZONTALLY
+                {
+                    // Left
+                    targetBlocks[0] = GetBlock(x - 1, y);
+                    targetBlocks[1] = GetBlock(x - 2, y);
+                    // Right
+                    targetBlocks[2] = GetBlock(x + 1, y);
+                    targetBlocks[3] = GetBlock(x + 2, y);
+
+                    var targetDirection = stackalloc int[4] { -1, -2, 1, 2 };
+
+                    if (targetBlocks[0] < block)
+                    {
+                        firstTargetAvailable = 1;
+                    }
+
+                    if (targetBlocks[0] <= block)
+                    {
+                        if (targetBlocks[1] < block)
+                        {
+                            secondTargetAvailable = 1;
+                        }
+                    }
+
+                    if (targetBlocks[2] < block)
+                    {
+                        thirdTargetAvailable = 1;
+                    }
+
+                    if (targetBlocks[2] <= block)
+                    {
+                        if (targetBlocks[3] < block)
+                        {
+                            fourthTargetAvailable = 1;
+                        }
+                    }
+                    var total = firstTargetAvailable + secondTargetAvailable + thirdTargetAvailable +
+                                fourthTargetAvailable;
+                    if (total == 0)
+                        return; // could not do anything
+                    if (total == 4)
+                        index = _rng.NextInt(0, 5); // all available
+                    else
+                    {
+                        var min = stackalloc int[3] {1, 0, 0};
+                        var max = stackalloc int[3] {2, 1, 2};
+                        var idx = (((firstTargetAvailable | secondTargetAvailable) << 1) |
+                                   (thirdTargetAvailable | fourthTargetAvailable)) - 1;
+
+                        // 0 -> right
+                        // 1 -> left
+                        // 2 -> both
+                        // 0001 -> 01 (1) -> 1
+                        // 0010 -> 01 -> 1
+                        // 0011 -> 01 -> 1
+                        // 0100 -> 10 (2) -> 0
+                        // 0101 -> 11 (3) -> 2
+                        // 0110 -> 11 -> 2
+                        // 0111 -> 11 -> 2
+                        // 1000 -> 10 -> 0
+                        // 1001 -> 11 -> 2
+                        // 1010 -> 11 -> 2
+                        // 1011 -> 11 -> 2
+                        // 1100 -> 10 -> 0
+                        // 1101 -> 11 -> 2
+                        // 1110 -> 11 -> 2
+                        var rngSide = _rng.NextInt(min[idx], max[idx]);
+                        if (rngSide == 0)
+                        {
+                            // Left
+                            // start determining the index to put block
+                            if (firstTargetAvailable + secondTargetAvailable == 2)
+                            {
+                                // random
+                                index = _rng.NextInt(0, 2);
+                            }
+                            else if (firstTargetAvailable == 1)
+                            {
+                                index = 0;
+                            }
+                            else if (secondTargetAvailable == 1)
+                            {
+                                index = 1;
+                            }
+                        }
+                        else
+                        {
+                            // Right
+                            // start determining the index to put block
+                            if (thirdTargetAvailable + fourthTargetAvailable == 2)
+                            {
+                                // random
+                                index = _rng.NextInt(2, 4);
+                            }
+                            else if (thirdTargetAvailable == 1)
+                            {
+                                index = 2;
+                            }
+                            else if (fourthTargetAvailable == 1)
+                            {
+                                index = 3;
+                            }
+                        }
+                    }
+
+                    PutBlock(x + targetDirection[index], y, block);
+                    PutBlock(x, y, targetBlocks[index]);
+                    return;
+                }
+
+                PutBlock(x - (index == 0 ? 1 : -1), y - 1, block);
+                PutBlock(x, y, targetBlocks[index]);
+                return; // Otherwise we will duplicate the block
+            }
+            
+            PutBlock(x, y - (index + 1), block);
+            PutBlock(x, y, targetBlocks[index]);
         }
 
         private unsafe void SimulateSand(int block, int x, int y)
         {
             // DOWN IS PRIORITY!
-            int* downBlocks = stackalloc int[2];
-            downBlocks[0] = GetBlock(x, y - 1);
-            downBlocks[1] = GetBlock(x, y - 2);
+            var targetBlocks = stackalloc int[2];
+            targetBlocks[0] = GetBlock(x, y - 1);
+            targetBlocks[1] = GetBlock(x, y - 2);
 
-            //var firstDown = GetBlock(x, y - 1);
-            var firstDownAvailable = false;
-            //var secondDown = GetBlock(x, y - 2);
-            var secondDownAvailable = false;
+            var firstTargetAvailable = false;
+            var secondTargetAvailable = false;
 
-            if (downBlocks[0] < block) // available slot
+            if (targetBlocks[0] < block) // available slot
             {
-                firstDownAvailable = true;
+                firstTargetAvailable = true;
             }
-
-            if (downBlocks[1] < block)
+            if (targetBlocks[1] < block && targetBlocks[0] <= block)
             {
-                secondDownAvailable = true;
+                secondTargetAvailable = true;
             }
 
             // start determining the index to put block @
             int index;
-            if (firstDownAvailable && secondDownAvailable)
+            if (firstTargetAvailable && secondTargetAvailable)
             {
                 // random
                 index = _rng.NextInt(0, 2);
             }
-            else if (firstDownAvailable)
+            else if (firstTargetAvailable)
             {
                 index = 0;
             }
-            else if (secondDownAvailable)
+            else if (secondTargetAvailable)
             {
                 index = 1;
             }
-            else // none available
+            else // none available directly down
             {
-                return;
+                // WE COULDNT MOVE DIRECTLY DOWN, NOW WE CHECK AROUND X AS WELL
+                targetBlocks[0] = GetBlock(x - 1, y - 1);
+                targetBlocks[1] = GetBlock(x + 1, y - 1);
+
+                if (targetBlocks[0] < block) // available slot
+                {
+                    firstTargetAvailable = true;
+                }
+
+                if (targetBlocks[1] < block)
+                {
+                    secondTargetAvailable = true;
+                }
+
+                // start determining the index to put block
+                if (firstTargetAvailable && secondTargetAvailable)
+                {
+                    // random
+                    index = _rng.NextInt(0, 2);
+                }
+                else if (firstTargetAvailable)
+                {
+                    index = 0;
+                }
+                else if (secondTargetAvailable)
+                {
+                    index = 1;
+                }
+                else // none available
+                {
+                    // COULD NOT MOVE AT ALL!
+                    return;
+                }
+
+                PutBlock(x - (index == 0 ? 1 : -1), y - 1, block);
+                PutBlock(x, y, targetBlocks[index]);
+                return; // Otherwise we will duplicate the block
             }
 
             PutBlock(x, y - (index + 1), block);
-            PutBlock(x, y, downBlocks[index]);
+            PutBlock(x, y, targetBlocks[index]);
         }
-
-        //                    if (block == (int) Blocks.Sand)
-        //{
-        //    var downBlock = GetBlock(x, y - 1);
-        //    var leftDownBlock = GetBlock(x - 1, y - 1);
-        //    var rightDownBlock = GetBlock(x + 1, y - 1);
-        //    if (block > downBlock)
-        //    {
-        //        PutBlock(x, y - 1, block);
-        //        PutBlock(x, y, downBlock);
-        //    }
-        //    else if (block > leftDownBlock)
-        //    {
-        //        PutBlock(x - 1, y - 1, block);
-        //        PutBlock(x, y, leftDownBlock);
-        //    }
-        //    else if (block > rightDownBlock)
-        //    {
-        //        PutBlock(x + 1, y - 1, block);
-        //        PutBlock(x, y, rightDownBlock);
-        //    }
-        //}
-        //                if (block == (int) Blocks.Water)
-        //{
-        //    var downBlock = GetBlock(x, y - 1);
-        //    var leftDownBlock = GetBlock(x - 1, y - 1);
-        //    var rightDownBlock = GetBlock(x + 1, y - 1);
-        //    var leftBlock = GetBlock(x - 1, y);
-        //    var rightBlock = GetBlock(x + 1, y);
-        //    if (downBlock < block)
-        //    {
-        //        PutBlock(x, y - 1, block);
-        //        PutBlock(x, y, downBlock);
-        //    }
-        //    else if (leftDownBlock < block)
-        //    {
-        //        PutBlock(x - 1, y - 1, block);
-        //        PutBlock(x, y, leftDownBlock);
-        //    }
-        //    else if (rightDownBlock < block)
-        //    {
-        //        PutBlock(x + 1, y - 1, block);
-        //        PutBlock(x, y, rightDownBlock);
-        //    }
-        //    else if (leftBlock < block)
-        //    {
-        //        PutBlock(x - 1, y, block);
-        //        PutBlock(x, y, leftBlock);
-        //    }
-        //    else if (rightBlock < block)
-        //    {
-        //        PutBlock(x + 1, y, block);
-        //        PutBlock(x, y, rightBlock);
-        //    }
-        //}
-        //                if (block == (int) Blocks.Oil)
-        //{
-        //    var upBlock = GetBlock(x, y + 1);
-        //    var upLeftBlock = GetBlock(x - 1, y + 1);
-        //    var upRightBlock = GetBlock(x + 1, y + 1);
-        //    var downBlock = GetBlock(x, y - 1);
-        //    var leftDownBlock = GetBlock(x - 1, y - 1);
-        //    var rightDownBlock = GetBlock(x + 1, y - 1);
-        //    var leftBlock = GetBlock(x - 1, y);
-        //    var rightBlock = GetBlock(x + 1, y);
-        //    if (block < upBlock && upBlock < SolidThreshold)
-        //    {
-        //        PutBlock(x, y + 1, block);
-        //        PutBlock(x, y, upBlock);
-        //    }
-        //    else if (block < upLeftBlock && upLeftBlock < SolidThreshold)
-        //    {
-        //        PutBlock(x - 1, y + 1, block);
-        //        PutBlock(x, y, upLeftBlock);
-        //    }
-        //    else if (block < upRightBlock && upRightBlock < SolidThreshold)
-        //    {
-        //        PutBlock(x + 1, y + 1, block);
-        //        PutBlock(x, y, upRightBlock);
-        //    }
-        //    else if (downBlock < block)
-        //    {
-        //        PutBlock(x, y - 1, block);
-        //        PutBlock(x, y, downBlock);
-        //    }
-        //    else if (leftDownBlock < block)
-        //    {
-        //        PutBlock(x - 1, y - 1, block);
-        //        PutBlock(x, y, leftDownBlock);
-        //    }
-        //    else if (rightDownBlock < block)
-        //    {
-        //        PutBlock(x + 1, y - 1, block);
-        //        PutBlock(x, y, rightDownBlock);
-        //    }
-        //    else if (leftBlock < block)
-        //    {
-        //        PutBlock(x - 1, y, block);
-        //        PutBlock(x, y, leftBlock);
-        //    }
-        //    else if (rightBlock < block)
-        //    {
-        //        PutBlock(x + 1, y, block);
-        //        PutBlock(x, y, rightBlock);
-        //    }
 
         #endregion
 

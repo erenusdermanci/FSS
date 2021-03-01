@@ -13,6 +13,7 @@ public class GlobalConfig : MonoBehaviour
         public bool EnableSimulation;
         public bool PauseSimulation;
         public bool StepByStep;
+        public bool OutlineChunks;
 
         public GlobalConfigStruct(GlobalConfigStruct other)
         {
@@ -21,6 +22,7 @@ public class GlobalConfig : MonoBehaviour
             EnableSimulation = other.EnableSimulation;
             PauseSimulation = other.PauseSimulation;
             StepByStep = other.StepByStep;
+            OutlineChunks = other.OutlineChunks;
         }
 
         public bool Equals(GlobalConfigStruct other)
@@ -29,7 +31,8 @@ public class GlobalConfig : MonoBehaviour
                 || MonothreadSimulate != other.MonothreadSimulate
                 || EnableSimulation != other.EnableSimulation
                 || PauseSimulation != other.PauseSimulation
-                || StepByStep != other.StepByStep)
+                || StepByStep != other.StepByStep
+                || OutlineChunks != other.OutlineChunks)
                 return false;
 
             return true;

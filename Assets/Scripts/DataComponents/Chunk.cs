@@ -26,6 +26,10 @@ namespace DataComponents
 
         public void Dispose()
         {
+            if (GameObject != null)
+            {
+                GameObject.SetActive(false);
+            }
             UnityEngine.Object.Destroy(Texture);
             UnityEngine.Object.Destroy(GameObject);
         }
