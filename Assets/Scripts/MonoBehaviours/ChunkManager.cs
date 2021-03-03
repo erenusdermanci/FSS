@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using ChunkTasks;
 using DataComponents;
@@ -31,6 +32,9 @@ namespace MonoBehaviours
         private ObjectPool _chunkPool;
         public ChunkGrid _chunkGrid;
         private const int BatchNumber = 4;
+        private List<List<SimulationTask>> _simulationBatchPool = new List<List<SimulationTask>>(BatchNumber);
+        private Vector2 _playerFlooredPosition;
+        private Vector2? _oldPlayerFlooredPosition = null;
 
         // DEBUG PROPERTIES
         private bool UserPressedSpace = false;
@@ -60,6 +64,11 @@ namespace MonoBehaviours
             if (restrict > 0)
             {
                 GeneratedAreaSize = restrict;
+            }
+
+            for (var i = 0; i < BatchNumber; ++i)
+            {
+                _simulationBatchPool.Add(new List<SimulationTask>());
             }
         }
 
@@ -115,9 +124,11 @@ namespace MonoBehaviours
 
         private void FixedUpdate()
         {
-            var flooredAroundPosition = new Vector2(Mathf.Floor(PlayerTransform.position.x), Mathf.Floor(PlayerTransform.position.y));
-            Generate(flooredAroundPosition);
-            Clean(flooredAroundPosition);
+            if (ShouldGenerate())
+            {
+                Generate(_playerFlooredPosition);
+                Clean(_playerFlooredPosition);
+            }
             if (GlobalDebugConfig.StaticGlobalConfig.EnableSimulation)
             {
                 if (GlobalDebugConfig.StaticGlobalConfig.StepByStep && UserPressedSpace)
@@ -132,6 +143,16 @@ namespace MonoBehaviours
             {
                 OutlineChunks();
             }
+        }
+
+        private bool ShouldGenerate()
+        {
+            var position = PlayerTransform.position;
+            _playerFlooredPosition = new Vector2(Mathf.Floor(position.x), Mathf.Floor(position.y));
+            if (_oldPlayerFlooredPosition != null && _oldPlayerFlooredPosition == _playerFlooredPosition)
+                return false;
+            _oldPlayerFlooredPosition = _playerFlooredPosition;
+            return true;
         }
 
         private void Generate(Vector2 aroundPosition)
@@ -178,6 +199,23 @@ namespace MonoBehaviours
                 for (var i = 0; i < blockCountsAtGenerate.Length; ++i)
                     blockCountsAtGenerate[i].count += task.BlockCounts[i];
             }
+            
+            for (var i = 0; i < BatchNumber; ++i)
+            {
+                _simulationBatchPool[i].Clear();
+            }
+            foreach (var chunk in _chunkGrid.ChunkMap.Values)
+            {
+                var chunkPos = chunk.Position;
+                // small bitwise trick to find the batch index and avoid an ugly forest
+                var batchIndex = (((int) Math.Abs(chunkPos.x) % 2) << 1)
+                                 | ((int) Math.Abs(chunkPos.y) % 2);
+                _simulationBatchPool[batchIndex].Add(new SimulationTask(chunk)
+                {
+                    Chunks = new ChunkNeighborhood(_chunkGrid, chunk),
+                    Random = Random
+                });
+            }
         }
 
         private void Clean(Vector2 aroundPosition)
@@ -204,38 +242,18 @@ namespace MonoBehaviours
 
         private void Simulate()
         {
-            var batchPool = new List<List<SimulationTask>>(BatchNumber);
-            for (var i = 0; i < BatchNumber; ++i)
-            {
-                batchPool.Add(new List<SimulationTask>());
-            }
-
-            foreach (var chunk in _chunkGrid.ChunkMap.Values)
-            {
-                if (!GlobalDebugConfig.StaticGlobalConfig.DisableDirtySystem
-                    && !chunk.Dirty)
-                {
-                    continue;
-                }
-                var chunkPos = chunk.Position;
-                // small bitwise trick to find the batch index and avoid an ugly forest
-                var batchIndex = (((int) Math.Abs(chunkPos.x) % 2) << 1)
-                                 | ((int) Math.Abs(chunkPos.y) % 2);
-                batchPool[batchIndex].Add(new SimulationTask(chunk)
-                {
-                    Chunks = new ChunkNeighborhood(_chunkGrid, chunk),
-                    Random = Random
-                });
-            }
-            
+            var enableDirty = !GlobalDebugConfig.StaticGlobalConfig.DisableDirtySystem;
+            var synchronous = GlobalDebugConfig.StaticGlobalConfig.MonothreadSimulate;
             for (var i = 0; i < blockCounts.Length; ++i)
                 blockCounts[i].count = 0;
-            var synchronous = GlobalDebugConfig.StaticGlobalConfig.MonothreadSimulate;
-            foreach (var batch in batchPool)
+            foreach (var batch in _simulationBatchPool)
             {
-                foreach (var task in batch)
+                foreach (var task in batch.Where(task => enableDirty && task.Chunk.Dirty))
+                {
                     task.Schedule(synchronous);
-                foreach (var task in batch)
+                }
+
+                foreach (var task in batch.Where(task => enableDirty && task.Chunk.Dirty))
                 {
                     task.Join();
                     task.ReloadTexture();
