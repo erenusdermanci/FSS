@@ -54,6 +54,8 @@ namespace ChunkTasks
                         case (int)Blocks.Air:
                         case (int)Blocks.Stone:
                         case (int)Blocks.Metal:
+                        case (int)Blocks.Dirt:
+                        case (int)Blocks.Cloud:
                             break;
                         default:
                             throw new NotImplementedException();

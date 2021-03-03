@@ -168,10 +168,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   globalConfig:
     MonothreadSimulate: 0
-    RestrictGridSize: 0
+    RestrictGridSize: 4
     EnableSimulation: 1
     PauseSimulation: 0
-    StepByStep: 1
+    StepByStep: 0
     OutlineChunks: 1
 --- !u!1 &289311129
 GameObject:
@@ -578,17 +578,20 @@ MonoBehaviour:
     frequencyMultiplier: 2
     xOffset: 10951
     yOffset: 5080
-    blockThresholds:
+    blockThresholdsTerrain:
     - type: 4
+      threshold: 0.1
+    - type: 3
       threshold: 0.2
     - type: 5
-      threshold: 0.25
+      threshold: 0.3
+    - type: 6
+      threshold: 0.8
+    - type: 7
+      threshold: 1
+    blockThresholdsSky:
     - type: 0
-      threshold: 0.5
-    - type: 3
       threshold: 0.7
-    - type: 2
-      threshold: 0.9
     - type: 1
       threshold: 1
 --- !u!4 &1823546992
