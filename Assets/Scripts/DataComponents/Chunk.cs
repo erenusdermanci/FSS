@@ -5,7 +5,7 @@ namespace DataComponents
 {
     public class Chunk : IDisposable
     {
-        public static readonly int Size = 64;
+        public const int Size = 64;
 
         public Texture2D Texture;
         public GameObject GameObject;

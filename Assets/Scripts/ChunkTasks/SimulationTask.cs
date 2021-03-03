@@ -11,7 +11,7 @@ namespace ChunkTasks
     {
         internal ChunkNeighborhood Chunks;
 
-        public NativeArray<Unity.Mathematics.Random> RandomArray;
+        public ThreadLocal<Unity.Mathematics.Random> Random;
         private Unity.Mathematics.Random _rng;
 
         public SimulationTask(Chunk chunk) : base(chunk)
@@ -20,7 +20,7 @@ namespace ChunkTasks
 
         protected override void Execute()
         {
-            _rng = RandomArray[Thread.CurrentThread.ManagedThreadId];
+            _rng = Random.Value;
 
             for (var i = 0; i < BlockCounts.Length; ++i)
                 BlockCounts[i] = 0;
