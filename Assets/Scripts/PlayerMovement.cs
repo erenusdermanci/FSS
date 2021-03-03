@@ -11,14 +11,14 @@ public class PlayerMovement : MonoBehaviour
     private Transform playerTransform;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         playerTransform = GetComponent<Transform>();
         playerCurrentSpeed = PlayerSpeed;
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (Input.GetButton("Sprint"))
         {
