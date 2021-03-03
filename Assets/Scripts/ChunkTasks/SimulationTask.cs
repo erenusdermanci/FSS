@@ -2,7 +2,7 @@
 using DataComponents;
 using System.Threading;
 using Unity.Collections;
-using UnityEngine;
+using Utils;
 using static Constants;
 
 namespace ChunkTasks
@@ -11,7 +11,7 @@ namespace ChunkTasks
     {
         internal ChunkNeighborhood Chunks;
 
-        internal NativeArray<Unity.Mathematics.Random> RandomArray;
+        public NativeArray<Unity.Mathematics.Random> RandomArray;
         private Unity.Mathematics.Random _rng;
 
         public SimulationTask(Chunk chunk) : base(chunk)
@@ -25,10 +25,17 @@ namespace ChunkTasks
             for (var i = 0; i < BlockCounts.Length; ++i)
                 BlockCounts[i] = 0;
 
+            var blockMoveInfo = new ChunkNeighborhood.BlockMoveInfo();
+
+            var moved = false;
             for (var y = 0; y < Chunk.Size; ++y)
             {
                 for (var x = 0; x < Chunk.Size; ++x)
                 {
+                    blockMoveInfo.Chunk = -1;
+                    blockMoveInfo.X = -1;
+                    blockMoveInfo.Y = -1;
+                    
                     var block = Chunks.GetBlock(x, y, current: true);
                     if (block == CooldownBlockValue || block == (int)Blocks.Border)
                         continue;
@@ -36,13 +43,13 @@ namespace ChunkTasks
                     switch (block)
                     {
                         case (int)Blocks.Oil:
-                            SimulateWater(block, x, y);
+                            moved = SimulateWater(block, x, y, ref blockMoveInfo);
                             break;
                         case (int)Blocks.Water:
-                            SimulateWater(block, x, y);
+                            moved = SimulateWater(block, x, y, ref blockMoveInfo);
                             break;
                         case (int)Blocks.Sand:
-                            SimulateSand(block, x, y);
+                            // moved = SimulateSand(block, x, y, ref blockMoveInfo);
                             break;
                         case (int)Blocks.Air:
                         case (int)Blocks.Stone:
@@ -51,8 +58,15 @@ namespace ChunkTasks
                         default:
                             throw new System.NotImplementedException();
                     }
+
+                    if (blockMoveInfo.Chunk > 0)
+                    {
+                        Chunks[blockMoveInfo.Chunk].Dirty = true;
+                    }
                 }
             }
+
+            Chunk.Dirty = moved;
 
             for (var y = 0; y < Chunk.Size; ++y)
             {
@@ -65,12 +79,12 @@ namespace ChunkTasks
 
         #region Block logic
 
-        private void SimulateOil(int block)
+        private bool SimulateOil(int block, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo)
         {
-
+            return false;
         }
 
-        private unsafe void SimulateWater(int block, int x, int y)
+        private unsafe bool SimulateWater(int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo)
         {
             // DOWN IS PRIORITY!
             var targetBlocks = stackalloc int[4];
@@ -114,8 +128,8 @@ namespace ChunkTasks
             }
 
             // start determining the index to put block @
-            int index = 0;
-            int range = firstTargetAvailable + secondTargetAvailable + thirdTargetAvailable + fourthTargetAvailable;
+            var index = 0;
+            var range = firstTargetAvailable + secondTargetAvailable + thirdTargetAvailable + fourthTargetAvailable;
             if (range > 1)
             {
                 // random
@@ -207,7 +221,7 @@ namespace ChunkTasks
                     var total = firstTargetAvailable + secondTargetAvailable + thirdTargetAvailable +
                                 fourthTargetAvailable;
                     if (total == 0)
-                        return; // could not do anything
+                        return false; // could not do anything
                     if (total == 4)
                         index = _rng.NextInt(0, 4); // all available
                     else
@@ -273,6 +287,8 @@ namespace ChunkTasks
                         }
                     }
 
+                    
+                    /*
                     Chunks.PutBlock(x + targetDirection[index], y, block, true, true);
                     Chunks.PutBlock(x, y, targetBlocks[index]);
                     return;
@@ -285,9 +301,19 @@ namespace ChunkTasks
 
             Chunks.PutBlock(x, y - (index + 1), block, true, true);
             Chunks.PutBlock(x, y, targetBlocks[index]);
+            */
+                    
+                    
+                    return Chunks.MoveBlock(x, y, targetDirection[index], 0, block, targetBlocks[index], ref blockMoveInfo);
+                }
+
+                return Chunks.MoveBlock(x, y, -(index == 0 ? 1 : -1), -1, block, targetBlocks[index], ref blockMoveInfo);
+            }
+
+            return Chunks.MoveBlock(x, y, 0, -(index + 1), block, targetBlocks[index], ref blockMoveInfo);
         }
 
-        private unsafe void SimulateSand(int block, int x, int y)
+        private unsafe bool SimulateSand(int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo)
         {
             // DOWN IS PRIORITY!
             var targetBlocks = stackalloc int[2];
@@ -355,16 +381,13 @@ namespace ChunkTasks
                 else // none available
                 {
                     // COULD NOT MOVE AT ALL!
-                    return;
+                    return false;
                 }
-
-                Chunks.PutBlock(x - (index == 0 ? 1 : -1), y - 1, block,  true,true);
-                Chunks.PutBlock(x, y, targetBlocks[index]);
-                return; // Otherwise we will duplicate the block
+                
+                return Chunks.MoveBlock(x, y, -(index == 0 ? 1 : -1), -1, block, targetBlocks[index], ref blockMoveInfo);
             }
 
-            Chunks.PutBlock(x, y - (index + 1), block, true, true);
-            Chunks.PutBlock(x, y, targetBlocks[index]);
+            return Chunks.MoveBlock(x, y, 0, -(index + 1), block, targetBlocks[index], ref blockMoveInfo);
         }
 
         #endregion

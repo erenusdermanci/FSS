@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils;
 using static Constants;
 
 public class DrawingTool : MonoBehaviour
@@ -122,7 +123,7 @@ public class DrawingTool : MonoBehaviour
         {
             for (int j = py; j < py + BoxSize; j++)
             {
-                neighborhood.PutBlock(i, j, (int)SelectedDrawBlock, true);
+                neighborhood.PutBlock(i, j, (int)SelectedDrawBlock);
             }
         }
     }
@@ -159,7 +160,7 @@ public class DrawingTool : MonoBehaviour
         int numerator = longest >> 1;
         for (int i = 0; i <= longest; i++)
         {
-            neighborhood.PutBlock(x, y, (int)SelectedDrawBlock, true);
+            neighborhood.PutBlock(x, y, (int)SelectedDrawBlock);
             numerator += shortest;
             if (!(numerator < longest))
             {

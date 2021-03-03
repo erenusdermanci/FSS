@@ -1,143 +1,163 @@
 using DataComponents;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using static Constants;
 
-public class ChunkNeighborhood
+namespace Utils
 {
-    public Chunk[] Chunks;
-
-    public Chunk this[int idx]
+    public class ChunkNeighborhood
     {
-        get => Chunks[idx];
-        set => Chunks[idx] = value;
-    }
-
-    public ChunkNeighborhood(ChunkGrid grid, Chunk centralChunk)
-    {
-        Chunks = new[]
+        public struct BlockMoveInfo
         {
-            centralChunk,
-            GetNeighborChunkBlocksColors(grid, centralChunk, -1, -1),
-            GetNeighborChunkBlocksColors(grid, centralChunk, 0, -1),
-            GetNeighborChunkBlocksColors(grid, centralChunk, 1, -1),
-            GetNeighborChunkBlocksColors(grid, centralChunk, -1, 0),
-            GetNeighborChunkBlocksColors(grid, centralChunk, 1, 0),
-            GetNeighborChunkBlocksColors(grid, centralChunk, -1, 1),
-            GetNeighborChunkBlocksColors(grid, centralChunk, 0, 1),
-            GetNeighborChunkBlocksColors(grid, centralChunk, 1, 1)
-        };
-    }
+            public int Chunk;
+            public int X;
+            public int Y;
+        }
+    
+        public Chunk[] Chunks;
 
-    public int GetBlock(int x, int y, bool current = false)
-    {
-        var chunkIndex = 0;
-        UpdateOutsideChunk(ref x, ref y, ref chunkIndex);
-
-        if (Chunks[chunkIndex] == null)
-            return (int)Blocks.Border;
-
-        var blockIndex = y * Chunk.Size + x;
-
-        var blockCooldown = Chunks[chunkIndex].BlockUpdateCooldowns[blockIndex];
-        if (blockCooldown > 0)
+        public Chunk this[int idx]
         {
-            if (current)
+            get => Chunks[idx];
+            set => Chunks[idx] = value;
+        }
+
+        public ChunkNeighborhood(ChunkGrid grid, Chunk centralChunk)
+        {
+            Chunks = new[]
             {
-                Chunks[chunkIndex].BlockUpdateCooldowns[blockIndex]--;
+                centralChunk,
+                GetNeighborChunks(grid, centralChunk, -1, -1),
+                GetNeighborChunks(grid, centralChunk, 0, -1),
+                GetNeighborChunks(grid, centralChunk, 1, -1),
+                GetNeighborChunks(grid, centralChunk, -1, 0),
+                GetNeighborChunks(grid, centralChunk, 1, 0),
+                GetNeighborChunks(grid, centralChunk, -1, 1),
+                GetNeighborChunks(grid, centralChunk, 0, 1),
+                GetNeighborChunks(grid, centralChunk, 1, 1)
+            };
+        }
+
+        public int GetBlock(int x, int y, bool current = false)
+        {
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+
+            if (Chunks[chunkIndex] == null)
+                return (int)Blocks.Border;
+
+            var blockIndex = y * Chunk.Size + x;
+
+            var blockCooldown = Chunks[chunkIndex].BlockUpdateCooldowns[blockIndex];
+            if (blockCooldown > 0)
+            {
+                if (current)
+                {
+                    Chunks[chunkIndex].BlockUpdateCooldowns[blockIndex]--;
+                }
+
+                return CooldownBlockValue;
             }
 
-            return CooldownBlockValue;
+            return Chunks[chunkIndex].BlockTypes[blockIndex];
         }
 
-        return Chunks[chunkIndex].BlockTypes[blockIndex];
-    }
+        public void PutBlock(int x, int y, int type)
+        {
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+            Chunks[chunkIndex].PutBlock(x, y, type);
+        }
 
-    public void PutBlock(int x, int y, int type, bool checkOutsideChunk = false, bool setCooldown = false)
-    {
-        var chunkIndex = 0;
-        if (checkOutsideChunk)
-            UpdateOutsideChunk(ref x, ref y, ref chunkIndex);
+        public bool MoveBlock(int x, int y, int xOffset, int yOffset, int srcBlock, int destBlock, ref BlockMoveInfo blockMoveInfo)
+        {
+            // compute the new coordinates and chunk index if we go outside of the current chunk
+            var ux = x + xOffset;
+            var uy = y + yOffset;
+            UpdateOutsideChunk(ref ux, ref uy, out var chunkIndex);
 
-        if (Chunks[chunkIndex] == null)
-            return;
+            // if there is no chunk at the destination, the block cannot move there
+            if (Chunks[chunkIndex] == null)
+                return false;
 
-        var i = y * Chunk.Size + x;
-        Chunks[chunkIndex].BlockColors[i * 4] = BlockColors[type].r;
-        Chunks[chunkIndex].BlockColors[i * 4 + 1] = BlockColors[type].g;
-        Chunks[chunkIndex].BlockColors[i * 4 + 2] = BlockColors[type].b;
-        Chunks[chunkIndex].BlockColors[i * 4 + 3] = BlockColors[type].a;
-        Chunks[chunkIndex].BlockTypes[i] = type;
+            // put the source block at its destination
+            Chunks[chunkIndex].PutBlock(ux, uy, srcBlock);
+            blockMoveInfo.Chunk = chunkIndex;
+            blockMoveInfo.X = ux;
+            blockMoveInfo.Y = uy;
 
-        if (setCooldown || chunkIndex != 0)
-            Chunks[chunkIndex].BlockUpdateCooldowns[i] = 1;
-    }
+            // if we did not put the block in the same chunk,
+            // we need to add a cooldown of 1 update,
+            // to prevent the other chunk to update it a second time in the same update round
+            Chunks[chunkIndex].SetCooldown(ux, uy, 1);
 
-    public static void UpdateOutsideChunk(ref int x, ref int y, ref int chunkIndex)
-    {
-        chunkIndex = 0;
-        if (x < 0 && y < 0)
-        {
-            // Down Left
-            chunkIndex = 1;
-            x = Chunk.Size + x;
-            y = Chunk.Size + y;
+            // put the old destination block at the source position (swap)
+            Chunks[chunkIndex].PutBlock(x, y, destBlock);
+            return true;
         }
-        else if (x >= Chunk.Size && y < 0)
-        {
-            // Down Right
-            chunkIndex = 3;
-            x -= Chunk.Size;
-            y = Chunk.Size + y;
-        }
-        else if (y < 0)
-        {
-            // Down
-            chunkIndex = 2;
-            y = Chunk.Size + y;
-        }
-        else if (x < 0 && y >= Chunk.Size)
-        {
-            // Up Left
-            chunkIndex = 6;
-            y -= Chunk.Size;
-            x = Chunk.Size + x;
-        }
-        else if (x >= Chunk.Size && y >= Chunk.Size)
-        {
-            // Up Right
-            chunkIndex = 8;
-            y -= Chunk.Size;
-            x -= Chunk.Size;
-        }
-        else if (y >= Chunk.Size)
-        {
-            // Up
-            chunkIndex = 7;
-            y -= Chunk.Size;
-        }
-        else if (x < 0)
-        {
-            // Left
-            chunkIndex = 4;
-            x = Chunk.Size + x;
-        }
-        else if (x >= Chunk.Size)
-        {
-            // Right
-            chunkIndex = 5;
-            x -= Chunk.Size;
-        }
-    }
 
-    public static Chunk GetNeighborChunkBlocksColors(ChunkGrid grid, Chunk origin, int xOffset, int yOffset)
-    {
-        var neighborPosition = new Vector2(origin.Position.x + xOffset, origin.Position.y + yOffset);
-        if (grid.ChunkMap.ContainsKey(neighborPosition))
+        private static void UpdateOutsideChunk(ref int x, ref int y, out int chunkIndex)
         {
-            return grid.ChunkMap[neighborPosition];
+            chunkIndex = 0;
+            if (x < 0 && y < 0)
+            {
+                // Down Left
+                chunkIndex = 1;
+                x = Chunk.Size + x;
+                y = Chunk.Size + y;
+            }
+            else if (x >= Chunk.Size && y < 0)
+            {
+                // Down Right
+                chunkIndex = 3;
+                x -= Chunk.Size;
+                y = Chunk.Size + y;
+            }
+            else if (y < 0)
+            {
+                // Down
+                chunkIndex = 2;
+                y = Chunk.Size + y;
+            }
+            else if (x < 0 && y >= Chunk.Size)
+            {
+                // Up Left
+                chunkIndex = 6;
+                y -= Chunk.Size;
+                x = Chunk.Size + x;
+            }
+            else if (x >= Chunk.Size && y >= Chunk.Size)
+            {
+                // Up Right
+                chunkIndex = 8;
+                y -= Chunk.Size;
+                x -= Chunk.Size;
+            }
+            else if (y >= Chunk.Size)
+            {
+                // Up
+                chunkIndex = 7;
+                y -= Chunk.Size;
+            }
+            else if (x < 0)
+            {
+                // Left
+                chunkIndex = 4;
+                x = Chunk.Size + x;
+            }
+            else if (x >= Chunk.Size)
+            {
+                // Right
+                chunkIndex = 5;
+                x -= Chunk.Size;
+            }
         }
-        return null;
+
+        private static Chunk GetNeighborChunks(ChunkGrid grid, Chunk origin, int xOffset, int yOffset)
+        {
+            var neighborPosition = new Vector2(origin.Position.x + xOffset, origin.Position.y + yOffset);
+            if (grid.ChunkMap.ContainsKey(neighborPosition))
+            {
+                return grid.ChunkMap[neighborPosition];
+            }
+            return null;
+        }
     }
 }

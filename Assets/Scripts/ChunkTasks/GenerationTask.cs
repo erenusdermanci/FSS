@@ -36,6 +36,8 @@ namespace ChunkTasks
 
                 BlockCounts[block] += 1;
             }
+
+            Chunk.Dirty = true;
         }
 
         private Constants.Blocks GetBlockFromNoise(float noise)
