@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using ChunkTasks;
 using DataComponents;
 using Unity.Collections;
 using UnityEngine;
+using Utils;
 
 namespace MonoBehaviours
 {
@@ -15,15 +14,24 @@ namespace MonoBehaviours
         // PROPERTIES
         public int GeneratedAreaSize = 10;
         public int CleanAreaSizeOffset = 2;
-        public GameObject ChunkPrefab;
         public GameObject ParentChunkObject;
         public Transform PlayerTransform;
 
-        private ChunkGrid _chunkGrid;
+        [Serializable]
+        public struct BlockCount
+        {
+            public string type;
+            public int count;
+        }
+
+        public BlockCount[] blockCountsAtGenerate;
+        public BlockCount[] blockCounts;
+
+        private ObjectPool _chunkPool;
+        public ChunkGrid _chunkGrid;
         private const int BatchNumber = 4;
 
         // DEBUG PROPERTIES
-        public GameObject DebugBorderPrefab;
         private bool UserPressedSpace = false;
 
         private NativeArray<Unity.Mathematics.Random> RandomArray { get; set; }
@@ -31,18 +39,26 @@ namespace MonoBehaviours
         private void Awake()
         {
             InitializeRandom();
+            var blockNames = Enum.GetNames(typeof(Constants.Blocks));
+            blockCountsAtGenerate = new BlockCount[blockNames.Length];
+            blockCounts = new BlockCount[blockNames.Length];
+            for (var i = 0; i < blockCountsAtGenerate.Length; ++i)
+            {
+                blockCountsAtGenerate[i].type = blockNames[i];
+                blockCounts[i].type = blockNames[i];
+            }
+            _chunkPool = GetComponent<ObjectPool>();
             _chunkGrid = new ChunkGrid();
             ProceduralGenerator.UpdateEvent += ProceduralGeneratorUpdate;
-            GlobalConfig.UpdateEvent += GlobalConfigUpdate;
-            var restrict = GlobalConfig.StaticGlobalConfig.RestrictGridSize;
+            GlobalDebugConfig.UpdateEvent += GlobalConfigUpdate;
+            var restrict = GlobalDebugConfig.StaticGlobalConfig.RestrictGridSize;
             if (restrict > 0)
             {
                 GeneratedAreaSize = restrict;
             }
-
         }
-		
-		private void Update()
+
+        private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Space))
                 UserPressedSpace = true;
@@ -75,52 +91,26 @@ namespace MonoBehaviours
 
         private void GlobalConfigUpdate(object sender, EventArgs e)
         {
-            var restrict = GlobalConfig.StaticGlobalConfig.RestrictGridSize;
-            if (restrict > 0 && restrict != GeneratedAreaSize || !GlobalConfig.StaticGlobalConfig.EnableSimulation)
+            var restrict = GlobalDebugConfig.StaticGlobalConfig.RestrictGridSize;
+            if (restrict > 0 && restrict != GeneratedAreaSize || !GlobalDebugConfig.StaticGlobalConfig.EnableSimulation)
             {
                 GeneratedAreaSize = restrict;
                 ResetGrid();
-            }
-
-            if (!GlobalConfig.StaticGlobalConfig.OutlineChunks)
-            {
-                ClearOutline(); // yes this will run through the chunkmap, but only when globalconfig is updated
-                // so its "fine"
-            }
-        }
-
-        private void ClearOutline()
-        {
-            // Clean last frame
-            foreach (var chunk in _chunkGrid.ChunkMap)
-            {
-                if (chunk.Value.GameObject.transform.childCount > 0)
-                {
-                    for (int i = 0; i < chunk.Value.GameObject.transform.childCount; i++)
-                    {
-                        var existingChild = chunk.Value.GameObject.transform.GetChild(i)?.gameObject;
-                        if (existingChild != null)
-                        {
-                            existingChild.SetActive(false);
-                            Destroy(existingChild);
-                        }
-                    }
-                }
             }
         }
 
         private void OutlineChunks()
         {
-            ClearOutline();
-
-            // Draw this frame
-            foreach (var chunk in _chunkGrid.ChunkMap)
+            var borderColor = new Color32(255, 255, 255, 63);
+            var s = 0.5f;
+            foreach (var chunk in _chunkGrid.ChunkMap.Values)
             {
-                var pos = chunk.Key;
-                var borderChunk = Instantiate(DebugBorderPrefab, new Vector3(pos.x, pos.y, 0), Quaternion.identity);
-                borderChunk.transform.parent = chunk.Value.GameObject.transform;
-                borderChunk.GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 63); // transparent white
-                borderChunk.SetActive(true);
+                var x = chunk.Position.x;
+                var y = chunk.Position.y;
+                Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), borderColor);
+                Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), borderColor);
+                Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x - s, y + s), borderColor);
+                Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x + s, y - s), borderColor);
             }
         }
 
@@ -129,17 +119,17 @@ namespace MonoBehaviours
             var flooredAroundPosition = new Vector2(Mathf.Floor(PlayerTransform.position.x), Mathf.Floor(PlayerTransform.position.y));
             Generate(flooredAroundPosition);
             Clean(flooredAroundPosition);
-            if (GlobalConfig.StaticGlobalConfig.EnableSimulation)
+            if (GlobalDebugConfig.StaticGlobalConfig.EnableSimulation)
             {
-                if (GlobalConfig.StaticGlobalConfig.StepByStep && UserPressedSpace)
+                if (GlobalDebugConfig.StaticGlobalConfig.StepByStep && UserPressedSpace)
                 {
                     UserPressedSpace = false;
                     Simulate();
                 }
-                else if (!GlobalConfig.StaticGlobalConfig.PauseSimulation)
+                else if (!GlobalDebugConfig.StaticGlobalConfig.PauseSimulation)
                     Simulate();
             }
-            if (GlobalConfig.StaticGlobalConfig.OutlineChunks)
+            if (GlobalDebugConfig.StaticGlobalConfig.OutlineChunks)
             {
                 OutlineChunks();
             }
@@ -147,8 +137,7 @@ namespace MonoBehaviours
 
         private void Generate(Vector2 aroundPosition)
         {
-            var generateJobs = new List<GenerationTask>();
-            var generateTasks = new List<Task>();
+            var generationTasks = new List<ChunkTask>();
 
             for (var x = 0; x < GeneratedAreaSize; ++x)
             {
@@ -161,39 +150,32 @@ namespace MonoBehaviours
                     var chunk = new Chunk(pos);
                     _chunkGrid.ChunkMap.Add(pos, chunk);
 
-                    var generateJob = new GenerationTask
+                    generationTasks.Add(new GenerationTask(chunk)
                     {
                         ChunkPos = pos,
                         BlockColors = chunk.BlockColors,
                         BlockTypes = chunk.BlockTypes
-                    };
-
-                    var handle = Task.Run(() => generateJob.Execute());
-                    generateJobs.Add(generateJob);
-                    generateTasks.Add(handle);
-                    chunk.GameObject = Instantiate(ChunkPrefab, new Vector3(pos.x, pos.y, 0), Quaternion.identity);
+                    });
+                    
+                    chunk.GameObject = _chunkPool.GetObject();
+                    chunk.Texture = chunk.GameObject.GetComponent<SpriteRenderer>().sprite.texture;
+                    chunk.GameObject.transform.position = new Vector3(pos.x, pos.y, 0);
                     chunk.GameObject.transform.parent = ParentChunkObject.transform;
                     chunk.GameObject.SetActive(true);
                 }
             }
 
-            for (var i = 0; i < generateJobs.Count; ++i)
+            foreach (var task in generationTasks)
             {
-                var handle = generateTasks[i];
-                var chunk = _chunkGrid.ChunkMap[generateJobs[i].ChunkPos];
-                handle.Wait();
-                var texture = new Texture2D(Chunk.Size, Chunk.Size, TextureFormat.RGBA32, false);
-                texture.wrapMode = TextureWrapMode.Clamp;
-                texture.filterMode = FilterMode.Point;
-                texture.LoadRawTextureData(chunk.BlockColors);
-                texture.Apply();
-                chunk.GameObject.GetComponent<SpriteRenderer>().sprite = Sprite.Create(
-                    texture,
-                    new Rect(new Vector2(0, 0), new Vector2(Chunk.Size, Chunk.Size)), new Vector2(0.5f, 0.5f),
-                    Chunk.Size, 
-                    0,
-                    SpriteMeshType.FullRect);
-                chunk.Texture = texture;
+                task.Schedule();
+            }
+
+            foreach (var task in generationTasks)
+            {
+                task.Join();
+                task.ReloadTexture();
+                for (var i = 0; i < blockCountsAtGenerate.Length; ++i)
+                    blockCountsAtGenerate[i].count += task.BlockCounts[i];
             }
         }
 
@@ -205,12 +187,12 @@ namespace MonoBehaviours
             var chunksToRemove = new List<Vector2>();
             foreach (var chunk in _chunkGrid.ChunkMap.Values)
             {
-                if (chunk.Position.x < px - CleanAreaSizeOffset || chunk.Position.x > px + GeneratedAreaSize + CleanAreaSizeOffset
-                || chunk.Position.y < py - CleanAreaSizeOffset || chunk.Position.y > py + GeneratedAreaSize + CleanAreaSizeOffset)
-                {
-                    chunksToRemove.Add(chunk.Position);
-                    chunk.Dispose();
-                }
+                if (!(chunk.Position.x < px - CleanAreaSizeOffset) &&
+                    !(chunk.Position.x > px + GeneratedAreaSize + CleanAreaSizeOffset) &&
+                    !(chunk.Position.y < py - CleanAreaSizeOffset) &&
+                    !(chunk.Position.y > py + GeneratedAreaSize + CleanAreaSizeOffset)) continue;
+                chunksToRemove.Add(chunk.Position);
+                chunk.Dispose();
             }
 
             foreach (var chunkPosition in chunksToRemove)
@@ -221,81 +203,43 @@ namespace MonoBehaviours
 
         private void Simulate()
         {
-            var batchPool = new List<List<Task>>(BatchNumber);
+            var batchPool = new List<List<SimulationTask>>(BatchNumber);
             for (var i = 0; i < BatchNumber; ++i)
             {
-                batchPool.Add(new List<Task>());
+                batchPool.Add(new List<SimulationTask>());
             }
 
             foreach (var chunk in _chunkGrid.ChunkMap.Values)
             {
                 var chunkPos = chunk.Position;
-                if (chunkPos.x % 2 == 0 && chunkPos.y % 2 == 0)
-                    batchPool[0].Add(CreateSimulateTaskForChunkNeighborhood(chunk));
-                else if(chunkPos.x % 2 == 0 && chunkPos.y % 2 == 1)
-                    batchPool[1].Add(CreateSimulateTaskForChunkNeighborhood(chunk));
-                else if(chunkPos.x % 2 == 1 && chunkPos.y % 2 == 0)
-                    batchPool[2].Add(CreateSimulateTaskForChunkNeighborhood(chunk));
-                else
-                    batchPool[3].Add(CreateSimulateTaskForChunkNeighborhood(chunk));
+                // small bitwise trick to find the batch index and avoid an ugly forest
+                var batchIndex = (((int) Math.Abs(chunkPos.x) % 2) << 1)
+                                 | ((int) Math.Abs(chunkPos.y) % 2);
+                batchPool[batchIndex].Add(new SimulationTask(chunk)
+                {
+                    Chunks = new ChunkNeighborhood(_chunkGrid, chunk),
+                    RandomArray = RandomArray
+                });
             }
             
+            for (var i = 0; i < blockCounts.Length; ++i)
+                blockCounts[i].count = 0;
+            var synchronous = GlobalDebugConfig.StaticGlobalConfig.MonothreadSimulate;
             foreach (var batch in batchPool)
             {
                 foreach (var task in batch)
+                    task.Schedule(synchronous);
+                foreach (var task in batch)
                 {
-                    if (GlobalConfig.StaticGlobalConfig.MonothreadSimulate)
-                    {
-                        task.RunSynchronously();
-                    }
-                    else
-                    {
-                        task.Start();
-                    }
-                }
-
-                if (!GlobalConfig.StaticGlobalConfig.MonothreadSimulate)
-                {
-                    foreach (var task in batch)
-                    {
-                        task.Wait();
-                    }
+                    task.Join();
+                    task.ReloadTexture();
+                    for (var i = 0; i < blockCounts.Length; ++i)
+                        blockCounts[i].count += task.BlockCounts[i];
                 }
             }
-
-            foreach (var chunk in _chunkGrid.ChunkMap.Values)
-            {
-                chunk.Texture.LoadRawTextureData(chunk.BlockColors);
-                chunk.Texture.Apply();
-            }
         }
 
-        private Task CreateSimulateTaskForChunkNeighborhood(Chunk chunk)
-        {
-            var chunks = new[]
-            {
-                chunk,
-                GetNeighborChunkBlocksColors(chunk, -1, -1),
-                GetNeighborChunkBlocksColors(chunk, 0, -1),
-                GetNeighborChunkBlocksColors(chunk, 1, -1),
-                GetNeighborChunkBlocksColors(chunk, -1, 0),
-                GetNeighborChunkBlocksColors(chunk, 1, 0),
-                GetNeighborChunkBlocksColors(chunk, -1, 1),
-                GetNeighborChunkBlocksColors(chunk, 0, 1),
-                GetNeighborChunkBlocksColors(chunk, 1, 1)
-            };
-            return new Task(() => new SimulationTask(chunks, RandomArray).Execute());
-        }
 
-        private Chunk GetNeighborChunkBlocksColors(Chunk origin, int xOffset, int yOffset)
-        {
-            var neighborPosition = new Vector2(origin.Position.x + xOffset, origin.Position.y + yOffset);
-            if (_chunkGrid.ChunkMap.ContainsKey(neighborPosition))
-            {
-                return _chunkGrid.ChunkMap[neighborPosition];
-            }
-            return null;
-        }
 
         private void OnDestroy()
         {

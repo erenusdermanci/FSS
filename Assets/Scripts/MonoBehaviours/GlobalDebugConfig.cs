@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class GlobalConfig : MonoBehaviour
+public class GlobalDebugConfig : MonoBehaviour
 {
     [Serializable]
     public struct GlobalConfigStruct

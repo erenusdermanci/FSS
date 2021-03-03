@@ -17,6 +17,7 @@ public static class Constants
 
     public static int LiquidThreshold = (int) Blocks.Oil;
     public static int SolidThreshold = (int)Blocks.Stone;
+    public static readonly int CooldownBlockValue = 1000;
 
     public static readonly NativeArray<Color32> BlockColors = new NativeArray<Color32>(Enum.GetNames(typeof(Blocks)).Length, Allocator.Persistent) {
         [(int)Blocks.Air] = new Color32(0, 0, 0, 0),

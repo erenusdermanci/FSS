@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.Collections;
 using UnityEngine;
 
 namespace DataComponents
@@ -27,11 +26,7 @@ namespace DataComponents
         public void Dispose()
         {
             if (GameObject != null)
-            {
                 GameObject.SetActive(false);
-            }
-            UnityEngine.Object.Destroy(Texture);
-            UnityEngine.Object.Destroy(GameObject);
         }
     }
 }

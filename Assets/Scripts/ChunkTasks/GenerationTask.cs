@@ -1,18 +1,24 @@
 ﻿using DataComponents;
 using MonoBehaviours;
-using Unity.Jobs;
 using UnityEngine;
 
 namespace ChunkTasks
 {
-    public class GenerationTask : IChunkTask
+    public class GenerationTask : ChunkTask
     {
         public Vector2 ChunkPos;
         public byte[] BlockColors;
         public int[] BlockTypes;
 
-        public void Execute()
+        public GenerationTask(Chunk chunk) : base(chunk)
         {
+        }
+        
+        protected override void Execute()
+        {
+            for (var i = 0; i < BlockCounts.Length; ++i)
+                BlockCounts[i] = 0;
+
             for (var i = 0; i < Chunk.Size * Chunk.Size; ++i)
             {
                 var y = i / Chunk.Size;
@@ -27,6 +33,8 @@ namespace ChunkTasks
                 BlockColors[i * 4 + 2] = blockColor.b;
                 BlockColors[i * 4 + 3] = blockColor.a;
                 BlockTypes[i] = block;
+
+                BlockCounts[block] += 1;
             }
         }
 

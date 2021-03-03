@@ -2,35 +2,35 @@
 using DataComponents;
 using System.Threading;
 using Unity.Collections;
+using UnityEngine;
 using static Constants;
 
 namespace ChunkTasks
 {
-    public class SimulationTask : IChunkTask
+    public class SimulationTask : ChunkTask
     {
-        public int[] BlockCounts;
+        internal ChunkNeighborhood Chunks;
 
-        private readonly Chunk[] _chunks;
-        private readonly NativeArray<Unity.Mathematics.Random> _randomArray;
+        internal NativeArray<Unity.Mathematics.Random> RandomArray;
         private Unity.Mathematics.Random _rng;
 
-        public SimulationTask(Chunk[] chunks, NativeArray<Unity.Mathematics.Random> randomArray)
+        public SimulationTask(Chunk chunk) : base(chunk)
         {
-            _chunks = chunks;
-            _randomArray = randomArray;
-            BlockCounts = new int[Enum.GetNames(typeof(Blocks)).Length];
         }
 
-        public void Execute()
+        protected override void Execute()
         {
-            _rng = _randomArray[Thread.CurrentThread.ManagedThreadId];
+            _rng = RandomArray[Thread.CurrentThread.ManagedThreadId];
+
+            for (var i = 0; i < BlockCounts.Length; ++i)
+                BlockCounts[i] = 0;
 
             for (var y = 0; y < Chunk.Size; ++y)
             {
                 for (var x = 0; x < Chunk.Size; ++x)
                 {
-                    var block = GetBlock(x, y, current: true);
-                    if (block == -1 || block == (int) Blocks.Border)
+                    var block = Chunks.GetBlock(x, y, current: true);
+                    if (block == CooldownBlockValue || block == (int)Blocks.Border)
                         continue;
 
                     switch (block)
@@ -51,8 +51,14 @@ namespace ChunkTasks
                         default:
                             throw new System.NotImplementedException();
                     }
+                }
+            }
 
-                    BlockCounts[_chunks[0].BlockTypes[y * Chunk.Size + x]] += 1;
+            for (var y = 0; y < Chunk.Size; ++y)
+            {
+                for (var x = 0; x < Chunk.Size; ++x)
+                {
+                    BlockCounts[Chunks[0].BlockTypes[y * Chunk.Size + x]] += 1;
                 }
             }
         }
@@ -68,10 +74,10 @@ namespace ChunkTasks
         {
             // DOWN IS PRIORITY!
             var targetBlocks = stackalloc int[4];
-            targetBlocks[0] = GetBlock(x, y - 1);
-            targetBlocks[1] = GetBlock(x, y - 2);
-            targetBlocks[2] = GetBlock(x, y - 3);
-            targetBlocks[3] = GetBlock(x, y - 4);
+            targetBlocks[0] = Chunks.GetBlock(x, y - 1);
+            targetBlocks[1] = Chunks.GetBlock(x, y - 2);
+            targetBlocks[2] = Chunks.GetBlock(x, y - 3);
+            targetBlocks[3] = Chunks.GetBlock(x, y - 4);
 
             var firstTargetAvailable = 0;
             var secondTargetAvailable = 0;
@@ -134,8 +140,8 @@ namespace ChunkTasks
             else // none available directly down
             {
                 // WE COULDNT MOVE DIRECTLY DOWN, NOW WE CHECK AROUND X AS WELL
-                targetBlocks[0] = GetBlock(x - 1, y - 1);
-                targetBlocks[1] = GetBlock(x + 1, y - 1);
+                targetBlocks[0] = Chunks.GetBlock(x - 1, y - 1);
+                targetBlocks[1] = Chunks.GetBlock(x + 1, y - 1);
 
                 if (targetBlocks[0] < block) // available slot
                 {
@@ -165,11 +171,11 @@ namespace ChunkTasks
                 else // COULD NOT MOVE LEFT DOWN RIGHT DOWN, we move HORIZONTALLY
                 {
                     // Left
-                    targetBlocks[0] = GetBlock(x - 1, y);
-                    targetBlocks[1] = GetBlock(x - 2, y);
+                    targetBlocks[0] = Chunks.GetBlock(x - 1, y);
+                    targetBlocks[1] = Chunks.GetBlock(x - 2, y);
                     // Right
-                    targetBlocks[2] = GetBlock(x + 1, y);
-                    targetBlocks[3] = GetBlock(x + 2, y);
+                    targetBlocks[2] = Chunks.GetBlock(x + 1, y);
+                    targetBlocks[3] = Chunks.GetBlock(x + 2, y);
 
                     var targetDirection = stackalloc int[4] { -1, -2, 1, 2 };
 
@@ -203,7 +209,7 @@ namespace ChunkTasks
                     if (total == 0)
                         return; // could not do anything
                     if (total == 4)
-                        index = _rng.NextInt(0, 5); // all available
+                        index = _rng.NextInt(0, 4); // all available
                     else
                     {
                         var min = stackalloc int[3] {1, 0, 0};
@@ -267,35 +273,36 @@ namespace ChunkTasks
                         }
                     }
 
-                    PutBlock(x + targetDirection[index], y, block);
-                    PutBlock(x, y, targetBlocks[index]);
+                    Chunks.PutBlock(x + targetDirection[index], y, block, true, true);
+                    Chunks.PutBlock(x, y, targetBlocks[index]);
                     return;
                 }
 
-                PutBlock(x - (index == 0 ? 1 : -1), y - 1, block);
-                PutBlock(x, y, targetBlocks[index]);
+                Chunks.PutBlock(x - (index == 0 ? 1 : -1), y - 1, block, true, true);
+                Chunks.PutBlock(x, y, targetBlocks[index]);
                 return; // Otherwise we will duplicate the block
             }
-            
-            PutBlock(x, y - (index + 1), block);
-            PutBlock(x, y, targetBlocks[index]);
+
+            Chunks.PutBlock(x, y - (index + 1), block, true, true);
+            Chunks.PutBlock(x, y, targetBlocks[index]);
         }
 
         private unsafe void SimulateSand(int block, int x, int y)
         {
             // DOWN IS PRIORITY!
             var targetBlocks = stackalloc int[2];
-            targetBlocks[0] = GetBlock(x, y - 1);
-            targetBlocks[1] = GetBlock(x, y - 2);
+            targetBlocks[0] = Chunks.GetBlock(x, y - 1);
+            targetBlocks[1] = Chunks.GetBlock(x, y - 2);
 
             var firstTargetAvailable = false;
             var secondTargetAvailable = false;
 
-            if (targetBlocks[0] < block) // available slot
+            if (targetBlocks[0] == (int) Blocks.Air) // available slot
             {
                 firstTargetAvailable = true;
             }
-            if (targetBlocks[1] < block && targetBlocks[0] <= block)
+            if (targetBlocks[1] == (int)Blocks.Air &&
+                (targetBlocks[0] == (int)Blocks.Air || targetBlocks[0] == block))
             {
                 secondTargetAvailable = true;
             }
@@ -318,15 +325,15 @@ namespace ChunkTasks
             else // none available directly down
             {
                 // WE COULDNT MOVE DIRECTLY DOWN, NOW WE CHECK AROUND X AS WELL
-                targetBlocks[0] = GetBlock(x - 1, y - 1);
-                targetBlocks[1] = GetBlock(x + 1, y - 1);
+                targetBlocks[0] = Chunks.GetBlock(x - 1, y - 1);
+                targetBlocks[1] = Chunks.GetBlock(x + 1, y - 1);
 
-                if (targetBlocks[0] < block) // available slot
+                if (targetBlocks[0] == (int)Blocks.Air) // available slot
                 {
                     firstTargetAvailable = true;
                 }
 
-                if (targetBlocks[1] < block)
+                if (targetBlocks[1] == (int)Blocks.Air)
                 {
                     secondTargetAvailable = true;
                 }
@@ -351,115 +358,13 @@ namespace ChunkTasks
                     return;
                 }
 
-                PutBlock(x - (index == 0 ? 1 : -1), y - 1, block);
-                PutBlock(x, y, targetBlocks[index]);
+                Chunks.PutBlock(x - (index == 0 ? 1 : -1), y - 1, block,  true,true);
+                Chunks.PutBlock(x, y, targetBlocks[index]);
                 return; // Otherwise we will duplicate the block
             }
 
-            PutBlock(x, y - (index + 1), block);
-            PutBlock(x, y, targetBlocks[index]);
-        }
-
-        #endregion
-
-        #region Common methods
-
-        private int GetBlock(int x, int y, bool current = false)
-        {
-            var chunkIndex = 0;
-            UpdateCoordinates(ref x, ref y, ref chunkIndex);
-
-            if (_chunks[chunkIndex] == null)
-                return (int)Blocks.Border;
-
-            var blockIndex = y * Chunk.Size + x;
-            if (current)
-            {
-                var blockCooldown = _chunks[chunkIndex].BlockUpdateCooldowns[blockIndex];
-                if (blockCooldown > 0)
-                {
-                    _chunks[chunkIndex].BlockUpdateCooldowns[blockIndex]--;
-                    return -1;
-                }
-            }
-
-            return _chunks[chunkIndex].BlockTypes[blockIndex];
-        }
-
-        private void PutBlock(int x, int y, int type)
-        {
-            var chunkIndex = 0;
-            UpdateCoordinates(ref x, ref y, ref chunkIndex);
-
-            if (_chunks[chunkIndex] == null)
-                return;
-
-            var i = y * Chunk.Size + x;
-
-            _chunks[chunkIndex].BlockColors[i * 4] = BlockColors[type].r;
-            _chunks[chunkIndex].BlockColors[i * 4 + 1] = BlockColors[type].g;
-            _chunks[chunkIndex].BlockColors[i * 4 + 2] = BlockColors[type].b;
-            _chunks[chunkIndex].BlockColors[i * 4 + 3] = BlockColors[type].a;
-            _chunks[chunkIndex].BlockTypes[y * Chunk.Size + x] = type;
-            if (chunkIndex != 0)
-                _chunks[chunkIndex].BlockUpdateCooldowns[y * Chunk.Size + x] = 1;
-        }
-
-        private static void UpdateCoordinates(ref int x, ref int y, ref int chunkIndex)
-        {
-            chunkIndex = 0;
-            if (x < 0 && y < 0)
-            {
-                // Down Left
-                chunkIndex = 1;
-                x = Chunk.Size + x;
-                y = Chunk.Size + y;
-            }
-            else if (x >= Chunk.Size && y < 0)
-            {
-                // Down Right
-                chunkIndex = 3;
-                x -= Chunk.Size;
-                y = Chunk.Size + y;
-            }
-            else if (y < 0)
-            {
-                // Down
-                chunkIndex = 2;
-                y = Chunk.Size + y;
-            }
-            else if (x < 0 && y >= Chunk.Size)
-            {
-                // Up Left
-                chunkIndex = 6;
-                y -= Chunk.Size;
-                x = Chunk.Size + x;
-            }
-            else if (x >= Chunk.Size && y >= Chunk.Size)
-            {
-                // Up Right
-                chunkIndex = 8;
-                y -= Chunk.Size;
-                x -= Chunk.Size;
-            }
-            else if (y >= Chunk.Size)
-            {
-                // Up
-                chunkIndex = 7;
-                y -= Chunk.Size;
-            }
-            else if (x < 0)
-            {
-                // Left
-                chunkIndex = 4;
-                x = Chunk.Size + x;
-            }
-            else if (x >= Chunk.Size)
-            {
-                // Right
-                chunkIndex = 5;
-                x -= Chunk.Size;
-            }
+            Chunks.PutBlock(x, y - (index + 1), block, true, true);
+            Chunks.PutBlock(x, y, targetBlocks[index]);
         }
 
         #endregion
