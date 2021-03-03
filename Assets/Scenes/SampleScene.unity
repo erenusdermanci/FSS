@@ -168,7 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   globalConfig:
     MonothreadSimulate: 0
-    RestrictGridSize: 4
+    RestrictGridSize: 0
     EnableSimulation: 1
     PauseSimulation: 0
     StepByStep: 1
