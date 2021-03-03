@@ -206,7 +206,11 @@ namespace MonoBehaviours
 
             foreach (var chunk in _chunkGrid.ChunkMap.Values)
             {
-                if (!chunk.Dirty) continue;
+                if (!GlobalDebugConfig.StaticGlobalConfig.DisableDirtySystem
+                    && !chunk.Dirty)
+                {
+                    continue;
+                }
                 var chunkPos = chunk.Position;
                 // small bitwise trick to find the batch index and avoid an ugly forest
                 var batchIndex = (((int) Math.Abs(chunkPos.x) % 2) << 1)
