@@ -242,13 +242,17 @@ namespace MonoBehaviours
                 blockCounts[i].count = 0;
             foreach (var batch in _simulationBatchPool)
             {
-                foreach (var task in batch.Where(task => enableDirty && task.Chunk.Dirty))
+                foreach (var task in batch)
                 {
+                    if (enableDirty && !task.Chunk.Dirty)
+                        continue;
                     task.Schedule(synchronous);
                 }
 
-                foreach (var task in batch.Where(task => enableDirty && task.Chunk.Dirty))
+                foreach (var task in batch)
                 {
+                    if (enableDirty && !task.Chunk.Dirty)
+                        continue;
                     task.Join();
                     task.ReloadTexture();
                     for (var i = 0; i < blockCounts.Length; ++i)
