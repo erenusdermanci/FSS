@@ -12,6 +12,7 @@ public class GlobalDebugConfig : MonoBehaviour
         public bool PauseSimulation;
         public bool StepByStep;
         public bool OutlineChunks;
+        public bool DisableDirtySystem;
 
         public GlobalConfigStruct(GlobalConfigStruct other)
         {
@@ -21,6 +22,7 @@ public class GlobalDebugConfig : MonoBehaviour
             PauseSimulation = other.PauseSimulation;
             StepByStep = other.StepByStep;
             OutlineChunks = other.OutlineChunks;
+            DisableDirtySystem = other.DisableDirtySystem;
         }
 
         public bool Equals(GlobalConfigStruct other)
@@ -30,7 +32,8 @@ public class GlobalDebugConfig : MonoBehaviour
                 || EnableSimulation != other.EnableSimulation
                 || PauseSimulation != other.PauseSimulation
                 || StepByStep != other.StepByStep
-                || OutlineChunks != other.OutlineChunks)
+                || OutlineChunks != other.OutlineChunks
+                || DisableDirtySystem != other.DisableDirtySystem)
                 return false;
 
             return true;
