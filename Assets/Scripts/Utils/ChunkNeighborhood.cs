@@ -65,6 +65,7 @@ namespace Utils
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             Chunks[chunkIndex].PutBlock(x, y, type);
+            Chunks[chunkIndex].Dirty = true;
         }
 
         public bool MoveBlock(int x, int y, int xOffset, int yOffset, int srcBlock, int destBlock, ref BlockMoveInfo blockMoveInfo)
@@ -92,18 +93,29 @@ namespace Utils
 
             // put the old destination block at the source position (swap)
             Chunks[0].PutBlock(x, y, destBlock);
-
-            if (y == Chunk.Size - 1)
-            {
-                int aboveBlockX = x;
-                int aboveBlockY = y + 1;
-                UpdateOutsideChunk(ref aboveBlockX, ref aboveBlockY, out var aboveChunkIndex);
-                if (Chunks[aboveChunkIndex] != null)
-                    Chunks[aboveChunkIndex].Dirty = true;
-
-            }
             
+            UpdateDirtyInBorderChunks(x, y);
+
             return true;
+        }
+
+        private void UpdateDirtyInBorderChunks(int x, int y)
+        {
+            if (y == Chunk.Size - 1)
+                DoUpdateDirtyInBorderChunks(x, y + 1);
+            if (y == 0)
+                DoUpdateDirtyInBorderChunks(x, y - 1);
+            if (x == Chunk.Size - 1)
+                DoUpdateDirtyInBorderChunks(x + 1, y);
+            if (x == 0)
+                DoUpdateDirtyInBorderChunks(x - 1, y);
+        }
+
+        private void DoUpdateDirtyInBorderChunks(int xOffset, int yOffset)
+        {
+            UpdateOutsideChunk(ref xOffset, ref yOffset, out var aboveChunkIndex);
+            if (Chunks[aboveChunkIndex] != null)
+                Chunks[aboveChunkIndex].Dirty = true;
         }
 
         private static void UpdateOutsideChunk(ref int x, ref int y, out int chunkIndex)
