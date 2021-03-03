@@ -43,20 +43,20 @@ namespace ChunkTasks
                     switch (block)
                     {
                         case (int)Blocks.Oil:
-                            moved = SimulateWater(block, x, y, ref blockMoveInfo);
+                            moved |= SimulateWater(block, x, y, ref blockMoveInfo);
                             break;
                         case (int)Blocks.Water:
-                            moved = SimulateWater(block, x, y, ref blockMoveInfo);
+                            moved |= SimulateWater(block, x, y, ref blockMoveInfo);
                             break;
                         case (int)Blocks.Sand:
-                            // moved = SimulateSand(block, x, y, ref blockMoveInfo);
+                            moved |= SimulateSand(block, x, y, ref blockMoveInfo);
                             break;
                         case (int)Blocks.Air:
                         case (int)Blocks.Stone:
                         case (int)Blocks.Metal:
                             break;
                         default:
-                            throw new System.NotImplementedException();
+                            throw new NotImplementedException();
                     }
 
                     if (blockMoveInfo.Chunk > 0)

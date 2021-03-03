@@ -1,5 +1,6 @@
 using DataComponents;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 using static Constants;
 
 namespace Utils
@@ -71,25 +72,37 @@ namespace Utils
             // compute the new coordinates and chunk index if we go outside of the current chunk
             var ux = x + xOffset;
             var uy = y + yOffset;
-            UpdateOutsideChunk(ref ux, ref uy, out var chunkIndex);
+            UpdateOutsideChunk(ref ux, ref uy, out var newChunkIndex);
 
             // if there is no chunk at the destination, the block cannot move there
-            if (Chunks[chunkIndex] == null)
+            if (Chunks[newChunkIndex] == null)
                 return false;
 
             // put the source block at its destination
-            Chunks[chunkIndex].PutBlock(ux, uy, srcBlock);
-            blockMoveInfo.Chunk = chunkIndex;
+            Chunks[newChunkIndex].PutBlock(ux, uy, srcBlock);
+            blockMoveInfo.Chunk = newChunkIndex;
             blockMoveInfo.X = ux;
             blockMoveInfo.Y = uy;
 
             // if we did not put the block in the same chunk,
             // we need to add a cooldown of 1 update,
             // to prevent the other chunk to update it a second time in the same update round
-            Chunks[chunkIndex].SetCooldown(ux, uy, 1);
+            if (destBlock != (int) Blocks.Air)
+                Chunks[newChunkIndex].SetCooldown(ux, uy, 1);
 
             // put the old destination block at the source position (swap)
-            Chunks[chunkIndex].PutBlock(x, y, destBlock);
+            Chunks[0].PutBlock(x, y, destBlock);
+
+            if (y == Chunk.Size - 1)
+            {
+                int aboveBlockX = x;
+                int aboveBlockY = y + 1;
+                UpdateOutsideChunk(ref aboveBlockX, ref aboveBlockY, out var aboveChunkIndex);
+                if (Chunks[aboveChunkIndex] != null)
+                    Chunks[aboveChunkIndex].Dirty = true;
+
+            }
+            
             return true;
         }
 

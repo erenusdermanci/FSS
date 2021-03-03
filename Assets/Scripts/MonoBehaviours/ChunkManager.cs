@@ -101,7 +101,7 @@ namespace MonoBehaviours
 
         private void OutlineChunks()
         {
-            const float s = 0.5f;
+            const float s = 0.49f;
             foreach (var chunk in _chunkGrid.ChunkMap.Values)
             {
                 var borderColor = chunk.Dirty ? Color.red : Color.white;
@@ -211,7 +211,7 @@ namespace MonoBehaviours
 
             foreach (var chunk in _chunkGrid.ChunkMap.Values)
             {
-                // if (!chunk.Dirty) continue;
+                if (!chunk.Dirty) continue;
                 var chunkPos = chunk.Position;
                 // small bitwise trick to find the batch index and avoid an ugly forest
                 var batchIndex = (((int) Math.Abs(chunkPos.x) % 2) << 1)
