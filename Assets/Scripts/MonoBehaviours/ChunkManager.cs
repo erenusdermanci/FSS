@@ -6,6 +6,7 @@ using DataComponents;
 using Unity.Collections;
 using UnityEngine;
 using Utils;
+using Random = Unity.Mathematics.Random;
 
 namespace MonoBehaviours
 {
@@ -34,7 +35,7 @@ namespace MonoBehaviours
         // DEBUG PROPERTIES
         private bool UserPressedSpace = false;
 
-        private NativeArray<Unity.Mathematics.Random> RandomArray { get; set; }
+        private ThreadLocal<Unity.Mathematics.Random> Random { get; set; }
 
         private void Awake()
         {
@@ -66,14 +67,8 @@ namespace MonoBehaviours
 
         private void InitializeRandom()
         {
-            ThreadPool.GetMaxThreads(out var workerThreads, out _);
-            var randomArray = new Unity.Mathematics.Random[workerThreads];
-            var seed = new System.Random();
-
-            for (var i = 0; i < workerThreads; ++i)
-                randomArray[i] = new Unity.Mathematics.Random((uint)seed.Next());
-
-            RandomArray = new NativeArray<Unity.Mathematics.Random>(randomArray, Allocator.Persistent);
+            Random = new ThreadLocal<Random>(() =>
+                new Random((uint) new System.Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
         }
 
         private void ResetGrid()
@@ -219,7 +214,7 @@ namespace MonoBehaviours
                 batchPool[batchIndex].Add(new SimulationTask(chunk)
                 {
                     Chunks = new ChunkNeighborhood(_chunkGrid, chunk),
-                    RandomArray = RandomArray
+                    Random = Random
                 });
             }
             
@@ -239,9 +234,7 @@ namespace MonoBehaviours
                 }
             }
         }
-
-
-
+    
         private void OnDestroy()
         {
             _chunkGrid.Dispose();
