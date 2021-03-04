@@ -39,7 +39,7 @@ namespace MonoBehaviours
         // DEBUG PROPERTIES
         private bool UserPressedSpace = false;
 
-        private ThreadLocal<Unity.Mathematics.Random> Random { get; set; }
+        private ThreadLocal<Random> Random { get; set; }
         private ThreadLocal<ConfiguredNoise> HeightNoise { get; set; }
         private ThreadLocal<ConfiguredNoise> Noise { get; set; }
 
@@ -196,8 +196,6 @@ namespace MonoBehaviours
             {
                 task.Join();
                 task.ReloadTexture();
-                for (var i = 0; i < blockCountsAtGenerate.Length; ++i)
-                    blockCountsAtGenerate[i].count += task.BlockCounts[i];
             }
             
             for (var i = 0; i < BatchNumber; ++i)
@@ -215,6 +213,14 @@ namespace MonoBehaviours
                     Chunks = new ChunkNeighborhood(_chunkGrid, chunk),
                     Random = Random
                 });
+            }
+
+            for (var i = 0; i < blockCountsAtGenerate.Length; ++i)
+                blockCountsAtGenerate[i].count = 0;
+            foreach (var chunk in _chunkGrid.ChunkMap.Values)
+            {
+                for (var i = 0; i < blockCountsAtGenerate.Length; ++i)
+                    blockCountsAtGenerate[i].count += chunk.BlockCounts[i];
             }
         }
 
@@ -261,9 +267,13 @@ namespace MonoBehaviours
                         continue;
                     task.Join();
                     task.ReloadTexture();
-                    for (var i = 0; i < blockCounts.Length; ++i)
-                        blockCounts[i].count += task.BlockCounts[i];
                 }
+            }
+
+            foreach (var chunk in _chunkGrid.ChunkMap.Values)
+            {
+                for (var i = 0; i < blockCounts.Length; ++i)
+                    blockCounts[i].count += chunk.BlockCounts[i];
             }
         }
     

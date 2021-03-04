@@ -27,8 +27,8 @@ namespace ChunkTasks
             _heightNoise.Configure(ProceduralGenerator.StaticNoiseConfig.perlinConfigHeight);
             _noise = Noise.Value;
 
-            for (var i = 0; i < BlockCounts.Length; ++i)
-                BlockCounts[i] = 0;
+            for (var i = 0; i < Chunk.BlockCounts.Length; ++i)
+                Chunk.BlockCounts[i] = 0;
 
             // First we need to determine the terrain noise, while taking into account
             // the position of the chunk -> we do not want any sky blocks inside the terrain and vice versa
@@ -101,7 +101,7 @@ namespace ChunkTasks
             BlockColors[i * 4 + 3] = blockColor.a;
             BlockTypes[i] = block;
 
-            BlockCounts[block] += 1;
+            Chunk.BlockCounts[block] += 1;
         }
 
         private Constants.Blocks GetBlockFromNoise(float noise, bool sky = false)

@@ -17,6 +17,8 @@ namespace DataComponents
 
         public bool Dirty = false;
 
+        public int[] BlockCounts = new int[Enum.GetNames(typeof(Constants.Blocks)).Length];
+
         public Chunk(Vector2 position)
         {
             Position = position;

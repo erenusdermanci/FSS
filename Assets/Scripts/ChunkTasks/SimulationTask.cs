@@ -22,8 +22,8 @@ namespace ChunkTasks
         {
             _rng = Random.Value;
 
-            for (var i = 0; i < BlockCounts.Length; ++i)
-                BlockCounts[i] = 0;
+            for (var i = 0; i < Chunk.BlockCounts.Length; ++i)
+                Chunk.BlockCounts[i] = 0;
 
             var blockMoveInfo = new ChunkNeighborhood.BlockMoveInfo();
 
@@ -74,7 +74,7 @@ namespace ChunkTasks
             {
                 for (var x = 0; x < Chunk.Size; ++x)
                 {
-                    BlockCounts[Chunks[0].BlockTypes[y * Chunk.Size + x]] += 1;
+                    Chunk.BlockCounts[Chunks[0].BlockTypes[y * Chunk.Size + x]] += 1;
                 }
             }
         }
