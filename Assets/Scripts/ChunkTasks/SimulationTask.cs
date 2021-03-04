@@ -18,7 +18,7 @@ namespace ChunkTasks
         {
         }
 
-        protected override void Execute()
+        protected override unsafe void Execute()
         {
             _rng = Random.Value;
 
@@ -26,11 +26,15 @@ namespace ChunkTasks
                 Chunk.BlockCounts[i] = 0;
 
             var blockMoveInfo = new ChunkNeighborhood.BlockMoveInfo();
+            var xStart = stackalloc int[2] { 0, Chunk.Size - 1 };
+            var xCmp = stackalloc int[2] { Chunk.Size, -1 };
+            var xInc = stackalloc int[2] { +1, -1 };
 
             var moved = false;
             for (var y = 0; y < Chunk.Size; ++y)
             {
-                for (var x = 0; x < Chunk.Size; ++x)
+                var xDir = _rng.NextInt(0, 2);
+                for (var x = xStart[xDir]; x != xCmp[xDir]; x += xInc[xDir])
                 {
                     blockMoveInfo.Chunk = -1;
                     blockMoveInfo.X = -1;
