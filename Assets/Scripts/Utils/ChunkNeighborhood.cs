@@ -1,6 +1,5 @@
 using DataComponents;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 using static Constants;
 
 namespace Utils
@@ -103,14 +102,25 @@ namespace Utils
 
         private void UpdateDirtyInBorderChunks(int x, int y)
         {
-            if (y == Chunk.Size - 1)
-                DoUpdateDirtyInBorderChunks(x, y + 1);
-            if (y == 0)
-                DoUpdateDirtyInBorderChunks(x, y - 1);
-            if (x == Chunk.Size - 1)
-                DoUpdateDirtyInBorderChunks(x + 1, y);
-            if (x == 0)
-                DoUpdateDirtyInBorderChunks(x - 1, y);
+            switch (y)
+            {
+                case Chunk.Size - 1:
+                    DoUpdateDirtyInBorderChunks(x, y + 1);
+                    break;
+                case 0:
+                    DoUpdateDirtyInBorderChunks(x, y - 1);
+                    break;
+            }
+
+            switch (x)
+            {
+                case Chunk.Size - 1:
+                    DoUpdateDirtyInBorderChunks(x + 1, y);
+                    break;
+                case 0:
+                    DoUpdateDirtyInBorderChunks(x - 1, y);
+                    break;
+            }
         }
 
         private void DoUpdateDirtyInBorderChunks(int xOffset, int yOffset)
