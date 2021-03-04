@@ -45,7 +45,7 @@ namespace DataComponents
 
         public void Dispose()
         {
-            if (GameObject != null)
+            if (GameObject != null && GameObject.activeSelf && GameObject.activeInHierarchy)
                 GameObject.SetActive(false);
         }
     }

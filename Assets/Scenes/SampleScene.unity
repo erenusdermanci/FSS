@@ -531,7 +531,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1436826252}
   - component: {fileID: 1436826251}
-  - component: {fileID: 1436826250}
   m_Layer: 0
   m_Name: ChunkManager
   m_TagString: Untagged
@@ -539,23 +538,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1436826250
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1436826249}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76c70b2d47e7c76428a54e72b1ec4779, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  shouldExpand: 1
-  pooledObjects: []
-  objectToPool: {fileID: 4355043635256820449, guid: 9a28c1c30611dec43b333ddfecb4d4eb,
-    type: 3}
-  amountToPool: 100
 --- !u!114 &1436826251
 MonoBehaviour:
   m_ObjectHideFlags: 0

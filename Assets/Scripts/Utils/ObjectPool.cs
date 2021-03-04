@@ -5,15 +5,16 @@ using UnityEngine;
 
 namespace Utils
 {
-    public class ObjectPool : MonoBehaviour
+    public class ObjectPool
     {
         public bool shouldExpand = true;
         public List<GameObject> pooledObjects;
         public GameObject objectToPool;
         public int amountToPool;
 
-        private void Start()
+        public ObjectPool()
         {
+            objectToPool = (GameObject) Resources.Load("ChunkObject1");
             pooledObjects = new List<GameObject>();
             for (var i = 0; i < amountToPool; i++)
             {
@@ -31,7 +32,7 @@ namespace Utils
 
         private GameObject CreateObject()
         {
-            var obj = Instantiate(objectToPool);
+            var obj = Object.Instantiate(objectToPool);
             obj.SetActive(false);
             var texture = new Texture2D(Chunk.Size, Chunk.Size, TextureFormat.RGBA32, false)
             {

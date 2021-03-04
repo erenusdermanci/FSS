@@ -56,7 +56,7 @@ namespace MonoBehaviours
                 blockCountsAtGenerate[i].type = blockNames[i];
                 blockCounts[i].type = blockNames[i];
             }
-            _chunkPool = GetComponent<ObjectPool>();
+            _chunkPool = new ObjectPool();
             _chunkGrid = new ChunkGrid();
             ProceduralGenerator.UpdateEvent += ProceduralGeneratorUpdate;
             GlobalDebugConfig.UpdateEvent += GlobalConfigUpdate;

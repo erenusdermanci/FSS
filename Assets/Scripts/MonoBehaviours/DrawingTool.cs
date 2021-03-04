@@ -19,7 +19,6 @@ public class DrawingTool : MonoBehaviour
     public int BoxSize;
 
     private bool userDrawingLine;
-    private readonly int linePixelMaxLength = Chunk.Size;
     private Vector2? drawStartPos = null;
     private Vector2? drawEndPos = null;
 
