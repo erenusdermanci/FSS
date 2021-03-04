@@ -62,9 +62,9 @@ namespace MonoBehaviours
 
             public NoiseConfig(NoiseConfig other)
             {
-                perlinConfigHeight = other.perlinConfigHeight;
-                perlinConfigTerrain = other.perlinConfigTerrain;
-                perlinConfigSky = other.perlinConfigSky;
+                perlinConfigHeight = new PerlinConfig(other.perlinConfigHeight);
+                perlinConfigTerrain = new PerlinConfig(other.perlinConfigTerrain);
+                perlinConfigSky = new PerlinConfig(other.perlinConfigSky);
 
                 blockThresholdsTerrain = new List<BlockThresholdStruct>();
                 for (var i = 0; i < other.blockThresholdsTerrain.Count; i++)
@@ -95,6 +95,8 @@ namespace MonoBehaviours
                             return false;
                     }
                 }
+                else
+                    return false;
 
                 if (blockThresholdsSky.Count == other.blockThresholdsSky.Count)
                 {
@@ -106,8 +108,10 @@ namespace MonoBehaviours
                             return false;
                     }
                 }
+                else
+                    return false;
 
-                return perlinConfigHeight.Equals(perlinConfigHeight)
+                return perlinConfigHeight.Equals(other.perlinConfigHeight)
                     && perlinConfigTerrain.Equals(other.perlinConfigTerrain)
                     && perlinConfigSky.Equals(other.perlinConfigSky);
             }
