@@ -64,6 +64,8 @@ namespace Utils
         public void PutBlock(int x, int y, int type)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+            if (Chunks[chunkIndex] == null)
+                return;
             Chunks[chunkIndex].PutBlock(x, y, type);
             Chunks[chunkIndex].Dirty = true;
         }
