@@ -93,67 +93,64 @@ namespace ChunkTasks
         private unsafe bool SimulateWater(int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo)
         {
             // DOWN IS PRIORITY!
-            var targetBlocks = stackalloc int[4];
+            var targetBlocks = stackalloc int[8];
             targetBlocks[0] = Chunks.GetBlock(x, y - 1);
             targetBlocks[1] = Chunks.GetBlock(x, y - 2);
             targetBlocks[2] = Chunks.GetBlock(x, y - 3);
             targetBlocks[3] = Chunks.GetBlock(x, y - 4);
 
-            var firstTargetAvailable = 0;
-            var secondTargetAvailable = 0;
-            var thirdTargetAvailable = 0;
-            var fourthTargetAvailable = 0;
+            var targetAvailable = stackalloc int[8];
 
             if (targetBlocks[0] < block)
             {
-                firstTargetAvailable = 1;
+                targetAvailable[0] = 1;
             }
 
             if (targetBlocks[0] <= block)
             {
                 if (targetBlocks[1] < block)
                 {
-                    secondTargetAvailable = 1;
+                    targetAvailable[1] = 1;
                 }
 
                 if (targetBlocks[1] <= block)
                 {
                     if (targetBlocks[2] < block)
                     {
-                        thirdTargetAvailable = 1;
+                        targetAvailable[2] = 1;
                     }
 
                     if (targetBlocks[2] <= block)
                     {
                         if (targetBlocks[3] < block)
                         {
-                            fourthTargetAvailable = 1;
+                            targetAvailable[3] = 1;
                         }
                     }
                 }
             }
 
             // start determining the index to put block @
-            var index = 0;
-            var range = firstTargetAvailable + secondTargetAvailable + thirdTargetAvailable + fourthTargetAvailable;
+            int index;
+            var range = targetAvailable[0] + targetAvailable[1] + targetAvailable[2] + targetAvailable[3];
             if (range > 1)
             {
                 // random
                 index = _rng.NextInt(0, range);
             }
-            else if (firstTargetAvailable == 1)
+            else if (targetAvailable[0] == 1)
             {
                 index = 0;
             }
-            else if (secondTargetAvailable == 1)
+            else if (targetAvailable[1] == 1)
             {
                 index = 1;
             }
-            else if (thirdTargetAvailable == 1)
+            else if (targetAvailable[2] == 1)
             {
                 index = 2;
             }
-            else if (fourthTargetAvailable == 1)
+            else if (targetAvailable[3] == 1)
             {
                 index = 3;
             }
@@ -165,151 +162,133 @@ namespace ChunkTasks
 
                 if (targetBlocks[0] < block) // available slot
                 {
-                    firstTargetAvailable = 1;
+                    targetAvailable[0] = 1;
                 }
 
                 if (targetBlocks[1] < block)
                 {
-                    secondTargetAvailable = 1;
+                    targetAvailable[1] = 1;
                 }
 
-                range = firstTargetAvailable + secondTargetAvailable;
+                range = targetAvailable[0] + targetAvailable[1];
                 // start determining the index to put block
                 if (range > 1)
                 {
                     // random
                     index = _rng.NextInt(0, range);
                 }
-                else if (firstTargetAvailable == 1)
+                else if (targetAvailable[0] == 1)
                 {
                     index = 0;
                 }
-                else if (secondTargetAvailable == 1)
+                else if (targetAvailable[1] == 1)
                 {
                     index = 1;
                 }
                 else // COULD NOT MOVE LEFT DOWN RIGHT DOWN, we move HORIZONTALLY
                 {
-                    // Left
-                    targetBlocks[0] = Chunks.GetBlock(x - 1, y);
-                    targetBlocks[1] = Chunks.GetBlock(x - 2, y);
-                    // Right
-                    targetBlocks[2] = Chunks.GetBlock(x + 1, y);
-                    targetBlocks[3] = Chunks.GetBlock(x + 2, y);
+                    var targetDirection = stackalloc int[8] { -1, -2, -3, -4, 1, 2, 3, 4 };
 
-                    var targetDirection = stackalloc int[4] { -1, -2, 1, 2 };
+                    for (var i = 0; i < 8; ++i)
+                        targetBlocks[i] = Chunks.GetBlock(x + targetDirection[i], y);
 
-                    if (targetBlocks[0] < block)
-                    {
-                        firstTargetAvailable = 1;
-                    }
-
+                    // Check targets to the left
+                    targetAvailable[0] = targetBlocks[0] < block ? 1 : 0;
                     if (targetBlocks[0] <= block)
                     {
-                        if (targetBlocks[1] < block)
+                        targetAvailable[1] = targetBlocks[1] < block ? 1 : 0;
+                        if (targetBlocks[1] <= block)
                         {
-                            secondTargetAvailable = 1;
+                            targetAvailable[2] = targetBlocks[2] < block ? 1 : 0;
+                            if (targetBlocks[2] <= block)
+                            {
+                                targetAvailable[3] = targetBlocks[3] < block ? 1 : 0;
+                            }
+                        }
+                    }
+                    
+                    // Check targets to the right
+                    targetAvailable[4] = targetBlocks[4] < block ? 1 : 0;
+                    if (targetBlocks[4] <= block)
+                    {
+                        targetAvailable[5] = targetBlocks[5] < block ? 1 : 0;
+                        if (targetBlocks[5] <= block)
+                        {
+                            targetAvailable[6] = targetBlocks[6] < block ? 1 : 0;
+                            if (targetBlocks[6] <= block)
+                            {
+                                targetAvailable[7] = targetBlocks[7] < block ? 1 : 0;
+                            }
                         }
                     }
 
-                    if (targetBlocks[2] < block)
-                    {
-                        thirdTargetAvailable = 1;
-                    }
-
-                    if (targetBlocks[2] <= block)
-                    {
-                        if (targetBlocks[3] < block)
-                        {
-                            fourthTargetAvailable = 1;
-                        }
-                    }
-                    var total = firstTargetAvailable + secondTargetAvailable + thirdTargetAvailable +
-                                fourthTargetAvailable;
+                    var total = 0;
+                    for (var i = 0; i < 8; ++i)
+                        total += targetAvailable[i];
                     if (total == 0)
-                        return false; // could not do anything
-                    if (total == 4)
-                        index = _rng.NextInt(0, 4); // all available
+                    {
+                        // could not do anything
+                        return false;
+                    }
+                    if (total == 8)
+                    {
+                        // all blocks are available
+                        index = _rng.NextInt(0, 8);
+                    }
                     else
                     {
-                        var min = stackalloc int[3] {1, 0, 0};
-                        var max = stackalloc int[3] {2, 1, 2};
-                        var idx = (((firstTargetAvailable | secondTargetAvailable) << 1) |
-                                   (thirdTargetAvailable | fourthTargetAvailable)) - 1;
+                        // there is 1 to 7 blocks available
+                        
+                        
+                        var rngSideMinIndex = stackalloc int[3] {1, 0, 0};
+                        var rngSideMaxIndex = stackalloc int[3] {2, 1, 2};
+                        // we collapse the left side and the right side to obtain a 2 bit value ranging into [1,2,3]
+                        // and subtract 1 to index into rngSide
+                        var blockIndex =
+                            (((targetAvailable[0] | targetAvailable[1] | targetAvailable[2] | targetAvailable[3]) << 1)
+                             | targetAvailable[4] | targetAvailable[5] | targetAvailable[6] | targetAvailable[7]) - 1;
 
-                        // 0 -> right
-                        // 1 -> left
-                        // 2 -> both
-                        // 0001 -> 01 (1) -> 1
-                        // 0010 -> 01 -> 1
-                        // 0011 -> 01 -> 1
-                        // 0100 -> 10 (2) -> 0
-                        // 0101 -> 11 (3) -> 2
-                        // 0110 -> 11 -> 2
-                        // 0111 -> 11 -> 2
-                        // 1000 -> 10 -> 0
-                        // 1001 -> 11 -> 2
-                        // 1010 -> 11 -> 2
-                        // 1011 -> 11 -> 2
-                        // 1100 -> 10 -> 0
-                        // 1101 -> 11 -> 2
-                        // 1110 -> 11 -> 2
-                        var rngSide = _rng.NextInt(min[idx], max[idx]);
+                        var indexes = stackalloc int[64]
+                        {
+                            0,0,0,0, // should not happen
+                            0,0,0,0,
+                            1,0,0,0,
+                            0,1,0,0,
+                            2,0,0,0,
+                            0,2,0,0,
+                            1,2,0,0,
+                            0,1,2,0,
+                            3,0,0,0,
+                            0,3,0,0,
+                            1,3,0,0,
+                            0,1,3,0,
+                            2,3,0,0,
+                            0,2,3,0,
+                            1,2,3,0,
+                            0,1,2,3
+                        };
+                        var bitCount = stackalloc int[16] { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
+                        
+                        var rngSide = _rng.NextInt(rngSideMinIndex[blockIndex], rngSideMaxIndex[blockIndex]);
                         if (rngSide == 0)
                         {
-                            // Left
-                            // start determining the index to put block
-                            if (firstTargetAvailable + secondTargetAvailable == 2)
-                            {
-                                // random
-                                index = _rng.NextInt(0, 2);
-                            }
-                            else if (firstTargetAvailable == 1)
-                            {
-                                index = 0;
-                            }
-                            else if (secondTargetAvailable == 1)
-                            {
-                                index = 1;
-                            }
+
+                            var i = targetAvailable[0]
+                                    | (targetAvailable[1] << 1)
+                                    | (targetAvailable[2] << 2)
+                                    | (targetAvailable[3] << 3);
+                            index = indexes[i * 4 + _rng.NextInt(0, bitCount[i])];
                         }
                         else
                         {
-                            // Right
-                            // start determining the index to put block
-                            if (thirdTargetAvailable + fourthTargetAvailable == 2)
-                            {
-                                // random
-                                index = _rng.NextInt(2, 4);
-                            }
-                            else if (thirdTargetAvailable == 1)
-                            {
-                                index = 2;
-                            }
-                            else if (fourthTargetAvailable == 1)
-                            {
-                                index = 3;
-                            }
+                            var i = targetAvailable[4]
+                                    | (targetAvailable[5] << 1)
+                                    | (targetAvailable[6] << 2)
+                                    | (targetAvailable[7] << 3);
+                            index = indexes[i * 4 + _rng.NextInt(0, bitCount[i])] + 4;
                         }
                     }
 
-                    
-                    /*
-                    Chunks.PutBlock(x + targetDirection[index], y, block, true, true);
-                    Chunks.PutBlock(x, y, targetBlocks[index]);
-                    return;
-                }
-
-                Chunks.PutBlock(x - (index == 0 ? 1 : -1), y - 1, block, true, true);
-                Chunks.PutBlock(x, y, targetBlocks[index]);
-                return; // Otherwise we will duplicate the block
-            }
-
-            Chunks.PutBlock(x, y - (index + 1), block, true, true);
-            Chunks.PutBlock(x, y, targetBlocks[index]);
-            */
-                    
-                    
                     return Chunks.MoveBlock(x, y, targetDirection[index], 0, block, targetBlocks[index], ref blockMoveInfo);
                 }
 
