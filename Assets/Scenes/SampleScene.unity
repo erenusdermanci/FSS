@@ -168,7 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   globalConfig:
     MonothreadSimulate: 0
-    RestrictGridSize: 4
+    RestrictGridSize: 0
     EnableSimulation: 1
     PauseSimulation: 0
     StepByStep: 0
@@ -571,13 +571,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   noiseConfig:
-    octaves: 2
-    persistence: 5.5
-    frequency: 0.87
-    amplitude: 2.6
-    frequencyMultiplier: 2
-    xOffset: 10951
-    yOffset: 5080
+    perlinConfigHeight:
+      octaves: 3
+      gain: 2.15
+      frequency: 3.32
+      lacunarity: 3.42
+      xOffset: 6.36
+      yOffset: 12.58
+    perlinConfigTerrain:
+      octaves: 2
+      gain: 1
+      frequency: 2.72
+      lacunarity: 3.68
+      xOffset: 0
+      yOffset: 9.56
+    perlinConfigSky:
+      octaves: 1
+      gain: 1.26
+      frequency: 1.29
+      lacunarity: 11.6
+      xOffset: 4.05
+      yOffset: 2.49
     blockThresholdsTerrain:
     - type: 4
       threshold: 0.1

@@ -35,10 +35,14 @@ namespace MonoBehaviours
         private bool UserPressedSpace = false;
 
         private NativeArray<Unity.Mathematics.Random> RandomArray { get; set; }
+        private ThreadLocal<ConfiguredNoise> HeightNoise { get; set; }
+        private ThreadLocal<ConfiguredNoise> Noise { get; set; }
 
         private void Awake()
         {
             InitializeRandom();
+            HeightNoise = new ThreadLocal<ConfiguredNoise>(() => new ConfiguredNoise());
+            Noise = new ThreadLocal<ConfiguredNoise>(() => new ConfiguredNoise());
             var blockNames = Enum.GetNames(typeof(Constants.Blocks));
             blockCountsAtGenerate = new BlockCount[blockNames.Length];
             blockCounts = new BlockCount[blockNames.Length];
@@ -152,6 +156,8 @@ namespace MonoBehaviours
 
                     generationTasks.Add(new GenerationTask(chunk)
                     {
+                        HeightNoise = HeightNoise,
+                        Noise = Noise,
                         ChunkPos = pos,
                         BlockColors = chunk.BlockColors,
                         BlockTypes = chunk.BlockTypes
