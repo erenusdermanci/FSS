@@ -7,7 +7,6 @@ public class PlayerMovement : MonoBehaviour
     public float PlayerSpeed;
 
     private float playerCurrentSpeed;
-
     private Transform playerTransform;
 
     // Start is called before the first frame update
@@ -47,7 +46,6 @@ public class PlayerMovement : MonoBehaviour
             playerTransform.transform.position.y + verticalMov * playerCurrentSpeed * Time.deltaTime,
             playerTransform.transform.position.z);
         }
-
 
         Camera.main.transform.position = new Vector3(playerTransform.position.x, playerTransform.position.y, -10);
     }

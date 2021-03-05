@@ -177,12 +177,13 @@ public class DrawingTool : MonoBehaviour
             }
         }
     }
-}
 
-[Serializable]
-public enum DrawType
-{
-    Pixel,
-    Box,
-    Line
+    [Serializable]
+    public enum DrawType
+    {
+        Pixel,
+        Box,
+        Line
+    }
+
 }

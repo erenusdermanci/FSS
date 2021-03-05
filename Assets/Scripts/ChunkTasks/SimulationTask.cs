@@ -12,10 +12,12 @@ namespace ChunkTasks
         internal ChunkNeighborhood Chunks;
 
         public ThreadLocal<Unity.Mathematics.Random> Random;
+
         private Unity.Mathematics.Random _rng;
 
         public SimulationTask(Chunk chunk) : base(chunk)
         {
+
         }
 
         protected override unsafe void Execute()

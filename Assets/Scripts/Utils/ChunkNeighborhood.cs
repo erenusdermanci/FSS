@@ -75,9 +75,6 @@ namespace Utils
             blockMoveInfo.X = ux;
             blockMoveInfo.Y = uy;
 
-            // if we did not put the block in the same chunk,
-            // we need to add a cooldown of 1 update,
-            // to prevent the other chunk to update it a second time in the same update round
             Chunks[newChunkIndex].SetUpdatedFlag(ux, uy);
             if (destBlock != (int)Blocks.Air)
                 Chunks[0].SetUpdatedFlag(x, y);

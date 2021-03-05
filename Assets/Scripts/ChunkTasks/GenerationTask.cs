@@ -19,6 +19,7 @@ namespace ChunkTasks
 
         public GenerationTask(Chunk chunk) : base(chunk)
         {
+
         }
 
         protected override void Execute()
@@ -39,9 +40,7 @@ namespace ChunkTasks
             for (var x = 0; x < Chunk.Size; x++)
             {
                 // Determine terrain verticality
-                // TODO: Use simplex or fractal perlin noise: 1-dimensional and linear
                 var vertNoise = _heightNoise.GetNoise(ChunkPos.x + x, ChunkPos.y);
-                // ProceduralGenerator.OctavePerlin(ChunkPos.x + x, ChunkPos.y);
 
                 var vertIdx = (int)(vertNoise * Chunk.Size) - (int)(Chunk.Size * ChunkPos.y);
 

@@ -6,6 +6,25 @@ namespace MonoBehaviours
 {
     public class ProceduralGenerator : MonoBehaviour
     {
+        public NoiseConfig noiseConfig;
+        public static NoiseConfig StaticNoiseConfig;
+
+        public static event EventHandler UpdateEvent;
+
+        private void Awake()
+        {
+            StaticNoiseConfig = new NoiseConfig(noiseConfig);
+        }
+
+        private void Update()
+        {
+            if (StaticNoiseConfig.Equals(noiseConfig))
+                return;
+            StaticNoiseConfig = new NoiseConfig(noiseConfig);
+
+            UpdateEvent?.Invoke(this, null);
+        }
+
         [Serializable]
         public struct BlockThresholdStruct
         {
@@ -115,25 +134,6 @@ namespace MonoBehaviours
                     && perlinConfigTerrain.Equals(other.perlinConfigTerrain)
                     && perlinConfigSky.Equals(other.perlinConfigSky);
             }
-        }
-
-        public NoiseConfig noiseConfig;
-        public static NoiseConfig StaticNoiseConfig;
-
-        public static event EventHandler UpdateEvent;
-
-        private void Awake()
-        {
-            StaticNoiseConfig = new NoiseConfig(noiseConfig);
-        }
-
-        private void Update()
-        {
-            if (StaticNoiseConfig.Equals(noiseConfig))
-                return;
-            StaticNoiseConfig = new NoiseConfig(noiseConfig);
-
-            UpdateEvent?.Invoke(this, null);
         }
     }
 

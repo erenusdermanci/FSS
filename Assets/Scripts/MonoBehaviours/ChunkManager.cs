@@ -276,7 +276,7 @@ namespace MonoBehaviours
                     blockCounts[i].count += chunk.BlockCounts[i];
             }
         }
-    
+
         private void OnDestroy()
         {
             _chunkGrid.Dispose();
