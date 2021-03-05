@@ -1,67 +1,48 @@
 ﻿using System;
 using UnityEngine;
-using Utils;
 
 namespace DataComponents
 {
+    [Serializable]
     public class Chunk : IDisposable
     {
-        private static readonly ObjectPool ChunkPool = new ObjectPool();
-        
         public const int Size = 64;
+
+        [NonSerialized]
         public Texture2D Texture;
+        [NonSerialized]
         public GameObject GameObject;
+        [NonSerialized]
         public Vector2 Position;
-
-        [Serializable]
-        public struct BlockData
-        {
-            public byte[] colors;
-            public int[] types;
-        }
-
-        public BlockData blockData;
         
-        public byte[] BlockUpdatedFlags = new byte[Size * Size];
+        public byte[] blockColors;
+        public int[] blockTypes;
+        
+        [NonSerialized]
+        public byte[] BlockUpdatedFlags;
+
+        [NonSerialized]
         public bool Dirty = false;
+
+        [NonSerialized]
         public int[] BlockCounts = new int[Enum.GetNames(typeof(Constants.Blocks)).Length];
 
-        public Chunk(BlockData data) // loaded from disk
+        public Chunk(Vector2 position)
         {
-            blockData = data;
-
-            Dirty = true;
-        }
-        
-        public Chunk() // generated
-        {
-            blockData.colors = new byte[Size * Size * 4];
-            blockData.types = new int[Size * Size];
-        }
-
-        public void InitializeGameObject(GameObject parent)
-        {
-            GameObject = ChunkPool.GetObject();
-            Texture = GameObject.GetComponent<SpriteRenderer>().sprite.texture;
-            GameObject.transform.position = new Vector3(Position.x, Position.y, 0);
-            GameObject.transform.parent = parent.transform;
-            GameObject.SetActive(true);
-        }
-
-        public void UpdateTexture()
-        {
-            Texture.LoadRawTextureData(blockData.colors);
-            Texture.Apply();
+            this.Position = position;
+            blockColors = new byte[Size * Size * 4];
+            blockTypes = new int[Size * Size];
+            BlockUpdatedFlags = new byte[Size * Size];
         }
         
         public void PutBlock(int x, int y, int type)
         {
             var i = y * Size + x;
-            blockData.colors[i * 4] = Constants.BlockColors[type].r;
-            blockData.colors[i * 4 + 1] = Constants.BlockColors[type].g;
-            blockData.colors[i * 4 + 2] = Constants.BlockColors[type].b;
-            blockData.colors[i * 4 + 3] = Constants.BlockColors[type].a;
-            blockData.types[i] = type;
+            blockColors[i * 4] = Constants.BlockColors[type].r;
+            blockColors[i * 4 + 1] = Constants.BlockColors[type].g;
+            blockColors[i * 4 + 2] = Constants.BlockColors[type].b;
+            blockColors[i * 4 + 3] = Constants.BlockColors[type].a;
+            blockTypes[i] = type;
         }
 
         public void SetUpdatedFlag(int x, int y)
@@ -74,8 +55,6 @@ namespace DataComponents
         {
             if (GameObject != null && GameObject.activeSelf && GameObject.activeInHierarchy)
                 GameObject.SetActive(false);
-            
-            this.Save();
         }
     }
 }

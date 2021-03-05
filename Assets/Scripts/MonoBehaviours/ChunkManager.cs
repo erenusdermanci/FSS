@@ -27,10 +27,10 @@ namespace MonoBehaviours
         public BlockCount[] blockCountsAtGenerate;
         public BlockCount[] blockCounts;
 
+        private ObjectPool _chunkPool;
         public ChunkGrid _chunkGrid;
         private const int BatchNumber = 4;
-        private readonly List<List<SimulationTask>> _simulationBatchPool = new List<List<SimulationTask>>(BatchNumber);
-        private readonly List<ChunkTask> _generationTasks = new List<ChunkTask>();
+        private List<List<SimulationTask>> _simulationBatchPool = new List<List<SimulationTask>>(BatchNumber);
         private Vector2 _playerFlooredPosition;
         private Vector2? _oldPlayerFlooredPosition = null;
 
@@ -54,6 +54,7 @@ namespace MonoBehaviours
                 blockCountsAtGenerate[i].type = blockNames[i];
                 blockCounts[i].type = blockNames[i];
             }
+            _chunkPool = new ObjectPool();
             _chunkGrid = new ChunkGrid();
             ProceduralGenerator.UpdateEvent += ProceduralGeneratorUpdate;
             GlobalDebugConfig.UpdateEvent += GlobalConfigUpdate;
@@ -154,6 +155,8 @@ namespace MonoBehaviours
 
         private void Generate(Vector2 aroundPosition)
         {
+            var generationTasks = new List<ChunkTask>();
+
             for (var x = 0; x < GeneratedAreaSize; ++x)
             {
                 for (var y = 0; y < GeneratedAreaSize; ++y)
@@ -162,36 +165,35 @@ namespace MonoBehaviours
                     if (_chunkGrid.ChunkMap.ContainsKey(pos))
                         continue;
 
-                    var generated = false;
-                    var chunk = ChunkHelpers.Load(pos);
-                    if (chunk == null)
-                    {
-                        chunk = new Chunk { Position = pos };
-                        _generationTasks.Add(new GenerationTask(chunk)
-                        {
-                            HeightNoise = HeightNoise,
-                            Noise = Noise,
-                        });
-                        generated = true;
-                    }
+                    var chunk = new Chunk(pos);
                     _chunkGrid.ChunkMap.Add(pos, chunk);
 
-                    chunk.InitializeGameObject(ParentChunkObject);
+                    generationTasks.Add(new GenerationTask(chunk)
+                    {
+                        HeightNoise = HeightNoise,
+                        Noise = Noise,
+                        ChunkPos = pos,
+                        BlockColors = chunk.blockColors,
+                        BlockTypes = chunk.blockTypes
+                    });
                     
-                    if (!generated)
-                        chunk.UpdateTexture();
+                    chunk.GameObject = _chunkPool.GetObject();
+                    chunk.Texture = chunk.GameObject.GetComponent<SpriteRenderer>().sprite.texture;
+                    chunk.GameObject.transform.position = new Vector3(pos.x, pos.y, 0);
+                    chunk.GameObject.transform.parent = ParentChunkObject.transform;
+                    chunk.GameObject.SetActive(true);
                 }
             }
 
-            foreach (var task in _generationTasks)
+            foreach (var task in generationTasks)
             {
                 task.Schedule();
             }
 
-            foreach (var task in _generationTasks)
+            foreach (var task in generationTasks)
             {
                 task.Join();
-                task.Chunk.UpdateTexture();
+                task.ReloadTexture();
             }
             
             for (var i = 0; i < BatchNumber; ++i)
@@ -262,7 +264,7 @@ namespace MonoBehaviours
                     if (enableDirty && !task.Chunk.Dirty)
                         continue;
                     task.Join();
-                    task.Chunk.UpdateTexture();
+                    task.ReloadTexture();
                 }
             }
 
