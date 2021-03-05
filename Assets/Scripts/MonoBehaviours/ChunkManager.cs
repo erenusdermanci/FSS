@@ -175,8 +175,8 @@ namespace MonoBehaviours
                         HeightNoise = HeightNoise,
                         Noise = Noise,
                         ChunkPos = pos,
-                        BlockColors = chunk.BlockColors,
-                        BlockTypes = chunk.BlockTypes
+                        BlockColors = chunk.blockColors,
+                        BlockTypes = chunk.blockTypes
                     });
                     
                     chunk.GameObject = _chunkPool.GetObject();

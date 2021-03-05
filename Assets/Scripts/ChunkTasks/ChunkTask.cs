@@ -39,7 +39,7 @@ namespace ChunkTasks
 
         public void ReloadTexture()
         {
-            Chunk.Texture.LoadRawTextureData(Chunk.BlockColors);
+            Chunk.Texture.LoadRawTextureData(Chunk.blockColors);
             Chunk.Texture.Apply();
         }
 

@@ -46,7 +46,7 @@ namespace Utils
 
             var blockIndex = y * Chunk.Size + x;
 
-            return Chunks[chunkIndex].BlockTypes[blockIndex];
+            return Chunks[chunkIndex].blockTypes[blockIndex];
         }
 
         public void PutBlock(int x, int y, int type)
