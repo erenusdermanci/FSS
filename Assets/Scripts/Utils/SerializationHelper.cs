@@ -16,25 +16,6 @@ namespace Utils
         /// <param name="fileName"></param>
         public static void SerializeObject<T>(T serializableObject, string fileName)
         {
-            if (serializableObject == null) { return; }
-
-            try
-            {
-                var xmlDocument = new XmlDocument();
-                var serializer = new XmlSerializer(serializableObject.GetType());
-                using (var stream = new MemoryStream())
-                {
-                    serializer.Serialize(stream, serializableObject);
-                    stream.Position = 0;
-                    xmlDocument.Load(stream);
-                    xmlDocument.Save(Application.persistentDataPath + "\\" + fileName);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.Log("Exception while serializing " + fileName);
-                Debug.Log(ex);
-            }
         }
 
 
@@ -44,11 +25,14 @@ namespace Utils
         /// <typeparam name="T"></typeparam>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public static T DeSerializeObject<T>(string fileName)
+        public static object DeSerializeObject<T>(string fileName)
         {
-            if (string.IsNullOrEmpty(fileName)) { return default(T); }
+            if (string.IsNullOrEmpty(fileName)) { return default; }
 
-            var objectOut = default(T);
+            T objectOut;
+
+            if (!File.Exists(Application.persistentDataPath + "\\" + fileName))
+                return null;
 
             try
             {
@@ -71,6 +55,7 @@ namespace Utils
             {
                 Debug.Log("Exception while deserializing " + fileName);
                 Debug.Log(ex);
+                return null;
             }
 
             return objectOut;

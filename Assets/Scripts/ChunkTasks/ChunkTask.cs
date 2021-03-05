@@ -36,12 +36,6 @@ namespace ChunkTasks
             _task.Wait();
         }
 
-        public void ReloadTexture()
-        {
-            Chunk.Texture.LoadRawTextureData(Chunk.blockColors);
-            Chunk.Texture.Apply();
-        }
-
         protected abstract void Execute();
     }
 }
