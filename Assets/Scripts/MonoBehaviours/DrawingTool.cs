@@ -1,8 +1,6 @@
+using System;
 using DataComponents;
 using MonoBehaviours;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Utils;
 using static Constants;

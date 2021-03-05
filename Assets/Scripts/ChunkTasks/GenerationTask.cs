@@ -1,7 +1,7 @@
-﻿using DataComponents;
-using MonoBehaviours;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
+using DataComponents;
+using MonoBehaviours;
 using UnityEngine;
 
 namespace ChunkTasks

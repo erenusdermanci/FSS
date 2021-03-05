@@ -1,9 +1,9 @@
 ﻿using System;
-using DataComponents;
 using System.Threading;
-using Unity.Collections;
+using DataComponents;
 using Utils;
 using static Constants;
+using Random = Unity.Mathematics.Random;
 
 namespace ChunkTasks
 {
@@ -11,9 +11,9 @@ namespace ChunkTasks
     {
         internal ChunkNeighborhood Chunks;
 
-        public ThreadLocal<Unity.Mathematics.Random> Random;
+        public ThreadLocal<Random> Random;
 
-        private Unity.Mathematics.Random _rng;
+        private Random _rng;
 
         public SimulationTask(Chunk chunk) : base(chunk)
         {
