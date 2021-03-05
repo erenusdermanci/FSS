@@ -33,15 +33,16 @@ public class DrawingTool : MonoBehaviour
         {
             var mousePos = GetAdjustedWorldMousePosition();
             var flooredMousePos = new Vector2(Mathf.Floor(mousePos.x), Mathf.Floor(mousePos.y));
-            if (!ChunkManager._chunkGrid.ChunkMap.ContainsKey(flooredMousePos))
+            if (!ChunkManager._chunkGrid.ChunkMap.ContainsKey(flooredMousePos)) // Nothing to draw
                 return;
+
+            var neighborhood = GetNeighborhood(flooredMousePos);
+            var xOffset = (int)((mousePos.x - flooredMousePos.x) * Chunk.Size);
+            var yOffset = (int)((mousePos.y - flooredMousePos.y) * Chunk.Size);
 
             // Draw block grid in chunk
             DrawBlockGrid(flooredMousePos);
             // Draw selected
-            var neigh = GetNeighborhood(flooredMousePos);
-            var xOffset = (int)((mousePos.x - flooredMousePos.x) * Chunk.Size);
-            var yOffset = (int)((mousePos.y - flooredMousePos.y) * Chunk.Size);
             DrawSelectedBlock(flooredMousePos, xOffset, yOffset);
 
             if (Input.GetMouseButtonDown(0))
@@ -61,7 +62,6 @@ public class DrawingTool : MonoBehaviour
                     // Draw the line
                     var flooredPosVec2Start = new Vector2(Mathf.Floor((float)drawStartPos?.x), Mathf.Floor((float)drawStartPos?.y));
                     var flooredPosVec2End = new Vector2(Mathf.Floor((float)drawEndPos?.x), Mathf.Floor((float)drawEndPos?.y));
-                    var neighborhood = GetNeighborhood(flooredPosVec2Start);
                     DrawLine(neighborhood, flooredPosVec2Start, flooredPosVec2End);
 
                     // Clear variables
@@ -77,27 +77,13 @@ public class DrawingTool : MonoBehaviour
                     return;
                 }
 
-                var adjustedWorldPos = GetAdjustedWorldMousePosition();
-                var flooredPosVec2 = new Vector2(Mathf.Floor(adjustedWorldPos.x), Mathf.Floor(adjustedWorldPos.y));
-
-                // Check if chunk exists at this position, return otherwise
-                if (!ChunkManager._chunkGrid.ChunkMap.ContainsKey(flooredPosVec2))
-                    return;
-
-                // Now that we know the user clicked in a valid spot, let's set up the chunk
-                // neighborhood and get the exact pixel where he clicked
-                var neighborhood = GetNeighborhood(flooredPosVec2);
-
-                var xOffsetInChunk = (int)((adjustedWorldPos.x - flooredPosVec2.x) * Chunk.Size);
-                var yOffsetInChunk = (int)((adjustedWorldPos.y - flooredPosVec2.y) * Chunk.Size);
-
                 switch (SelectedBrush)
                 {
                     case DrawType.Pixel:
-                        DrawPixel(neighborhood, xOffsetInChunk, yOffsetInChunk);
+                        DrawPixel(neighborhood, xOffset, yOffset);
                         break;
                     case DrawType.Box:
-                        DrawBox(neighborhood, xOffsetInChunk, yOffsetInChunk);
+                        DrawBox(neighborhood, xOffset, yOffset);
                         break;
                     default:
                         break;
@@ -212,9 +198,21 @@ public class DrawingTool : MonoBehaviour
         var xOffset = (float)x / (float)Chunk.Size;
         var yOffset = (float)y / (float)Chunk.Size;
         var blockSize = (float)1 / (float)Chunk.Size;
+
+        if (SelectedBrush.Equals(DrawType.Box))
+        {
+            xOffset = (float)(x - (int)(BoxSize / 2)) / (float)(Chunk.Size);
+            yOffset = (float)(y - (int)(BoxSize / 2)) / (float)(Chunk.Size);
+            blockSize *= BoxSize;
+        }
+
+        // along x axis bottom
         Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset), new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset), selectColor);
+        // along y axis right side
         Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset), new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
+        // along y left side
         Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset), new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
+        // along x axis top
         Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset + blockSize), new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
     }
 
