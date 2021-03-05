@@ -501,7 +501,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerSpeed: 2
   PlayerCamera: {fileID: 519420031}
-  MinZoom: 1
+  MinZoom: 0.25
   MaxZoom: 3
   ZoomAmount: 0.1
   ZoomSpeed: 2

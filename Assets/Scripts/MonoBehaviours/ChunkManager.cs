@@ -107,7 +107,7 @@ namespace MonoBehaviours
 
         private void OutlineChunks()
         {
-            const float s = 0.49f;
+            const float s = 0.4975f;
             foreach (var chunk in _chunkGrid.ChunkMap.Values)
             {
                 var borderColor = chunk.Dirty ? Color.red : Color.white;

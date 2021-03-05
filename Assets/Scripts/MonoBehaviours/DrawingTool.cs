@@ -31,6 +31,14 @@ public class DrawingTool : MonoBehaviour
     {
         if (Enabled)
         {
+            var mousePos = GetAdjustedWorldMousePosition();
+            var flooredMousePos = new Vector2(Mathf.Floor(mousePos.x), Mathf.Floor(mousePos.y));
+            if (!ChunkManager._chunkGrid.ChunkMap.ContainsKey(flooredMousePos))
+                return;
+
+            // Draw block grid in chunk
+            DrawBlockGrid(flooredMousePos);
+
             if (Input.GetMouseButtonDown(0))
             {
                 if (SelectedBrush.Equals(DrawType.Line) && !userDrawingLine)
@@ -173,6 +181,23 @@ public class DrawingTool : MonoBehaviour
                 x += dx2;
                 y += dy2;
             }
+        }
+    }
+
+    private void DrawBlockGrid(Vector2 chunkPos)
+    {
+        // hardcoded but its debug so its ok
+        var gridColor = new Color32(255, 255, 255, 90);
+        for (var x = 0; x < Chunk.Size; x++)
+        {
+            var xOffset = (float)x / (float)Chunk.Size - 0.5f;
+            Debug.DrawLine(new Vector3(chunkPos.x + xOffset, chunkPos.y - 0.5f), new Vector3(chunkPos.x + xOffset, chunkPos.y + 0.5f), gridColor);
+        }
+
+        for (var y = 0; y < Chunk.Size; y++)
+        {
+            var yOffset = (float)y / (float)Chunk.Size - 0.5f;
+            Debug.DrawLine(new Vector3(chunkPos.x - 0.5f, chunkPos.y + yOffset), new Vector3(chunkPos.x + 0.5f, chunkPos.y + yOffset), gridColor);
         }
     }
 
