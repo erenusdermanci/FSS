@@ -38,6 +38,11 @@ public class DrawingTool : MonoBehaviour
 
             // Draw block grid in chunk
             DrawBlockGrid(flooredMousePos);
+            // Draw selected
+            var neigh = GetNeighborhood(flooredMousePos);
+            var xOffset = (int)((mousePos.x - flooredMousePos.x) * Chunk.Size);
+            var yOffset = (int)((mousePos.y - flooredMousePos.y) * Chunk.Size);
+            DrawSelectedBlock(flooredMousePos, xOffset, yOffset);
 
             if (Input.GetMouseButtonDown(0))
             {
@@ -199,6 +204,18 @@ public class DrawingTool : MonoBehaviour
             var yOffset = (float)y / (float)Chunk.Size - 0.5f;
             Debug.DrawLine(new Vector3(chunkPos.x - 0.5f, chunkPos.y + yOffset), new Vector3(chunkPos.x + 0.5f, chunkPos.y + yOffset), gridColor);
         }
+    }
+
+    private void DrawSelectedBlock(Vector2 chunkPos, int x, int y)
+    {
+        var selectColor = Color.red;
+        var xOffset = (float)x / (float)Chunk.Size;
+        var yOffset = (float)y / (float)Chunk.Size;
+        var blockSize = (float)1 / (float)Chunk.Size;
+        Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset), new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset), selectColor);
+        Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset), new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
+        Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset), new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
+        Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset + blockSize), new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
     }
 
     [Serializable]
