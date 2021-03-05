@@ -49,16 +49,16 @@ namespace Utils
             return Chunks[chunkIndex].blockTypes[blockIndex];
         }
 
-        public void PutBlock(int x, int y, int type)
+        public void PutBlock(int x, int y, int type, Color32 color)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
-            Chunks[chunkIndex].PutBlock(x, y, type);
+            Chunks[chunkIndex].PutBlock(x, y, type, color.r, color.g, color.b, color.a);
             Chunks[chunkIndex].Dirty = true;
         }
 
-        public bool MoveBlock(int x, int y, int xOffset, int yOffset, int srcBlock, int destBlock, ref BlockMoveInfo blockMoveInfo)
+        public unsafe bool MoveBlock(int x, int y, int xOffset, int yOffset, int srcBlock, int destBlock, ref BlockMoveInfo blockMoveInfo)
         {
             // compute the new coordinates and chunk index if we go outside of the current chunk
             var ux = x + xOffset;
@@ -70,7 +70,21 @@ namespace Utils
                 return false;
 
             // put the source block at its destination
-            Chunks[newChunkIndex].PutBlock(ux, uy, srcBlock);
+            // handle color swapping
+            var sourceidx = Chunk.Size * y + x;
+            var destidx = Chunk.Size * uy + ux;
+            var destColorBuffer = stackalloc byte[4] {
+                Chunks[newChunkIndex].blockColors[destidx * 4],
+                Chunks[newChunkIndex].blockColors[destidx * 4 + 1],
+                Chunks[newChunkIndex].blockColors[destidx * 4 + 2],
+                Chunks[newChunkIndex].blockColors[destidx * 4 + 3]
+            };
+
+            Chunks[newChunkIndex].PutBlock(ux, uy, srcBlock,
+                Chunks[0].blockColors[sourceidx * 4],
+                Chunks[0].blockColors[sourceidx * 4 + 1],
+                Chunks[0].blockColors[sourceidx * 4 + 2],
+                Chunks[0].blockColors[sourceidx * 4 + 3]);
             blockMoveInfo.Chunk = newChunkIndex;
             blockMoveInfo.X = ux;
             blockMoveInfo.Y = uy;
@@ -80,7 +94,11 @@ namespace Utils
                 Chunks[0].SetUpdatedFlag(x, y);
 
             // put the old destination block at the source position (swap)
-            Chunks[0].PutBlock(x, y, destBlock);
+            Chunks[0].PutBlock(x, y, destBlock,
+                destColorBuffer[0],
+                destColorBuffer[1],
+                destColorBuffer[2],
+                destColorBuffer[3]);
             
             UpdateDirtyInBorderChunks(x, y);
 

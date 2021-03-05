@@ -35,13 +35,13 @@ namespace DataComponents
             BlockUpdatedFlags = new byte[Size * Size];
         }
         
-        public void PutBlock(int x, int y, int type)
+        public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a)
         {
             var i = y * Size + x;
-            blockColors[i * 4] = Constants.BlockColors[type].r;
-            blockColors[i * 4 + 1] = Constants.BlockColors[type].g;
-            blockColors[i * 4 + 2] = Constants.BlockColors[type].b;
-            blockColors[i * 4 + 3] = Constants.BlockColors[type].a;
+            blockColors[i * 4] = r;
+            blockColors[i * 4 + 1] = g;
+            blockColors[i * 4 + 2] = b;
+            blockColors[i * 4 + 3] = a;
             blockTypes[i] = type;
         }
 

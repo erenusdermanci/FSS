@@ -85,6 +85,12 @@ public class DrawingTool : MonoBehaviour
                     case DrawType.Box:
                         DrawBox(neighborhood, xOffset, yOffset);
                         break;
+                    case DrawType.ColorPixel:
+                        ColorPixel(neighborhood, xOffset, yOffset);
+                        break;
+                    case DrawType.ColorBox:
+                        
+                        break;
                     default:
                         break;
                 }
@@ -107,11 +113,13 @@ public class DrawingTool : MonoBehaviour
 
     private void DrawPixel(ChunkNeighborhood neighborhood, int x, int y)
     {
-        neighborhood.PutBlock(x, y, (int)SelectedDrawBlock);
+        var blockColor = BlockColors[(int)SelectedDrawBlock];
+        neighborhood.PutBlock(x, y, (int)SelectedDrawBlock, blockColor);
     }
 
     private void DrawBox(ChunkNeighborhood neighborhood, int x, int y)
     {
+        var blockColor = BlockColors[(int)SelectedDrawBlock];
         var px = x - BoxSize / 2;
         var py = y - BoxSize / 2;
 
@@ -119,7 +127,7 @@ public class DrawingTool : MonoBehaviour
         {
             for (int j = py; j < py + BoxSize; j++)
             {
-                neighborhood.PutBlock(i, j, (int)SelectedDrawBlock);
+                neighborhood.PutBlock(i, j, (int)SelectedDrawBlock, blockColor);
             }
         }
     }
@@ -138,6 +146,7 @@ public class DrawingTool : MonoBehaviour
 
     private void Bresenham(ChunkNeighborhood neighborhood, int x, int y, int x2, int y2)
     {
+        var blockColor = BlockColors[(int)SelectedDrawBlock];
         var w = x2 - x;
         var h = y2 - y;
         var dx1 = 0;
@@ -159,7 +168,7 @@ public class DrawingTool : MonoBehaviour
         int numerator = longest >> 1;
         for (var i = 0; i <= longest; i++)
         {
-            neighborhood.PutBlock(x, y, (int)SelectedDrawBlock);
+            neighborhood.PutBlock(x, y, (int)SelectedDrawBlock, blockColor);
             numerator += shortest;
             if (!(numerator < longest))
             {
@@ -216,12 +225,24 @@ public class DrawingTool : MonoBehaviour
         Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset + blockSize), new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
     }
 
+    private void ColorPixel(ChunkNeighborhood neighborhood, int x, int y)
+    {
+        var color = new Color32(0, 255, 0, 255);
+
+        var i = y * Chunk.Size + x;
+        neighborhood.Chunks[0].blockColors[i * 4] = color.r;
+        neighborhood.Chunks[0].blockColors[i * 4 + 1] = color.g;
+        neighborhood.Chunks[0].blockColors[i * 4 + 2] = color.b;
+        neighborhood.Chunks[0].blockColors[i * 4 + 3] = color.a;
+    }
+
     [Serializable]
     public enum DrawType
     {
         Pixel,
         Box,
-        Line
+        Line,
+        ColorPixel,
+        ColorBox
     }
-
 }
