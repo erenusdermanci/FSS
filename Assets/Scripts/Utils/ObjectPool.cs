@@ -7,10 +7,10 @@ namespace Utils
 {
     public class ObjectPool
     {
-        public bool shouldExpand = true;
-        public List<GameObject> pooledObjects;
-        public GameObject objectToPool;
-        public int amountToPool;
+        private readonly bool shouldExpand = true;
+        private List<GameObject> pooledObjects;
+        private GameObject objectToPool;
+        private int amountToPool = 100;
 
         public ObjectPool()
         {
