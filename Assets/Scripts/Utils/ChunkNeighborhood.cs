@@ -46,17 +46,6 @@ namespace Utils
 
             var blockIndex = y * Chunk.Size + x;
 
-            var blockCooldown = Chunks[chunkIndex].BlockUpdateCooldowns[blockIndex];
-            if (blockCooldown > 0)
-            {
-                if (current)
-                {
-                    Chunks[chunkIndex].BlockUpdateCooldowns[blockIndex]--;
-                }
-
-                return CooldownBlockValue;
-            }
-
             return Chunks[chunkIndex].BlockTypes[blockIndex];
         }
 
@@ -89,8 +78,9 @@ namespace Utils
             // if we did not put the block in the same chunk,
             // we need to add a cooldown of 1 update,
             // to prevent the other chunk to update it a second time in the same update round
-            if (destBlock != (int) Blocks.Air)
-                Chunks[newChunkIndex].SetCooldown(ux, uy, 1);
+            Chunks[newChunkIndex].SetUpdatedFlag(ux, uy);
+            if (destBlock != (int)Blocks.Air)
+                Chunks[0].SetUpdatedFlag(x, y);
 
             // put the old destination block at the source position (swap)
             Chunks[0].PutBlock(x, y, destBlock);

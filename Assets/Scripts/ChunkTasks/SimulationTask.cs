@@ -39,9 +39,13 @@ namespace ChunkTasks
                     blockMoveInfo.Chunk = -1;
                     blockMoveInfo.X = -1;
                     blockMoveInfo.Y = -1;
-                    
+
+                    if (Chunks[0].BlockUpdatedFlags[y * Chunk.Size + x] == 1)
+                        continue;
+
                     var block = Chunks.GetBlock(x, y, current: true);
-                    if (block == CooldownBlockValue || block == (int)Blocks.Border)
+
+                    if (block == (int)Blocks.Border)
                         continue;
 
                     switch (block)
@@ -78,7 +82,9 @@ namespace ChunkTasks
             {
                 for (var x = 0; x < Chunk.Size; ++x)
                 {
-                    Chunk.BlockCounts[Chunks[0].BlockTypes[y * Chunk.Size + x]] += 1;
+                    var i = y * Chunk.Size + x;
+                    Chunk.BlockCounts[Chunks[0].BlockTypes[i]] += 1;
+                    Chunk.BlockUpdatedFlags[i] = 0;
                 }
             }
         }

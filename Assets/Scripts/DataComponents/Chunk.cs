@@ -13,7 +13,7 @@ namespace DataComponents
         public Vector2 Position;
         public byte[] BlockColors;
         public int[] BlockTypes;
-        public byte[] BlockUpdateCooldowns;
+        public byte[] BlockUpdatedFlags;
 
         public bool Dirty = false;
 
@@ -24,7 +24,7 @@ namespace DataComponents
             Position = position;
             BlockColors = new byte[Size * Size * 4];
             BlockTypes = new int[Size * Size];
-            BlockUpdateCooldowns = new byte[Size * Size];
+            BlockUpdatedFlags = new byte[Size * Size];
         }
         
         public void PutBlock(int x, int y, int type)
@@ -37,9 +37,9 @@ namespace DataComponents
             BlockTypes[i] = type;
         }
 
-        public void SetCooldown(int x, int y, byte value)
+        public void SetUpdatedFlag(int x, int y)
         {
-            BlockUpdateCooldowns[y * Size + x] = value;
+            BlockUpdatedFlags[y * Size + x] = 1;
             Dirty = true;
         }
 

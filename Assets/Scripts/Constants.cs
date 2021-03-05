@@ -19,7 +19,7 @@ public static class Constants
 
     public static int LiquidThreshold = (int) Blocks.Water;
     public static int SolidThreshold = (int)Blocks.Metal;
-    public static readonly int CooldownBlockValue = 1000;
+    public static readonly int AlreadyUpdated = 1000;
 
     // don't forget to a color for each block
     public static readonly Color32[] BlockColors = {

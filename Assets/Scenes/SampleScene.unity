@@ -246,7 +246,7 @@ MonoBehaviour:
     blockThresholdsSky:
     - type: 0
       threshold: 0.5
-    - type: 1
+    - type: 0
       threshold: 1
 --- !u!4 &518032211
 Transform:
