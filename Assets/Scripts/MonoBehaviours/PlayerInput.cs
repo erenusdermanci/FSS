@@ -5,7 +5,10 @@ namespace Assets.Scripts.MonoBehaviours
     public class PlayerInput : MonoBehaviour
     {
         public float PlayerSpeed;
+
         public Camera PlayerCamera;
+        public bool FloatingCamera;
+
         public float MinZoom;
         public float MaxZoom;
         public float ZoomAmount;
@@ -13,6 +16,11 @@ namespace Assets.Scripts.MonoBehaviours
 
         private float playerCurrentSpeed;
         private Transform playerTransform;
+
+        private Vector3 dragStart;
+        private Vector3 dragDiff;
+        private bool dragging;
+
         private float targetZoom;
         private bool zooming;
 
@@ -22,6 +30,10 @@ namespace Assets.Scripts.MonoBehaviours
             playerTransform = GetComponent<Transform>();
             playerCurrentSpeed = PlayerSpeed;
 
+            dragStart = Vector3.zero;
+            dragDiff = Vector3.zero;
+            dragging = false;
+
             zooming = false;
             targetZoom = PlayerCamera.orthographicSize;
         }
@@ -29,41 +41,85 @@ namespace Assets.Scripts.MonoBehaviours
         // Update is called once per frame
         private void Update()
         {
+            if (Input.GetMouseButtonDown(2))
+            {
+                FloatingCamera = !FloatingCamera;
+                dragging = false;
+            }
             HandleMovement();
+        } 
+
+        private void LateUpdate()
+        {
+            HandleFloatingCamera();
             HandleCameraZoom();
         }
 
         private void HandleMovement()
         {
-            if (Input.GetButton("Sprint"))
+            if (!FloatingCamera)
             {
-                playerCurrentSpeed = PlayerSpeed * 2;
-            }
-            else
-            {
-                playerCurrentSpeed = PlayerSpeed;
-            }
+                if (Input.GetButton("Sprint"))
+                {
+                    playerCurrentSpeed = PlayerSpeed * 2;
+                }
+                else
+                {
+                    playerCurrentSpeed = PlayerSpeed;
+                }
 
-            // Input management
-            var horizontalMov = Input.GetAxisRaw("Horizontal");
-            if (horizontalMov != 0)
-            {
-                playerTransform.transform.position = new Vector3(
-                    playerTransform.transform.position.x + horizontalMov * playerCurrentSpeed * Time.deltaTime,
-                    playerTransform.transform.position.y,
+                // Input management
+                var horizontalMov = Input.GetAxisRaw("Horizontal");
+                if (horizontalMov != 0)
+                {
+                    playerTransform.transform.position = new Vector3(
+                        playerTransform.transform.position.x + horizontalMov * playerCurrentSpeed * Time.deltaTime,
+                        playerTransform.transform.position.y,
+                        playerTransform.transform.position.z);
+                }
+
+                var verticalMov = Input.GetAxisRaw("Vertical");
+                if (verticalMov != 0)
+                {
+                    playerTransform.transform.position = new Vector3(
+                    playerTransform.transform.position.x,
+                    playerTransform.transform.position.y + verticalMov * playerCurrentSpeed * Time.deltaTime,
                     playerTransform.transform.position.z);
-            }
+                }
 
-            var verticalMov = Input.GetAxisRaw("Vertical");
-            if (verticalMov != 0)
+                Camera.main.transform.position = new Vector3(playerTransform.position.x, playerTransform.position.y, -10);
+            }
+        }
+
+        private void HandleFloatingCamera()
+        {
+            if (FloatingCamera)
             {
-                playerTransform.transform.position = new Vector3(
-                playerTransform.transform.position.x,
-                playerTransform.transform.position.y + verticalMov * playerCurrentSpeed * Time.deltaTime,
-                playerTransform.transform.position.z);
+                if (Input.GetMouseButtonDown(1))
+                {
+                    if (!dragging)
+                    {
+                        dragging = true;
+                        dragStart = PlayerCamera.ScreenToWorldPoint(Input.mousePosition);
+                    }
+                }
+                else if (Input.GetMouseButtonUp(1))
+                {
+                    if (dragging)
+                    {
+                        dragging = false;
+                        dragStart = Vector3.zero;
+                    }
+                }
+                else if (Input.GetMouseButton(1))
+                {
+                    if (dragging)
+                    {
+                        dragDiff = (PlayerCamera.ScreenToWorldPoint(Input.mousePosition)) - PlayerCamera.transform.position;
+                        PlayerCamera.transform.position = dragStart - dragDiff;
+                    }
+                }
             }
-
-            Camera.main.transform.position = new Vector3(playerTransform.position.x, playerTransform.position.y, -10);
         }
 
         private void HandleCameraZoom()

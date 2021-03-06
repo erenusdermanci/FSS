@@ -318,6 +318,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 553ecd07f81c9e441bb97ce71251b9ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Enabled: 1
   noiseConfig:
     perlinConfigHeight:
       octaves: 3
@@ -609,6 +610,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerSpeed: 2
   PlayerCamera: {fileID: 519420031}
+  FloatingCamera: 0
   MinZoom: 0.25
   MaxZoom: 3
   ZoomAmount: 0.25
@@ -734,13 +736,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   globalConfig:
+    DisablePersistence: 0
     MonothreadSimulate: 0
     RestrictGridSize: 0
     EnableSimulation: 1
     PauseSimulation: 0
     StepByStep: 0
     OutlineChunks: 1
-    DisableDirtySystem: 1
+    DisableDirtySystem: 0
 --- !u!4 &1770982830
 Transform:
   m_ObjectHideFlags: 0
