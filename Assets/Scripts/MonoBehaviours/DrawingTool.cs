@@ -12,6 +12,7 @@ public class DrawingTool : MonoBehaviour
 
     public Blocks SelectedDrawBlock;
     public DrawType SelectedBrush;
+    public Color32 ColorPixelColor;
 
     [Range(0, 64)]
     public int BoxSize;
@@ -87,9 +88,6 @@ public class DrawingTool : MonoBehaviour
                         break;
                     case DrawType.ColorPixel:
                         ColorPixel(neighborhood, xOffset, yOffset);
-                        break;
-                    case DrawType.ColorBox:
-                        
                         break;
                     default:
                         break;
@@ -227,13 +225,11 @@ public class DrawingTool : MonoBehaviour
 
     private void ColorPixel(ChunkNeighborhood neighborhood, int x, int y)
     {
-        var color = new Color32(0, 255, 0, 255);
-
         var i = y * Chunk.Size + x;
-        neighborhood.Chunks[0].blockData.colors[i * 4] = color.r;
-        neighborhood.Chunks[0].blockData.colors[i * 4 + 1] = color.g;
-        neighborhood.Chunks[0].blockData.colors[i * 4 + 2] = color.b;
-        neighborhood.Chunks[0].blockData.colors[i * 4 + 3] = color.a;
+        neighborhood.Chunks[0].blockData.colors[i * 4] = ColorPixelColor.r;
+        neighborhood.Chunks[0].blockData.colors[i * 4 + 1] = ColorPixelColor.g;
+        neighborhood.Chunks[0].blockData.colors[i * 4 + 2] = ColorPixelColor.b;
+        neighborhood.Chunks[0].blockData.colors[i * 4 + 3] = ColorPixelColor.a;
     }
 
     [Serializable]
@@ -242,7 +238,6 @@ public class DrawingTool : MonoBehaviour
         Pixel,
         Box,
         Line,
-        ColorPixel,
-        ColorBox
+        ColorPixel
     }
 }

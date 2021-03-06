@@ -571,4 +571,7 @@ MonoBehaviour:
   ChunkManager: {fileID: 6747393136018986732}
   SelectedDrawBlock: 6
   SelectedBrush: 1
+  ColorPixelColor:
+    serializedVersion: 2
+    rgba: 4278255360
   BoxSize: 5

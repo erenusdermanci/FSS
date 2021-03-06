@@ -503,7 +503,7 @@ MonoBehaviour:
   PlayerCamera: {fileID: 519420031}
   MinZoom: 0.25
   MaxZoom: 3
-  ZoomAmount: 0.1
+  ZoomAmount: 0.25
   ZoomSpeed: 2
 --- !u!1 &1436826249
 GameObject:
@@ -691,5 +691,8 @@ MonoBehaviour:
   Enabled: 1
   ChunkManager: {fileID: 1436826251}
   SelectedDrawBlock: 6
-  SelectedBrush: 1
+  SelectedBrush: 3
+  ColorPixelColor:
+    serializedVersion: 2
+    rgba: 4278255360
   BoxSize: 5
