@@ -6,7 +6,7 @@ namespace DataComponents
 {
     public class ChunkGrid : IDisposable
     {
-        public Dictionary<Vector2, Chunk> ChunkMap;
+        public readonly Dictionary<Vector2, Chunk> ChunkMap;
 
         public ChunkGrid()
         {

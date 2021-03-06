@@ -49,13 +49,14 @@ namespace Utils
             return Chunks[chunkIndex].blockData.types[blockIndex];
         }
 
-        public void PutBlock(int x, int y, int type, Color32 color)
+        public void PutBlock(int x, int y, int type, Color32 color, ref Chunk chunkWritten)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
             Chunks[chunkIndex].PutBlock(x, y, type, color.r, color.g, color.b, color.a);
             Chunks[chunkIndex].Dirty = true;
+            chunkWritten = Chunks[chunkIndex];
         }
 
         public unsafe bool MoveBlock(int x, int y, int xOffset, int yOffset, int srcBlock, int destBlock, ref BlockMoveInfo blockMoveInfo)

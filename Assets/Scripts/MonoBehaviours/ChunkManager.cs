@@ -27,7 +27,7 @@ namespace MonoBehaviours
         public BlockCount[] blockCountsAtGenerate;
         public BlockCount[] blockCounts;
 
-        public ChunkGrid _chunkGrid;
+        public ChunkGrid ChunkGrid;
         private const int BatchNumber = 4;
         private readonly List<List<SimulationTask>> _simulationBatchPool = new List<List<SimulationTask>>(BatchNumber);
         private readonly List<ChunkTask> _generationTasks = new List<ChunkTask>();
@@ -54,7 +54,7 @@ namespace MonoBehaviours
                 blockCountsAtGenerate[i].type = blockNames[i];
                 blockCounts[i].type = blockNames[i];
             }
-            _chunkGrid = new ChunkGrid();
+            ChunkGrid = new ChunkGrid();
             ProceduralGenerator.UpdateEvent += ProceduralGeneratorUpdate;
             GlobalDebugConfig.UpdateEvent += GlobalConfigUpdate;
             var restrict = GlobalDebugConfig.StaticGlobalConfig.RestrictGridSize;
@@ -84,8 +84,8 @@ namespace MonoBehaviours
         private void ResetGrid()
         {
             var flooredAroundPosition = new Vector2(Mathf.Floor(PlayerTransform.position.x), Mathf.Floor(PlayerTransform.position.y));
-            _chunkGrid.Dispose();
-            _chunkGrid = new ChunkGrid();
+            ChunkGrid.Dispose();
+            ChunkGrid = new ChunkGrid();
             Generate(flooredAroundPosition);
         }
 
@@ -93,7 +93,7 @@ namespace MonoBehaviours
         {
             ResetGrid();
         }
-
+    
         private void GlobalConfigUpdate(object sender, EventArgs e)
         {
             var restrict = GlobalDebugConfig.StaticGlobalConfig.RestrictGridSize;
@@ -107,7 +107,7 @@ namespace MonoBehaviours
         private void OutlineChunks()
         {
             const float s = 0.4975f;
-            foreach (var chunk in _chunkGrid.ChunkMap.Values)
+            foreach (var chunk in ChunkGrid.ChunkMap.Values)
             {
                 var borderColor = chunk.Dirty ? Color.red : Color.white;
                 var x = chunk.Position.x;
@@ -125,7 +125,9 @@ namespace MonoBehaviours
             {
                 Generate(_playerFlooredPosition);
                 Clean(_playerFlooredPosition);
+                UpdateSimulationBatches();
             }
+
             if (GlobalDebugConfig.StaticGlobalConfig.EnableSimulation)
             {
                 if (GlobalDebugConfig.StaticGlobalConfig.StepByStep && UserPressedSpace)
@@ -161,7 +163,7 @@ namespace MonoBehaviours
                 for (var y = 0; y < GeneratedAreaSize; ++y)
                 {
                     var pos = new Vector2(aroundPosition.x + (x - GeneratedAreaSize / 2), aroundPosition.y + (y - GeneratedAreaSize / 2));
-                    if (_chunkGrid.ChunkMap.ContainsKey(pos))
+                    if (ChunkGrid.ChunkMap.ContainsKey(pos))
                         continue;
 
                     var generated = false;
@@ -180,7 +182,7 @@ namespace MonoBehaviours
                         });
                         generated = true;
                     }
-                    _chunkGrid.ChunkMap.Add(pos, chunk);
+                    ChunkGrid.ChunkMap.Add(pos, chunk);
 
                     chunk.InitializeGameObject(ParentChunkObject);
                     
@@ -199,27 +201,10 @@ namespace MonoBehaviours
                 task.Join();
                 task.Chunk.UpdateTexture();
             }
-            
-            for (var i = 0; i < BatchNumber; ++i)
-            {
-                _simulationBatchPool[i].Clear();
-            }
-            foreach (var chunk in _chunkGrid.ChunkMap.Values)
-            {
-                var chunkPos = chunk.Position;
-                // small bitwise trick to find the batch index and avoid an ugly forest
-                var batchIndex = (((int) Math.Abs(chunkPos.x) % 2) << 1)
-                                 | ((int) Math.Abs(chunkPos.y) % 2);
-                _simulationBatchPool[batchIndex].Add(new SimulationTask(chunk)
-                {
-                    Chunks = new ChunkNeighborhood(_chunkGrid, chunk),
-                    Random = Random
-                });
-            }
 
             for (var i = 0; i < blockCountsAtGenerate.Length; ++i)
                 blockCountsAtGenerate[i].count = 0;
-            foreach (var chunk in _chunkGrid.ChunkMap.Values)
+            foreach (var chunk in ChunkGrid.ChunkMap.Values)
             {
                 for (var i = 0; i < blockCountsAtGenerate.Length; ++i)
                     blockCountsAtGenerate[i].count += chunk.BlockCounts[i];
@@ -232,7 +217,7 @@ namespace MonoBehaviours
             var py = aroundPosition.y - GeneratedAreaSize / 2;
 
             var chunksToRemove = new List<Vector2>();
-            foreach (var chunk in _chunkGrid.ChunkMap.Values)
+            foreach (var chunk in ChunkGrid.ChunkMap.Values)
             {
                 if (!(chunk.Position.x < px - CleanAreaSizeOffset) &&
                     !(chunk.Position.x > px + GeneratedAreaSize + CleanAreaSizeOffset) &&
@@ -244,7 +229,27 @@ namespace MonoBehaviours
 
             foreach (var chunkPosition in chunksToRemove)
             {
-                _chunkGrid.ChunkMap.Remove(chunkPosition);
+                ChunkGrid.ChunkMap.Remove(chunkPosition);
+            }
+        }
+
+        private void UpdateSimulationBatches()
+        {
+            for (var i = 0; i < BatchNumber; ++i)
+            {
+                _simulationBatchPool[i].Clear();
+            }
+            foreach (var chunk in ChunkGrid.ChunkMap.Values)
+            {
+                var chunkPos = chunk.Position;
+                // small bitwise trick to find the batch index and avoid an ugly forest
+                var batchIndex = (((int) Math.Abs(chunkPos.x) % 2) << 1)
+                                 | ((int) Math.Abs(chunkPos.y) % 2);
+                _simulationBatchPool[batchIndex].Add(new SimulationTask(chunk)
+                {
+                    Chunks = new ChunkNeighborhood(ChunkGrid, chunk),
+                    Random = Random
+                });
             }
         }
 
@@ -272,7 +277,7 @@ namespace MonoBehaviours
                 }
             }
 
-            foreach (var chunk in _chunkGrid.ChunkMap.Values)
+            foreach (var chunk in ChunkGrid.ChunkMap.Values)
             {
                 for (var i = 0; i < blockCounts.Length; ++i)
                     blockCounts[i].count += chunk.BlockCounts[i];
@@ -281,7 +286,7 @@ namespace MonoBehaviours
 
         private void OnDestroy()
         {
-            _chunkGrid.Dispose();
+            ChunkGrid.Dispose();
         }
     }
 }

@@ -23,7 +23,7 @@ namespace DataComponents
         public BlockData blockData;
         
         public byte[] BlockUpdatedFlags = new byte[Size * Size];
-        public bool Dirty = false;
+        public bool Dirty;
         public int[] BlockCounts = new int[Enum.GetNames(typeof(Constants.Blocks)).Length];
 
         public Chunk(BlockData data) // loaded from disk
