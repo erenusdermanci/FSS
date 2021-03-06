@@ -61,13 +61,16 @@ public class DrawingTool : MonoBehaviour
         var xOffset = (int)((mousePos.x - flooredMousePos.x) * Chunk.Size);
         var yOffset = (int)((mousePos.y - flooredMousePos.y) * Chunk.Size);
 
-        // Draw block grid in chunk
-        DrawBlockGrid(flooredMousePos);
-        // Draw selected
-        DrawSelectedBlock(flooredMousePos, xOffset, yOffset);
+        if (GlobalDebugConfig.StaticGlobalConfig.OutlineChunks)
+        {
+            // Draw block grid in chunk
+            DrawBlockGrid(flooredMousePos);
+            // Draw selected
+            DrawSelectedBlock(flooredMousePos, xOffset, yOffset);
 
-        UICoordText.text = $@"x: {xOffset}, y: {yOffset}
+            UICoordText.text = $@"x: {xOffset}, y: {yOffset}
                                  chunk x:{flooredMousePos.x}, chunk y: {flooredMousePos.y}";
+        }
 
         switch (SelectedBrush)
         {
