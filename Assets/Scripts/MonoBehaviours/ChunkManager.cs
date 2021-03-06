@@ -81,17 +81,18 @@ namespace MonoBehaviours
                 new System.Random(new System.Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
         }
 
-        private void ResetGrid()
+        private void ResetGrid(bool loadFromDisk)
         {
             var flooredAroundPosition = new Vector2(Mathf.Floor(PlayerTransform.position.x), Mathf.Floor(PlayerTransform.position.y));
             ChunkGrid.Dispose();
             ChunkGrid = new ChunkGrid();
-            Generate(flooredAroundPosition);
+            Generate(flooredAroundPosition, loadFromDisk);
+            UpdateSimulationBatches();
         }
 
         private void ProceduralGeneratorUpdate(object sender, EventArgs e)
         {
-            ResetGrid();
+            ResetGrid(false);
         }
     
         private void GlobalConfigUpdate(object sender, EventArgs e)
@@ -100,7 +101,7 @@ namespace MonoBehaviours
             if (restrict > 0 && restrict != GeneratedAreaSize || !GlobalDebugConfig.StaticGlobalConfig.EnableSimulation)
             {
                 GeneratedAreaSize = restrict;
-                ResetGrid();
+                ResetGrid(true);
             }
         }
 
@@ -123,7 +124,7 @@ namespace MonoBehaviours
         {
             if (ShouldGenerate())
             {
-                Generate(_playerFlooredPosition);
+                Generate(_playerFlooredPosition, true);
                 Clean(_playerFlooredPosition);
                 UpdateSimulationBatches();
             }
@@ -154,7 +155,7 @@ namespace MonoBehaviours
             return true;
         }
 
-        private void Generate(Vector2 aroundPosition)
+        private void Generate(Vector2 aroundPosition, bool loadFromDisk)
         {
             _generationTasks.Clear();
 
@@ -168,7 +169,8 @@ namespace MonoBehaviours
 
                     var generated = false;
                     Chunk chunk = null;
-                    if (!GlobalDebugConfig.StaticGlobalConfig.DisablePersistence)
+                    if (!GlobalDebugConfig.StaticGlobalConfig.DisablePersistence
+                        && loadFromDisk)
                     {
                         chunk = ChunkHelpers.Load(pos);
                     }

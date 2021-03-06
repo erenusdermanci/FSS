@@ -744,6 +744,7 @@ MonoBehaviour:
     StepByStep: 0
     OutlineChunks: 1
     DisableDirtySystem: 0
+    SaveAsTestScene: 0
 --- !u!4 &1770982830
 Transform:
   m_ObjectHideFlags: 0
@@ -803,8 +804,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Enabled: 1
   ChunkManager: {fileID: 1436826251}
-  SelectedDrawBlock: 6
-  SelectedBrush: 3
+  SelectedDrawBlock: 3
+  SelectedBrush: 1
   OverrideDefaultColors: 0
   PixelColorOverride:
     serializedVersion: 2

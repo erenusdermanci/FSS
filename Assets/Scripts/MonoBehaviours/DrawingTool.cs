@@ -190,10 +190,10 @@ public class DrawingTool : MonoBehaviour
         var xOffsetInChunkEnd = (int)(((float)drawEndPos?.x - flooredPosVec2End.x) * Chunk.Size);
         var yOffsetInChunkEnd = (int)(((float)drawEndPos?.y - flooredPosVec2End.y) * Chunk.Size);
 
-        // Implementation of Bresenham's line algorithm
         Bresenham(neighborhood, xOffsetInChunkStart, yOffsetInChunkStart, xOffsetInChunkEnd, yOffsetInChunkEnd);
     }
 
+    // Implementation of Bresenham's line algorithm
     private void Bresenham(ChunkNeighborhood neighborhood, int x, int y, int x2, int y2)
     {
         var w = x2 - x;
