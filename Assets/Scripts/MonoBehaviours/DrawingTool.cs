@@ -242,13 +242,13 @@ public class DrawingTool : MonoBehaviour
     {
         // hardcoded but its debug so its ok
         var gridColor = new Color32(255, 255, 255, 90);
-        for (var x = 0; x < Chunk.Size; x++)
+        for (var x = 0; x < Chunk.Size + 1; x++)
         {
             var xOffset = x / (float)Chunk.Size - 0.5f;
             Debug.DrawLine(new Vector3(chunkPos.x + xOffset, chunkPos.y - 0.5f), new Vector3(chunkPos.x + xOffset, chunkPos.y + 0.5f), gridColor);
         }
 
-        for (var y = 0; y < Chunk.Size; y++)
+        for (var y = 0; y < Chunk.Size + 1; y++)
         {
             var yOffset = y / (float)Chunk.Size - 0.5f;
             Debug.DrawLine(new Vector3(chunkPos.x - 0.5f, chunkPos.y + yOffset), new Vector3(chunkPos.x + 0.5f, chunkPos.y + yOffset), gridColor);
