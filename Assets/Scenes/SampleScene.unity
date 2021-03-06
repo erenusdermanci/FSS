@@ -612,7 +612,7 @@ MonoBehaviour:
   PlayerCamera: {fileID: 519420031}
   FloatingCamera: 0
   MinZoom: 0.25
-  MaxZoom: 3
+  MaxZoom: 20
   ZoomAmount: 0.25
   ZoomSpeed: 2
 --- !u!1 &1436826249

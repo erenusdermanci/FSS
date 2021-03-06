@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Threading;
 using DataComponents;
 using Utils;
@@ -11,13 +13,31 @@ namespace ChunkTasks
     {
         internal ChunkNeighborhood Chunks;
 
-        public ThreadLocal<Random> Random;
+        public ThreadLocal<System.Random> Random;
 
-        private Random _rng;
+        private System.Random _rng;
+
+        private int[] _indexingOrder;
 
         public SimulationTask(Chunk chunk) : base(chunk)
         {
+            var size = Chunk.Size * Chunk.Size;
+            _indexingOrder = new int[size];
+            
+            for (var i = 0; i < size; ++i)
+            {
+                _indexingOrder[i] = i;
+            }
 
+            var rng = new System.Random();
+
+            while (size > 1)
+            {
+                var i = rng.Next(size--);
+                var tmp = _indexingOrder[size];
+                _indexingOrder[size] = _indexingOrder[i];
+                _indexingOrder[i] = tmp;
+            }
         }
 
         protected override unsafe void Execute()
@@ -28,53 +48,58 @@ namespace ChunkTasks
                 Chunk.BlockCounts[i] = 0;
 
             var blockMoveInfo = new ChunkNeighborhood.BlockMoveInfo();
-            var xStart = stackalloc int[2] { 0, Chunk.Size - 1 };
-            var xCmp = stackalloc int[2] { Chunk.Size, -1 };
-            var xInc = stackalloc int[2] { +1, -1 };
+            // var start = stackalloc int[2] { 0, Chunk.Size - 1 };
+            // var cmp = stackalloc int[2] { Chunk.Size, -1 };
+            // var inc = stackalloc int[2] { +1, -1 };
 
             var moved = false;
-            for (var y = 0; y < Chunk.Size; ++y)
+            // var yDir = _rng.Next(0, 2);
+            // for (var y = start[yDir]; y != cmp[yDir]; y += inc[yDir])
+            // {
+            //     var xDir = _rng.Next(0, 2);
+            //     for (var x = start[xDir]; x != cmp[xDir]; x += inc[xDir])
+            //     {
+            const int totalSize = Chunk.Size * Chunk.Size;
+            for (var i = 0; i < totalSize; ++i)
             {
-                var xDir = _rng.NextInt(0, 2);
-                for (var x = xStart[xDir]; x != xCmp[xDir]; x += xInc[xDir])
+                var x = _indexingOrder[i] / Chunk.Size;
+                var y = _indexingOrder[i] % Chunk.Size;
+                blockMoveInfo.Chunk = -1;
+                blockMoveInfo.X = -1;
+                blockMoveInfo.Y = -1;
+
+                if (Chunks[0].BlockUpdatedFlags[y * Chunk.Size + x] == 1)
+                    continue;
+
+                var block = Chunks.GetBlock(x, y, current: true);
+
+                if (block == (int)Blocks.Border)
+                    continue;
+
+                switch (block)
                 {
-                    blockMoveInfo.Chunk = -1;
-                    blockMoveInfo.X = -1;
-                    blockMoveInfo.Y = -1;
+                    case (int)Blocks.Oil:
+                        moved |= SimulateWater(block, x, y, ref blockMoveInfo);
+                        break;
+                    case (int)Blocks.Water:
+                        moved |= SimulateWater(block, x, y, ref blockMoveInfo);
+                        break;
+                    case (int)Blocks.Sand:
+                        moved |= SimulateSand(block, x, y, ref blockMoveInfo);
+                        break;
+                    case (int)Blocks.Air:
+                    case (int)Blocks.Stone:
+                    case (int)Blocks.Metal:
+                    case (int)Blocks.Dirt:
+                    case (int)Blocks.Cloud:
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
 
-                    if (Chunks[0].BlockUpdatedFlags[y * Chunk.Size + x] == 1)
-                        continue;
-
-                    var block = Chunks.GetBlock(x, y, current: true);
-
-                    if (block == (int)Blocks.Border)
-                        continue;
-
-                    switch (block)
-                    {
-                        case (int)Blocks.Oil:
-                            moved |= SimulateWater(block, x, y, ref blockMoveInfo);
-                            break;
-                        case (int)Blocks.Water:
-                            moved |= SimulateWater(block, x, y, ref blockMoveInfo);
-                            break;
-                        case (int)Blocks.Sand:
-                            moved |= SimulateSand(block, x, y, ref blockMoveInfo);
-                            break;
-                        case (int)Blocks.Air:
-                        case (int)Blocks.Stone:
-                        case (int)Blocks.Metal:
-                        case (int)Blocks.Dirt:
-                        case (int)Blocks.Cloud:
-                            break;
-                        default:
-                            throw new NotImplementedException();
-                    }
-
-                    if (blockMoveInfo.Chunk > 0)
-                    {
-                        Chunks[blockMoveInfo.Chunk].Dirty = true;
-                    }
+                if (blockMoveInfo.Chunk > 0)
+                {
+                    Chunks[blockMoveInfo.Chunk].Dirty = true;
                 }
             }
 
@@ -144,7 +169,7 @@ namespace ChunkTasks
             if (range > 1)
             {
                 // random
-                index = _rng.NextInt(0, range);
+                index = _rng.Next(0, range);
             }
             else if (targetAvailable[0] == 1)
             {
@@ -183,7 +208,7 @@ namespace ChunkTasks
                 if (range > 1)
                 {
                     // random
-                    index = _rng.NextInt(0, range);
+                    index = _rng.Next(0, range);
                 }
                 else if (targetAvailable[0] == 1)
                 {
@@ -241,7 +266,7 @@ namespace ChunkTasks
                     if (total == 8)
                     {
                         // all blocks are available
-                        index = _rng.NextInt(0, 8);
+                        index = _rng.Next(0, 8);
                     }
                     else
                     {
@@ -277,7 +302,7 @@ namespace ChunkTasks
                         };
                         var bitCount = stackalloc int[16] { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
                         
-                        var rngSide = _rng.NextInt(rngSideMinIndex[blockIndex], rngSideMaxIndex[blockIndex]);
+                        var rngSide = _rng.Next(rngSideMinIndex[blockIndex], rngSideMaxIndex[blockIndex]);
                         if (rngSide == 0)
                         {
 
@@ -285,7 +310,7 @@ namespace ChunkTasks
                                     | (targetAvailable[1] << 1)
                                     | (targetAvailable[2] << 2)
                                     | (targetAvailable[3] << 3);
-                            index = indexes[i * 4 + _rng.NextInt(0, bitCount[i])];
+                            index = indexes[i * 4 + _rng.Next(0, bitCount[i])];
                         }
                         else
                         {
@@ -293,7 +318,7 @@ namespace ChunkTasks
                                     | (targetAvailable[5] << 1)
                                     | (targetAvailable[6] << 2)
                                     | (targetAvailable[7] << 3);
-                            index = indexes[i * 4 + _rng.NextInt(0, bitCount[i])] + 4;
+                            index = indexes[i * 4 + _rng.Next(0, bitCount[i])] + 4;
                         }
                     }
 
@@ -331,7 +356,7 @@ namespace ChunkTasks
             if (firstTargetAvailable && secondTargetAvailable)
             {
                 // random
-                index = _rng.NextInt(0, 2);
+                index = _rng.Next(0, 2);
             }
             else if (firstTargetAvailable)
             {
@@ -361,7 +386,7 @@ namespace ChunkTasks
                 if (firstTargetAvailable && secondTargetAvailable)
                 {
                     // random
-                    index = _rng.NextInt(0, 2);
+                    index = _rng.Next(0, 2);
                 }
                 else if (firstTargetAvailable)
                 {

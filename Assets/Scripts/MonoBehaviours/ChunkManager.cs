@@ -37,7 +37,7 @@ namespace MonoBehaviours
         // DEBUG PROPERTIES
         private bool UserPressedSpace = false;
 
-        private ThreadLocal<Random> Random { get; set; }
+        private ThreadLocal<System.Random> Random { get; set; }
         private ThreadLocal<ConfiguredNoise> HeightNoise { get; set; }
         private ThreadLocal<ConfiguredNoise> Noise { get; set; }
 
@@ -77,8 +77,8 @@ namespace MonoBehaviours
 
         private void InitializeRandom()
         {
-            Random = new ThreadLocal<Random>(() =>
-                new Random((uint) new System.Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
+            Random = new ThreadLocal<System.Random>(() =>
+                new System.Random(new System.Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
         }
 
         private void ResetGrid()
