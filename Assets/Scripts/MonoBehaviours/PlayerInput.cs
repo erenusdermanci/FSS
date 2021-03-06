@@ -23,6 +23,7 @@ namespace Assets.Scripts.MonoBehaviours
             playerCurrentSpeed = PlayerSpeed;
 
             zooming = false;
+            targetZoom = PlayerCamera.orthographicSize;
         }
 
         // Update is called once per frame
@@ -83,13 +84,9 @@ namespace Assets.Scripts.MonoBehaviours
             // Handle zoom execution
             if (zooming)
             {
-                if (!Helpers.EqualsEpsilon(PlayerCamera.orthographicSize, targetZoom))
+                if (!Helpers.EqualsEpsilon(PlayerCamera.orthographicSize, targetZoom, 0.005f))
                 {
                     PlayerCamera.orthographicSize = Mathf.Lerp(PlayerCamera.orthographicSize, targetZoom, Time.deltaTime * ZoomSpeed);
-                    if (Helpers.EqualsEpsilon(PlayerCamera.orthographicSize, targetZoom))
-                    {
-                        PlayerCamera.orthographicSize = targetZoom;
-                    }
                 }
                 else
                 {
