@@ -38,7 +38,7 @@ public static class BlockConstants
         /* Cloud  */ 0.05f,
         /* Oil    */ 0.1f,
         /* Water  */ 0.01f,
-        /* Sand   */ 0.1f,
+        /* Sand   */ 0.05f,
         /* Dirt   */ 0.1f,
         /* Stone  */ 0.2f,
         /* Metal  */ 0.01f,
