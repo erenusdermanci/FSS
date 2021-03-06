@@ -1,6 +1,6 @@
 using DataComponents;
 using UnityEngine;
-using static Constants;
+using static BlockConstants;
 
 namespace Utils
 {

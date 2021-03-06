@@ -7,22 +7,30 @@ namespace DataComponents
 {
     public static class ChunkHelpers
     {
-        public static int FileSaveBufferSize =
-            Chunk.Size * Chunk.Size
-                       * (sizeof(byte) * 4 // block colors
-                       + sizeof(int)); // block types
+        private const int FileSaveBufferSize = Chunk.Size * Chunk.Size
+                                                          * (sizeof(byte) * 4 // block colors
+                                                             + sizeof(int)); // block types
 
-        public static string GetChunkSaveName(Vector2 position)
+        private const string TestSceneFolder = "TestScenes";
+
+        private static string GetChunkSaveName(Vector2 position)
         {
             return $"{(int)position.x:x8}{(int)position.y:x8}";
         }
-        
-        public static string GetChunksSavePath(Vector2 position)
+
+        private static string GetSavePath()
         {
-            return $"{Application.persistentDataPath}\\{SceneManager.GetActiveScene().name}";
+            return GlobalDebugConfig.StaticGlobalConfig.SaveAsTestScene
+                ? $"{Application.dataPath}\\..\\{TestSceneFolder}"
+                : $"{Application.persistentDataPath}";
         }
 
-        public static string GetChunksSaveFullPath(Vector2 position)
+        private static string GetChunksSavePath(Vector2 position)
+        {
+            return $"{GetSavePath()}\\{SceneManager.GetActiveScene().name}";
+        }
+
+        private static string GetChunksSaveFullPath(Vector2 position)
         {
             return $"{GetChunksSavePath(position)}\\{GetChunkSaveName(position)}";
         }

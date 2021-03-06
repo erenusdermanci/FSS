@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils;
 
 namespace MonoBehaviours
 {
@@ -35,10 +36,10 @@ namespace MonoBehaviours
         [Serializable]
         public struct BlockThresholdStruct
         {
-            public Constants.Blocks type;
+            public BlockConstants.Blocks type;
             public float threshold;
 
-            public BlockThresholdStruct(Constants.Blocks type, float threshold)
+            public BlockThresholdStruct(BlockConstants.Blocks type, float threshold)
             {
                 this.type = type;
                 this.threshold = threshold;

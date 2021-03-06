@@ -24,7 +24,7 @@ namespace DataComponents
         
         public byte[] BlockUpdatedFlags = new byte[Size * Size];
         public bool Dirty;
-        public int[] BlockCounts = new int[Enum.GetNames(typeof(Constants.Blocks)).Length];
+        public int[] BlockCounts = new int[Enum.GetNames(typeof(BlockConstants.Blocks)).Length];
 
         public Chunk(BlockData data) // loaded from disk
         {

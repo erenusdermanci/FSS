@@ -35,6 +35,7 @@ public class GlobalDebugConfig : MonoBehaviour
         public bool StepByStep;
         public bool OutlineChunks;
         public bool DisableDirtySystem;
+        public bool SaveAsTestScene;
 
         public GlobalConfigStruct(GlobalConfigStruct other)
         {
@@ -46,6 +47,7 @@ public class GlobalDebugConfig : MonoBehaviour
             OutlineChunks = other.OutlineChunks;
             DisableDirtySystem = other.DisableDirtySystem;
             DisablePersistence = other.DisablePersistence;
+            SaveAsTestScene = other.SaveAsTestScene;
         }
 
         public bool Equals(GlobalConfigStruct other)
@@ -57,7 +59,8 @@ public class GlobalDebugConfig : MonoBehaviour
                 || StepByStep != other.StepByStep
                 || OutlineChunks != other.OutlineChunks
                 || DisableDirtySystem != other.DisableDirtySystem
-                || DisablePersistence != other.DisablePersistence)
+                || DisablePersistence != other.DisablePersistence
+                || SaveAsTestScene != other.SaveAsTestScene)
                 return false;
 
             return true;

@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using DataComponents;
 using MonoBehaviours;
-using static Constants;
+using UnityEngine;
+using Utils;
+using static BlockConstants;
 
 namespace ChunkTasks
 {
@@ -10,8 +13,10 @@ namespace ChunkTasks
     {
         public ThreadLocal<ConfiguredNoise> HeightNoise;
         public ThreadLocal<ConfiguredNoise> Noise;
+        public ThreadLocal<System.Random> Rng;
         private ConfiguredNoise _heightNoise;
         private ConfiguredNoise _noise;
+        private System.Random _rng;
 
         public GenerationTask(Chunk chunk) : base(chunk)
         {
@@ -25,6 +30,7 @@ namespace ChunkTasks
 
             if (ProceduralGenerator.IsEnabled)
             {
+                _rng = Rng.Value;
                 _noise = Noise.Value;
                 _heightNoise = HeightNoise.Value;
                 _heightNoise.Configure(ProceduralGenerator.StaticNoiseConfig.perlinConfigHeight);
@@ -114,9 +120,10 @@ namespace ChunkTasks
 
             var i = y * Chunk.Size + x;
 
-            Chunk.blockData.colors[i * 4] = blockColor.r;
-            Chunk.blockData.colors[i * 4 + 1] = blockColor.g;
-            Chunk.blockData.colors[i * 4 + 2] = blockColor.b;
+            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockColorMaxShift[block]);
+            Chunk.blockData.colors[i * 4] = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
+            Chunk.blockData.colors[i * 4 + 1] = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
+            Chunk.blockData.colors[i * 4 + 2] = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
             Chunk.blockData.colors[i * 4 + 3] = blockColor.a;
             Chunk.blockData.types[i] = block;
         }

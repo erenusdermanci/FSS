@@ -5,7 +5,7 @@ using MonoBehaviours;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
-using static Constants;
+using static BlockConstants;
 
 public class DrawingTool : MonoBehaviour
 {
@@ -35,12 +35,15 @@ public class DrawingTool : MonoBehaviour
     private Vector2? drawStartPos;
     private Vector2? drawEndPos;
 
+    private System.Random _rng;
+
     private HashSet<Vector2> _chunksToReload = new HashSet<Vector2>();
 
     // Start is called before the first frame update
     void Awake()
     {
         userDrawingLine = false;
+        _rng = new System.Random();
     }
 
     // Update is called once per frame
@@ -159,13 +162,11 @@ public class DrawingTool : MonoBehaviour
 
     private void DrawPixel(ChunkNeighborhood neighborhood, int x, int y)
     {
-        var blockColor = GetBlockColor();
-        PutBlock(neighborhood, x, y, (int)SelectedDrawBlock, blockColor);
+        PutBlock(neighborhood, x, y, (int)SelectedDrawBlock, GetBlockColor());
     }
 
     private void DrawBox(ChunkNeighborhood neighborhood, int x, int y)
     {
-        var blockColor = GetBlockColor();
         var px = x - BoxSize / 2;
         var py = y - BoxSize / 2;
 
@@ -173,7 +174,7 @@ public class DrawingTool : MonoBehaviour
         {
             for (var j = py; j < py + BoxSize; j++)
             {
-                PutBlock(neighborhood, i, j, (int)SelectedDrawBlock, blockColor);
+                PutBlock(neighborhood, i, j, (int)SelectedDrawBlock, GetBlockColor());
             }
         }
     }
@@ -192,7 +193,6 @@ public class DrawingTool : MonoBehaviour
 
     private void Bresenham(ChunkNeighborhood neighborhood, int x, int y, int x2, int y2)
     {
-        var blockColor = GetBlockColor();
         var w = x2 - x;
         var h = y2 - y;
         var dx1 = 0;
@@ -219,7 +219,7 @@ public class DrawingTool : MonoBehaviour
         var numerator = longest >> 1;
         for (var i = 0; i <= longest; i++)
         {
-            PutBlock(neighborhood, x, y, (int) SelectedDrawBlock, blockColor);
+            PutBlock(neighborhood, x, y, (int) SelectedDrawBlock, GetBlockColor());
             numerator += shortest;
             if (!(numerator < longest))
             {
@@ -291,7 +291,17 @@ public class DrawingTool : MonoBehaviour
 
     private Color32 GetBlockColor()
     {
-        return OverrideDefaultColors ? PixelColorOverride : BlockColors[(int) SelectedDrawBlock];
+        if (OverrideDefaultColors)
+            return PixelColorOverride;
+
+        var block = (int) SelectedDrawBlock;
+        var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockColorMaxShift[block]);
+        var color = BlockColors[block];
+        return new Color32(
+            Helpers.ShiftColorComponent(color.r, shiftAmount),
+            Helpers.ShiftColorComponent(color.g, shiftAmount),
+            Helpers.ShiftColorComponent(color.b, shiftAmount),
+            color.a);
     }
 
     private void ColorPixel(ChunkNeighborhood neighborhood, int x, int y)

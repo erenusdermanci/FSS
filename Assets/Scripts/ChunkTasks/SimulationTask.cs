@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using DataComponents;
 using Utils;
-using static Constants;
+using static BlockConstants;
 using Random = Unity.Mathematics.Random;
 
 namespace ChunkTasks

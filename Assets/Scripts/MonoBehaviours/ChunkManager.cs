@@ -46,7 +46,7 @@ namespace MonoBehaviours
             InitializeRandom();
             HeightNoise = new ThreadLocal<ConfiguredNoise>(() => new ConfiguredNoise());
             Noise = new ThreadLocal<ConfiguredNoise>(() => new ConfiguredNoise());
-            var blockNames = Enum.GetNames(typeof(Constants.Blocks));
+            var blockNames = Enum.GetNames(typeof(BlockConstants.Blocks));
             blockCountsAtGenerate = new BlockCount[blockNames.Length];
             blockCounts = new BlockCount[blockNames.Length];
             for (var i = 0; i < blockCountsAtGenerate.Length; ++i)
@@ -177,6 +177,7 @@ namespace MonoBehaviours
                         chunk = new Chunk { Position = pos };
                         _generationTasks.Add(new GenerationTask(chunk)
                         {
+                            Rng = Random,
                             HeightNoise = HeightNoise,
                             Noise = Noise,
                         });
