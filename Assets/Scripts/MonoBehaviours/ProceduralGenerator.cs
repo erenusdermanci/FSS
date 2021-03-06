@@ -6,6 +6,9 @@ namespace MonoBehaviours
 {
     public class ProceduralGenerator : MonoBehaviour
     {
+        public bool Enabled;
+        public static bool IsEnabled;
+        
         public NoiseConfig noiseConfig;
         public static NoiseConfig StaticNoiseConfig;
 
@@ -14,6 +17,8 @@ namespace MonoBehaviours
         private void Awake()
         {
             StaticNoiseConfig = new NoiseConfig(noiseConfig);
+
+            IsEnabled = Enabled;
         }
 
         private void Update()
@@ -21,6 +26,8 @@ namespace MonoBehaviours
             if (StaticNoiseConfig.Equals(noiseConfig))
                 return;
             StaticNoiseConfig = new NoiseConfig(noiseConfig);
+
+            IsEnabled = Enabled;
 
             UpdateEvent?.Invoke(this, null);
         }

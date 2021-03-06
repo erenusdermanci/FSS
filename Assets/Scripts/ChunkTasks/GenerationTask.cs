@@ -2,6 +2,7 @@
 using System.Threading;
 using DataComponents;
 using MonoBehaviours;
+using static Constants;
 
 namespace ChunkTasks
 {
@@ -19,13 +20,27 @@ namespace ChunkTasks
 
         protected override void Execute()
         {
-            _heightNoise = HeightNoise.Value;
-            _heightNoise.Configure(ProceduralGenerator.StaticNoiseConfig.perlinConfigHeight);
-            _noise = Noise.Value;
-
             for (var i = 0; i < Chunk.BlockCounts.Length; ++i)
                 Chunk.BlockCounts[i] = 0;
 
+            if (ProceduralGenerator.IsEnabled)
+            {
+                _noise = Noise.Value;
+                _heightNoise = HeightNoise.Value;
+                _heightNoise.Configure(ProceduralGenerator.StaticNoiseConfig.perlinConfigHeight);
+                GenerateProcedurally();
+            }
+            else
+                GenerateEmpty();
+
+            for (var i = 0; i < Chunk.Size * Chunk.Size; i++)
+                Chunk.BlockCounts[Chunk.blockData.types[i]] += 1;
+
+            Chunk.Dirty = true;
+        }
+
+        private void GenerateProcedurally()
+        {
             // First we need to determine the terrain noise, while taking into account
             // the position of the chunk -> we do not want any sky blocks inside the terrain and vice versa
 
@@ -63,11 +78,21 @@ namespace ChunkTasks
                     }
                 }
             }
-
-            Chunk.Dirty = true;
         }
 
-        private void GenerateBlock(int x, int y, bool sky = false)
+        private void GenerateEmpty()
+        {
+            for (var i = 0; i < Chunk.Size * Chunk.Size; i++)
+            {
+                Chunk.blockData.colors[i * 4] = BlockColors[(int) Blocks.Air].r;
+                Chunk.blockData.colors[i * 4 + 1] = BlockColors[(int) Blocks.Air].g;
+                Chunk.blockData.colors[i * 4 + 2] = BlockColors[(int) Blocks.Air].b;
+                Chunk.blockData.colors[i * 4 + 3] = BlockColors[(int) Blocks.Air].a;
+                Chunk.blockData.types[i] = (int) Blocks.Air;
+            }
+        }
+
+        private void GenerateBlock(int x, int y, bool sky)
         {
             ProceduralGenerator.PerlinConfig config;
             if (sky)
@@ -85,7 +110,7 @@ namespace ChunkTasks
                 Chunk.Position.y + (float)y / Chunk.Size);
 
             var block = (int)GetBlockFromNoise(noise, sky);
-            var blockColor = Constants.BlockColors[block];
+            var blockColor = BlockColors[block];
 
             var i = y * Chunk.Size + x;
 
@@ -94,11 +119,9 @@ namespace ChunkTasks
             Chunk.blockData.colors[i * 4 + 2] = blockColor.b;
             Chunk.blockData.colors[i * 4 + 3] = blockColor.a;
             Chunk.blockData.types[i] = block;
-
-            Chunk.BlockCounts[block] += 1;
         }
 
-        private Constants.Blocks GetBlockFromNoise(float noise, bool sky = false)
+        private static Blocks GetBlockFromNoise(float noise, bool sky = false)
         {
             List<ProceduralGenerator.BlockThresholdStruct> thresholds;
             if (sky)
@@ -116,7 +139,7 @@ namespace ChunkTasks
                     return thresholds[i].type;
             }
 
-            return Constants.Blocks.Border;
+            return Blocks.Border;
         }
     }
 }
