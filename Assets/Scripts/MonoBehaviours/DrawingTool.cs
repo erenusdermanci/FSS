@@ -2,6 +2,7 @@ using System;
 using DataComponents;
 using MonoBehaviours;
 using UnityEngine;
+using UnityEngine.UI;
 using Utils;
 using static Constants;
 
@@ -16,6 +17,8 @@ public class DrawingTool : MonoBehaviour
 
     [Range(0, 64)]
     public int BoxSize;
+
+    public Text UICoordText;
 
     private bool userDrawingLine;
     private Vector2? drawStartPos = null;
@@ -45,6 +48,9 @@ public class DrawingTool : MonoBehaviour
             DrawBlockGrid(flooredMousePos);
             // Draw selected
             DrawSelectedBlock(flooredMousePos, xOffset, yOffset);
+
+            UICoordText.text = $@"x: {xOffset}, y: {yOffset}
+                                 chunk x:{flooredMousePos.x}, chunk y: {flooredMousePos.y}";
 
             if (Input.GetMouseButtonDown(0))
             {
