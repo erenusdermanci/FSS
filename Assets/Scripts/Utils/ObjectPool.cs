@@ -10,9 +10,8 @@ namespace Utils
         private readonly bool shouldExpand = true;
         private List<GameObject> pooledObjects;
         private GameObject objectToPool;
-        private int amountToPool = 100;
 
-        public ObjectPool()
+        public ObjectPool(int amountToPool)
         {
             objectToPool = (GameObject) Resources.Load("ChunkObject1");
             pooledObjects = new List<GameObject>();

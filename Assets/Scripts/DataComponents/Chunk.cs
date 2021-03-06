@@ -6,8 +6,6 @@ namespace DataComponents
 {
     public class Chunk : IDisposable
     {
-        private static readonly ObjectPool ChunkPool = new ObjectPool();
-        
         public const int Size = 64;
         public Texture2D Texture;
         public GameObject GameObject;
@@ -37,15 +35,6 @@ namespace DataComponents
         {
             blockData.colors = new byte[Size * Size * 4];
             blockData.types = new int[Size * Size];
-        }
-
-        public void InitializeGameObject(GameObject parent)
-        {
-            GameObject = ChunkPool.GetObject();
-            Texture = GameObject.GetComponent<SpriteRenderer>().sprite.texture;
-            GameObject.transform.position = new Vector3(Position.x, Position.y, 0);
-            GameObject.transform.parent = parent.transform;
-            GameObject.SetActive(true);
         }
 
         public void UpdateTexture()

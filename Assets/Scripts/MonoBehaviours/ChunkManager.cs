@@ -41,9 +41,12 @@ namespace MonoBehaviours
         private ThreadLocal<ConfiguredNoise> HeightNoise { get; set; }
         private ThreadLocal<ConfiguredNoise> Noise { get; set; }
 
+        private ObjectPool _chunkPool;
+
         private void Awake()
         {
             InitializeRandom();
+            _chunkPool = new ObjectPool(GeneratedAreaSize * GeneratedAreaSize);
             HeightNoise = new ThreadLocal<ConfiguredNoise>(() => new ConfiguredNoise());
             Noise = new ThreadLocal<ConfiguredNoise>(() => new ConfiguredNoise());
             var blockNames = Enum.GetNames(typeof(BlockConstants.Blocks));
@@ -187,7 +190,11 @@ namespace MonoBehaviours
                     }
                     ChunkGrid.ChunkMap.Add(pos, chunk);
 
-                    chunk.InitializeGameObject(ParentChunkObject);
+                    chunk.GameObject = _chunkPool.GetObject();
+                    chunk.Texture = chunk.GameObject.GetComponent<SpriteRenderer>().sprite.texture;
+                    chunk.GameObject.transform.position = new Vector3(chunk.Position.x, chunk.Position.y, 0);
+                    chunk.GameObject.transform.parent = ParentChunkObject.transform;
+                    chunk.GameObject.SetActive(true);
                     
                     if (!generated)
                         chunk.UpdateTexture();
