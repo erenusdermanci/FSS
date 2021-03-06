@@ -27,6 +27,7 @@ public class GlobalDebugConfig : MonoBehaviour
     [Serializable]
     public struct GlobalConfigStruct
     {
+        public bool DisablePersistence;
         public bool MonothreadSimulate;
         public int RestrictGridSize;
         public bool EnableSimulation;
@@ -44,6 +45,7 @@ public class GlobalDebugConfig : MonoBehaviour
             StepByStep = other.StepByStep;
             OutlineChunks = other.OutlineChunks;
             DisableDirtySystem = other.DisableDirtySystem;
+            DisablePersistence = other.DisablePersistence;
         }
 
         public bool Equals(GlobalConfigStruct other)
@@ -54,7 +56,8 @@ public class GlobalDebugConfig : MonoBehaviour
                 || PauseSimulation != other.PauseSimulation
                 || StepByStep != other.StepByStep
                 || OutlineChunks != other.OutlineChunks
-                || DisableDirtySystem != other.DisableDirtySystem)
+                || DisableDirtySystem != other.DisableDirtySystem
+                || DisablePersistence != other.DisablePersistence)
                 return false;
 
             return true;

@@ -165,7 +165,11 @@ namespace MonoBehaviours
                         continue;
 
                     var generated = false;
-                    var chunk = ChunkHelpers.Load(pos);
+                    Chunk chunk = null;
+                    if (!GlobalDebugConfig.StaticGlobalConfig.DisablePersistence)
+                    {
+                        chunk = ChunkHelpers.Load(pos);
+                    }
                     if (chunk == null)
                     {
                         chunk = new Chunk { Position = pos };

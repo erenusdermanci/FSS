@@ -75,7 +75,8 @@ namespace DataComponents
             if (GameObject != null && GameObject.activeSelf && GameObject.activeInHierarchy)
                 GameObject.SetActive(false);
             
-            this.Save();
+            if (!GlobalDebugConfig.StaticGlobalConfig.DisablePersistence)
+                this.Save();
         }
     }
 }
