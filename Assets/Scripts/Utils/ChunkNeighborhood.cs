@@ -46,7 +46,7 @@ namespace Utils
 
             var blockIndex = y * Chunk.Size + x;
 
-            return Chunks[chunkIndex].blockTypes[blockIndex];
+            return Chunks[chunkIndex].blockData.types[blockIndex];
         }
 
         public void PutBlock(int x, int y, int type, Color32 color)
@@ -74,17 +74,17 @@ namespace Utils
             var sourceidx = Chunk.Size * y + x;
             var destidx = Chunk.Size * uy + ux;
             var destColorBuffer = stackalloc byte[4] {
-                Chunks[newChunkIndex].blockColors[destidx * 4],
-                Chunks[newChunkIndex].blockColors[destidx * 4 + 1],
-                Chunks[newChunkIndex].blockColors[destidx * 4 + 2],
-                Chunks[newChunkIndex].blockColors[destidx * 4 + 3]
+                Chunks[newChunkIndex].blockData.colors[destidx * 4],
+                Chunks[newChunkIndex].blockData.colors[destidx * 4 + 1],
+                Chunks[newChunkIndex].blockData.colors[destidx * 4 + 2],
+                Chunks[newChunkIndex].blockData.colors[destidx * 4 + 3]
             };
 
             Chunks[newChunkIndex].PutBlock(ux, uy, srcBlock,
-                Chunks[0].blockColors[sourceidx * 4],
-                Chunks[0].blockColors[sourceidx * 4 + 1],
-                Chunks[0].blockColors[sourceidx * 4 + 2],
-                Chunks[0].blockColors[sourceidx * 4 + 3]);
+                Chunks[0].blockData.colors[sourceidx * 4],
+                Chunks[0].blockData.colors[sourceidx * 4 + 1],
+                Chunks[0].blockData.colors[sourceidx * 4 + 2],
+                Chunks[0].blockData.colors[sourceidx * 4 + 3]);
             blockMoveInfo.Chunk = newChunkIndex;
             blockMoveInfo.X = ux;
             blockMoveInfo.Y = uy;

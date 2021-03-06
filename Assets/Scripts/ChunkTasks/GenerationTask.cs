@@ -2,16 +2,11 @@
 using System.Threading;
 using DataComponents;
 using MonoBehaviours;
-using UnityEngine;
 
 namespace ChunkTasks
 {
     public class GenerationTask : ChunkTask
     {
-        public Vector2 ChunkPos;
-        public byte[] BlockColors;
-        public int[] BlockTypes;
-
         public ThreadLocal<ConfiguredNoise> HeightNoise;
         public ThreadLocal<ConfiguredNoise> Noise;
         private ConfiguredNoise _heightNoise;
@@ -40,9 +35,9 @@ namespace ChunkTasks
             for (var x = 0; x < Chunk.Size; x++)
             {
                 // Determine terrain verticality
-                var vertNoise = _heightNoise.GetNoise(ChunkPos.x + x, ChunkPos.y);
+                var vertNoise = _heightNoise.GetNoise(Chunk.Position.x + x, Chunk.Position.y);
 
-                var vertIdx = (int)(vertNoise * Chunk.Size) - (int)(Chunk.Size * ChunkPos.y);
+                var vertIdx = (int)(vertNoise * Chunk.Size) - (int)(Chunk.Size * Chunk.Position.y);
 
                 if (vertIdx > Chunk.Size - 1)
                 {
@@ -86,19 +81,19 @@ namespace ChunkTasks
 
             _noise.Configure(config);
 
-            var noise = _noise.GetNoise(ChunkPos.x + (float)x / Chunk.Size,
-                ChunkPos.y + (float)y / Chunk.Size);
+            var noise = _noise.GetNoise(Chunk.Position.x + (float)x / Chunk.Size,
+                Chunk.Position.y + (float)y / Chunk.Size);
 
-            int block = (int)GetBlockFromNoise(noise, sky);
+            var block = (int)GetBlockFromNoise(noise, sky);
             var blockColor = Constants.BlockColors[block];
 
             var i = y * Chunk.Size + x;
 
-            BlockColors[i * 4] = blockColor.r;
-            BlockColors[i * 4 + 1] = blockColor.g;
-            BlockColors[i * 4 + 2] = blockColor.b;
-            BlockColors[i * 4 + 3] = blockColor.a;
-            BlockTypes[i] = block;
+            Chunk.blockData.colors[i * 4] = blockColor.r;
+            Chunk.blockData.colors[i * 4 + 1] = blockColor.g;
+            Chunk.blockData.colors[i * 4 + 2] = blockColor.b;
+            Chunk.blockData.colors[i * 4 + 3] = blockColor.a;
+            Chunk.blockData.types[i] = block;
 
             Chunk.BlockCounts[block] += 1;
         }

@@ -230,10 +230,10 @@ public class DrawingTool : MonoBehaviour
         var color = new Color32(0, 255, 0, 255);
 
         var i = y * Chunk.Size + x;
-        neighborhood.Chunks[0].blockColors[i * 4] = color.r;
-        neighborhood.Chunks[0].blockColors[i * 4 + 1] = color.g;
-        neighborhood.Chunks[0].blockColors[i * 4 + 2] = color.b;
-        neighborhood.Chunks[0].blockColors[i * 4 + 3] = color.a;
+        neighborhood.Chunks[0].blockData.colors[i * 4] = color.r;
+        neighborhood.Chunks[0].blockData.colors[i * 4 + 1] = color.g;
+        neighborhood.Chunks[0].blockData.colors[i * 4 + 2] = color.b;
+        neighborhood.Chunks[0].blockData.colors[i * 4 + 3] = color.a;
     }
 
     [Serializable]

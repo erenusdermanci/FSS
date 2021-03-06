@@ -155,7 +155,7 @@ namespace MonoBehaviours
         private void Generate(Vector2 aroundPosition)
         {
             _generationTasks.Clear();
-            
+
             for (var x = 0; x < GeneratedAreaSize; ++x)
             {
                 for (var y = 0; y < GeneratedAreaSize; ++y)
