@@ -319,43 +319,59 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Enabled: 1
-  noiseConfig:
-    perlinConfigHeight:
+  generationConfig:
+    noiseConfigs:
+    - type: 0
+      fractalType: 1
       octaves: 3
-      gain: 2.15
-      frequency: 3.32
-      lacunarity: 3.42
-      xOffset: 6.36
-      yOffset: 12.58
-    perlinConfigTerrain:
-      octaves: 2
-      gain: 1
-      frequency: 2.72
-      lacunarity: 3.68
+      gain: 6
+      frequency: 2
+      lacunarity: 1
+      xAmplitude: 36
+      yAmplitude: 1.15
       xOffset: 0
-      yOffset: 9.56
-    perlinConfigSky:
-      octaves: 1
-      gain: 1.26
-      frequency: 1.29
-      lacunarity: 11.6
-      xOffset: 4.05
-      yOffset: 2.49
-    blockThresholdsTerrain:
-    - type: 4
-      threshold: 0.1
+      yOffset: 0
+    - type: 0
+      fractalType: 1
+      octaves: 3
+      gain: 2
+      frequency: 6
+      lacunarity: 1
+      xAmplitude: 41.44
+      yAmplitude: 2.5
+      xOffset: 0
+      yOffset: 0
     - type: 3
-      threshold: 0.2
+      fractalType: 1
+      octaves: 1
+      gain: 1.34
+      frequency: 2.37
+      lacunarity: 11.6
+      xAmplitude: 0
+      yAmplitude: 0
+      xOffset: 0
+      yOffset: 0
+    - type: 3
+      fractalType: 1
+      octaves: 1
+      gain: 1
+      frequency: 1
+      lacunarity: 1
+      xAmplitude: 0
+      yAmplitude: 0
+      xOffset: 0
+      yOffset: 0
+    blockThresholdsTerrain:
     - type: 5
       threshold: 0.3
+    - type: 4
+      threshold: 0.7
     - type: 6
-      threshold: 0.8
-    - type: 7
       threshold: 1
     blockThresholdsSky:
     - type: 0
-      threshold: 0.5
-    - type: 0
+      threshold: 0.25
+    - type: 1
       threshold: 1
 --- !u!4 &518032211
 Transform:
@@ -365,7 +381,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 518032209}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.055651214, y: 0.75476456, z: 7.7807164}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
@@ -448,7 +464,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.055651214, y: 0.75476456, z: -2.2192836}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
@@ -508,7 +524,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 840788884}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.055651214, y: 0.75476456, z: 7.7807164}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
@@ -590,7 +606,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 982608166}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.055651214, y: 0.75476456, z: 7.7807164}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 5, y: 5, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
@@ -658,7 +674,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1436826249}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.055651214, y: 0.75476456, z: 7.7807164}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
@@ -736,7 +752,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   globalConfig:
-    DisablePersistence: 0
+    DisablePersistence: 1
     MonothreadSimulate: 0
     RestrictGridSize: 0
     EnableSimulation: 1
@@ -753,7 +769,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1770982828}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.055651214, y: 0.75476456, z: 7.7807164}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
@@ -784,7 +800,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1999880400}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.055651214, y: 0.75476456, z: 7.7807164}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}

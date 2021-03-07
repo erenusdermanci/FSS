@@ -10,23 +10,23 @@ namespace MonoBehaviours
         public bool Enabled;
         public static bool IsEnabled;
         
-        public NoiseConfig noiseConfig;
-        public static NoiseConfig StaticNoiseConfig;
+        public GenerationConfig generationConfig;
+        public static GenerationConfig StaticGenerationConfig;
 
         public static event EventHandler UpdateEvent;
 
         private void Awake()
         {
-            StaticNoiseConfig = new NoiseConfig(noiseConfig);
+            StaticGenerationConfig = new GenerationConfig(generationConfig);
 
             IsEnabled = Enabled;
         }
 
         private void Update()
         {
-            if (StaticNoiseConfig.Equals(noiseConfig))
+            if (StaticGenerationConfig.Equals(generationConfig))
                 return;
-            StaticNoiseConfig = new NoiseConfig(noiseConfig);
+            StaticGenerationConfig = new GenerationConfig(generationConfig);
 
             IsEnabled = Enabled;
 
@@ -47,51 +47,61 @@ namespace MonoBehaviours
         }
 
         [Serializable]
-        public struct PerlinConfig
+        public struct NoiseConfig
         {
+            public FastNoiseLite.NoiseType type;
+            public FastNoiseLite.FractalType fractalType;
             public int octaves;
             public float gain;
             public float frequency;
             public float lacunarity;
+            public float xAmplitude;
+            public float yAmplitude;
             public float xOffset;
             public float yOffset;
 
-            public PerlinConfig(PerlinConfig other)
+            public NoiseConfig(NoiseConfig other)
             {
+                type = other.type;
+                fractalType = other.fractalType;
                 octaves = other.octaves;
                 gain = other.gain;
                 frequency = other.frequency;
                 lacunarity = other.lacunarity;
+                xAmplitude = other.xAmplitude;
+                yAmplitude = other.yAmplitude;
                 xOffset = other.xOffset;
                 yOffset = other.yOffset;
             }
 
-            public bool Equals(PerlinConfig other)
+            public bool Equals(NoiseConfig other)
             {
-                return octaves == other.octaves &&
+                return type == other.type &&
+                   fractalType == other.fractalType &&
+                   octaves == other.octaves &&
                    gain.EqualsEpsilon(other.gain) &&
                    frequency.EqualsEpsilon(other.frequency) &&
                    lacunarity.EqualsEpsilon(other.lacunarity) &&
+                   xAmplitude.EqualsEpsilon(other.xAmplitude) &&
+                   yAmplitude.EqualsEpsilon(other.yAmplitude) &&
                    xOffset.EqualsEpsilon(other.xOffset) &&
                    yOffset.EqualsEpsilon(other.yOffset);
             }
         }
 
         [Serializable]
-        public struct NoiseConfig
+        public struct GenerationConfig
         {
-            public PerlinConfig perlinConfigHeight;
-            public PerlinConfig perlinConfigTerrain;
-            public PerlinConfig perlinConfigSky;
+            public NoiseConfig[] noiseConfigs;
 
             public List<BlockThresholdStruct> blockThresholdsTerrain;
             public List<BlockThresholdStruct> blockThresholdsSky;
 
-            public NoiseConfig(NoiseConfig other)
+            public GenerationConfig(GenerationConfig other)
             {
-                perlinConfigHeight = new PerlinConfig(other.perlinConfigHeight);
-                perlinConfigTerrain = new PerlinConfig(other.perlinConfigTerrain);
-                perlinConfigSky = new PerlinConfig(other.perlinConfigSky);
+                noiseConfigs = new NoiseConfig[other.noiseConfigs.Length];
+                for (var i = 0; i < noiseConfigs.Length; i++)
+                    noiseConfigs[i] = new NoiseConfig(other.noiseConfigs[i]);
 
                 blockThresholdsTerrain = new List<BlockThresholdStruct>();
                 for (var i = 0; i < other.blockThresholdsTerrain.Count; i++)
@@ -110,7 +120,7 @@ namespace MonoBehaviours
                 }
             }
 
-            public bool Equals(NoiseConfig other)
+            public bool Equals(GenerationConfig other)
             {
                 if (blockThresholdsTerrain.Count == other.blockThresholdsTerrain.Count)
                 {
@@ -138,9 +148,18 @@ namespace MonoBehaviours
                 else
                     return false;
 
-                return perlinConfigHeight.Equals(other.perlinConfigHeight)
-                    && perlinConfigTerrain.Equals(other.perlinConfigTerrain)
-                    && perlinConfigSky.Equals(other.perlinConfigSky);
+                if (noiseConfigs.Length == other.noiseConfigs.Length)
+                {
+                    for (var i = 0; i < noiseConfigs.Length; ++i)
+                    {
+                        if (!noiseConfigs[i].Equals(other.noiseConfigs[i]))
+                            return false;
+                    }
+                }
+                else
+                    return false;
+
+                return true;
             }
         }
     }
@@ -156,9 +175,9 @@ namespace MonoBehaviours
             noise = new FastNoiseLite();
         }
 
-        public void Configure(ProceduralGenerator.PerlinConfig config)
+        public void Configure(ProceduralGenerator.NoiseConfig config)
         {
-            noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+            noise.SetNoiseType(config.type);
             noise.SetFractalOctaves(config.octaves);
             noise.SetFractalGain(config.gain);
             noise.SetFrequency(config.frequency);
