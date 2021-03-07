@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using DataComponents;
 using MonoBehaviours;
-using UnityEngine;
 using Utils;
 using static BlockConstants;
 
@@ -12,9 +10,8 @@ namespace ChunkTasks
     public class GenerationTask : ChunkTask
     {
         public ThreadLocal<System.Random> Rng;
-        public ThreadLocal<ConfiguredNoise[]> Noises;
         private System.Random _rng;
-        private ConfiguredNoise[] _noises;
+        private Dictionary<int, ConfiguredNoisesForLayer> _noisesPerLayer;
 
         public GenerationTask(Chunk chunk) : base(chunk)
         {
@@ -30,14 +27,9 @@ namespace ChunkTasks
             {
                 _rng = Rng.Value;
 
-                _noises = new ConfiguredNoise[Noises.Value.Length];
-                _noises[0] = Noises.Value[0]; // Height 1
-                _noises[1] = Noises.Value[1]; // Height 2
-                _noises[2] = Noises.Value[2]; // Terrain/Sky
-
-                _noises[0].Configure(ProceduralGenerator.StaticGenerationConfig.noiseConfigs[0]);
-                _noises[1].Configure(ProceduralGenerator.StaticGenerationConfig.noiseConfigs[1]);
-                GenerateProcedurally();
+                var generationModel = ProceduralGenerator.StaticGenerationModel;
+                ConfigureNoises(generationModel);
+                GenerateProcedurally(generationModel);
             }
             else
                 GenerateEmpty();
@@ -48,40 +40,53 @@ namespace ChunkTasks
             Chunk.Dirty = true;
         }
 
-        private void GenerateProcedurally()
+        private void ConfigureNoises(TerrainGenerationModel model)
         {
-            // First we need to determine the terrain noise, while taking into account
-            // the position of the chunk -> we do not want any sky blocks inside the terrain and vice versa
+            _noisesPerLayer = new Dictionary<int, ConfiguredNoisesForLayer>();
 
-            // Afterwards, we need to generate the noise for the terrain and the sky separately, using
-            // their own thresholds.
+            for (var i = 0; i < model.Layers.Count; i++)
+                _noisesPerLayer.Add(i, new ConfiguredNoisesForLayer(model.Layers[i]));
+        }
 
-            // Config specific to height:
-            var xAmplitude1 = ProceduralGenerator.StaticGenerationConfig.noiseConfigs[0].xAmplitude;
-            var yAmplitude1 = ProceduralGenerator.StaticGenerationConfig.noiseConfigs[0].yAmplitude;
-            var xAmplitude2 = ProceduralGenerator.StaticGenerationConfig.noiseConfigs[1].xAmplitude;
-            var yAmplitude2 = ProceduralGenerator.StaticGenerationConfig.noiseConfigs[1].yAmplitude;
-
+        private void GenerateProcedurally(TerrainGenerationModel model)
+        {
             for (var x = 0; x < Chunk.Size; x++)
             {
-                // Determine terrain verticality
-                var vertNoise1 = _noises[0].GetNoise((float)((Chunk.Position.x * Chunk.Size) + x) / (Chunk.Size * xAmplitude1),0);
-                var vertNoise2 = _noises[1].GetNoise((float)((Chunk.Position.x * Chunk.Size) + x) / (Chunk.Size * xAmplitude2), 0);
+                // for each x in our world
+                var verticalIdxPerLayer = new int[model.Layers.Count];
+                var totalDepth = 0;
 
-                var vertNoiseAcc = (vertNoise1 + vertNoise2) / 2;
-                var vertIdx = (vertNoiseAcc * Chunk.Size * yAmplitude1 * yAmplitude2);
-                var separator = Chunk.Position.y * Chunk.Size;
+                for (int i = 0; i < model.Layers.Count; i++)
+                {
+                    // for each layer
+                    var layer = model.Layers[i];
+                    var vertNoiseAcc = 0f;
+                    var yAmpTotal = 1f;
+                    totalDepth += layer.Depth;
+
+                    for (int j = 0; j < layer.HeightNoises.Count; j++)
+                    {
+                        // for each noise
+                        var xAmp = layer.HeightNoises[j].XAmplitude;
+                        var yAmp = layer.HeightNoises[j].YAmplitude;
+                        var vertNoise = _noisesPerLayer[i].HeightConfiguredNoises[j].GetNoise((float)((Chunk.Position.x * Chunk.Size) + x) / (Chunk.Size * xAmp), 0);
+                        vertNoiseAcc += vertNoise;
+                        yAmpTotal *= yAmp;
+                    }
+
+                    vertNoiseAcc /= layer.HeightNoises.Count;
+                    var vertIdx = (int)((vertNoiseAcc * Chunk.Size * yAmpTotal) - totalDepth);
+
+                    verticalIdxPerLayer[i] = vertIdx;
+                }
 
                 for (var y = 0; y < Chunk.Size; y++)
                 {
-                    if (separator + y <= vertIdx)
-                    {
-                        GenerateBlock(x, y, false);
-                    }
-                    else
-                    {
-                        GenerateBlock(x, y, true);
-                    }
+                    var separator = (int)(Chunk.Position.y * Chunk.Size) + y; // what layer does this Y belong to for this X?
+                    var layerIdx = GetLayerForY(verticalIdxPerLayer, separator);
+
+                    // Generate y within layer
+                    GenerateBlock(model, x, y, layerIdx);
                 }
             }
         }
@@ -98,47 +103,42 @@ namespace ChunkTasks
             }
         }
 
-        private void GenerateBlock(int x, int y, bool sky)
+        private void GenerateBlock(TerrainGenerationModel model, int x, int y, int layerIdx)
         {
-            ProceduralGenerator.NoiseConfig config;
-            if (sky)
+            var layer = model.Layers[layerIdx];
+
+            var noiseAcc = 0f;
+            for (int i = 0; i < layer.InLayerNoises.Count; i++)
             {
-                config = ProceduralGenerator.StaticGenerationConfig.noiseConfigs[3];
+                // for each noise
+                var xAmp = layer.InLayerNoises[i].XAmplitude;
+                var yAmp = layer.InLayerNoises[i].YAmplitude;
+
+                var noise = _noisesPerLayer[layerIdx].InLayerConfiguredNoises[i].GetNoise(
+                    (float)((Chunk.Position.x * Chunk.Size) + x) / (Chunk.Size * xAmp),
+                    (float)((Chunk.Position.y * Chunk.Size) + y) / (Chunk.Size * yAmp));
+
+                noiseAcc += noise;
             }
-            else
-            {
-                config = ProceduralGenerator.StaticGenerationConfig.noiseConfigs[2];
-            }
 
-            _noises[2].Configure(config);
+            noiseAcc /= layer.InLayerNoises.Count;
 
-            var noise = _noises[2].GetNoise(Chunk.Position.x + (float)x / Chunk.Size,
-                Chunk.Position.y + (float)y / Chunk.Size);
-
-            var block = (int)GetBlockFromNoise(noise, sky);
+            var block = (int)GetBlockFromNoise(layer, noiseAcc);
             var blockColor = BlockColors[block];
 
-            var i = y * Chunk.Size + x;
+            var idx = y * Chunk.Size + x;
 
             var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockColorMaxShift[block]);
-            Chunk.blockData.colors[i * 4] = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
-            Chunk.blockData.colors[i * 4 + 1] = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
-            Chunk.blockData.colors[i * 4 + 2] = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
-            Chunk.blockData.colors[i * 4 + 3] = blockColor.a;
-            Chunk.blockData.types[i] = block;
+            Chunk.blockData.colors[idx * 4] = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
+            Chunk.blockData.colors[idx * 4 + 1] = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
+            Chunk.blockData.colors[idx * 4 + 2] = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
+            Chunk.blockData.colors[idx * 4 + 3] = blockColor.a;
+            Chunk.blockData.types[idx] = block;
         }
 
-        private static Blocks GetBlockFromNoise(float noise, bool sky = false)
+        private static Blocks GetBlockFromNoise(Layer layer, float noise)
         {
-            List<ProceduralGenerator.BlockThresholdStruct> thresholds;
-            if (sky)
-            {
-                thresholds = ProceduralGenerator.StaticGenerationConfig.blockThresholdsSky;
-            }
-            else
-            {
-                thresholds = ProceduralGenerator.StaticGenerationConfig.blockThresholdsTerrain;
-            }
+            var thresholds = layer.Thresholds;
 
             for (var i = 0; i < thresholds.Count; ++i)
             {
@@ -147,6 +147,21 @@ namespace ChunkTasks
             }
 
             return Blocks.Border;
+        }
+
+        private static int GetLayerForY(int[] vertIdxPerLayer, int y)
+        {
+            if (y > vertIdxPerLayer[0])
+                return 0;
+            else if (y < vertIdxPerLayer[vertIdxPerLayer.Length - 1])
+                return vertIdxPerLayer.Length - 1;
+
+            var layer = 0;
+
+            while (vertIdxPerLayer[layer] > y)
+                layer++;
+
+            return layer;
         }
     }
 }

@@ -5,7 +5,6 @@ using ChunkTasks;
 using DataComponents;
 using UnityEngine;
 using Utils;
-using Random = Unity.Mathematics.Random;
 
 namespace MonoBehaviours
 {
@@ -38,16 +37,12 @@ namespace MonoBehaviours
         private bool UserPressedSpace = false;
 
         private ThreadLocal<System.Random> Random { get; set; }
-        private ThreadLocal<ConfiguredNoise[]> Noises { get; set; }
-
         private ObjectPool _chunkPool;
 
         private void Awake()
         {
             InitializeRandom();
             _chunkPool = new ObjectPool(GeneratedAreaSize * GeneratedAreaSize);
-            Noises = new ThreadLocal<ConfiguredNoise[]> (() => new ConfiguredNoise[3] { 
-                new ConfiguredNoise(), new ConfiguredNoise(), new ConfiguredNoise()});
             var blockNames = Enum.GetNames(typeof(BlockConstants.Blocks));
             blockCountsAtGenerate = new BlockCount[blockNames.Length];
             blockCounts = new BlockCount[blockNames.Length];
@@ -181,8 +176,7 @@ namespace MonoBehaviours
                         chunk = new Chunk { Position = pos };
                         _generationTasks.Add(new GenerationTask(chunk)
                         {
-                            Rng = Random,
-                            Noises = Noises
+                            Rng = Random
                         });
                         generated = true;
                     }
