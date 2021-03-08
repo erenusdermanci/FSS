@@ -13,12 +13,13 @@ namespace ChunkTasks
         
         public SaveTask(Chunk chunk) : base(chunk)
         {
-            _chunkSavePath = ChunkHelpers.GetChunksSavePath(Chunk.Position);
+            _chunkSavePath = ChunkHelpers.GetChunksSavePath();
             _chunkSaveFullPath = ChunkHelpers.GetChunksSaveFullPath(Chunk.Position);
         }
 
         protected override void Execute()
         {
+            if (ShouldCancel()) return;
             try
             {
                 if (!Directory.Exists(_chunkSavePath))

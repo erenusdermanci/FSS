@@ -19,8 +19,7 @@ namespace ChunkTasks
 
         protected override void Execute()
         {
-            if (CancellationToken.IsCancellationRequested)
-                CancellationToken.ThrowIfCancellationRequested();
+            if (ShouldCancel()) return;
 
             for (var i = 0; i < Chunk.BlockCounts.Length; ++i)
                 Chunk.BlockCounts[i] = 0;
@@ -57,8 +56,7 @@ namespace ChunkTasks
         {
             for (var x = 0; x < Chunk.Size; x++)
             {
-                if (CancellationToken.IsCancellationRequested)
-                    CancellationToken.ThrowIfCancellationRequested();
+                if (ShouldCancel()) return;
                 // for each x in our world
                 var verticalIdxPerLayer = new int[model.Layers.Count];
                 var totalDepth = 0;
@@ -76,13 +74,13 @@ namespace ChunkTasks
                         // for each noise
                         var xAmp = layer.HeightNoises[j].XAmplitude;
                         var yAmp = layer.HeightNoises[j].YAmplitude;
-                        var vertNoise = _noisesPerLayer[i].HeightConfiguredNoises[j].GetNoise((float)((Chunk.Position.x * Chunk.Size) + x) / (Chunk.Size * xAmp), 0);
+                        var vertNoise = _noisesPerLayer[i].HeightConfiguredNoises[j].GetNoise((Chunk.Position.x * Chunk.Size + x) / (Chunk.Size * xAmp), 0);
                         vertNoiseAcc += vertNoise;
                         yAmpTotal *= yAmp;
                     }
 
                     vertNoiseAcc /= layer.HeightNoises.Count;
-                    var vertIdx = (int)((vertNoiseAcc * Chunk.Size * yAmpTotal) - totalDepth);
+                    var vertIdx = (int)(vertNoiseAcc * Chunk.Size * yAmpTotal - totalDepth);
 
                     verticalIdxPerLayer[i] = vertIdx;
                 }
@@ -112,8 +110,7 @@ namespace ChunkTasks
 
         private void GenerateBlock(TerrainGenerationModel model, int x, int y, int layerIdx)
         {
-            if (CancellationToken.IsCancellationRequested)
-                CancellationToken.ThrowIfCancellationRequested();
+            if (ShouldCancel()) return;
 
             var layer = model.Layers[layerIdx];
 
@@ -125,8 +122,8 @@ namespace ChunkTasks
                 var yAmp = layer.InLayerNoises[i].YAmplitude;
 
                 var noise = _noisesPerLayer[layerIdx].InLayerConfiguredNoises[i].GetNoise(
-                    (float)((Chunk.Position.x * Chunk.Size) + x) / (Chunk.Size * xAmp),
-                    (float)((Chunk.Position.y * Chunk.Size) + y) / (Chunk.Size * yAmp));
+                    (Chunk.Position.x * Chunk.Size + x) / (Chunk.Size * xAmp),
+                    (Chunk.Position.y * Chunk.Size + y) / (Chunk.Size * yAmp));
 
                 noiseAcc += noise;
             }

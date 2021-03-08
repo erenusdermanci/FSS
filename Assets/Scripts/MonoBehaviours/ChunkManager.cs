@@ -6,7 +6,6 @@ using ChunkTasks;
 using DataComponents;
 using UnityEngine;
 using Utils;
-using static ChunkTasks.ChunkTaskScheduler;
 
 namespace MonoBehaviours
 {
@@ -16,6 +15,8 @@ namespace MonoBehaviours
         public int generatedAreaSize = 10;
         public int cleanAreaSizeOffset = 2;
         public Transform playerTransform;
+
+        public static Vector2 PlayerPosition;
 
         public readonly ConcurrentDictionary<Vector2, Chunk> ChunkMap = new ConcurrentDictionary<Vector2, Chunk>();
         private GameObjectPool _chunkPool;
@@ -33,6 +34,8 @@ namespace MonoBehaviours
         private void Awake()
         {
             InitializeRandom();
+
+            PlayerPosition = playerTransform.position;
 
             _chunkTaskScheduler.GetTaskManager(ChunkTaskManager.Types.Save).Processed += OnChunkSaved;
             _chunkTaskScheduler.GetTaskManager(ChunkTaskManager.Types.Load).Processed += OnChunkLoaded;
@@ -73,6 +76,7 @@ namespace MonoBehaviours
             var position = playerTransform.position;
             var flooredAroundPosition = new Vector2(Mathf.Floor(position.x), Mathf.Floor(position.y));
 
+            _chunkTaskScheduler.CancelLoading();
             _chunkTaskScheduler.CancelGeneration();
 
             foreach (var chunk in ChunkMap.Values)
@@ -123,6 +127,7 @@ namespace MonoBehaviours
         {
             if (ShouldGenerate())
             {
+                PlayerPosition = playerTransform.position;
                 Generate(_playerFlooredPosition, true);
                 Clean(_playerFlooredPosition);
             }
@@ -280,6 +285,9 @@ namespace MonoBehaviours
                         }
 
                         var neighborTask = _simulationBatchPool[neighborBatchIndex][neighbor.Position];
+                        
+                        // TODO: ideally we should only update the correct neighbor, but I'm being lazy here
+                        // and its not the worst strain on performance
                         neighborTask.Chunks.UpdateNeighbors(ChunkMap, neighbor);
                     }
                 }

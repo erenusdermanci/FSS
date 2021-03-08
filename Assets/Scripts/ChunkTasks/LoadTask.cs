@@ -17,6 +17,7 @@ namespace ChunkTasks
 
         protected override void Execute()
         {
+            if (ShouldCancel()) return;
             try
             {
                 using (var file = File.Open(_chunkSaveFullPath, FileMode.Open))

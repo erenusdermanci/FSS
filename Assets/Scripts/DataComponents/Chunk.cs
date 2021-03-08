@@ -24,10 +24,6 @@ namespace DataComponents
         public readonly int[] BlockCounts = new int[Enum.GetNames(typeof(BlockConstants.Blocks)).Length];
         public bool Dirty;
         
-        public Chunk()
-        {
-        }
-
         public void UpdateTexture()
         {
             Texture.LoadRawTextureData(blockData.colors);

@@ -2,20 +2,24 @@
 using System.Threading;
 using System.Threading.Tasks;
 using DataComponents;
+using UnityEngine;
 
 namespace ChunkTasks
 {
-    public abstract class ChunkTask
+    public abstract class ChunkTask : IDisposable
     {
+        public bool Done;
+        
         public readonly Chunk Chunk;
 
         private bool _synchronous;
         private Task _task;
 
+        private Task _mainThreadContinuationTask;
         private Action<Task> _mainThreadContinuation;
 
         private readonly CancellationTokenSource _cancellationTokenSource;
-        protected CancellationToken CancellationToken;
+        private CancellationToken _cancellationToken;
 
         protected ChunkTask(Chunk chunk)
         {
@@ -30,10 +34,10 @@ namespace ChunkTasks
         
         public void Schedule(bool synchronous = false)
         {
-            CancellationToken = _cancellationTokenSource.Token;
-            _task = new Task(Run, CancellationToken);
+            _cancellationToken = _cancellationTokenSource.Token;
+            _task = new Task(Run, _cancellationToken);
             if (_mainThreadContinuation != null)
-                _task.ContinueWith(_mainThreadContinuation, TaskScheduler.FromCurrentSynchronizationContext());
+                _mainThreadContinuationTask = _task.ContinueWith(_mainThreadContinuation, TaskScheduler.FromCurrentSynchronizationContext());
             _synchronous = synchronous;
             if (_synchronous)
             {
@@ -61,15 +65,31 @@ namespace ChunkTasks
         {
             if (_synchronous)
                 return;
-            _task.Wait(CancellationToken);
+            _task.Wait(_cancellationToken);
             _task = null;
         }
 
         private void Run()
         {
             Execute();
+
+            Done = true;
         }
 
         protected abstract void Execute();
+
+        protected bool ShouldCancel()
+        {
+            if (!_cancellationToken.IsCancellationRequested)
+                return false;
+
+            Done = true;
+            return true;
+        }
+
+        public void Dispose()
+        {
+            _cancellationTokenSource.Dispose();
+        }
     }
 }

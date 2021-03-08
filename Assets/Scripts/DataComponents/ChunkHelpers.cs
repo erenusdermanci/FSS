@@ -26,14 +26,14 @@ namespace DataComponents
                 : $"{Application.persistentDataPath}";
         }
 
-        public static string GetChunksSavePath(Vector2 position)
+        public static string GetChunksSavePath()
         {
             return $"{GetSavePath()}\\{SceneManager.GetActiveScene().name}";
         }
 
         public static string GetChunksSaveFullPath(Vector2 position)
         {
-            return $"{GetChunksSavePath(position)}\\{GetChunkSaveName(position)}";
+            return $"{GetChunksSavePath()}\\{GetChunkSaveName(position)}";
         }
 
         public static bool IsChunkPersisted(Vector2 position)
