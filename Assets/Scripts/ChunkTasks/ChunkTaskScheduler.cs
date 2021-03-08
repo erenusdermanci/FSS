@@ -20,15 +20,15 @@ namespace ChunkTasks
             {
                 {
                     ChunkTaskManager.Types.Save,
-                    new ChunkTaskManager(ChunkTaskManager.Types.Save, 16, chunk => new SaveTask(chunk))
+                    new ChunkTaskManager(16, chunk => new SaveTask(chunk))
                 },
                 {
                     ChunkTaskManager.Types.Load,
-                    new ChunkTaskManager(ChunkTaskManager.Types.Load, 16, chunk => new LoadTask(chunk))
+                    new ChunkTaskManager(16, chunk => new LoadTask(chunk))
                 },
                 {
                     ChunkTaskManager.Types.Generate,
-                    new ChunkTaskManager(ChunkTaskManager.Types.Generate, 16, chunk => new GenerationTask(chunk)
+                    new ChunkTaskManager(16, chunk => new GenerationTask(chunk)
                     {
                         Rng = _random,
                     })

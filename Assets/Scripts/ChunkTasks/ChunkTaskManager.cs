@@ -26,7 +26,6 @@ namespace ChunkTasks
             }
         }
 
-        private Types _type;
         private int MaximumProcessing;
         private readonly ConcurrentDictionary<Vector2, ChunkTask> _tasks = new ConcurrentDictionary<Vector2, ChunkTask>();
         private readonly Queue<ChunkTask> _queued = new Queue<ChunkTask>();
@@ -36,9 +35,8 @@ namespace ChunkTasks
 
         private Func<Chunk, ChunkTask> _taskCreator;
 
-        public ChunkTaskManager(Types type, int maximumProcessing, Func<Chunk, ChunkTask> taskCreator)
+        public ChunkTaskManager(int maximumProcessing, Func<Chunk, ChunkTask> taskCreator)
         {
-            _type = type;
             MaximumProcessing = maximumProcessing;
             _taskCreator = taskCreator;
         }
