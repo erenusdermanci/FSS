@@ -99,18 +99,13 @@ namespace ChunkTasks
                 for (var x = 0; x < Chunk.Size; ++x)
                 {
                     var i = y * Chunk.Size + x;
-                    Chunk.BlockCounts[Chunks[0].blockData.types[i]] += 1;
+                    Chunk.BlockCounts[Chunks[0].Data.types[i]] += 1;
                     Chunk.BlockUpdatedFlags[i] = 0;
                 }
             }
         }
 
         #region Block logic
-
-        private bool SimulateOil(int block, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo)
-        {
-            return false;
-        }
 
         private unsafe bool SimulateWater(int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo)
         {

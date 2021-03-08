@@ -23,7 +23,7 @@ namespace ChunkTasks
                 using (var file = File.Open(_chunkSaveFullPath, FileMode.Open))
                 {
                     var loadedData = new BinaryFormatter().Deserialize(file);
-                    Chunk.blockData = (Chunk.BlockData)loadedData;
+                    Chunk.Data = (Chunk.BlockData)loadedData;
                 }
             }
             catch (Exception e)

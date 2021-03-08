@@ -162,29 +162,29 @@ namespace Utils
 
     public class ConfiguredNoise
     {
-        private FastNoiseLite noise;
-        private float xOffset;
-        private float yOffset;
+        private readonly FastNoiseLite _noise;
+        private float _xOffset;
+        private float _yOffset;
 
         public ConfiguredNoise()
         {
-            noise = new FastNoiseLite();
+            _noise = new FastNoiseLite();
         }
 
         public void Configure(NoiseConfig config)
         {
-            noise.SetNoiseType(config.Type);
-            noise.SetFractalOctaves(config.Octaves);
-            noise.SetFractalGain(config.Gain);
-            noise.SetFrequency(config.Frequency);
-            noise.SetFractalType(config.FractalType);
-            xOffset = config.XOffset;
-            yOffset = config.YOffset;
+            _noise.SetNoiseType(config.Type);
+            _noise.SetFractalOctaves(config.Octaves);
+            _noise.SetFractalGain(config.Gain);
+            _noise.SetFrequency(config.Frequency);
+            _noise.SetFractalType(config.FractalType);
+            _xOffset = config.XOffset;
+            _yOffset = config.YOffset;
         }
 
         public float GetNoise(float x, float y)
         {
-            return noise.GetNoise(x + xOffset, y + yOffset);
+            return _noise.GetNoise(x + _xOffset, y + _yOffset);
         }
     }
 

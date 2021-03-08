@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Utils;
 using static BlockConstants;
+using Random = System.Random;
 
 public class DrawingTool : MonoBehaviour
 {
@@ -35,7 +36,7 @@ public class DrawingTool : MonoBehaviour
     private Vector2? drawStartPos;
     private Vector2? drawEndPos;
 
-    private System.Random _rng;
+    private Random _rng;
 
     private HashSet<Vector2> _chunksToReload = new HashSet<Vector2>();
 
@@ -43,7 +44,7 @@ public class DrawingTool : MonoBehaviour
     void Awake()
     {
         userDrawingLine = false;
-        _rng = new System.Random();
+        _rng = new Random();
     }
 
     // Update is called once per frame
@@ -310,10 +311,10 @@ public class DrawingTool : MonoBehaviour
     private void ColorPixel(ChunkNeighborhood neighborhood, int x, int y)
     {
         var i = y * Chunk.Size + x;
-        neighborhood.Chunks[0].blockData.colors[i * 4] = PixelColorOverride.r;
-        neighborhood.Chunks[0].blockData.colors[i * 4 + 1] = PixelColorOverride.g;
-        neighborhood.Chunks[0].blockData.colors[i * 4 + 2] = PixelColorOverride.b;
-        neighborhood.Chunks[0].blockData.colors[i * 4 + 3] = PixelColorOverride.a;
+        neighborhood.Chunks[0].Data.colors[i * 4] = PixelColorOverride.r;
+        neighborhood.Chunks[0].Data.colors[i * 4 + 1] = PixelColorOverride.g;
+        neighborhood.Chunks[0].Data.colors[i * 4 + 2] = PixelColorOverride.b;
+        neighborhood.Chunks[0].Data.colors[i * 4 + 3] = PixelColorOverride.a;
         _chunksToReload.Add(neighborhood.Chunks[0].Position);
     }
 }

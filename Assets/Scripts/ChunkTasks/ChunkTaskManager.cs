@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using DataComponents;
 using MonoBehaviours;
 using UnityEngine;
@@ -26,7 +25,7 @@ namespace ChunkTasks
             }
         }
 
-        public class Vector2Comparer : IComparer<Vector2>
+        private class Vector2Comparer : IComparer<Vector2>
         {
             public int Compare(Vector2 x, Vector2 y)
             {
@@ -36,7 +35,7 @@ namespace ChunkTasks
             }
         }
 
-        private int MaximumProcessing;
+        private readonly int _maximumProcessing;
         private readonly Dictionary<Vector2, ChunkTask> _tasks = new Dictionary<Vector2, ChunkTask>();
         private readonly List<Vector2> _queued = new List<Vector2>();
         private readonly Dictionary<Vector2, ChunkTask> _processing = new Dictionary<Vector2, ChunkTask>();
@@ -45,18 +44,18 @@ namespace ChunkTasks
 
         public event EventHandler Processed;
 
-        private Func<Chunk, ChunkTask> _taskCreator;
+        private readonly Func<Chunk, ChunkTask> _taskCreator;
 
         public ChunkTaskManager(int maximumProcessing, Func<Chunk, ChunkTask> taskCreator)
         {
-            MaximumProcessing = maximumProcessing;
+            _maximumProcessing = maximumProcessing;
             _taskCreator = taskCreator;
         }
 
         public void Update()
         {
             _queued.Sort(new Vector2Comparer());
-            while (_queued.Count != 0 && _processing.Count < MaximumProcessing)
+            while (_queued.Count != 0 && _processing.Count < _maximumProcessing)
             {
                 var index = _queued.Count - 1;
                 var position = _queued[index];
@@ -71,7 +70,7 @@ namespace ChunkTasks
             ProcessDoneTasks();
         }
 
-        public void ProcessDoneTasks()
+        private void ProcessDoneTasks()
         {
             foreach (var processingTask in _processing.Values)
             {

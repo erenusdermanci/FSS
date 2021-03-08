@@ -6,6 +6,7 @@ using ChunkTasks;
 using DataComponents;
 using UnityEngine;
 using Utils;
+using Random = System.Random;
 
 namespace MonoBehaviours
 {
@@ -29,7 +30,7 @@ namespace MonoBehaviours
         // DEBUG PROPERTIES
         private bool _userPressedSpace;
 
-        private ThreadLocal<System.Random> Random { get; set; }
+        private ThreadLocal<Random> Random { get; set; }
 
         private void Awake()
         {
@@ -67,8 +68,8 @@ namespace MonoBehaviours
 
         private void InitializeRandom()
         {
-            Random = new ThreadLocal<System.Random>(() =>
-                new System.Random(new System.Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
+            Random = new ThreadLocal<Random>(() =>
+                new Random(new Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
         }
 
         private void ResetGrid(bool loadFromDisk)
@@ -250,10 +251,6 @@ namespace MonoBehaviours
                     Chunks = new ChunkNeighborhood(ChunkMap, chunk),
                     Random = Random
                 };
-                task.CompleteOnMainThread(t =>
-                {
-                    task.Chunk.UpdateTexture();
-                });
                 _simulationBatchPool[batchIndex].TryAdd(chunkPos, task);
             }
             else
@@ -320,6 +317,7 @@ namespace MonoBehaviours
                     if (enableDirty && !task.Chunk.Dirty)
                         continue;
                     task.Join();
+                    task.Chunk.UpdateTexture();
                 }
             }
         }

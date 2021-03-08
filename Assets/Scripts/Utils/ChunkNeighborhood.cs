@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using DataComponents;
 using UnityEngine;
 using static BlockConstants;
@@ -56,7 +55,7 @@ namespace Utils
 
             var blockIndex = y * Chunk.Size + x;
 
-            return Chunks[chunkIndex].blockData.types[blockIndex];
+            return Chunks[chunkIndex].Data.types[blockIndex];
         }
 
         public void PutBlock(int x, int y, int type, Color32 color, ref Chunk chunkWritten)
@@ -82,20 +81,20 @@ namespace Utils
 
             // put the source block at its destination
             // handle color swapping
-            var sourceidx = Chunk.Size * y + x;
-            var destidx = Chunk.Size * uy + ux;
+            var srcIndex = Chunk.Size * y + x;
+            var dstIndex = Chunk.Size * uy + ux;
             var destColorBuffer = stackalloc byte[4] {
-                Chunks[newChunkIndex].blockData.colors[destidx * 4],
-                Chunks[newChunkIndex].blockData.colors[destidx * 4 + 1],
-                Chunks[newChunkIndex].blockData.colors[destidx * 4 + 2],
-                Chunks[newChunkIndex].blockData.colors[destidx * 4 + 3]
+                Chunks[newChunkIndex].Data.colors[dstIndex * 4],
+                Chunks[newChunkIndex].Data.colors[dstIndex * 4 + 1],
+                Chunks[newChunkIndex].Data.colors[dstIndex * 4 + 2],
+                Chunks[newChunkIndex].Data.colors[dstIndex * 4 + 3]
             };
 
             Chunks[newChunkIndex].PutBlock(ux, uy, srcBlock,
-                Chunks[0].blockData.colors[sourceidx * 4],
-                Chunks[0].blockData.colors[sourceidx * 4 + 1],
-                Chunks[0].blockData.colors[sourceidx * 4 + 2],
-                Chunks[0].blockData.colors[sourceidx * 4 + 3]);
+                Chunks[0].Data.colors[srcIndex * 4],
+                Chunks[0].Data.colors[srcIndex * 4 + 1],
+                Chunks[0].Data.colors[srcIndex * 4 + 2],
+                Chunks[0].Data.colors[srcIndex * 4 + 3]);
             blockMoveInfo.Chunk = newChunkIndex;
             blockMoveInfo.X = ux;
             blockMoveInfo.Y = uy;

@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using Utils;
 
 namespace DataComponents
 {
@@ -18,7 +17,7 @@ namespace DataComponents
             public int[] types;
         }
 
-        public BlockData blockData;
+        public BlockData Data;
         
         public readonly byte[] BlockUpdatedFlags = new byte[Size * Size];
         public readonly int[] BlockCounts = new int[Enum.GetNames(typeof(BlockConstants.Blocks)).Length];
@@ -26,18 +25,18 @@ namespace DataComponents
         
         public void UpdateTexture()
         {
-            Texture.LoadRawTextureData(blockData.colors);
+            Texture.LoadRawTextureData(Data.colors);
             Texture.Apply();
         }
         
         public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a)
         {
             var i = y * Size + x;
-            blockData.colors[i * 4] = r;
-            blockData.colors[i * 4 + 1] = g;
-            blockData.colors[i * 4 + 2] = b;
-            blockData.colors[i * 4 + 3] = a;
-            blockData.types[i] = type;
+            Data.colors[i * 4] = r;
+            Data.colors[i * 4 + 1] = g;
+            Data.colors[i * 4 + 2] = b;
+            Data.colors[i * 4 + 3] = a;
+            Data.types[i] = type;
         }
 
         public void SetUpdatedFlag(int x, int y)

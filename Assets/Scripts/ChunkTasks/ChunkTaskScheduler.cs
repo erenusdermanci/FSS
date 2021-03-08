@@ -4,6 +4,7 @@ using System.Threading;
 using DataComponents;
 using MonoBehaviours;
 using UnityEngine;
+using Random = System.Random;
 
 namespace ChunkTasks
 {
@@ -11,8 +12,8 @@ namespace ChunkTasks
     {
         private readonly Dictionary<ChunkTaskManager.Types, ChunkTaskManager> _chunkTaskManagers;
         
-        private readonly ThreadLocal<System.Random> _random = new ThreadLocal<System.Random>(() =>
-            new System.Random(new System.Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
+        private readonly ThreadLocal<Random> _random = new ThreadLocal<Random>(() =>
+            new Random(new Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
 
         public ChunkTaskScheduler()
         {

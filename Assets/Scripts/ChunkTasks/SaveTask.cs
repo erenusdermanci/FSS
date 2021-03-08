@@ -30,7 +30,7 @@ namespace ChunkTasks
                 using (var file = File.Create(_chunkSaveFullPath, ChunkHelpers.FileSaveBufferSize,
                     FileOptions.SequentialScan | FileOptions.Asynchronous))
                 {
-                    new BinaryFormatter().Serialize(file, Chunk.blockData);
+                    new BinaryFormatter().Serialize(file, Chunk.Data);
                 }
             }
             catch (Exception e)

@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using DataComponents;
-using UnityEngine;
 
 namespace ChunkTasks
 {
@@ -15,9 +14,6 @@ namespace ChunkTasks
         private bool _synchronous;
         private Task _task;
 
-        private Task _mainThreadContinuationTask;
-        private Action<Task> _mainThreadContinuation;
-
         private readonly CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
 
@@ -27,17 +23,10 @@ namespace ChunkTasks
             Chunk = chunk;
         }
 
-        public void CompleteOnMainThread(Action<Task> action)
-        {
-            _mainThreadContinuation = action;
-        }
-        
         public void Schedule(bool synchronous = false)
         {
             _cancellationToken = _cancellationTokenSource.Token;
             _task = new Task(Run, _cancellationToken);
-            if (_mainThreadContinuation != null)
-                _mainThreadContinuationTask = _task.ContinueWith(_mainThreadContinuation, TaskScheduler.FromCurrentSynchronizationContext());
             _synchronous = synchronous;
             if (_synchronous)
             {

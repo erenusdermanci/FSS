@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using Random = System.Random;
 
 namespace Utils
 {
@@ -12,7 +13,7 @@ namespace Utils
             return Math.Abs(a - b) < epsilon;
         }
 
-        public static float GetRandomShiftAmount(System.Random rng, float baseAmount)
+        public static float GetRandomShiftAmount(Random rng, float baseAmount)
         {
             return baseAmount * ((float) rng.NextDouble() - 0.5f) * 2.0f;
         }

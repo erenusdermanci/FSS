@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using DataComponents;
 using MonoBehaviours;
@@ -9,8 +10,8 @@ namespace ChunkTasks
 {
     public class GenerationTask : ChunkTask
     {
-        public ThreadLocal<System.Random> Rng;
-        private System.Random _rng;
+        public ThreadLocal<Random> Rng;
+        private Random _rng;
         private Dictionary<int, ConfiguredNoisesForLayer> _noisesPerLayer;
 
         public GenerationTask(Chunk chunk) : base(chunk)
@@ -24,8 +25,8 @@ namespace ChunkTasks
             for (var i = 0; i < Chunk.BlockCounts.Length; ++i)
                 Chunk.BlockCounts[i] = 0;
 
-            Chunk.blockData.colors = new byte[Chunk.Size * Chunk.Size * 4];
-            Chunk.blockData.types = new int[Chunk.Size * Chunk.Size];
+            Chunk.Data.colors = new byte[Chunk.Size * Chunk.Size * 4];
+            Chunk.Data.types = new int[Chunk.Size * Chunk.Size];
 
             if (ProceduralGenerator.IsEnabled)
             {
@@ -39,7 +40,7 @@ namespace ChunkTasks
                 GenerateEmpty();
 
             for (var i = 0; i < Chunk.Size * Chunk.Size; i++)
-                Chunk.BlockCounts[Chunk.blockData.types[i]] += 1;
+                Chunk.BlockCounts[Chunk.Data.types[i]] += 1;
 
             Chunk.Dirty = true; // TODO: Calculate if the chunk is really dirty
         }
@@ -100,11 +101,11 @@ namespace ChunkTasks
         {
             for (var i = 0; i < Chunk.Size * Chunk.Size; i++)
             {
-                Chunk.blockData.colors[i * 4] = BlockColors[(int) Blocks.Air].r;
-                Chunk.blockData.colors[i * 4 + 1] = BlockColors[(int) Blocks.Air].g;
-                Chunk.blockData.colors[i * 4 + 2] = BlockColors[(int) Blocks.Air].b;
-                Chunk.blockData.colors[i * 4 + 3] = BlockColors[(int) Blocks.Air].a;
-                Chunk.blockData.types[i] = (int) Blocks.Air;
+                Chunk.Data.colors[i * 4] = BlockColors[(int) Blocks.Air].r;
+                Chunk.Data.colors[i * 4 + 1] = BlockColors[(int) Blocks.Air].g;
+                Chunk.Data.colors[i * 4 + 2] = BlockColors[(int) Blocks.Air].b;
+                Chunk.Data.colors[i * 4 + 3] = BlockColors[(int) Blocks.Air].a;
+                Chunk.Data.types[i] = (int) Blocks.Air;
             }
         }
 
@@ -136,11 +137,11 @@ namespace ChunkTasks
             var idx = y * Chunk.Size + x;
 
             var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockColorMaxShift[block]);
-            Chunk.blockData.colors[idx * 4] = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
-            Chunk.blockData.colors[idx * 4 + 1] = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
-            Chunk.blockData.colors[idx * 4 + 2] = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
-            Chunk.blockData.colors[idx * 4 + 3] = blockColor.a;
-            Chunk.blockData.types[idx] = block;
+            Chunk.Data.colors[idx * 4] = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
+            Chunk.Data.colors[idx * 4 + 1] = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
+            Chunk.Data.colors[idx * 4 + 2] = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
+            Chunk.Data.colors[idx * 4 + 3] = blockColor.a;
+            Chunk.Data.types[idx] = block;
         }
 
         private static Blocks GetBlockFromNoise(Layer layer, float noise)
