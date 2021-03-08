@@ -54,7 +54,7 @@ public class DrawingTool : MonoBehaviour
 
         var mousePos = GetAdjustedWorldMousePosition();
         var flooredMousePos = new Vector2(Mathf.Floor(mousePos.x), Mathf.Floor(mousePos.y));
-        if (!ChunkManager.ChunkGrid.ChunkMap.ContainsKey(flooredMousePos)) // Nothing to draw
+        if (!ChunkManager.ChunkMap.ContainsKey(flooredMousePos)) // Nothing to draw
             return;
 
         var neighborhood = GetNeighborhood(flooredMousePos);
@@ -92,7 +92,7 @@ public class DrawingTool : MonoBehaviour
 
         foreach (var chunkPosition in _chunksToReload)
         {
-            ChunkManager.ChunkGrid.ChunkMap[chunkPosition].UpdateTexture();
+            ChunkManager.ChunkMap[chunkPosition].UpdateTexture();
         }
         _chunksToReload.Clear();
     }
@@ -159,8 +159,8 @@ public class DrawingTool : MonoBehaviour
 
     private ChunkNeighborhood GetNeighborhood(Vector2 flooredPosVec2)
     {
-        var centralChunk = ChunkManager.ChunkGrid.ChunkMap[flooredPosVec2];
-        return new ChunkNeighborhood(ChunkManager.ChunkGrid, centralChunk);
+        var centralChunk = ChunkManager.ChunkMap[flooredPosVec2];
+        return new ChunkNeighborhood(ChunkManager.ChunkMap, centralChunk);
     }
 
     private void DrawPixel(ChunkNeighborhood neighborhood, int x, int y)

@@ -21,7 +21,7 @@ namespace MonoBehaviours
             IsEnabled = Enabled;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             if (StaticGenerationModel.Equals(GenerationModel))
                 return;

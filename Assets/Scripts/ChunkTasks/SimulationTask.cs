@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Specialized;
-using System.Linq;
 using System.Threading;
 using DataComponents;
 using Utils;
 using static BlockConstants;
-using Random = Unity.Mathematics.Random;
 
 namespace ChunkTasks
 {
@@ -13,14 +10,15 @@ namespace ChunkTasks
     {
         internal ChunkNeighborhood Chunks;
 
-        public ThreadLocal<System.Random> Random;
+        public ThreadLocal<Random> Random;
 
-        private System.Random _rng;
+        private Random _rng;
 
-        private int[] _indexingOrder;
+        private readonly int[] _indexingOrder;
 
         public SimulationTask(Chunk chunk) : base(chunk)
         {
+            // TODO: Optimize all this to not do it on each task creation
             var size = Chunk.Size * Chunk.Size;
             _indexingOrder = new int[size];
             
@@ -29,7 +27,7 @@ namespace ChunkTasks
                 _indexingOrder[i] = i;
             }
 
-            var rng = new System.Random();
+            var rng = new Random();
 
             while (size > 1)
             {
@@ -40,7 +38,7 @@ namespace ChunkTasks
             }
         }
 
-        protected override unsafe void Execute()
+        protected override void Execute()
         {
             _rng = Random.Value;
 
@@ -48,17 +46,8 @@ namespace ChunkTasks
                 Chunk.BlockCounts[i] = 0;
 
             var blockMoveInfo = new ChunkNeighborhood.BlockMoveInfo();
-            // var start = stackalloc int[2] { 0, Chunk.Size - 1 };
-            // var cmp = stackalloc int[2] { Chunk.Size, -1 };
-            // var inc = stackalloc int[2] { +1, -1 };
 
             var moved = false;
-            // var yDir = _rng.Next(0, 2);
-            // for (var y = start[yDir]; y != cmp[yDir]; y += inc[yDir])
-            // {
-            //     var xDir = _rng.Next(0, 2);
-            //     for (var x = start[xDir]; x != cmp[xDir]; x += inc[xDir])
-            //     {
             const int totalSize = Chunk.Size * Chunk.Size;
             for (var i = 0; i < totalSize; ++i)
             {
@@ -268,7 +257,7 @@ namespace ChunkTasks
                         // all blocks are available
                         index = _rng.Next(0, 8);
                     }
-                    else
+                    else // what could go wrong...
                     {
                         // there is 1 to 7 blocks available
                         

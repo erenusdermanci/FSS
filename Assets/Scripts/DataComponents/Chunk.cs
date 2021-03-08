@@ -20,21 +20,12 @@ namespace DataComponents
 
         public BlockData blockData;
         
-        public byte[] BlockUpdatedFlags = new byte[Size * Size];
+        public readonly byte[] BlockUpdatedFlags = new byte[Size * Size];
+        public readonly int[] BlockCounts = new int[Enum.GetNames(typeof(BlockConstants.Blocks)).Length];
         public bool Dirty;
-        public int[] BlockCounts = new int[Enum.GetNames(typeof(BlockConstants.Blocks)).Length];
-
-        public Chunk(BlockData data) // loaded from disk
-        {
-            blockData = data;
-
-            Dirty = true;
-        }
         
-        public Chunk() // generated
+        public Chunk()
         {
-            blockData.colors = new byte[Size * Size * 4];
-            blockData.types = new int[Size * Size];
         }
 
         public void UpdateTexture()
@@ -62,10 +53,9 @@ namespace DataComponents
         public void Dispose()
         {
             if (GameObject != null && GameObject.activeSelf && GameObject.activeInHierarchy)
+            {
                 GameObject.SetActive(false);
-            
-            if (!GlobalDebugConfig.StaticGlobalConfig.DisablePersistence)
-                this.Save();
+            }
         }
     }
 }

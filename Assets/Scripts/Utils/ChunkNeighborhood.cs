@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using DataComponents;
 using UnityEngine;
 using static BlockConstants;
@@ -21,19 +23,27 @@ namespace Utils
             set => Chunks[idx] = value;
         }
 
-        public ChunkNeighborhood(ChunkGrid grid, Chunk centralChunk)
+        public ChunkNeighborhood(ConcurrentDictionary<Vector2, Chunk> chunkMap, Chunk centralChunk)
         {
+            UpdateNeighbors(chunkMap, centralChunk);
+        }
+
+        public void UpdateNeighbors(ConcurrentDictionary<Vector2, Chunk> chunkMap, Chunk centralChunk)
+        {
+            // 6 7 8
+            // 4 0 5
+            // 1 2 3
             Chunks = new[]
             {
                 centralChunk,
-                GetNeighborChunks(grid, centralChunk, -1, -1),
-                GetNeighborChunks(grid, centralChunk, 0, -1),
-                GetNeighborChunks(grid, centralChunk, 1, -1),
-                GetNeighborChunks(grid, centralChunk, -1, 0),
-                GetNeighborChunks(grid, centralChunk, 1, 0),
-                GetNeighborChunks(grid, centralChunk, -1, 1),
-                GetNeighborChunks(grid, centralChunk, 0, 1),
-                GetNeighborChunks(grid, centralChunk, 1, 1)
+                ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, -1, -1),
+                ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, 0, -1),
+                ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, 1, -1),
+                ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, -1, 0),
+                ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, 1, 0),
+                ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, -1, 1),
+                ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, 0, 1),
+                ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, 1, 1)
             };
         }
 
@@ -191,16 +201,6 @@ namespace Utils
                 chunkIndex = 5;
                 x -= Chunk.Size;
             }
-        }
-
-        private static Chunk GetNeighborChunks(ChunkGrid grid, Chunk origin, int xOffset, int yOffset)
-        {
-            var neighborPosition = new Vector2(origin.Position.x + xOffset, origin.Position.y + yOffset);
-            if (grid.ChunkMap.ContainsKey(neighborPosition))
-            {
-                return grid.ChunkMap[neighborPosition];
-            }
-            return null;
         }
     }
 }

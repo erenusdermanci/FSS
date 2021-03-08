@@ -15,13 +15,18 @@ namespace ChunkTasks
 
         public GenerationTask(Chunk chunk) : base(chunk)
         {
-
         }
 
         protected override void Execute()
         {
+            if (CancellationToken.IsCancellationRequested)
+                CancellationToken.ThrowIfCancellationRequested();
+
             for (var i = 0; i < Chunk.BlockCounts.Length; ++i)
                 Chunk.BlockCounts[i] = 0;
+
+            Chunk.blockData.colors = new byte[Chunk.Size * Chunk.Size * 4];
+            Chunk.blockData.types = new int[Chunk.Size * Chunk.Size];
 
             if (ProceduralGenerator.IsEnabled)
             {
@@ -37,7 +42,7 @@ namespace ChunkTasks
             for (var i = 0; i < Chunk.Size * Chunk.Size; i++)
                 Chunk.BlockCounts[Chunk.blockData.types[i]] += 1;
 
-            Chunk.Dirty = true;
+            Chunk.Dirty = true; // TODO: Calculate if the chunk is really dirty
         }
 
         private void ConfigureNoises(TerrainGenerationModel model)
@@ -52,6 +57,8 @@ namespace ChunkTasks
         {
             for (var x = 0; x < Chunk.Size; x++)
             {
+                if (CancellationToken.IsCancellationRequested)
+                    CancellationToken.ThrowIfCancellationRequested();
                 // for each x in our world
                 var verticalIdxPerLayer = new int[model.Layers.Count];
                 var totalDepth = 0;
@@ -105,6 +112,9 @@ namespace ChunkTasks
 
         private void GenerateBlock(TerrainGenerationModel model, int x, int y, int layerIdx)
         {
+            if (CancellationToken.IsCancellationRequested)
+                CancellationToken.ThrowIfCancellationRequested();
+
             var layer = model.Layers[layerIdx];
 
             var noiseAcc = 0f;

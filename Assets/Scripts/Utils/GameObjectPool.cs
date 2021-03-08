@@ -5,16 +5,15 @@ using UnityEngine;
 
 namespace Utils
 {
-    public class ObjectPool
+    public class GameObjectPool
     {
-        private readonly bool shouldExpand = true;
-        private List<GameObject> pooledObjects;
-        private GameObject objectToPool;
+        private readonly List<GameObject> _pooledObjects;
+        private readonly GameObject _objectToPool;
 
-        public ObjectPool(int amountToPool)
+        public GameObjectPool(int amountToPool)
         {
-            objectToPool = (GameObject) Resources.Load("ChunkObject1");
-            pooledObjects = new List<GameObject>();
+            _objectToPool = (GameObject) Resources.Load("ChunkObject1");
+            _pooledObjects = new List<GameObject>();
             for (var i = 0; i < amountToPool; i++)
             {
                 CreateObject();
@@ -23,15 +22,15 @@ namespace Utils
 
         public GameObject GetObject()
         {
-            foreach (var t in pooledObjects.Where(t => !t.activeInHierarchy))
+            foreach (var t in _pooledObjects.Where(t => !t.activeInHierarchy))
                 return t;
 
-            return !shouldExpand ? null : CreateObject();
+            return CreateObject();
         }
 
         private GameObject CreateObject()
         {
-            var obj = Object.Instantiate(objectToPool);
+            var obj = Object.Instantiate(_objectToPool);
             obj.SetActive(false);
             var texture = new Texture2D(Chunk.Size, Chunk.Size, TextureFormat.RGBA32, false)
             {
@@ -44,7 +43,7 @@ namespace Utils
                 Chunk.Size, 
                 0,
                 SpriteMeshType.FullRect);
-            pooledObjects.Add(obj);
+            _pooledObjects.Add(obj);
             return obj;
         }
     }
