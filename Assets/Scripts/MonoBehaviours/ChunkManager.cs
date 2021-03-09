@@ -114,7 +114,9 @@ namespace MonoBehaviours
             const float s = 0.4975f;
             foreach (var chunk in ChunkMap.Values)
             {
-                var borderColor = chunk.Dirty ? Color.red : Color.white;
+                if (!chunk.Dirty)
+                    continue;
+                var borderColor = Color.red;
                 var x = chunk.Position.x;
                 var y = chunk.Position.y;
                 Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), borderColor);
