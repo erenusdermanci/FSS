@@ -111,14 +111,25 @@ namespace MonoBehaviours
 
         private void OutlineChunks()
         {
-            const float s = 0.4975f;
+            const float s = 0.5f;
             foreach (var chunk in ChunkMap.Values)
             {
-                if (!chunk.Dirty)
-                    continue;
-                var borderColor = Color.red;
                 var x = chunk.Position.x;
                 var y = chunk.Position.y;
+                var mapBorderColor = Color.white;
+                if (!chunk.Dirty)
+                {
+                    if (!ChunkMap.ContainsKey(new Vector2(chunk.Position.x - 1, chunk.Position.y)))
+                        Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), mapBorderColor);
+                    if (!ChunkMap.ContainsKey(new Vector2(chunk.Position.x + 1, chunk.Position.y)))
+                        Debug.DrawLine(new Vector3(x + s, y - s), new Vector3(x + s, y + s), mapBorderColor);
+                    if (!ChunkMap.ContainsKey(new Vector2(chunk.Position.x, chunk.Position.y - 1)))
+                        Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), mapBorderColor);
+                    if (!ChunkMap.ContainsKey(new Vector2(chunk.Position.x, chunk.Position.y + 1)))
+                        Debug.DrawLine(new Vector3(x - s, y + s), new Vector3(x + s, y + s), mapBorderColor);
+                    continue;
+                }
+                var borderColor = Color.red;
                 Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), borderColor);
                 Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), borderColor);
                 Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x - s, y + s), borderColor);
