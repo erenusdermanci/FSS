@@ -62,7 +62,7 @@ namespace ChunkTasks
                 _chunkTaskManagers[ChunkTaskManager.Types.Save].Cancel(pos);
             }
 
-            if (!GlobalDebugConfig.StaticGlobalConfig.DisablePersistence
+            if (!GlobalDebugConfig.StaticGlobalConfig.DisableLoad
                 && loadFromDisk
                 && ChunkHelpers.IsChunkPersisted(pos))
             {

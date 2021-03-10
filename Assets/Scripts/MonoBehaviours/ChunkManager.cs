@@ -259,7 +259,7 @@ namespace MonoBehaviours
 
         private void DisposeAndSaveChunk(Chunk chunk)
         {
-            if (GlobalDebugConfig.StaticGlobalConfig.DisablePersistence)
+            if (GlobalDebugConfig.StaticGlobalConfig.DisableSave)
             {
                 ChunkMap.TryRemove(chunk.Position, out _);
                 chunk.Dispose();

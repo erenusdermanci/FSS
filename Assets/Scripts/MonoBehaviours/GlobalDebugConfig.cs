@@ -29,7 +29,8 @@ namespace MonoBehaviours
         [Serializable]
         public struct GlobalConfigStruct
         {
-            public bool DisablePersistence;
+            public bool DisableSave;
+            public bool DisableLoad;
             public bool MonothreadSimulate;
             public int RestrictGridSize;
             public bool EnableSimulation;
@@ -48,8 +49,9 @@ namespace MonoBehaviours
                 StepByStep = other.StepByStep;
                 OutlineChunks = other.OutlineChunks;
                 DisableDirtySystem = other.DisableDirtySystem;
-                DisablePersistence = other.DisablePersistence;
                 SaveAsTestScene = other.SaveAsTestScene;
+                DisableSave = other.DisableSave;
+                DisableLoad = other.DisableLoad;
             }
 
             public bool Equals(GlobalConfigStruct other)
@@ -61,8 +63,9 @@ namespace MonoBehaviours
                     || StepByStep != other.StepByStep
                     || OutlineChunks != other.OutlineChunks
                     || DisableDirtySystem != other.DisableDirtySystem
-                    || DisablePersistence != other.DisablePersistence
-                    || SaveAsTestScene != other.SaveAsTestScene)
+                    || SaveAsTestScene != other.SaveAsTestScene
+                    || DisableSave != other.DisableSave
+                    || DisableLoad != other.DisableLoad)
                     return false;
 
                 return true;
