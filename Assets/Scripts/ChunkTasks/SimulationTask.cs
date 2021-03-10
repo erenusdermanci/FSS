@@ -37,8 +37,31 @@ namespace ChunkTasks
             }
         }
 
-        protected override void Execute()
+        protected override unsafe void Execute()
         {
+            #region stackalloc declared at the top for performance
+            var indexes = stackalloc int[64]
+            {
+                0,0,0,0, // should not happen
+                0,0,0,0,
+                1,0,0,0,
+                0,1,0,0,
+                2,0,0,0,
+                0,2,0,0,
+                1,2,0,0,
+                0,1,2,0,
+                3,0,0,0,
+                0,3,0,0,
+                1,3,0,0,
+                0,1,3,0,
+                2,3,0,0,
+                0,2,3,0,
+                1,2,3,0,
+                0,1,2,3
+            };
+            var bitCount = stackalloc int[16] { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
+            #endregion
+            
             _rng = Random.Value;
 
             for (var i = 0; i < Chunk.BlockCounts.Length; ++i)
@@ -67,10 +90,10 @@ namespace ChunkTasks
                 switch (block)
                 {
                     case (int)Blocks.Oil:
-                        moved |= SimulateWater(block, x, y, ref blockMoveInfo);
+                        moved |= SimulateWater(block, x, y, ref blockMoveInfo, indexes, bitCount);
                         break;
                     case (int)Blocks.Water:
-                        moved |= SimulateWater(block, x, y, ref blockMoveInfo);
+                        moved |= SimulateWater(block, x, y, ref blockMoveInfo, indexes, bitCount);
                         break;
                     case (int)Blocks.Sand:
                         moved |= SimulateSand(block, x, y, ref blockMoveInfo);
@@ -106,7 +129,8 @@ namespace ChunkTasks
 
         #region Block logic
 
-        private unsafe bool SimulateWater(int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo)
+        private unsafe bool SimulateWater(int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo,
+                                          int* indexes, int* bitCount)
         {
             // DOWN IS PRIORITY!
             var targetBlocks = stackalloc int[8];
@@ -263,27 +287,6 @@ namespace ChunkTasks
                         var blockIndex =
                             (((targetAvailable[0] | targetAvailable[1] | targetAvailable[2] | targetAvailable[3]) << 1)
                              | targetAvailable[4] | targetAvailable[5] | targetAvailable[6] | targetAvailable[7]) - 1;
-
-                        var indexes = stackalloc int[64]
-                        {
-                            0,0,0,0, // should not happen
-                            0,0,0,0,
-                            1,0,0,0,
-                            0,1,0,0,
-                            2,0,0,0,
-                            0,2,0,0,
-                            1,2,0,0,
-                            0,1,2,0,
-                            3,0,0,0,
-                            0,3,0,0,
-                            1,3,0,0,
-                            0,1,3,0,
-                            2,3,0,0,
-                            0,2,3,0,
-                            1,2,3,0,
-                            0,1,2,3
-                        };
-                        var bitCount = stackalloc int[16] { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
                         
                         var rngSide = _rng.Next(rngSideMinIndex[blockIndex], rngSideMaxIndex[blockIndex]);
                         if (rngSide == 0)

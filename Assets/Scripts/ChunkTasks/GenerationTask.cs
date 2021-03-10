@@ -62,7 +62,7 @@ namespace ChunkTasks
                 var verticalIdxPerLayer = new int[model.Layers.Count];
                 var totalDepth = 0;
 
-                for (int i = 0; i < model.Layers.Count; i++)
+                for (var i = 0; i < model.Layers.Count; i++)
                 {
                     // for each layer
                     var layer = model.Layers[i];
@@ -70,7 +70,7 @@ namespace ChunkTasks
                     var yAmpTotal = 1f;
                     totalDepth += layer.Depth;
 
-                    for (int j = 0; j < layer.HeightNoises.Count; j++)
+                    for (var j = 0; j < layer.HeightNoises.Count; j++)
                     {
                         // for each noise
                         var xAmp = layer.HeightNoises[j].XAmplitude;
@@ -116,7 +116,7 @@ namespace ChunkTasks
             var layer = model.Layers[layerIdx];
 
             var noiseAcc = 0f;
-            for (int i = 0; i < layer.InLayerNoises.Count; i++)
+            for (var i = 0; i < layer.InLayerNoises.Count; i++)
             {
                 // for each noise
                 var xAmp = layer.InLayerNoises[i].XAmplitude;
