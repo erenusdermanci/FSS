@@ -111,18 +111,47 @@ namespace MonoBehaviours
 
         private void OutlineChunks()
         {
-            const float s = 0.4975f;
+            const float s = 0.49f;
             foreach (var chunk in ChunkMap.Values)
             {
                 if (!chunk.Dirty)
                     continue;
-                var borderColor = Color.red;
+                var chunkBatchIndex = GetChunkBatchIndex(chunk.Position);
+                Color32 borderColor;
+                switch (chunkBatchIndex)
+                {
+                    case 0:
+                        borderColor = Color.green;
+                        break;
+                    case 1:
+                        borderColor = Color.red;
+                        break;
+                    case 2:
+                        borderColor = Color.magenta;
+                        break;
+                    case 3:
+                        borderColor = Color.yellow;
+                        break;
+                    default:
+                        return;
+                }
+
+                var dirtyRectColor = borderColor;
                 var x = chunk.Position.x;
                 var y = chunk.Position.y;
-                Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), borderColor);
-                Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), borderColor);
-                Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x - s, y + s), borderColor);
-                Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x + s, y - s), borderColor);
+                // Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), borderColor);
+                // Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), borderColor);
+                // Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x - s, y + s), borderColor);
+                // Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x + s, y - s), borderColor);
+
+                var rx = x - 0.5f + chunk.DirtyRect.x / Chunk.Size;
+                var ry = y - 0.5f + chunk.DirtyRect.y / Chunk.Size;
+                var rxMax = x - 0.5f + (chunk.DirtyRect.xMax + 1) / Chunk.Size;
+                var ryMax = y - 0.5f + (chunk.DirtyRect.yMax + 1) / Chunk.Size;
+                Debug.DrawLine(new Vector3(rx, ry), new Vector3(rxMax, ry), dirtyRectColor);
+                Debug.DrawLine(new Vector3(rx, ry), new Vector3(rx, ryMax), dirtyRectColor);
+                Debug.DrawLine(new Vector3(rxMax, ry), new Vector3(rxMax, ryMax), dirtyRectColor);
+                Debug.DrawLine(new Vector3(rx, ryMax), new Vector3(rxMax, ryMax), dirtyRectColor);
             }
         }
 
