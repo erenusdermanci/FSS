@@ -291,7 +291,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   generatedAreaSize: 10
   cleanAreaSizeOffset: 2
-  playerTransform: {fileID: 0}
+  playerTransform: {fileID: 4080857594000696833}
 --- !u!1 &4080857594000696847
 GameObject:
   m_ObjectHideFlags: 0
