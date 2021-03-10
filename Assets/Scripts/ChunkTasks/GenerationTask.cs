@@ -42,7 +42,7 @@ namespace ChunkTasks
             for (var i = 0; i < Chunk.Size * Chunk.Size; i++)
                 Chunk.BlockCounts[Chunk.Data.types[i]] += 1;
 
-            Chunk.Dirty = true; // TODO: Calculate if the chunk is really dirty
+            Chunk.Dirty = true;
         }
 
         private void ConfigureNoises(TerrainGenerationModel model)

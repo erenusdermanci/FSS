@@ -32,7 +32,7 @@ namespace ChunkTasks
                 throw;
             }
 
-            Chunk.Dirty = true; // TODO: Calculate if the chunk is really dirty
+            Chunk.Dirty = true;
         }
     }
 }

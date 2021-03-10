@@ -18,7 +18,6 @@ namespace ChunkTasks
 
         public SimulationTask(Chunk chunk) : base(chunk)
         {
-            // TODO: Optimize all this to not do it on each task creation
             var size = Chunk.Size * Chunk.Size;
             _indexingOrder = new int[size];
             
