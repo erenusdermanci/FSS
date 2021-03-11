@@ -46,7 +46,7 @@ namespace Utils
             };
         }
 
-        public int GetBlock(int x, int y, bool current = false)
+        public int GetBlock(int x, int y)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
 
