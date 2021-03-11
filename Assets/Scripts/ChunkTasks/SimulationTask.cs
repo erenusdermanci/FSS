@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using BlockBehavior;
 using DataComponents;
 using Utils;
 using static BlockConstants;
@@ -40,24 +41,24 @@ namespace ChunkTasks
         protected override unsafe void Execute()
         {
             #region stackalloc declared at the top for performance
-            var indexes = stackalloc int[64]
+            var distances = stackalloc int[64]
             {
                 0,0,0,0, // should not happen
-                0,0,0,0,
-                1,0,0,0,
-                0,1,0,0,
-                2,0,0,0,
-                0,2,0,0,
-                1,2,0,0,
-                0,1,2,0,
-                3,0,0,0,
-                0,3,0,0,
-                1,3,0,0,
-                0,1,3,0,
-                2,3,0,0,
-                0,2,3,0,
-                1,2,3,0,
-                0,1,2,3
+                1,1,1,1,
+                2,1,1,1,
+                1,2,1,1,
+                3,1,1,1,
+                1,3,1,1,
+                2,3,1,1,
+                1,2,3,1,
+                4,1,1,1,
+                1,4,1,1,
+                2,4,1,1,
+                1,2,4,1,
+                3,4,1,1,
+                1,3,4,1,
+                2,3,4,1,
+                1,2,3,4
             };
             var bitCount = stackalloc int[16] { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
             #endregion
@@ -87,26 +88,7 @@ namespace ChunkTasks
                 if (block == (int)Blocks.Border)
                     continue;
 
-                switch (block)
-                {
-                    case (int)Blocks.Oil:
-                        moved |= SimulateWater(block, x, y, ref blockMoveInfo, indexes, bitCount);
-                        break;
-                    case (int)Blocks.Water:
-                        moved |= SimulateWater(block, x, y, ref blockMoveInfo, indexes, bitCount);
-                        break;
-                    case (int)Blocks.Sand:
-                        moved |= SimulateSand(block, x, y, ref blockMoveInfo);
-                        break;
-                    case (int)Blocks.Air:
-                    case (int)Blocks.Stone:
-                    case (int)Blocks.Metal:
-                    case (int)Blocks.Dirt:
-                    case (int)Blocks.Cloud:
-                        break;
-                    default:
-                        throw new NotImplementedException();
-                }
+                SimulateBlock(block, x, y, ref blockMoveInfo, distances, bitCount);
 
                 if (blockMoveInfo.Chunk > 0)
                 {
@@ -125,6 +107,141 @@ namespace ChunkTasks
                     Chunk.BlockUpdatedFlags[i] = 0;
                 }
             }
+        }
+
+        private unsafe void SimulateBlock(int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo,
+                                        int* distances, int* bitCount)
+        {
+            var directionX = stackalloc int[] { 0, -1, 1, -1, 1, 0, -1, 1 };
+            var directionY = stackalloc int[] { -1, -1, -1, 0, 0, 1, 1, 1 };
+            var availableTargets = stackalloc int[4];
+            var targetBlocks = stackalloc int[4];
+
+            var blockLogic = BlockLogic.BlockDescriptors[block];
+
+            foreach (var behavior in blockLogic.Behaviors)
+            {
+                switch (behavior.Id)
+                {
+                    case 0: // Swap
+                        var swap = (Swap) behavior;
+
+                        // Traverse priority array
+                        var maximumDirections = 2;
+                        int loopRange;
+                        int loopStart;
+                        for (var i = 0; i < swap.Priorities.Length; i += maximumDirections)
+                        {
+                            if (swap.Priorities[i] == swap.Priorities[i + 1])
+                            {
+                                loopRange = 1;
+                                loopStart = 0;
+                            }
+                            else
+                            {
+                                loopRange = 2;
+                                loopStart = _rng.Next(0, loopRange);
+                            }
+
+                            bool targetsFound = false;
+                            var directionIdx = 0;
+                            for (var k = 0; k < loopRange; k++)
+                            {
+                                directionIdx = swap.Priorities[i + (loopStart + k) % loopRange];
+
+                                // we need to check our possible movements in this direction
+                                targetsFound = FillAvailableTargets(swap, x, y, block, directionIdx, directionX,
+                                    directionY, availableTargets, targetBlocks);
+                                if (targetsFound)
+                                    break;
+                            }
+
+                            // choose which target to use
+                            if (targetsFound)
+                            {
+                                var distance = 0;
+                                switch (swap.MovementTypes[directionIdx])
+                                {
+                                    case MovementType.Closest:
+                                        for (var j = 0; j < 4; ++j)
+                                        {
+                                            if (availableTargets[j] == 1)
+                                            {
+                                                distance = j + 1;
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                    case MovementType.Farthest:
+                                        for (var j = 3; j >= 0; --j)
+                                        {
+                                            if (availableTargets[j] == 1)
+                                            {
+                                                distance = j + 1;
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                    case MovementType.Randomized:
+                                        var index = availableTargets[0]
+                                                | (availableTargets[1] << 1)
+                                                | (availableTargets[2] << 2)
+                                                | (availableTargets[3] << 3);
+                                        distance = distances[index * 4 + _rng.Next(0, bitCount[index])];
+                                        break;
+                                }
+                                var dx = distance * directionX[directionIdx];
+                                var dy = distance * directionY[directionIdx];
+                                Chunks.MoveBlock(x, y, dx, dy, block, targetBlocks[distance - 1], ref blockMoveInfo);
+                                return;
+                            }
+                        }
+
+                        break;
+                }
+            }
+        }
+
+        private unsafe bool FillAvailableTargets(Swap swap, int x, int y, int block, int directionIdx,
+                                                int* directionX, int* directionY, int* availableTargets, int* targetBlocks)
+        {
+            int dx, dy;
+            var stop = false;
+            for (var j = 0; j < swap.Directions[directionIdx] || stop; ++j)
+            {
+                dx = (j + 1) * directionX[directionIdx];
+                dy = (j + 1) * directionY[directionIdx];
+
+                targetBlocks[j] = Chunks.GetBlock(x + dx, y + dy);
+
+                switch (swap.MovementTypes[directionIdx])
+                {
+                    case MovementType.Closest:
+                        if (IsTargetAvailable(swap, block, targetBlocks[j]))
+                        {
+                            stop = true;
+                        }
+                        break;
+                    case MovementType.Farthest:
+                        break;
+                    case MovementType.Randomized:
+                        if (swap.BlockedBy.Equals(BlockLogic.BlockDescriptors[targetBlocks[j]].PhysicalTag))
+                            stop = true;
+                        else
+                            availableTargets[j] = BlockLogic.BlockDescriptors[targetBlocks[j]].Density < BlockLogic.BlockDescriptors[block].Density ? 1 : 0;
+                        break;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsTargetAvailable(Swap swap, int block, int targetBlock)
+        {
+            if (swap.BlockedBy.Equals(BlockLogic.BlockDescriptors[targetBlock].PhysicalTag))
+                return true;
+
+            return BlockLogic.BlockDescriptors[targetBlock].Density < BlockLogic.BlockDescriptors[block].Density;
         }
 
         #region Block logic
@@ -291,7 +408,6 @@ namespace ChunkTasks
                         var rngSide = _rng.Next(rngSideMinIndex[blockIndex], rngSideMaxIndex[blockIndex]);
                         if (rngSide == 0)
                         {
-
                             var i = targetAvailable[0]
                                     | (targetAvailable[1] << 1)
                                     | (targetAvailable[2] << 2)

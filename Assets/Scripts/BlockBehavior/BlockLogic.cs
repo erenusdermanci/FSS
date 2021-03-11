@@ -12,19 +12,6 @@ namespace BlockBehavior
     // 5 -> up
     // 6 -> upLeft
     // 7 -> upRight
-    
-    public enum Blocksosef
-    {
-        /* 0 */ Air,
-        /* 1 */ Cloud,
-        /* 2 */ Oil,
-        /* 3 */ Water,
-        /* 4 */ Sand,
-        /* 5 */ Dirt,
-        /* 6 */ Stone,
-        /* 7 */ Metal,
-        /* 8 */ Border
-    }
 
     public enum Tags
     {
@@ -39,7 +26,7 @@ namespace BlockBehavior
         int Id { get; }
     }
     
-    public class BlockLogic
+    public class BlockDescriptor
     {
         public Tags PhysicalTag;
         public Tags[] BehavioralTags;
@@ -61,12 +48,14 @@ namespace BlockBehavior
         public int[] Priorities;
         public int[] Directions;
         public MovementType[] MovementTypes;
-        public Tags[] BlockedBy;
+        public Tags BlockedBy;
     }
 
-    public class Blocks
+    public static class BlockLogic
     {
-        public static BlockLogic[] BlockDescriptors = {
+        public const int DirectionCount = 8;
+
+        public static readonly BlockDescriptor[] BlockDescriptors = {
             new() { // AIR
                 PhysicalTag = NonPhysical,
                 BehavioralTags = new Tags[] {},
@@ -87,10 +76,10 @@ namespace BlockBehavior
                 {
                     new Swap
                     {
-                        Priorities = new [] { 0, 1, 1, 2, 2, -1, -1, -1 },
+                        Priorities = new [] { 0, 0, 1, 2, 3, 4 },
                         Directions = new [] { 2, 1, 1, 2, 2, 0, 0 ,0 },
                         MovementTypes = new[] { Closest, Closest, Closest, Closest, Closest, Closest, Closest, Closest },
-                        BlockedBy = new[] { Solid } // check physicalTag
+                        BlockedBy = Solid // check physicalTag
                     }
                 }
             },
@@ -102,12 +91,11 @@ namespace BlockBehavior
                 {
                     new Swap
                     {
-                        // For priorities -1 means no movement in this direction
-                        Priorities = new [] { 0, 1, 1, 2, 2, -1, -1, -1 },
+                        Priorities = new [] { 0, 0, 1, 2, 3, 4 },
                         // For directions 0 means no movement
                         Directions = new [] { 4, 2, 2, 4, 4, 0, 0, 0 },
                         MovementTypes = new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockedBy = new[] { Solid } // check physicalTag
+                        BlockedBy = Solid // check physicalTag
                     }
                 }
             },
@@ -120,11 +108,11 @@ namespace BlockBehavior
                     new Swap
                     {
                         // For priorities -1 means no movement in this direction
-                        Priorities = new [] { 0, 1, 1, -1, -1, -1, -1, -1 },
+                        Priorities = new [] { 0, 0, 1, 2 },
                         // For directions 0 means no movement
                         Directions = new [] { 2, 1, 1, 0, 0, 0, 0, 0 },
                         MovementTypes = new[] { Randomized, Closest, Closest, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockedBy = new[] { Solid } // check physicalTag
+                        BlockedBy = Solid // check physicalTag
                     }
                 }
             },
@@ -137,11 +125,11 @@ namespace BlockBehavior
                     new Swap
                     {
                         // For priorities -1 means no movement in this direction
-                        Priorities = new [] { 0, -1, -1, -1, -1, -1, -1, -1 },
+                        Priorities = new [] { 0, 0 },
                         // For directions 0 means no movement
                         Directions = new [] { 1, 0, 0, 0, 0, 0, 0, 0 },
                         MovementTypes = new[] { Closest, Closest, Closest, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockedBy = new[] { Solid } // check physicalTag
+                        BlockedBy = Solid // check physicalTag
                     }
                 }
             },
