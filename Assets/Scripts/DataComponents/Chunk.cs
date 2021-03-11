@@ -15,7 +15,6 @@ namespace DataComponents
         {
             public byte[] colors;
             public int[] types;
-            public int[] lifespan;
         }
 
         public BlockData Data;
