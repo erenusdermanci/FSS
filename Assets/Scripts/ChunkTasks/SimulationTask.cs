@@ -198,6 +198,8 @@ namespace ChunkTasks
                         }
 
                         break;
+                    default:
+                        break;
                 }
             }
         }

@@ -55,20 +55,20 @@ namespace BlockBehavior
     {
         public const int DirectionCount = 8;
 
-        public static readonly BlockDescriptor[] BlockDescriptors = {
-            new() { // AIR
+        public static readonly BlockDescriptor[] BlockDescriptors = new BlockDescriptor[] {
+            new BlockDescriptor { // AIR
                 PhysicalTag = NonPhysical,
                 BehavioralTags = new Tags[] {},
                 Density = 0,
                 Behaviors = new IBehavior[] {}
             },
-            new() { // CLOUD
+            new BlockDescriptor { // CLOUD
                 PhysicalTag = NonPhysical,
                 BehavioralTags = new Tags[] {},
                 Density = 0,
                 Behaviors = new IBehavior[] {}
             },
-            new() { // OIL
+            new BlockDescriptor { // OIL
                 PhysicalTag = Liquid,
                 BehavioralTags = new[] { Liquid },
                 Density = 0.1f,
@@ -83,7 +83,7 @@ namespace BlockBehavior
                     }
                 }
             },
-            new() { // WATER
+            new BlockDescriptor { // WATER
                 PhysicalTag = Liquid,
                 BehavioralTags = new [] { Liquid, Conductive },
                 Density = 0.2f,
@@ -99,7 +99,7 @@ namespace BlockBehavior
                     }
                 }
             },
-            new() {// SAND
+            new BlockDescriptor {// SAND
                 PhysicalTag = Solid,
                 BehavioralTags = new [] { Solid },
                 Density = 0.5f,
@@ -116,7 +116,7 @@ namespace BlockBehavior
                     }
                 }
             },
-            new() {// DIRT
+            new BlockDescriptor {// DIRT
                 PhysicalTag = Solid,
                 BehavioralTags = new [] { Solid },
                 Density = 0.6f,
@@ -133,19 +133,19 @@ namespace BlockBehavior
                     }
                 }
             },
-            new() {// STONE
+            new BlockDescriptor {// STONE
                 PhysicalTag = Solid,
                 BehavioralTags = new [] { Solid },
                 Density = 1f,
                 Behaviors = new IBehavior[] { }
             },
-            new() {// METAL
+            new BlockDescriptor {// METAL
                 PhysicalTag = Solid,
                 BehavioralTags = new [] { Solid },
                 Density = 1f,
                 Behaviors = new IBehavior[] { }
             },
-            new() {// BORDER
+            new BlockDescriptor {// BORDER
                 PhysicalTag = Solid,
                 BehavioralTags = new Tags[] { }, // no behavior
                 Density = 1000f,
