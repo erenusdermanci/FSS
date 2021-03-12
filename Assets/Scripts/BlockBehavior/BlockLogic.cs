@@ -41,14 +41,22 @@ namespace BlockBehavior
         Farthest
     }
 
-    public struct Swap : IBehavior
+    public readonly struct Swap : IBehavior
     {
         public int Id => 0;
         
-        public int[] Priorities;
-        public int[] Directions;
-        public MovementType[] MovementTypes;
-        public Tags BlockedBy;
+        public readonly int[] Priorities;
+        public readonly int[] Directions;
+        public readonly MovementType[] MovementTypes;
+        public readonly Tags BlockedBy;
+
+        public Swap(int[] priorities, int[] directions, MovementType[] movementTypes, Tags blockedBy)
+        {
+            Priorities = priorities;
+            Directions = directions;
+            MovementTypes = movementTypes;
+            BlockedBy = blockedBy;
+        }
     }
 
     public static class BlockLogic
@@ -72,13 +80,12 @@ namespace BlockBehavior
                 Density = 0.1f,
                 Behaviors = new IBehavior[]
                 {
-                    new Swap
-                    {
-                        Priorities = new [] { 0, 0, 1, 2, 3, 4 },
-                        Directions = new [] { 2, 1, 1, 2, 2, 0, 0 ,0 },
-                        MovementTypes = new[] { Closest, Closest, Closest, Closest, Closest, Closest, Closest, Closest },
-                        BlockedBy = Solid // check physicalTag
-                    }
+                    new Swap(
+                        new [] { 0, 0, 1, 2, 3, 4 },
+                        new [] { 2, 1, 1, 2, 2, 0, 0 ,0 },
+                        new[] { Closest, Closest, Closest, Closest, Closest, Closest, Closest, Closest },
+                        Solid // check physicalTag
+                    )
                 }
             },
             new BlockDescriptor { // WATER
@@ -87,14 +94,12 @@ namespace BlockBehavior
                 Density = 0.2f,
                 Behaviors = new IBehavior[]
                 {
-                    new Swap
-                    {
-                        Priorities = new [] { 0, 0, 1, 2, 3, 4 },
-                        // For directions 0 means no movement
-                        Directions = new [] { 4, 2, 2, 4, 4, 0, 0, 0 },
-                        MovementTypes = new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockedBy = Solid // check physicalTag
-                    }
+                    new Swap(
+                        new [] { 0, 0, 1, 2, 3, 4 },
+                        new [] { 4, 2, 2, 4, 4, 0, 0, 0 },
+                        new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
+                        Solid // check physicalTag
+                    )
                 }
             },
             new BlockDescriptor { // SAND
@@ -103,15 +108,12 @@ namespace BlockBehavior
                 Density = 0.5f,
                 Behaviors = new IBehavior[]
                 {
-                    new Swap
-                    {
-                        // For priorities -1 means no movement in this direction
-                        Priorities = new [] { 0, 0, 1, 2 },
-                        // For directions 0 means no movement
-                        Directions = new [] { 2, 1, 1, 0, 0, 0, 0, 0 },
-                        MovementTypes = new[] { Randomized, Closest, Closest, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockedBy = Solid // check physicalTag
-                    }
+                    new Swap(
+                        new [] { 0, 0, 1, 2 },
+                        new [] { 2, 1, 1, 0, 0, 0, 0, 0 },
+                        new[] { Randomized, Closest, Closest, Randomized, Randomized, Randomized, Randomized, Randomized },
+                        Solid // check physicalTag
+                    )
                 }
             },
             new BlockDescriptor { // DIRT
@@ -120,15 +122,12 @@ namespace BlockBehavior
                 Density = 0.6f,
                 Behaviors = new IBehavior[]
                 {
-                    new Swap
-                    {
-                        // For priorities -1 means no movement in this direction
-                        Priorities = new [] { 0, 0 },
-                        // For directions 0 means no movement
-                        Directions = new [] { 1, 0, 0, 0, 0, 0, 0, 0 },
-                        MovementTypes = new[] { Closest, Closest, Closest, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockedBy = Solid // check physicalTag
-                    }
+                    new Swap(
+                        new [] { 0, 0 },
+                        new [] { 1, 0, 0, 0, 0, 0, 0, 0 },
+                        new[] { Closest, Closest, Closest, Randomized, Randomized, Randomized, Randomized, Randomized },
+                        Solid // check physicalTag
+                    )
                 }
             },
             new BlockDescriptor { // STONE
