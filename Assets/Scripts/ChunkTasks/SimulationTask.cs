@@ -88,7 +88,7 @@ namespace ChunkTasks
                 if (block == (int)Blocks.Border)
                     continue;
 
-                SimulateBlock(block, x, y, ref blockMoveInfo, distances, bitCount);
+                moved |= SimulateBlock(block, x, y, ref blockMoveInfo, distances, bitCount);
 
                 if (blockMoveInfo.Chunk > 0)
                 {
@@ -109,7 +109,7 @@ namespace ChunkTasks
             }
         }
 
-        private unsafe void SimulateBlock(int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo,
+        private unsafe bool SimulateBlock(int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo,
                                         int* distances, int* bitCount)
         {
             var directionX = stackalloc int[] { 0, -1, 1, -1, 1, 0, -1, 1 };
@@ -192,27 +192,25 @@ namespace ChunkTasks
                                 }
                                 var dx = distance * directionX[directionIdx];
                                 var dy = distance * directionY[directionIdx];
-                                Chunks.MoveBlock(x, y, dx, dy, block, targetBlocks[distance - 1], ref blockMoveInfo);
-                                return;
+                                return Chunks.MoveBlock(x, y, dx, dy, block, targetBlocks[distance - 1], ref blockMoveInfo);
                             }
                         }
-
-                        break;
-                    default:
                         break;
                 }
             }
+
+            return false;
         }
 
         private unsafe bool FillAvailableTargets(Swap swap, int x, int y, int block, int directionIdx,
                                                 int* directionX, int* directionY, int* availableTargets, int* targetBlocks)
         {
-            int dx, dy;
             var stop = false;
-            for (var j = 0; j < swap.Directions[directionIdx] || stop; ++j)
+            var targetsFound = false;
+            for (var j = 0; j < swap.Directions[directionIdx] && !stop; ++j)
             {
-                dx = (j + 1) * directionX[directionIdx];
-                dy = (j + 1) * directionY[directionIdx];
+                var dx = (j + 1) * directionX[directionIdx];
+                var dy = (j + 1) * directionY[directionIdx];
 
                 targetBlocks[j] = Chunks.GetBlock(x + dx, y + dy);
 
@@ -221,21 +219,31 @@ namespace ChunkTasks
                     case MovementType.Closest:
                         if (IsTargetAvailable(swap, block, targetBlocks[j]))
                         {
+                            availableTargets[j] = 1;
                             stop = true;
+                            targetsFound = true;
                         }
                         break;
                     case MovementType.Farthest:
+                        // TODO
                         break;
                     case MovementType.Randomized:
                         if (swap.BlockedBy.Equals(BlockLogic.BlockDescriptors[targetBlocks[j]].PhysicalTag))
+                        {
+                            availableTargets[j] = 0;
                             stop = true;
+                        }
                         else
+                        {
                             availableTargets[j] = BlockLogic.BlockDescriptors[targetBlocks[j]].Density < BlockLogic.BlockDescriptors[block].Density ? 1 : 0;
+                            if (availableTargets[j] == 1)
+                                targetsFound = true;
+                        }
                         break;
                 }
             }
 
-            return false;
+            return targetsFound;
         }
 
         private static bool IsTargetAvailable(Swap swap, int block, int targetBlock)
