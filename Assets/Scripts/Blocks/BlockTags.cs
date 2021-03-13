@@ -6,7 +6,6 @@
         Solid,
         Gas,
         Conductive,
-        NonPhysical,
-        Flammable
+        NonPhysical
     }
 }

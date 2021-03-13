@@ -28,6 +28,8 @@ namespace Blocks
                 0.0f,
                 new Color32(0, 0, 0, 0),
                 0.0f,
+                0.0f,
+                0,
                 new IBehavior[] {}
             ),
             new BlockDescriptor(
@@ -38,6 +40,8 @@ namespace Blocks
                 0.0f,
                 new Color32(193, 190, 186, 127),
                 0.05f,
+                0.0f,
+                0,
                 new IBehavior[] {}
             ),
             new BlockDescriptor (
@@ -48,6 +52,8 @@ namespace Blocks
                 0.1f,
                 new Color32(51, 38, 0, 255),
                 0.1f,
+                1.0f,
+                500,
                 new IBehavior[]
                 {
                     new Swap(
@@ -66,6 +72,8 @@ namespace Blocks
                 0.2f,
                 new Color32(15, 94, 156, 255),
                 0.025f,
+                0.0f,
+                0,
                 new IBehavior[]
                 {
                     new Swap(
@@ -84,6 +92,8 @@ namespace Blocks
                 0.5f,
                 new Color32(155, 134, 69, 255),
                 0.05f,
+                0.0f,
+                0,
                 new IBehavior[]
                 {
                     new Swap(
@@ -102,6 +112,8 @@ namespace Blocks
                 0.6f,
                 new Color32(124, 94, 66, 255),
                 0.1f,
+                0.0f,
+                0,
                 new IBehavior[]
                 {
                     new Swap(
@@ -120,6 +132,8 @@ namespace Blocks
                 1.0f,
                 new Color32(149, 148, 139, 255),
                 0.2f,
+                0.0f,
+                0,
                 new IBehavior[] { }
             ),
             new BlockDescriptor (
@@ -130,6 +144,8 @@ namespace Blocks
                 1.0f,
                 new Color32(75, 75, 75, 255),
                 0.01f,
+                0.0f,
+                0,
                 new IBehavior[] { }
             ),
             new BlockDescriptor (
@@ -140,6 +156,8 @@ namespace Blocks
                 1000.0f,
                 new Color32(255, 0, 0, 255),
                 0.0f,
+                0.0f,
+                0,
                 new IBehavior[] { }
             ),
             new BlockDescriptor(
@@ -150,6 +168,8 @@ namespace Blocks
                 0.05f,
                 new Color32(59, 68, 75, 75),
                 0.1f,
+                1.0f,
+                5,
                 new IBehavior[]
                 {
                     new Swap(

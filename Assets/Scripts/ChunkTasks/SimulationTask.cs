@@ -240,7 +240,7 @@ namespace ChunkTasks
                     return targetsFound;
                 }
 
-                if (!(BlockLogic.BlockDescriptors[targetBlocks[j]].Density < BlockLogic.BlockDescriptors[block].Density))
+                if (!(BlockLogic.BlockDescriptors[targetBlocks[j]].DensityPriority < BlockLogic.BlockDescriptors[block].DensityPriority))
                     continue;
                 availableTargets[j] = 1;
                 targetsFound = true;
