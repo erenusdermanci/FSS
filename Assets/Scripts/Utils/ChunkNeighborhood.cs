@@ -159,6 +159,22 @@ namespace Utils
             Chunks[chunkIndex].Dirty = true;
         }
 
+        // Put block and change its health and states
+        public void PutBlock(int x, int y, int type, int states, float health)
+        {
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+            if (Chunks[chunkIndex] == null)
+                return;
+            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockLogic.BlockDescriptors[type].ColorMaxShift);
+            var color = BlockLogic.BlockDescriptors[type].Color;
+            Chunks[chunkIndex].PutBlock(x, y, type,
+                Helpers.ShiftColorComponent(color.r, shiftAmount),
+                Helpers.ShiftColorComponent(color.g, shiftAmount),
+                Helpers.ShiftColorComponent(color.b, shiftAmount),
+                color.a, states, health);
+            Chunks[chunkIndex].Dirty = true;
+        }
+
         public void PutBlock(int x, int y, int type, Color32 color)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
@@ -198,12 +214,16 @@ namespace Utils
                 Chunks[newChunkIndex].Data.colors[dstIndex * 4 + 2],
                 Chunks[newChunkIndex].Data.colors[dstIndex * 4 + 3]
             };
+            var destState = Chunks[newChunkIndex].Data.stateBitsets[dstIndex];
+            var destHealth = Chunks[newChunkIndex].Data.healths[dstIndex];
 
             Chunks[newChunkIndex].PutBlock(ux, uy, srcBlock,
                 Chunks[0].Data.colors[srcIndex * 4],
                 Chunks[0].Data.colors[srcIndex * 4 + 1],
                 Chunks[0].Data.colors[srcIndex * 4 + 2],
-                Chunks[0].Data.colors[srcIndex * 4 + 3]);
+                Chunks[0].Data.colors[srcIndex * 4 + 3],
+                Chunks[0].Data.stateBitsets[srcIndex],
+                Chunks[0].Data.healths[srcIndex]);
             blockMoveInfo.Chunk = newChunkIndex;
             blockMoveInfo.X = ux;
             blockMoveInfo.Y = uy;
@@ -217,7 +237,9 @@ namespace Utils
                 destColorBuffer[0],
                 destColorBuffer[1],
                 destColorBuffer[2],
-                destColorBuffer[3]);
+                destColorBuffer[3],
+                destState,
+                destHealth);
 
             UpdateDirtyInBorderChunks(x, y);
 
