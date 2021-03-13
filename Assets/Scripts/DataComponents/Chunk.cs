@@ -18,6 +18,7 @@ namespace DataComponents
             public int[] types;
             public int[] stateBitsets;
             public float[] healths;
+            public float[] lifetimes;
         }
 
         public BlockData Data;
@@ -39,6 +40,19 @@ namespace DataComponents
         {
             Texture.LoadRawTextureData(Data.colors);
             Texture.Apply();
+        }
+
+        public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health, float lifetime)
+        {
+            var i = y * Size + x;
+            Data.colors[i * 4] = r;
+            Data.colors[i * 4 + 1] = g;
+            Data.colors[i * 4 + 2] = b;
+            Data.colors[i * 4 + 3] = a;
+            Data.types[i] = type;
+            Data.stateBitsets[i] = states;
+            Data.healths[i] = health;
+            Data.lifetimes[i] = lifetime;
         }
 
         public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health)

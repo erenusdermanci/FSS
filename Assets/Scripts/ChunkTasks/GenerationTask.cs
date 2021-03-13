@@ -29,6 +29,7 @@ namespace ChunkTasks
             Chunk.Data.types = new int[Chunk.Size * Chunk.Size];
             Chunk.Data.stateBitsets = new int[Chunk.Size * Chunk.Size];
             Chunk.Data.healths = new float[Chunk.Size * Chunk.Size];
+            Chunk.Data.lifetimes = new float[Chunk.Size * Chunk.Size];
 
             if (ProceduralGenerator.IsEnabled)
             {
@@ -111,6 +112,7 @@ namespace ChunkTasks
                 Chunk.Data.types[i] = BlockLogic.Air;
                 Chunk.Data.stateBitsets[i] = 0;
                 Chunk.Data.healths[i] = BlockLogic.BlockDescriptors[BlockLogic.Air].BaseHealth;
+                Chunk.Data.lifetimes[i] = 0;
             }
         }
 
@@ -149,6 +151,7 @@ namespace ChunkTasks
             Chunk.Data.types[idx] = block;
             Chunk.Data.stateBitsets[idx] = 0;
             Chunk.Data.healths[idx] = BlockLogic.BlockDescriptors[block].BaseHealth;
+            Chunk.Data.lifetimes[idx] = 0;
         }
 
         private static int GetBlockFromNoise(Layer layer, float noise)

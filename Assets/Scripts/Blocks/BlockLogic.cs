@@ -195,24 +195,28 @@ namespace Blocks
                 }
             ),
             new BlockDescriptor(
-            "Smoke",
-            10,
-            Gas,
-            new[] { Gas },
-            0.06f,
-            new Color32(59, 68, 75, 75),
-            0.2f,
-            0.0f,
-            0.0f,
-            new IBehavior[]
-            {
-                new Swap(
-                    new [] { 5, 5, 6, 7, 3, 4},
-                    new [] { 0, 0, 0, 2, 2, 2, 1 ,1 },
-                    new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                    Solid
-                )
-            }
+                "Smoke",
+                10,
+                Gas,
+                new[] { Gas },
+                0.06f,
+                new Color32(59, 68, 75, 75),
+                0.2f,
+                0.0f,
+                0.0f,
+                new IBehavior[]
+                {
+                    new Despawn(0.1f,
+                        100.0f,
+                        Air
+                    ),
+                    new Swap(
+                        new [] { 5, 5, 6, 7, 3, 4},
+                        new [] { 0, 0, 0, 2, 2, 2, 1 ,1 },
+                        new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
+                        Solid
+                    )
+                }
             )
         };
     }

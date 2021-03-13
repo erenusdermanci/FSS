@@ -112,7 +112,10 @@ namespace ChunkTasks
                         case Blocks.FireSpread.Id:
                             if (!blockData.GetState(BurningState))
                                 break;
-                            dirtied |= FireSpread((FireSpread)behavior, blockData, x, y, directionX, directionY, ref destroyed);
+                            dirtied |= FireSpread((FireSpread) behavior, blockData, x, y, directionX, directionY, ref destroyed);
+                            break;
+                        case Blocks.Despawn.Id:
+                            dirtied |= Despawn((Despawn) behavior, blockData, x, y, ref destroyed);
                             break;
                     }
                 }
@@ -334,11 +337,32 @@ namespace ChunkTasks
                     var combustionResultProbability = behavior.CombustionResultProbability;
                     var resultBlockType = BlockLogic.Air;
 
-                    if (combustionResultProbability >= 1.00f
+                    if (combustionResultProbability >= 1.0f
                         || combustionResultProbability > _rng.NextDouble())
                         resultBlockType = behavior.CombustionResultBlockType;
 
                     Chunks.PutBlock(x, y, resultBlockType, 0, BlockLogic.BlockDescriptors[resultBlockType].BaseHealth);
+                    destroyed = true;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool Despawn(Despawn behavior, BlockData blockData, int x, int y, ref bool destroyed)
+        {
+            var currentLifetime = blockData.Lifetime;
+            if (currentLifetime < behavior.Lifetime)
+                Chunks.SetBlockLifetime(x, y, currentLifetime + 1.0f);
+            else
+            {
+                var despawnProbability = behavior.DespawnProbability;
+                if (despawnProbability >= 1.0f
+                    || despawnProbability > _rng.NextDouble())
+                {
+                    // Destroy it
+                    Chunks.PutBlock(x, y, behavior.DespawnResultBlockType, 0, BlockLogic.BlockDescriptors[behavior.DespawnResultBlockType].BaseHealth);
                     destroyed = true;
                     return true;
                 }

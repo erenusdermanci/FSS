@@ -13,6 +13,7 @@ namespace Utils
             public int Type;
             public int StateBitset;
             public float Health;
+            public float Lifetime;
 
             public const int BurningState = 0;
 
@@ -89,6 +90,7 @@ namespace Utils
             blockData.Type = chunkData.types[blockIndex];
             blockData.StateBitset = chunkData.stateBitsets[blockIndex];
             blockData.Health = chunkData.healths[blockIndex];
+            blockData.Lifetime = chunkData.lifetimes[blockIndex];
             return true;
         }
 
@@ -112,6 +114,18 @@ namespace Utils
                 return false;
 
             Chunks[chunkIndex].Data.healths[y * Chunk.Size + x] = health;
+
+            return true;
+        }
+
+        public bool SetBlockLifetime(int x, int y, float lifetime)
+        {
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+
+            if (Chunks[chunkIndex] == null)
+                return false;
+
+            Chunks[chunkIndex].Data.lifetimes[y * Chunk.Size + x] = lifetime;
 
             return true;
         }
@@ -183,7 +197,7 @@ namespace Utils
                 Helpers.ShiftColorComponent(color.r, shiftAmount),
                 Helpers.ShiftColorComponent(color.g, shiftAmount),
                 Helpers.ShiftColorComponent(color.b, shiftAmount),
-                color.a, states, health);
+                color.a, states, health, 0);
             Chunks[chunkIndex].Dirty = true;
         }
 
@@ -228,6 +242,7 @@ namespace Utils
             };
             var destState = Chunks[newChunkIndex].Data.stateBitsets[dstIndex];
             var destHealth = Chunks[newChunkIndex].Data.healths[dstIndex];
+            var destLifetime = Chunks[newChunkIndex].Data.lifetimes[dstIndex];
 
             Chunks[newChunkIndex].PutBlock(ux, uy, srcBlock,
                 Chunks[0].Data.colors[srcIndex * 4],
@@ -235,7 +250,8 @@ namespace Utils
                 Chunks[0].Data.colors[srcIndex * 4 + 2],
                 Chunks[0].Data.colors[srcIndex * 4 + 3],
                 Chunks[0].Data.stateBitsets[srcIndex],
-                Chunks[0].Data.healths[srcIndex]);
+                Chunks[0].Data.healths[srcIndex],
+                Chunks[0].Data.lifetimes[srcIndex]);
             blockMoveInfo.Chunk = newChunkIndex;
             blockMoveInfo.X = ux;
             blockMoveInfo.Y = uy;
@@ -251,7 +267,8 @@ namespace Utils
                 destColorBuffer[2],
                 destColorBuffer[3],
                 destState,
-                destHealth);
+                destHealth,
+                destLifetime);
 
             UpdateDirtyInBorderChunks(x, y);
 
