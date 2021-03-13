@@ -8,7 +8,6 @@ namespace MonoBehaviours
         public GlobalConfigStruct globalConfig;
         public static GlobalConfigStruct StaticGlobalConfig;
 
-        // Currently unused
         public static event EventHandler UpdateEvent;
 
         void Awake()
@@ -16,7 +15,6 @@ namespace MonoBehaviours
             StaticGlobalConfig = new GlobalConfigStruct(globalConfig);
         }
 
-        // Update is called once per frame
         void Update()
         {
             if (StaticGlobalConfig.Equals(globalConfig))

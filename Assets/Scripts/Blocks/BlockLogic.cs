@@ -20,7 +20,8 @@ namespace Blocks
         public const int Border = 8;
 
         public static readonly BlockDescriptor[] BlockDescriptors = {
-            new BlockDescriptor( // AIR
+            new BlockDescriptor(
+                "Air",
                 0,
                 NonPhysical,
                 new BlockTags[] {},
@@ -29,7 +30,8 @@ namespace Blocks
                 0.0f,
                 new IBehavior[] {}
             ),
-            new BlockDescriptor( // CLOUD
+            new BlockDescriptor(
+                "Cloud",
                 1,
                 NonPhysical,
                 new BlockTags[] {},
@@ -38,7 +40,8 @@ namespace Blocks
                 0.05f,
                 new IBehavior[] {}
             ),
-            new BlockDescriptor ( // OIL
+            new BlockDescriptor (
+                "Oil",
                 2,
                 Liquid,
                 new[] { Liquid },
@@ -51,11 +54,12 @@ namespace Blocks
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 2, 1, 1, 2, 2, 0, 0 ,0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        Solid // check physicalTag
+                        Solid
                     )
                 }
             ),
-            new BlockDescriptor ( // WATER
+            new BlockDescriptor (
+                "Water",
                 3,
                 Liquid,
                 new [] { Liquid, Conductive },
@@ -68,11 +72,12 @@ namespace Blocks
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 4, 1, 1, 4, 4, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        Solid // check physicalTag
+                        Solid
                     )
                 }
             ),
-            new BlockDescriptor ( // SAND
+            new BlockDescriptor (
+                "Sand",
                 4,
                 Solid,
                 new [] { Solid },
@@ -85,11 +90,12 @@ namespace Blocks
                         new [] { 0, 0, 1, 2 },
                         new [] { 2, 1, 1, 0, 0, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        Solid // check physicalTag
+                        Solid
                     )
                 }
             ),
-            new BlockDescriptor ( // DIRT
+            new BlockDescriptor (
+                "Dirt",
                 5,
                 Solid,
                 new [] { Solid },
@@ -102,11 +108,12 @@ namespace Blocks
                         new [] { 0, 0 },
                         new [] { 2, 0, 0, 0, 0, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        Solid // check physicalTag
+                        Solid
                     )
                 }
             ),
-            new BlockDescriptor ( // STONE
+            new BlockDescriptor (
+                "Stone",
                 6,
                 Solid,
                 new [] { Solid },
@@ -115,7 +122,8 @@ namespace Blocks
                 0.2f,
                 new IBehavior[] { }
             ),
-            new BlockDescriptor ( // METAL
+            new BlockDescriptor (
+                "Metal",
                 7,
                 Solid,
                 new [] { Solid },
@@ -124,15 +132,34 @@ namespace Blocks
                 0.01f,
                 new IBehavior[] { }
             ),
-            new BlockDescriptor ( // BORDER
+            new BlockDescriptor (
+                "Border",
                 8,
                 Solid,
-                new BlockTags[] { }, // no behavior
+                new BlockTags[] { },
                 1000.0f,
                 new Color32(255, 0, 0, 255),
                 0.0f,
                 new IBehavior[] { }
-            )
+            ),
+            new BlockDescriptor(
+                "Gas",
+                9,
+                Gas,
+                new[] { Gas },
+                0.05f,
+                new Color32(59, 68, 75, 75),
+                0.1f,
+                new IBehavior[]
+                {
+                    new Swap(
+                        new [] { 5, 5, 6, 7, 3, 4},
+                        new [] { 0, 0, 0, 2, 2, 2, 1 ,1 },
+                        new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
+                        Solid
+                    )
+                }
+            ),
         };
     }
 }

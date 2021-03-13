@@ -4,7 +4,9 @@
     {
         Liquid,
         Solid,
+        Gas,
         Conductive,
-        NonPhysical
+        NonPhysical,
+        Flammable
     }
 }
