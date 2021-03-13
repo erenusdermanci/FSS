@@ -28,7 +28,7 @@ namespace ChunkTasks
             Chunk.Data.colors = new byte[Chunk.Size * Chunk.Size * 4];
             Chunk.Data.types = new int[Chunk.Size * Chunk.Size];
             Chunk.Data.stateBitsets = new int[Chunk.Size * Chunk.Size];
-            Chunk.Data.healths = new int[Chunk.Size * Chunk.Size];
+            Chunk.Data.healths = new float[Chunk.Size * Chunk.Size];
 
             if (ProceduralGenerator.IsEnabled)
             {
@@ -101,7 +101,7 @@ namespace ChunkTasks
 
         private void GenerateEmpty()
         {
-            var airColor = BlockLogic.BlockDescriptors[0].Color;
+            var airColor = BlockLogic.BlockDescriptors[BlockLogic.Air].Color;
             for (var i = 0; i < Chunk.Size * Chunk.Size; i++)
             {
                 Chunk.Data.colors[i * 4] = airColor.r;
@@ -110,7 +110,7 @@ namespace ChunkTasks
                 Chunk.Data.colors[i * 4 + 3] = airColor.a;
                 Chunk.Data.types[i] = BlockLogic.Air;
                 Chunk.Data.stateBitsets[i] = 0;
-                Chunk.Data.healths[i] = 0;
+                Chunk.Data.healths[i] = BlockLogic.BlockDescriptors[BlockLogic.Air].BaseHealth;
             }
         }
 
@@ -148,7 +148,7 @@ namespace ChunkTasks
             Chunk.Data.colors[idx * 4 + 3] = blockColor.a;
             Chunk.Data.types[idx] = block;
             Chunk.Data.stateBitsets[idx] = 0;
-            Chunk.Data.healths[idx] = 0;
+            Chunk.Data.healths[idx] = BlockLogic.BlockDescriptors[block].BaseHealth;
         }
 
         private static int GetBlockFromNoise(Layer layer, float noise)

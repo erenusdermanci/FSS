@@ -12,11 +12,12 @@ namespace Blocks
         public readonly Color32 Color;
         public readonly float ColorMaxShift;
         public readonly float CombustionProbability;
-        public readonly int BurningDurationTicks;
+        public readonly float BaseHealth;
+        public readonly float BurningRate;
         public readonly IBehavior[] Behaviors;
 
         public BlockDescriptor(string name, int id, BlockTags physicalBlockTag, BlockTags[] behavioralTags,
-            float densityPriority, Color32 color, float colorMaxShift, float combustionProbability, int burningDurationTicks,
+            float densityPriority, Color32 color, float colorMaxShift, float combustionProbability, float baseHealth, float burningRate,
             IBehavior[] behaviors)
         {
             Name = name;
@@ -27,7 +28,8 @@ namespace Blocks
             Color = color;
             ColorMaxShift = colorMaxShift;
             CombustionProbability = combustionProbability;
-            BurningDurationTicks = burningDurationTicks;
+            BaseHealth = baseHealth;
+            BurningRate = burningRate;
             Behaviors = behaviors;
         }
     }

@@ -1,10 +1,12 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Threading;
 using Blocks;
 using DataComponents;
+using UnityEngine;
 using Utils;
+using static Utils.ChunkNeighborhood;
 using static Utils.ChunkNeighborhood.BlockData;
+using Random = System.Random;
 
 namespace ChunkTasks
 {
@@ -95,19 +97,22 @@ namespace ChunkTasks
 
                 Chunks.GetBlockData(x, y, ref blockData);
 
-                var blockLogic = BlockLogic.BlockDescriptors[blockData.type];
+                var blockLogic = BlockLogic.BlockDescriptors[blockData.Type];
 
+                bool destroyed = false;
                 foreach (var behavior in blockLogic.Behaviors)
                 {
+                    if (destroyed)
+                        break;
                     switch (behavior.GetId)
                     {
                         case Blocks.Swap.Id:
-                            dirtied |= Swap((Swap) behavior, blockData.type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
+                            dirtied |= Swap((Swap) behavior, blockData.Type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
                             break;
                         case Blocks.FireSpread.Id:
                             if (!blockData.GetState(BurningState))
                                 break;
-                            dirtied |= FireSpread((FireSpread)behavior, blockData, x, y, directionX, directionY);
+                            dirtied |= FireSpread((FireSpread)behavior, blockData, x, y, directionX, directionY, ref destroyed);
                             break;
                     }
                 }
@@ -256,38 +261,70 @@ namespace ChunkTasks
             return targetsFound;
         }
 
-        private unsafe bool FireSpread(FireSpread behavior, ChunkNeighborhood.BlockData blockData, int x, int y, int* directionX, int* directionY)
+        private unsafe bool FireSpread(FireSpread behavior, BlockData blockData, int x, int y, int* directionX,
+            int* directionY, ref bool destroyed)
         {
-            return false;
-
-            var neighborTypes = stackalloc int[8];
+            var neighborTypes = stackalloc BlockData[8];
             var airNeighborsCount = 0;
 
             // We need to go through the neighbours of this fire block
             for (var i = 0; i < 8; ++i)
             {
-                var neighbor = Chunks.GetBlock(x + directionX[i], y + directionY[i]);
+                var neighborFound = Chunks.GetBlockData(x + directionX[i], y + directionY[i], ref neighborTypes[i]);
 
-                if (neighbor == BlockLogic.Air)
+                if (neighborFound && neighborTypes[i].Type == BlockLogic.Air)
                     airNeighborsCount++;
-
-                neighborTypes[i] = neighbor;
             }
 
             // We have our neighbor's types and our air count
             if (airNeighborsCount == 0)
             {
-                // on s'etouffe -> destroy
+                // fire dies out
+                blockData.ClearState(BurningState);
+                Chunks.PutBlock(x, y, blockData.Type, blockData.StateBitset);
             }
             else
             {
-                blockData.health -= airNeighborsCount;
+                blockData.Health -= BlockLogic.BlockDescriptors[blockData.Type].BurningRate * airNeighborsCount;
 
-                if (blockData.health <= 0)
+                Debug.Log(blockData.Health);
+                if (blockData.Health <= 0.0f)
                 {
-                    // Destroy
+                    // Block is consumed by fire, destroy it
+                    Chunks.PutBlock(x, y, BlockLogic.Smoke);
+                    destroyed = true;
+                    return true;
+                }
+
+                // now we try to spread
+                for (var i = 0; i < 8; i++)
+                {
+                    switch (neighborTypes[i].Type)
+                    {
+                        case -1: // there is no neighbour here (chunk doesn't exist)
+                            break;
+                        case BlockLogic.Air:
+                            // replace Air with smoke
+                            Chunks.PutBlock(x + directionX[i], y + directionY[i], BlockLogic.Smoke);
+                            break;
+                        default:
+                            var combustionProbability =
+                                BlockLogic.BlockDescriptors[neighborTypes[i].Type].CombustionProbability;
+                            if (combustionProbability == 0.0f)
+                                continue;
+                            if (combustionProbability >= 1.0f
+                                || combustionProbability > _rng.NextDouble())
+                            {
+                                // spreading to this block
+                                neighborTypes[i].SetState(BurningState);
+                                Chunks.PutBlock(x, y, neighborTypes[i].Type, BlockLogic.FireColor, neighborTypes[i].StateBitset);
+                            }
+                            break;
+                    }
                 }
             }
+
+            return false;
         }
     }
 }

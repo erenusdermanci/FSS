@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using Blocks;
 using DataComponents;
@@ -9,25 +10,25 @@ namespace Utils
     {
         public struct BlockData
         {
-            public int type;
-            public int stateBitset;
-            public int health;
+            public int Type;
+            public int StateBitset;
+            public float Health;
 
             public const int BurningState = 0;
 
             public bool GetState(int stateToCheck)
             {
-                return ((stateBitset >> stateToCheck) & 1) == 1;
+                return ((StateBitset >> stateToCheck) & 1) == 1;
             }
 
             public void SetState(int stateToSet)
             {
-                stateBitset |= 1 << stateToSet;
+                StateBitset |= 1 << stateToSet;
             }
 
             public void ClearState(int stateToClear)
             {
-                stateBitset &= ~(1 << stateToClear);
+                StateBitset &= ~(1 << stateToClear);
             }
         }
 
@@ -38,6 +39,8 @@ namespace Utils
             public int Y;
         }
 
+        private System.Random _rng;
+
         public Chunk[] Chunks;
 
         public Chunk this[int idx]
@@ -46,8 +49,9 @@ namespace Utils
             set => Chunks[idx] = value;
         }
 
-        public ChunkNeighborhood(ConcurrentDictionary<Vector2, Chunk> chunkMap, Chunk centralChunk)
+        public ChunkNeighborhood(ConcurrentDictionary<Vector2, Chunk> chunkMap, Chunk centralChunk, System.Random rng)
         {
+            _rng = rng;
             UpdateNeighbors(chunkMap, centralChunk);
         }
 
@@ -70,13 +74,34 @@ namespace Utils
             };
         }
 
-        public void GetBlockData(int x, int y, ref BlockData blockData)
+        public bool GetBlockData(int x, int y, ref BlockData blockData)
         {
-            var chunkData = Chunks[0].Data;
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+
+            if (Chunks[chunkIndex] == null)
+            {
+                blockData.Type = -1;
+                return false;
+            }
+
+            var chunkData = Chunks[chunkIndex].Data;
             var blockIndex = y * Chunk.Size + x;
-            blockData.type = chunkData.types[blockIndex];
-            blockData.stateBitset = chunkData.stateBitsets[blockIndex];
-            blockData.health = chunkData.healths[blockIndex];
+            blockData.Type = chunkData.types[blockIndex];
+            blockData.StateBitset = chunkData.stateBitsets[blockIndex];
+            blockData.Health = chunkData.healths[blockIndex];
+            return true;
+        }
+
+        public bool SetBlockStates(int x, int y, int states)
+        {
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+
+            if (Chunks[chunkIndex] == null)
+                return false;
+
+            Chunks[chunkIndex].Data.stateBitsets[y * Chunk.Size + x] = states;
+
+            return true;
         }
 
         public int GetBlock(int x, int y)
@@ -91,14 +116,65 @@ namespace Utils
             return Chunks[chunkIndex].Data.types[blockIndex];
         }
 
-        public void PutBlock(int x, int y, int type, Color32 color, ref Chunk chunkWritten)
+        // Put block
+        public void PutBlock(int x, int y, int type, Color32 color, int states, ref Chunk chunkWritten)
+        {
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+            if (Chunks[chunkIndex] == null)
+                return;
+            Chunks[chunkIndex].PutBlock(x, y, type, color.r, color.g, color.b, color.a, states, BlockLogic.BlockDescriptors[type].BaseHealth);
+            Chunks[chunkIndex].Dirty = true;
+            chunkWritten = Chunks[chunkIndex];
+        }
+
+        // Put block with shifted base color
+        public void PutBlock(int x, int y, int type)
+        {
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+            if (Chunks[chunkIndex] == null)
+                return;
+            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockLogic.BlockDescriptors[type].ColorMaxShift);
+            var color = BlockLogic.BlockDescriptors[type].Color;
+            Chunks[chunkIndex].PutBlock(x, y, type,
+                Helpers.ShiftColorComponent(color.r, shiftAmount),
+                Helpers.ShiftColorComponent(color.g, shiftAmount),
+                Helpers.ShiftColorComponent(color.b, shiftAmount),
+                color.a);
+            Chunks[chunkIndex].Dirty = true;
+        }
+
+        // Put block with shifted base color and states
+        public void PutBlock(int x, int y, int type, int states)
+        {
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+            if (Chunks[chunkIndex] == null)
+                return;
+            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockLogic.BlockDescriptors[type].ColorMaxShift);
+            var color = BlockLogic.BlockDescriptors[type].Color;
+            Chunks[chunkIndex].PutBlock(x, y, type,
+                Helpers.ShiftColorComponent(color.r, shiftAmount),
+                Helpers.ShiftColorComponent(color.g, shiftAmount),
+                Helpers.ShiftColorComponent(color.b, shiftAmount),
+                color.a, states);
+            Chunks[chunkIndex].Dirty = true;
+        }
+
+        public void PutBlock(int x, int y, int type, Color32 color)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
             Chunks[chunkIndex].PutBlock(x, y, type, color.r, color.g, color.b, color.a);
             Chunks[chunkIndex].Dirty = true;
-            chunkWritten = Chunks[chunkIndex];
+        }
+
+        public void PutBlock(int x, int y, int type, Color32 color, int states)
+        {
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+            if (Chunks[chunkIndex] == null)
+                return;
+            Chunks[chunkIndex].PutBlock(x, y, type, color.r, color.g, color.b, color.a, states);
+            Chunks[chunkIndex].Dirty = true;
         }
 
         public unsafe bool MoveBlock(int x, int y, int xOffset, int yOffset, int srcBlock, int destBlock, ref BlockMoveInfo blockMoveInfo)

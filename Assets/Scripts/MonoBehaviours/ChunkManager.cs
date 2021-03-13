@@ -41,7 +41,7 @@ namespace MonoBehaviours
             _chunkTaskScheduler.GetTaskManager(ChunkTaskManager.Types.Save).Processed += OnChunkSaved;
             _chunkTaskScheduler.GetTaskManager(ChunkTaskManager.Types.Load).Processed += OnChunkLoaded;
             _chunkTaskScheduler.GetTaskManager(ChunkTaskManager.Types.Generate).Processed += OnChunkGenerated;
-            
+
             _chunkPool = new GameObjectPool(generatedAreaSize * generatedAreaSize);
 
             ProceduralGenerator.UpdateEvent += ProceduralGeneratorUpdate;
@@ -98,7 +98,7 @@ namespace MonoBehaviours
         {
             ResetGrid(false);
         }
-    
+
         private void GlobalConfigUpdate(object sender, EventArgs e)
         {
             var restrict = GlobalDebugConfig.StaticGlobalConfig.RestrictGridSize;
@@ -154,7 +154,7 @@ namespace MonoBehaviours
                     default:
                         return;
                 }
-                
+
                 var rx = x - 0.5f + chunk.DirtyRect.x / Chunk.Size;
                 var ry = y - 0.5f + chunk.DirtyRect.y / Chunk.Size;
                 var rxMax = x - 0.5f + (chunk.DirtyRect.xMax + 1) / Chunk.Size;
@@ -222,12 +222,12 @@ namespace MonoBehaviours
             chunk.Dispose();
             UpdateSimulationPool(chunk, false);
         }
-        
+
         private void OnChunkLoaded(object sender, EventArgs e)
         {
             FinalizeChunkCreation(((ChunkTaskManager.ChunkEventArgs) e).Chunk);
         }
-        
+
         private void OnChunkGenerated(object sender, EventArgs e)
         {
             FinalizeChunkCreation(((ChunkTaskManager.ChunkEventArgs) e).Chunk);
@@ -241,7 +241,7 @@ namespace MonoBehaviours
             chunk.GameObject.transform.position = new Vector3(chunk.Position.x, chunk.Position.y, 0);
             chunk.GameObject.SetActive(true);
             chunk.UpdateTexture();
-            
+
             UpdateSimulationPool(chunk, true);
         }
 
@@ -290,7 +290,7 @@ namespace MonoBehaviours
                     return; // this chunk simulation task already exists
                 var task = new SimulationTask(chunk)
                 {
-                    Chunks = new ChunkNeighborhood(ChunkMap, chunk),
+                    Chunks = new ChunkNeighborhood(ChunkMap, chunk, Random.Value),
                     Random = Random
                 };
                 _simulationBatchPool[batchIndex].TryAdd(chunkPos, task);
@@ -324,7 +324,7 @@ namespace MonoBehaviours
                         }
 
                         var neighborTask = _simulationBatchPool[neighborBatchIndex][neighbor.Position];
-                        
+
                         // TODO: ideally we should only update the correct neighbor, but I'm being lazy here
                         // and its not the worst strain on performance
                         neighborTask.Chunks.UpdateNeighbors(ChunkMap, neighbor);
@@ -368,12 +368,12 @@ namespace MonoBehaviours
         {
             _chunkTaskScheduler.CancelLoading();
             _chunkTaskScheduler.CancelGeneration();
-            
+
             foreach (var chunk in ChunkMap.Values)
             {
                 DisposeAndSaveChunk(chunk);
             }
-            
+
             _chunkTaskScheduler.ForceSaving();
 
             ChunkMap.Clear();

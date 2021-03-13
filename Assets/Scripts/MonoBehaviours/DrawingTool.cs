@@ -24,6 +24,7 @@ public class DrawingTool : MonoBehaviour
 
     public int SelectedDrawBlock;
     public DrawType SelectedBrush;
+    public int SelectedState;
     public bool OverrideDefaultColors;
     public Color32 PixelColorOverride;
 
@@ -83,7 +84,7 @@ public class DrawingTool : MonoBehaviour
                 break;
             case DrawType.Line:
                 UpdateDrawLine(neighborhood, mousePos);
-                break; 
+                break;
             case DrawType.ColorPixel:
                 UpdateColorPixel(neighborhood, xOffset, yOffset);
                 break;
@@ -161,12 +162,12 @@ public class DrawingTool : MonoBehaviour
     private ChunkNeighborhood GetNeighborhood(Vector2 flooredPosVec2)
     {
         var centralChunk = ChunkManager.ChunkMap[flooredPosVec2];
-        return new ChunkNeighborhood(ChunkManager.ChunkMap, centralChunk);
+        return new ChunkNeighborhood(ChunkManager.ChunkMap, centralChunk, _rng);
     }
 
     private void DrawPixel(ChunkNeighborhood neighborhood, int x, int y)
     {
-        PutBlock(neighborhood, x, y, (int)SelectedDrawBlock, GetBlockColor());
+        PutBlock(neighborhood, x, y, SelectedDrawBlock, GetBlockColor(), SelectedState);
     }
 
     private void DrawBox(ChunkNeighborhood neighborhood, int x, int y)
@@ -178,7 +179,7 @@ public class DrawingTool : MonoBehaviour
         {
             for (var j = py; j < py + BoxSize; j++)
             {
-                PutBlock(neighborhood, i, j, (int)SelectedDrawBlock, GetBlockColor());
+                PutBlock(neighborhood, i, j, SelectedDrawBlock, GetBlockColor(), SelectedState);
             }
         }
     }
@@ -223,7 +224,7 @@ public class DrawingTool : MonoBehaviour
         var numerator = longest >> 1;
         for (var i = 0; i <= longest; i++)
         {
-            PutBlock(neighborhood, x, y, (int) SelectedDrawBlock, GetBlockColor());
+            PutBlock(neighborhood, x, y, SelectedDrawBlock, GetBlockColor(), SelectedState);
             numerator += shortest;
             if (!(numerator < longest))
             {
@@ -284,10 +285,12 @@ public class DrawingTool : MonoBehaviour
                         new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
     }
 
-    private void PutBlock(ChunkNeighborhood neighborhood, int x, int y, int selectedDrawBlock, Color32 blockColor)
+    private void PutBlock(ChunkNeighborhood neighborhood, int x, int y, int selectedDrawBlock, Color32 blockColor, int states)
     {
         Chunk chunkWritten = null;
-        neighborhood.PutBlock(x, y, selectedDrawBlock, blockColor, ref chunkWritten);
+        if (SelectedState == 1)
+            blockColor = BlockLogic.FireColor;
+        neighborhood.PutBlock(x, y, selectedDrawBlock, blockColor, states, ref chunkWritten);
 
         if (chunkWritten != null)
             _chunksToReload.Add(chunkWritten.Position);
@@ -298,7 +301,7 @@ public class DrawingTool : MonoBehaviour
         if (OverrideDefaultColors)
             return PixelColorOverride;
 
-        var block = (int) SelectedDrawBlock;
+        var block = SelectedDrawBlock;
         var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockLogic.BlockDescriptors[block].ColorMaxShift);
         var color = BlockLogic.BlockDescriptors[block].Color;
         return new Color32(
