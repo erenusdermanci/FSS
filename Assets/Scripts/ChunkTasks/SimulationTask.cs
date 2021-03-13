@@ -4,7 +4,6 @@ using System.Threading;
 using BlockBehavior;
 using DataComponents;
 using Utils;
-using static BlockConstants;
 
 namespace ChunkTasks
 {
