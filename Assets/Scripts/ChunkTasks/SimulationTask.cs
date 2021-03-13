@@ -266,18 +266,22 @@ namespace ChunkTasks
         {
             var neighborTypes = stackalloc BlockData[8];
             var airNeighborsCount = 0;
+            var selfNeighborsCount = 0;
 
             // We need to go through the neighbours of this fire block
             for (var i = 0; i < 8; ++i)
             {
                 var neighborFound = Chunks.GetBlockData(x + directionX[i], y + directionY[i], ref neighborTypes[i]);
 
-                if (neighborFound && neighborTypes[i].Type == BlockLogic.Air)
-                    airNeighborsCount++;
+                if (neighborFound)
+                    if (neighborTypes[i].Type == BlockLogic.Air)
+                        airNeighborsCount++;
+                    else if (neighborTypes[i].Type == blockData.Type)
+                        selfNeighborsCount++;
             }
 
             // We have our neighbor's types and our air count
-            if (airNeighborsCount == 0)
+            if (airNeighborsCount + selfNeighborsCount == 0)
             {
                 // fire dies out
                 blockData.ClearState(BurningState);
@@ -294,7 +298,14 @@ namespace ChunkTasks
                             break;
                         case BlockLogic.Air:
                             // replace Air with smoke
-                            // Chunks.PutBlock(x + directionX[i], y + directionY[i], BlockLogic.Smoke);
+                            var combustionEmissionProbability = behavior.CombustionEmissionProbability;
+                            if (combustionEmissionProbability == 0.0f)
+                                continue;
+                            if (combustionEmissionProbability >= 1.0f
+                                || combustionEmissionProbability > _rng.NextDouble())
+                            {
+                                Chunks.PutBlock(x + directionX[i], y + directionY[i], behavior.CombustionEmissionBlockType);
+                            }
                             break;
                         default:
                             if (neighborTypes[i].GetState(BurningState))
@@ -314,14 +325,20 @@ namespace ChunkTasks
                     }
                 }
 
-                Chunks.SetBlockHealth(x, y,
-                    blockData.Health - BlockLogic.BlockDescriptors[blockData.Type].BurningRate *
-                    (1 + airNeighborsCount));
+                Chunks.SetBlockHealth(x, y, blockData.Health - behavior.BurningRate * (1 + airNeighborsCount));
 
                 if (blockData.Health <= 0.0f)
                 {
                     // Block is consumed by fire, destroy it
-                    Chunks.PutBlock(x, y, BlockLogic.Smoke, 0, BlockLogic.BlockDescriptors[BlockLogic.Smoke].BaseHealth);
+
+                    var combustionResultProbability = behavior.CombustionResultProbability;
+                    var resultBlockType = BlockLogic.Air;
+
+                    if (combustionResultProbability >= 1.00f
+                        || combustionResultProbability > _rng.NextDouble())
+                        resultBlockType = behavior.CombustionResultBlockType;
+
+                    Chunks.PutBlock(x, y, resultBlockType, 0, BlockLogic.BlockDescriptors[resultBlockType].BaseHealth);
                     destroyed = true;
                     return true;
                 }

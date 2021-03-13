@@ -33,7 +33,6 @@ namespace Blocks
                 0.0f,
                 0.0f,
                 0.0f,
-                0.0f,
                 new IBehavior[] {}
             ),
             new BlockDescriptor(
@@ -44,7 +43,6 @@ namespace Blocks
                 0.0f,
                 new Color32(193, 190, 186, 127),
                 0.05f,
-                0.0f,
                 0.0f,
                 0.0f,
                 new IBehavior[] {}
@@ -59,10 +57,13 @@ namespace Blocks
                 0.1f,
                 0.1f,
                 100.0f,
-                0.1f,
                 new IBehavior[]
                 {
-                    new FireSpread(),
+                    new FireSpread(0.01f,
+                        Smoke,
+                        0.01f,
+                        Smoke,
+                        0.5f),
                     new Swap(
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 2, 1, 1, 2, 2, 0, 0 ,0 },
@@ -79,7 +80,6 @@ namespace Blocks
                 0.2f,
                 new Color32(15, 94, 156, 255),
                 0.025f,
-                0.0f,
                 0.0f,
                 0.0f,
                 new IBehavior[]
@@ -102,7 +102,6 @@ namespace Blocks
                 0.05f,
                 0.0f,
                 0.0f,
-                0.0f,
                 new IBehavior[]
                 {
                     new Swap(
@@ -121,7 +120,6 @@ namespace Blocks
                 0.6f,
                 new Color32(124, 94, 66, 255),
                 0.1f,
-                0.0f,
                 0.0f,
                 0.0f,
                 new IBehavior[]
@@ -144,7 +142,6 @@ namespace Blocks
                 0.2f,
                 0.0f,
                 0.0f,
-                0.0f,
                 new IBehavior[] { }
             ),
             new BlockDescriptor (
@@ -157,7 +154,6 @@ namespace Blocks
                 0.01f,
                 0.0f,
                 0.0f,
-                0.0f,
                 new IBehavior[] { }
             ),
             new BlockDescriptor (
@@ -167,7 +163,6 @@ namespace Blocks
                 new BlockTags[] { },
                 1000.0f,
                 new Color32(255, 0, 0, 255),
-                0.0f,
                 0.0f,
                 0.0f,
                 0.0f,
@@ -183,10 +178,14 @@ namespace Blocks
                 0.1f,
                 1.0f,
                 100.0f,
-                20.0f,
                 new IBehavior[]
                 {
-                    new FireSpread(),
+                    new FireSpread(100.0f,
+                        Smoke,
+                        0.0f,
+                        Smoke,
+                        0.25f
+                        ),
                     new Swap(
                         new [] { 5, 5, 6, 7, 3, 4},
                         new [] { 0, 0, 0, 2, 2, 2, 1 ,1 },
@@ -203,7 +202,6 @@ namespace Blocks
             0.06f,
             new Color32(59, 68, 75, 75),
             0.2f,
-            0.0f,
             0.0f,
             0.0f,
             new IBehavior[]
