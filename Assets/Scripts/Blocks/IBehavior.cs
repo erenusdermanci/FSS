@@ -2,6 +2,6 @@
 {
     public interface IBehavior
     {
-        int Id { get; }
+        int GetId { get; }
     }
 }

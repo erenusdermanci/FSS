@@ -77,7 +77,7 @@ namespace ChunkTasks
             Chunk.DirtyRect.y = -1;
             Chunk.DirtyRect.xMax = -1;
             Chunk.DirtyRect.yMax = -1;
-            var moved = false;
+            var dirtied = false;
 
             const int totalSize = Chunk.Size * Chunk.Size;
             for (var i = 0; i < totalSize; ++i)
@@ -97,10 +97,13 @@ namespace ChunkTasks
 
                 foreach (var behavior in blockLogic.Behaviors)
                 {
-                    switch (behavior.Id)
+                    switch (behavior.GetId)
                     {
-                        case 0:
-                            moved |= Swap((Swap) behavior, block, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
+                        case Blocks.Swap.Id:
+                            dirtied |= Swap((Swap) behavior, block, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
+                            break;
+                        case Blocks.FireSpread.Id:
+                            dirtied |= FireSpread((FireSpread)behavior, block, x, y, directionX, directionY);
                             break;
                     }
                 }
@@ -135,7 +138,7 @@ namespace ChunkTasks
                 }
             }
 
-            Chunk.Dirty = moved;
+            Chunk.Dirty = dirtied;
 
             for (var y = 0; y < Chunk.Size; ++y)
             {
@@ -247,6 +250,11 @@ namespace ChunkTasks
             }
 
             return targetsFound;
+        }
+
+        private unsafe bool FireSpread(FireSpread behavior, int block, int x, int y, int* directionX, int* directionY)
+        {
+            return false;
         }
     }
 }

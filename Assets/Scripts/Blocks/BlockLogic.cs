@@ -180,6 +180,21 @@ namespace Blocks
                     )
                 }
             ),
+            new BlockDescriptor(
+                "Fire",
+                10,
+                NonPhysical,
+                new BlockTags[] { },
+                0f,
+                new Color32(240, 127, 19, 255),
+                0.25f,
+                0,
+                0,
+                new IBehavior[]
+                {
+                    new FireSpread()
+                }
+            )
         };
     }
 }

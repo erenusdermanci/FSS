@@ -2,8 +2,10 @@
 {
     public readonly struct Swap : IBehavior
     {
-        public int Id => 0;
-        
+        public const int Id = 0;
+
+        public int GetId => Id;
+
         public readonly int[] Priorities;
         public readonly int[] Directions;
         public readonly BlockMovementType[] MovementTypes;
