@@ -16,10 +16,12 @@ namespace DataComponents
         {
             public byte[] colors;
             public int[] types;
+            public int[] stateBitsets;
+            public int[] healths;
         }
 
         public BlockData Data;
-        
+
         public readonly byte[] BlockUpdatedFlags = new byte[Size * Size];
         public readonly int[] BlockCounts = new int[BlockLogic.BlockDescriptors.Length];
         public Rect DirtyRect;
@@ -32,13 +34,13 @@ namespace DataComponents
             DirtyRect.xMax = -1;
             DirtyRect.yMax = -1;
         }
-        
+
         public void UpdateTexture()
         {
             Texture.LoadRawTextureData(Data.colors);
             Texture.Apply();
         }
-        
+
         public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a)
         {
             var i = y * Size + x;

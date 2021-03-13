@@ -7,13 +7,37 @@ namespace Utils
 {
     public class ChunkNeighborhood
     {
+        public struct BlockData
+        {
+            public int type;
+            public int stateBitset;
+            public int health;
+
+            public const int BurningState = 0;
+
+            public bool GetState(int stateToCheck)
+            {
+                return ((stateBitset >> stateToCheck) & 1) == 1;
+            }
+
+            public void SetState(int stateToSet)
+            {
+                stateBitset |= 1 << stateToSet;
+            }
+
+            public void ClearState(int stateToClear)
+            {
+                stateBitset &= ~(1 << stateToClear);
+            }
+        }
+
         public struct BlockMoveInfo
         {
             public int Chunk;
             public int X;
             public int Y;
         }
-    
+
         public Chunk[] Chunks;
 
         public Chunk this[int idx]
@@ -46,12 +70,21 @@ namespace Utils
             };
         }
 
-        public int GetBlock(int x, int y, bool current = false)
+        public void GetBlockData(int x, int y, ref BlockData blockData)
+        {
+            var chunkData = Chunks[0].Data;
+            var blockIndex = y * Chunk.Size + x;
+            blockData.type = chunkData.types[blockIndex];
+            blockData.stateBitset = chunkData.stateBitsets[blockIndex];
+            blockData.health = chunkData.healths[blockIndex];
+        }
+
+        public int GetBlock(int x, int y)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
 
             if (Chunks[chunkIndex] == null)
-                return (int)BlockLogic.Border;
+                return BlockLogic.Border;
 
             var blockIndex = y * Chunk.Size + x;
 
@@ -109,7 +142,7 @@ namespace Utils
                 destColorBuffer[1],
                 destColorBuffer[2],
                 destColorBuffer[3]);
-            
+
             UpdateDirtyInBorderChunks(x, y);
 
             return true;

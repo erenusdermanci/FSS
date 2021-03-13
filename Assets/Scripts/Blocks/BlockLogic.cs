@@ -56,6 +56,7 @@ namespace Blocks
                 500,
                 new IBehavior[]
                 {
+                    new FireSpread(),
                     new Swap(
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 2, 1, 1, 2, 2, 0, 0 ,0 },
@@ -172,27 +173,13 @@ namespace Blocks
                 5,
                 new IBehavior[]
                 {
+                    new FireSpread(),
                     new Swap(
                         new [] { 5, 5, 6, 7, 3, 4},
                         new [] { 0, 0, 0, 2, 2, 2, 1 ,1 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
                         Solid
                     )
-                }
-            ),
-            new BlockDescriptor(
-                "Fire",
-                10,
-                NonPhysical,
-                new BlockTags[] { },
-                0f,
-                new Color32(240, 127, 19, 255),
-                0.25f,
-                0,
-                0,
-                new IBehavior[]
-                {
-                    new FireSpread()
                 }
             )
         };

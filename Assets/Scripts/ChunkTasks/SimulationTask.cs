@@ -4,6 +4,7 @@ using System.Threading;
 using Blocks;
 using DataComponents;
 using Utils;
+using static Utils.ChunkNeighborhood.BlockData;
 
 namespace ChunkTasks
 {
@@ -77,6 +78,7 @@ namespace ChunkTasks
             Chunk.DirtyRect.y = -1;
             Chunk.DirtyRect.xMax = -1;
             Chunk.DirtyRect.yMax = -1;
+            var blockData = new ChunkNeighborhood.BlockData();
             var dirtied = false;
 
             const int totalSize = Chunk.Size * Chunk.Size;
@@ -91,23 +93,25 @@ namespace ChunkTasks
                 if (Chunks[0].BlockUpdatedFlags[y * Chunk.Size + x] == 1)
                     continue;
 
-                var block = Chunks.GetBlock(x, y, true);
+                Chunks.GetBlockData(x, y, ref blockData);
 
-                var blockLogic = BlockLogic.BlockDescriptors[block];
+                var blockLogic = BlockLogic.BlockDescriptors[blockData.type];
 
                 foreach (var behavior in blockLogic.Behaviors)
                 {
                     switch (behavior.GetId)
                     {
                         case Blocks.Swap.Id:
-                            dirtied |= Swap((Swap) behavior, block, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
+                            dirtied |= Swap((Swap) behavior, blockData.type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
                             break;
                         case Blocks.FireSpread.Id:
-                            dirtied |= FireSpread((FireSpread)behavior, block, x, y, directionX, directionY);
+                            if (!blockData.GetState(BurningState))
+                                break;
+                            dirtied |= FireSpread((FireSpread)behavior, blockData, x, y, directionX, directionY);
                             break;
                     }
                 }
-                
+
                 if (blockMoveInfo.Chunk == 0)
                 {
                     var c = Chunks[blockMoveInfo.Chunk];
@@ -252,9 +256,38 @@ namespace ChunkTasks
             return targetsFound;
         }
 
-        private unsafe bool FireSpread(FireSpread behavior, int block, int x, int y, int* directionX, int* directionY)
+        private unsafe bool FireSpread(FireSpread behavior, ChunkNeighborhood.BlockData blockData, int x, int y, int* directionX, int* directionY)
         {
             return false;
+
+            var neighborTypes = stackalloc int[8];
+            var airNeighborsCount = 0;
+
+            // We need to go through the neighbours of this fire block
+            for (var i = 0; i < 8; ++i)
+            {
+                var neighbor = Chunks.GetBlock(x + directionX[i], y + directionY[i]);
+
+                if (neighbor == BlockLogic.Air)
+                    airNeighborsCount++;
+
+                neighborTypes[i] = neighbor;
+            }
+
+            // We have our neighbor's types and our air count
+            if (airNeighborsCount == 0)
+            {
+                // on s'etouffe -> destroy
+            }
+            else
+            {
+                blockData.health -= airNeighborsCount;
+
+                if (blockData.health <= 0)
+                {
+                    // Destroy
+                }
+            }
         }
     }
 }

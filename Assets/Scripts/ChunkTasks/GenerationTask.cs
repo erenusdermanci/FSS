@@ -27,6 +27,8 @@ namespace ChunkTasks
 
             Chunk.Data.colors = new byte[Chunk.Size * Chunk.Size * 4];
             Chunk.Data.types = new int[Chunk.Size * Chunk.Size];
+            Chunk.Data.stateBitsets = new int[Chunk.Size * Chunk.Size];
+            Chunk.Data.healths = new int[Chunk.Size * Chunk.Size];
 
             if (ProceduralGenerator.IsEnabled)
             {
@@ -107,6 +109,8 @@ namespace ChunkTasks
                 Chunk.Data.colors[i * 4 + 2] = airColor.b;
                 Chunk.Data.colors[i * 4 + 3] = airColor.a;
                 Chunk.Data.types[i] = BlockLogic.Air;
+                Chunk.Data.stateBitsets[i] = 0;
+                Chunk.Data.healths[i] = 0;
             }
         }
 
@@ -132,7 +136,7 @@ namespace ChunkTasks
 
             noiseAcc /= layer.InLayerNoises.Count;
 
-            var block = (int)GetBlockFromNoise(layer, noiseAcc);
+            var block = GetBlockFromNoise(layer, noiseAcc);
             var blockColor = BlockLogic.BlockDescriptors[block].Color;
 
             var idx = y * Chunk.Size + x;
@@ -143,6 +147,8 @@ namespace ChunkTasks
             Chunk.Data.colors[idx * 4 + 2] = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
             Chunk.Data.colors[idx * 4 + 3] = blockColor.a;
             Chunk.Data.types[idx] = block;
+            Chunk.Data.stateBitsets[idx] = 0;
+            Chunk.Data.healths[idx] = 0;
         }
 
         private static int GetBlockFromNoise(Layer layer, float noise)
