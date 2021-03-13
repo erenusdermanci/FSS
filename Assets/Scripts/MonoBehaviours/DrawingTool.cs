@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BlockBehavior;
 using DataComponents;
 using MonoBehaviours;
 using UnityEngine;
@@ -299,8 +300,8 @@ public class DrawingTool : MonoBehaviour
             return PixelColorOverride;
 
         var block = (int) SelectedDrawBlock;
-        var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockColorMaxShift[block]);
-        var color = BlockColors[block];
+        var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockLogic.BlockDescriptors[block].ColorMaxShift);
+        var color = BlockLogic.BlockDescriptors[block].Color;
         return new Color32(
             Helpers.ShiftColorComponent(color.r, shiftAmount),
             Helpers.ShiftColorComponent(color.g, shiftAmount),

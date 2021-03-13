@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using BlockBehavior;
 using DataComponents;
 using MonoBehaviours;
 using Utils;
@@ -99,12 +100,13 @@ namespace ChunkTasks
 
         private void GenerateEmpty()
         {
+            var airColor = BlockLogic.BlockDescriptors[0].Color;
             for (var i = 0; i < Chunk.Size * Chunk.Size; i++)
             {
-                Chunk.Data.colors[i * 4] = BlockColors[(int) Blocks.Air].r;
-                Chunk.Data.colors[i * 4 + 1] = BlockColors[(int) Blocks.Air].g;
-                Chunk.Data.colors[i * 4 + 2] = BlockColors[(int) Blocks.Air].b;
-                Chunk.Data.colors[i * 4 + 3] = BlockColors[(int) Blocks.Air].a;
+                Chunk.Data.colors[i * 4] = airColor.r;
+                Chunk.Data.colors[i * 4 + 1] = airColor.g;
+                Chunk.Data.colors[i * 4 + 2] = airColor.b;
+                Chunk.Data.colors[i * 4 + 3] = airColor.a;
                 Chunk.Data.types[i] = (int) Blocks.Air;
             }
         }
@@ -132,11 +134,11 @@ namespace ChunkTasks
             noiseAcc /= layer.InLayerNoises.Count;
 
             var block = (int)GetBlockFromNoise(layer, noiseAcc);
-            var blockColor = BlockColors[block];
+            var blockColor = BlockLogic.BlockDescriptors[block].Color;
 
             var idx = y * Chunk.Size + x;
 
-            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockColorMaxShift[block]);
+            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockLogic.BlockDescriptors[block].ColorMaxShift);
             Chunk.Data.colors[idx * 4] = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
             Chunk.Data.colors[idx * 4 + 1] = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
             Chunk.Data.colors[idx * 4 + 2] = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
