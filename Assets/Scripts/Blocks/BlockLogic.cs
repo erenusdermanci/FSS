@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using static BlockBehavior.MovementType;
-using static BlockBehavior.Tags;
+using static Blocks.BlockMovementType;
+using static Blocks.BlockTags;
 
-namespace BlockBehavior
+namespace Blocks
 {
     // directions
     // 0 -> down
@@ -14,84 +14,32 @@ namespace BlockBehavior
     // 6 -> upLeft
     // 7 -> upRight
 
-    public enum Tags
-    {
-        Liquid,
-        Solid,
-        Conductive,
-        NonPhysical
-    }
-    
-    public interface IBehavior
-    {
-        int Id { get; }
-    }
-    
-    public readonly struct BlockDescriptor
-    {
-        public readonly Tags PhysicalTag;
-        public readonly Tags[] BehavioralTags;
-        public readonly float Density;
-        public readonly Color32 Color;
-        public readonly float ColorMaxShift;
-        public readonly IBehavior[] Behaviors;
-
-        public BlockDescriptor(Tags physicalTag, Tags[] behavioralTags, float density, Color32 color, float colorMaxShift, IBehavior[] behaviors)
-        {
-            PhysicalTag = physicalTag;
-            BehavioralTags = behavioralTags;
-            Density = density;
-            Color = color;
-            ColorMaxShift = colorMaxShift;
-            Behaviors = behaviors;
-        }
-    }
-
-    public enum MovementType
-    {
-        Closest,
-        Randomized,
-        Farthest
-    }
-
-    public readonly struct Swap : IBehavior
-    {
-        public int Id => 0;
-        
-        public readonly int[] Priorities;
-        public readonly int[] Directions;
-        public readonly MovementType[] MovementTypes;
-        public readonly Tags BlockedBy;
-
-        public Swap(int[] priorities, int[] directions, MovementType[] movementTypes, Tags blockedBy)
-        {
-            Priorities = priorities;
-            Directions = directions;
-            MovementTypes = movementTypes;
-            BlockedBy = blockedBy;
-        }
-    }
-
     public static class BlockLogic
     {
+        public const int Air = 0;
+        public const int Border = 8;
+
         public static readonly BlockDescriptor[] BlockDescriptors = {
             new BlockDescriptor( // AIR
+                0,
                 NonPhysical,
-                new Tags[] {},
+                new BlockTags[] {},
                 0.0f,
                 new Color32(0, 0, 0, 0),
                 0.0f,
                 new IBehavior[] {}
             ),
             new BlockDescriptor( // CLOUD
+                1,
                 NonPhysical,
-                new Tags[] {},
+                new BlockTags[] {},
                 0.0f,
                 new Color32(193, 190, 186, 127),
                 0.05f,
                 new IBehavior[] {}
             ),
             new BlockDescriptor ( // OIL
+                2,
                 Liquid,
                 new[] { Liquid },
                 0.1f,
@@ -108,6 +56,7 @@ namespace BlockBehavior
                 }
             ),
             new BlockDescriptor ( // WATER
+                3,
                 Liquid,
                 new [] { Liquid, Conductive },
                 0.2f,
@@ -124,6 +73,7 @@ namespace BlockBehavior
                 }
             ),
             new BlockDescriptor ( // SAND
+                4,
                 Solid,
                 new [] { Solid },
                 0.5f,
@@ -140,6 +90,7 @@ namespace BlockBehavior
                 }
             ),
             new BlockDescriptor ( // DIRT
+                5,
                 Solid,
                 new [] { Solid },
                 0.6f,
@@ -156,6 +107,7 @@ namespace BlockBehavior
                 }
             ),
             new BlockDescriptor ( // STONE
+                6,
                 Solid,
                 new [] { Solid },
                 1.0f,
@@ -164,6 +116,7 @@ namespace BlockBehavior
                 new IBehavior[] { }
             ),
             new BlockDescriptor ( // METAL
+                7,
                 Solid,
                 new [] { Solid },
                 1.0f,
@@ -172,8 +125,9 @@ namespace BlockBehavior
                 new IBehavior[] { }
             ),
             new BlockDescriptor ( // BORDER
+                8,
                 Solid,
-                new Tags[] { }, // no behavior
+                new BlockTags[] { }, // no behavior
                 1000.0f,
                 new Color32(255, 0, 0, 255),
                 0.0f,

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Blocks;
 
 namespace Utils
 {
@@ -80,7 +81,7 @@ namespace Utils
 
             if (InLayerNoises.Count == other.InLayerNoises.Count)
             {
-                for (int i = 0; i < InLayerNoises.Count; i++)
+                for (var i = 0; i < InLayerNoises.Count; i++)
                 {
                     if (!InLayerNoises[i].Equals(other.InLayerNoises[i]))
                         return false;
@@ -91,7 +92,7 @@ namespace Utils
 
             if (Thresholds.Count == other.Thresholds.Count)
             {
-                for (int i = 0; i < Thresholds.Count; i++)
+                for (var i = 0; i < Thresholds.Count; i++)
                 {
                     if (!Thresholds[i].Equals(other.Thresholds[i]))
                         return false;
@@ -107,10 +108,10 @@ namespace Utils
     [Serializable]
     public struct BlockThresholdStruct
     {
-        public BlockConstants.Blocks type;
+        public int type;
         public float threshold;
 
-        public BlockThresholdStruct(BlockConstants.Blocks type, float threshold)
+        public BlockThresholdStruct(int type, float threshold)
         {
             this.type = type;
             this.threshold = threshold;

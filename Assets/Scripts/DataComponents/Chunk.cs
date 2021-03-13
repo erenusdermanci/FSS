@@ -1,4 +1,5 @@
 ﻿using System;
+using Blocks;
 using UnityEngine;
 
 namespace DataComponents
@@ -20,7 +21,7 @@ namespace DataComponents
         public BlockData Data;
         
         public readonly byte[] BlockUpdatedFlags = new byte[Size * Size];
-        public readonly int[] BlockCounts = new int[Enum.GetNames(typeof(BlockConstants.Blocks)).Length];
+        public readonly int[] BlockCounts = new int[BlockLogic.BlockDescriptors.Length];
         public Rect DirtyRect;
         public bool Dirty;
 

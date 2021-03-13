@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using BlockBehavior;
+using Blocks;
 using DataComponents;
 using Utils;
 
@@ -185,7 +185,7 @@ namespace ChunkTasks
                     var distance = 0;
                     switch (swap.MovementTypes[directionIdx])
                     {
-                        case MovementType.Closest:
+                        case BlockMovementType.Closest:
                             for (var j = 0; j < swap.Directions[directionIdx]; ++j)
                             {
                                 if (availableTargets[j] != 1)
@@ -195,7 +195,7 @@ namespace ChunkTasks
                             }
 
                             break;
-                        case MovementType.Farthest:
+                        case BlockMovementType.Farthest:
                             for (var j = swap.Directions[directionIdx] - 1; j >= 0; --j)
                             {
                                 if (availableTargets[j] != 1)
@@ -205,7 +205,7 @@ namespace ChunkTasks
                             }
 
                             break;
-                        case MovementType.Randomized:
+                        case BlockMovementType.Randomized:
                             var index = availableTargets[0]
                                         | (availableTargets[1] << 1)
                                         | (availableTargets[2] << 2)
@@ -234,7 +234,7 @@ namespace ChunkTasks
             for (var j = 0; j < swap.Directions[directionIdx]; ++j)
             {
                 targetBlocks[j] = Chunks.GetBlock(x + (j + 1) * directionX[directionIdx], y + (j + 1) * directionY[directionIdx]);
-                if (swap.BlockedBy == BlockLogic.BlockDescriptors[targetBlocks[j]].PhysicalTag)
+                if (swap.BlockedBy == BlockLogic.BlockDescriptors[targetBlocks[j]].PhysicalBlockTag)
                 {
                     availableTargets[j] = 0;
                     return targetsFound;

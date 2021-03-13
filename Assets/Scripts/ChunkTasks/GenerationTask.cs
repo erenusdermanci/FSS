@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using BlockBehavior;
+using Blocks;
 using DataComponents;
 using MonoBehaviours;
 using Utils;
-using static BlockConstants;
 
 namespace ChunkTasks
 {
@@ -107,7 +106,7 @@ namespace ChunkTasks
                 Chunk.Data.colors[i * 4 + 1] = airColor.g;
                 Chunk.Data.colors[i * 4 + 2] = airColor.b;
                 Chunk.Data.colors[i * 4 + 3] = airColor.a;
-                Chunk.Data.types[i] = (int) Blocks.Air;
+                Chunk.Data.types[i] = BlockLogic.Air;
             }
         }
 
@@ -146,7 +145,7 @@ namespace ChunkTasks
             Chunk.Data.types[idx] = block;
         }
 
-        private static Blocks GetBlockFromNoise(Layer layer, float noise)
+        private static int GetBlockFromNoise(Layer layer, float noise)
         {
             var thresholds = layer.Thresholds;
 
@@ -156,7 +155,7 @@ namespace ChunkTasks
                     return thresholds[i].type;
             }
 
-            return Blocks.Border;
+            return BlockLogic.Border;
         }
 
         private static int GetLayerForY(int[] vertIdxPerLayer, int y)

@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using BlockBehavior;
+using Blocks;
 using DataComponents;
 using MonoBehaviours;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
-using static BlockConstants;
 using Random = System.Random;
 
 public class DrawingTool : MonoBehaviour
@@ -23,7 +22,7 @@ public class DrawingTool : MonoBehaviour
     public bool Enabled;
     public ChunkManager ChunkManager;
 
-    public Blocks SelectedDrawBlock;
+    public int SelectedDrawBlock;
     public DrawType SelectedBrush;
     public bool OverrideDefaultColors;
     public Color32 PixelColorOverride;

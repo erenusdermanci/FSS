@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
+using Blocks;
 using DataComponents;
 using UnityEngine;
-using static BlockConstants;
 
 namespace Utils
 {
@@ -51,7 +51,7 @@ namespace Utils
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
 
             if (Chunks[chunkIndex] == null)
-                return (int)Blocks.Border;
+                return (int)BlockLogic.Border;
 
             var blockIndex = y * Chunk.Size + x;
 
@@ -100,7 +100,7 @@ namespace Utils
             blockMoveInfo.Y = uy;
 
             Chunks[newChunkIndex].SetUpdatedFlag(ux, uy);
-            if (destBlock != (int)Blocks.Air)
+            if (destBlock != BlockLogic.Air)
                 Chunks[0].SetUpdatedFlag(x, y);
 
             // put the old destination block at the source position (swap)
