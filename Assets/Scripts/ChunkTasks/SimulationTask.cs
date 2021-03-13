@@ -73,8 +73,12 @@ namespace ChunkTasks
                 Chunk.BlockCounts[i] = 0;
 
             var blockMoveInfo = new ChunkNeighborhood.BlockMoveInfo();
-
+            Chunk.DirtyRect.x = -1;
+            Chunk.DirtyRect.y = -1;
+            Chunk.DirtyRect.xMax = -1;
+            Chunk.DirtyRect.yMax = -1;
             var moved = false;
+
             const int totalSize = Chunk.Size * Chunk.Size;
             for (var i = 0; i < totalSize; ++i)
             {
@@ -98,6 +102,30 @@ namespace ChunkTasks
                         case 0:
                             moved |= Swap((Swap) behavior, block, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
                             break;
+                    }
+                }
+                
+                if (blockMoveInfo.Chunk == 0)
+                {
+                    var c = Chunks[blockMoveInfo.Chunk];
+
+                    if (c.DirtyRect.x < 0.0f)
+                    {
+                        if (c.DirtyRect.x < 0.0f) c.DirtyRect.x = blockMoveInfo.X;
+                        if (c.DirtyRect.xMax < 0.0f) c.DirtyRect.xMax = blockMoveInfo.X;
+                        if (c.DirtyRect.y < 0.0f) c.DirtyRect.y = blockMoveInfo.Y;
+                        if (c.DirtyRect.yMax < 0.0f) c.DirtyRect.yMax = blockMoveInfo.Y;
+                    }
+                    else
+                    {
+                        if (c.DirtyRect.x > blockMoveInfo.X)
+                            c.DirtyRect.x = blockMoveInfo.X;
+                        if (c.DirtyRect.xMax < blockMoveInfo.X)
+                            c.DirtyRect.xMax = blockMoveInfo.X;
+                        if (c.DirtyRect.y > blockMoveInfo.Y)
+                            c.DirtyRect.y = blockMoveInfo.Y;
+                        if (c.DirtyRect.yMax < blockMoveInfo.Y)
+                            c.DirtyRect.yMax = blockMoveInfo.Y;
                     }
                 }
 

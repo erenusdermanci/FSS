@@ -129,11 +129,40 @@ namespace MonoBehaviours
                         Debug.DrawLine(new Vector3(x - s, y + s), new Vector3(x + s, y + s), mapBorderColor);
                     continue;
                 }
-                var borderColor = Color.red;
+                var borderColor = new Color(100, 100, 100, 100);
                 Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), borderColor);
                 Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), borderColor);
                 Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x - s, y + s), borderColor);
                 Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x + s, y - s), borderColor);
+
+                var chunkBatchIndex = GetChunkBatchIndex(chunk.Position);
+                Color32 dirtyRectColor;
+                switch (chunkBatchIndex)
+                {
+                    case 0:
+                        dirtyRectColor = Color.green;
+                        break;
+                    case 1:
+                        dirtyRectColor = Color.red;
+                        break;
+                    case 2:
+                        dirtyRectColor = Color.magenta;
+                        break;
+                    case 3:
+                        dirtyRectColor = Color.yellow;
+                        break;
+                    default:
+                        return;
+                }
+                
+                var rx = x - 0.5f + chunk.DirtyRect.x / Chunk.Size;
+                var ry = y - 0.5f + chunk.DirtyRect.y / Chunk.Size;
+                var rxMax = x - 0.5f + (chunk.DirtyRect.xMax + 1) / Chunk.Size;
+                var ryMax = y - 0.5f + (chunk.DirtyRect.yMax + 1) / Chunk.Size;
+                Debug.DrawLine(new Vector3(rx, ry), new Vector3(rxMax, ry), dirtyRectColor);
+                Debug.DrawLine(new Vector3(rx, ry), new Vector3(rx, ryMax), dirtyRectColor);
+                Debug.DrawLine(new Vector3(rxMax, ry), new Vector3(rxMax, ryMax), dirtyRectColor);
+                Debug.DrawLine(new Vector3(rx, ryMax), new Vector3(rxMax, ryMax), dirtyRectColor);
             }
         }
 

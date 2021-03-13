@@ -21,7 +21,16 @@ namespace DataComponents
         
         public readonly byte[] BlockUpdatedFlags = new byte[Size * Size];
         public readonly int[] BlockCounts = new int[Enum.GetNames(typeof(BlockConstants.Blocks)).Length];
+        public Rect DirtyRect;
         public bool Dirty;
+
+        public Chunk()
+        {
+            DirtyRect.x = -1;
+            DirtyRect.y = -1;
+            DirtyRect.xMax = -1;
+            DirtyRect.yMax = -1;
+        }
         
         public void UpdateTexture()
         {
