@@ -114,86 +114,92 @@ namespace ChunkTasks
         private unsafe bool SimulateBlock(int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo,
             int* distances, int* bitCount, int* directionX, int* directionY)
         {
-            var availableTargets = stackalloc int[4];
-            var targetBlocks = stackalloc int[4];
             var blockLogic = BlockLogic.BlockDescriptors[block];
 
             foreach (var behavior in blockLogic.Behaviors)
             {
                 switch (behavior.Id)
                 {
-                    case 0: // Swap
-                        var swap = (Swap) behavior;
+                    case 0:
+                        return Swap((Swap) behavior, block, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
+                }
+            }
 
-                        // Traverse priority array
-                        const int maximumDirections = 2;
-                        for (var i = 0; i < swap.Priorities.Length; i += maximumDirections)
-                        {
-                            int loopRange;
-                            int loopStart;
-                            if (swap.Priorities[i] == swap.Priorities[i + 1])
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private unsafe bool Swap(Swap swap, int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo,
+            int* directionX, int* directionY, int* distances, int* bitCount)
+        {
+            var availableTargets = stackalloc int[4];
+            var targetBlocks = stackalloc int[4];
+
+            // Traverse priority array
+            const int maximumDirections = 2;
+            for (var i = 0; i < swap.Priorities.Length; i += maximumDirections)
+            {
+                int loopRange;
+                int loopStart;
+                if (swap.Priorities[i] == swap.Priorities[i + 1])
+                {
+                    loopRange = 1;
+                    loopStart = 0;
+                }
+                else
+                {
+                    loopRange = 2;
+                    loopStart = _rng.Next(0, loopRange);
+                }
+
+                for (var k = 0; k < loopRange; k++)
+                {
+                    var directionIdx = swap.Priorities[i + (loopStart + k) % loopRange];
+
+                    // we need to check our possible movements in this direction
+                    if (!FillAvailableTargets(swap, x, y, block, directionIdx, directionX,
+                        directionY, availableTargets, targetBlocks))
+                        continue; // we found no targets, check other direction
+
+                    // we found at least 1 target, proceed to swap
+                    var distance = 0;
+                    switch (swap.MovementTypes[directionIdx])
+                    {
+                        case MovementType.Closest:
+                            for (var j = 0; j < swap.Directions[directionIdx]; ++j)
                             {
-                                loopRange = 1;
-                                loopStart = 0;
+                                if (availableTargets[j] != 1)
+                                    continue;
+                                distance = j + 1;
+                                break;
                             }
-                            else
+
+                            break;
+                        case MovementType.Farthest:
+                            for (var j = swap.Directions[directionIdx] - 1; j >= 0; --j)
                             {
-                                loopRange = 2;
-                                loopStart = _rng.Next(0, loopRange);
+                                if (availableTargets[j] != 1)
+                                    continue;
+                                distance = j + 1;
+                                break;
                             }
 
-                            for (var k = 0; k < loopRange; k++)
-                            {
-                                var directionIdx = swap.Priorities[i + (loopStart + k) % loopRange];
+                            break;
+                        case MovementType.Randomized:
+                            var index = availableTargets[0]
+                                        | (availableTargets[1] << 1)
+                                        | (availableTargets[2] << 2)
+                                        | (availableTargets[3] << 3);
+                            distance = distances[index * 4 + _rng.Next(0, bitCount[index])];
+                            break;
 
-                                // we need to check our possible movements in this direction
-                                if (!FillAvailableTargets(swap, x, y, block, directionIdx, directionX,
-                                    directionY, availableTargets, targetBlocks))
-                                    continue; // we found no targets, check other direction
+                    }
 
-                                // we found at least 1 target, proceed to swap
-                                var distance = 0;
-                                switch (swap.MovementTypes[directionIdx])
-                                {
-                                    case MovementType.Closest:
-                                        for (var j = 0; j < swap.Directions[directionIdx]; ++j)
-                                        {
-                                            if (availableTargets[j] != 1)
-                                                continue;
-                                            distance = j + 1;
-                                            break;
-                                        }
-
-                                        break;
-                                    case MovementType.Farthest:
-                                        for (var j = swap.Directions[directionIdx] - 1; j >= 0; --j)
-                                        {
-                                            if (availableTargets[j] != 1)
-                                                continue;
-                                            distance = j + 1;
-                                            break;
-                                        }
-
-                                        break;
-                                    case MovementType.Randomized:
-                                        var index = availableTargets[0]
-                                                    | (availableTargets[1] << 1)
-                                                    | (availableTargets[2] << 2)
-                                                    | (availableTargets[3] << 3);
-                                        distance = distances[index * 4 + _rng.Next(0, bitCount[index])];
-                                        break;
-
-                                }
-
-                                return Chunks.MoveBlock(x, y,
-                                    distance * directionX[directionIdx],
-                                    distance * directionY[directionIdx],
-                                    block, targetBlocks[distance - 1],
-                                    ref blockMoveInfo);
-                            }
-                        }
-
-                        break;
+                    return Chunks.MoveBlock(x, y,
+                        distance * directionX[directionIdx],
+                        distance * directionY[directionIdx],
+                        block, targetBlocks[distance - 1],
+                        ref blockMoveInfo);
                 }
             }
 
