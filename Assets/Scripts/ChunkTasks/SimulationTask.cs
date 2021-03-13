@@ -89,7 +89,17 @@ namespace ChunkTasks
 
                 var block = Chunks.GetBlock(x, y, true);
 
-                moved |= SimulateBlock(block, x, y, ref blockMoveInfo, distances, bitCount, directionX, directionY);
+                var blockLogic = BlockLogic.BlockDescriptors[block];
+
+                foreach (var behavior in blockLogic.Behaviors)
+                {
+                    switch (behavior.Id)
+                    {
+                        case 0:
+                            moved |= Swap((Swap) behavior, block, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
+                            break;
+                    }
+                }
 
                 if (blockMoveInfo.Chunk > 0)
                 {
@@ -108,24 +118,6 @@ namespace ChunkTasks
                     Chunk.BlockUpdatedFlags[i] = 0;
                 }
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe bool SimulateBlock(int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo,
-            int* distances, int* bitCount, int* directionX, int* directionY)
-        {
-            var blockLogic = BlockLogic.BlockDescriptors[block];
-
-            foreach (var behavior in blockLogic.Behaviors)
-            {
-                switch (behavior.Id)
-                {
-                    case 0:
-                        return Swap((Swap) behavior, block, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
-                }
-            }
-
-            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
