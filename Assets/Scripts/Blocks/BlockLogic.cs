@@ -57,7 +57,7 @@ namespace Blocks
                 0.1f,
                 new Color32(51, 38, 0, 255),
                 0.1f,
-                1.0f,
+                0.1f,
                 100.0f,
                 0.1f,
                 new IBehavior[]
@@ -200,7 +200,7 @@ namespace Blocks
             10,
             Gas,
             new[] { Gas },
-            0.05f,
+            0.06f,
             new Color32(59, 68, 75, 75),
             0.2f,
             0.0f,

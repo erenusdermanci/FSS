@@ -277,14 +277,14 @@ namespace ChunkTasks
             }
 
             // We have our neighbor's types and our air count
-            // if (airNeighborsCount == 0)
-            // {
-            //     // fire dies out
-            //     blockData.ClearState(BurningState);
-            //     Chunks.PutBlock(x, y, blockData.Type, blockData.StateBitset);
-            // }
-            // else
-            // {
+            if (airNeighborsCount == 0)
+            {
+                // fire dies out
+                blockData.ClearState(BurningState);
+                Chunks.PutBlock(x, y, blockData.Type, blockData.StateBitset);
+            }
+            else
+            {
                 // now we try to spread
                 for (var i = 0; i < 8; i++)
                 {
@@ -294,9 +294,11 @@ namespace ChunkTasks
                             break;
                         case BlockLogic.Air:
                             // replace Air with smoke
-                            //Chunks.PutBlock(x + directionX[i], y + directionY[i], BlockLogic.Smoke);
+                            // Chunks.PutBlock(x + directionX[i], y + directionY[i], BlockLogic.Smoke);
                             break;
                         default:
+                            if (neighborTypes[i].GetState(BurningState))
+                                continue;
                             var combustionProbability =
                                 BlockLogic.BlockDescriptors[neighborTypes[i].Type].CombustionProbability;
                             if (combustionProbability == 0.0f)
@@ -312,7 +314,9 @@ namespace ChunkTasks
                     }
                 }
 
-                blockData.Health -= BlockLogic.BlockDescriptors[blockData.Type].BurningRate * (1 + airNeighborsCount);
+                Chunks.SetBlockHealth(x, y,
+                    blockData.Health - BlockLogic.BlockDescriptors[blockData.Type].BurningRate *
+                    (1 + airNeighborsCount));
 
                 if (blockData.Health <= 0.0f)
                 {
@@ -321,7 +325,7 @@ namespace ChunkTasks
                     destroyed = true;
                     return true;
                 }
-            // }
+            }
 
             return false;
         }

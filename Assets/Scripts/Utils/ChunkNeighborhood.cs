@@ -104,6 +104,18 @@ namespace Utils
             return true;
         }
 
+        public bool SetBlockHealth(int x, int y, float health)
+        {
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+
+            if (Chunks[chunkIndex] == null)
+                return false;
+
+            Chunks[chunkIndex].Data.healths[y * Chunk.Size + x] = health;
+
+            return true;
+        }
+
         public int GetBlock(int x, int y)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
