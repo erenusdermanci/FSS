@@ -27,7 +27,6 @@ namespace Blocks
         public static readonly BlockDescriptor[] BlockDescriptors = {
             new BlockDescriptor(
                 "Air",
-                0,
                 NonPhysical,
                 0.0f,
                 new Color32(0, 0, 0, 0),
@@ -38,7 +37,6 @@ namespace Blocks
             ),
             new BlockDescriptor(
                 "Cloud",
-                1,
                 NonPhysical,
                 0.0f,
                 new Color32(193, 190, 186, 127),
@@ -49,7 +47,6 @@ namespace Blocks
             ),
             new BlockDescriptor (
                 "Oil",
-                2,
                 Liquid,
                 0.1f,
                 new Color32(51, 38, 0, 255),
@@ -73,7 +70,6 @@ namespace Blocks
             ),
             new BlockDescriptor (
                 "Water",
-                3,
                 Liquid,
                 0.2f,
                 new Color32(15, 94, 156, 255),
@@ -92,7 +88,6 @@ namespace Blocks
             ),
             new BlockDescriptor (
                 "Sand",
-                4,
                 Solid,
                 0.5f,
                 new Color32(155, 134, 69, 255),
@@ -111,7 +106,6 @@ namespace Blocks
             ),
             new BlockDescriptor (
                 "Dirt",
-                5,
                 Solid,
                 0.6f,
                 new Color32(124, 94, 66, 255),
@@ -130,7 +124,6 @@ namespace Blocks
             ),
             new BlockDescriptor (
                 "Stone",
-                6,
                 Solid,
                 1.0f,
                 new Color32(149, 148, 139, 255),
@@ -141,7 +134,6 @@ namespace Blocks
             ),
             new BlockDescriptor (
                 "Metal",
-                7,
                 Solid,
                 1.0f,
                 new Color32(75, 75, 75, 255),
@@ -152,7 +144,6 @@ namespace Blocks
             ),
             new BlockDescriptor (
                 "Border",
-                8,
                 Solid,
                 1000.0f,
                 new Color32(255, 0, 0, 255),
@@ -163,7 +154,6 @@ namespace Blocks
             ),
             new BlockDescriptor(
                 "Gas",
-                9,
                 Gas,
                 0.05f,
                 new Color32(73, 185, 96, 255),
@@ -188,7 +178,6 @@ namespace Blocks
             ),
             new BlockDescriptor(
                 "Smoke",
-                10,
                 Gas,
                 0.06f,
                 new Color32(59, 68, 75, 75),
