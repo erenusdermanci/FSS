@@ -917,17 +917,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44e9177fcfb0f3046af7bd498dbfb659, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Enabled: 1
-  ChunkManager: {fileID: 1436826251}
-  SelectedDrawBlock: 3
-  SelectedBrush: 1
-  SelectedState: 0
-  OverrideDefaultColors: 0
-  PixelColorOverride:
+  disabled: 0
+  chunkManager: {fileID: 1436826251}
+  selectedDrawBlock: 3
+  selectedBrush: 1
+  selectedState: 0
+  overrideDefaultColors: 0
+  pixelColorOverride:
     serializedVersion: 2
-    rgba: 4278255360
-  BoxSize: 5
-  UICoordText: {fileID: 177745522}
+    rgba: 4278255388
+  boxSize: 64
+  uiCoordText: {fileID: 177745522}
 --- !u!1 &2048673872
 GameObject:
   m_ObjectHideFlags: 0

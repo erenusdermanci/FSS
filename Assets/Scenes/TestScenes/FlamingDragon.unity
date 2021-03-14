@@ -358,17 +358,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44e9177fcfb0f3046af7bd498dbfb659, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Enabled: 1
-  ChunkManager: {fileID: 6752796498615100230}
-  SelectedDrawBlock: 9
-  SelectedBrush: 0
-  SelectedState: 1
-  OverrideDefaultColors: 0
-  PixelColorOverride:
+  disabled: 0
+  chunkManager: {fileID: 6752796498615100230}
+  selectedDrawBlock: 9
+  selectedBrush: 1
+  selectedState: 1
+  overrideDefaultColors: 0
+  pixelColorOverride:
     serializedVersion: 2
-    rgba: 4278255360
-  BoxSize: 5
-  UICoordText: {fileID: 6752796499266533311}
+    rgba: 0
+  boxSize: 5
+  uiCoordText: {fileID: 6752796499266533311}
 --- !u!4 &6752796498615100225
 Transform:
   m_ObjectHideFlags: 0
