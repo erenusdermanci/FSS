@@ -118,19 +118,19 @@ namespace Chunks
                 var x = chunk.Position.x;
                 var y = chunk.Position.y;
                 var mapBorderColor = Color.white;
-                if (!chunk.Dirty)
-                {
-                    if (!ChunkMap.Contains(new Vector2(chunk.Position.x - 1, chunk.Position.y)))
-                        Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), mapBorderColor);
-                    if (!ChunkMap.Contains(new Vector2(chunk.Position.x + 1, chunk.Position.y)))
-                        Debug.DrawLine(new Vector3(x + s, y - s), new Vector3(x + s, y + s), mapBorderColor);
-                    if (!ChunkMap.Contains(new Vector2(chunk.Position.x, chunk.Position.y - 1)))
-                        Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), mapBorderColor);
-                    if (!ChunkMap.Contains(new Vector2(chunk.Position.x, chunk.Position.y + 1)))
-                        Debug.DrawLine(new Vector3(x - s, y + s), new Vector3(x + s, y + s), mapBorderColor);
-                    continue;
-                }
-                var borderColor = new Color(100, 100, 100, 100);
+
+                // draw the map borders
+                if (!ChunkMap.Contains(new Vector2(chunk.Position.x - 1, chunk.Position.y)))
+                    Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), mapBorderColor);
+                if (!ChunkMap.Contains(new Vector2(chunk.Position.x + 1, chunk.Position.y)))
+                    Debug.DrawLine(new Vector3(x + s, y - s), new Vector3(x + s, y + s), mapBorderColor);
+                if (!ChunkMap.Contains(new Vector2(chunk.Position.x, chunk.Position.y - 1)))
+                    Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), mapBorderColor);
+                if (!ChunkMap.Contains(new Vector2(chunk.Position.x, chunk.Position.y + 1)))
+                    Debug.DrawLine(new Vector3(x - s, y + s), new Vector3(x + s, y + s), mapBorderColor);
+
+                // draw the chunk borders
+                var borderColor = chunk.Dirty ? Color.red : Color.white;
                 Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), borderColor);
                 Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), borderColor);
                 Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x - s, y + s), borderColor);
