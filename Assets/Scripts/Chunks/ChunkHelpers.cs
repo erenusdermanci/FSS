@@ -21,7 +21,7 @@ namespace Chunks
 
         public static string GetSavePath()
         {
-            return GlobalDebugConfig.StaticGlobalConfig.SaveAsTestScene
+            return GlobalDebugConfig.StaticGlobalConfig.saveAsTestScene
                 ? $"{Application.dataPath}\\..\\{TestSceneFolder}"
                 : $"{Application.persistentDataPath}";
         }

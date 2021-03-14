@@ -27,43 +27,40 @@ namespace DebugTools
         [Serializable]
         public struct GlobalConfigStruct
         {
-            public bool DisableSave;
-            public bool DisableLoad;
-            public bool MonothreadSimulate;
-            public int RestrictGridSize;
-            public bool EnableSimulation;
-            public bool PauseSimulation;
-            public bool StepByStep;
-            public bool OutlineChunks;
-            public bool DisableDirtySystem;
-            public bool SaveAsTestScene;
+            public bool disableSave;
+            public bool disableLoad;
+            public bool monothreadSimulate;
+            public int restrictGridSize;
+            public bool pauseSimulation;
+            public bool stepByStep;
+            public bool outlineChunks;
+            public bool disableDirtySystem;
+            public bool saveAsTestScene;
 
             public GlobalConfigStruct(GlobalConfigStruct other)
             {
-                MonothreadSimulate = other.MonothreadSimulate;
-                RestrictGridSize = other.RestrictGridSize;
-                EnableSimulation = other.EnableSimulation;
-                PauseSimulation = other.PauseSimulation;
-                StepByStep = other.StepByStep;
-                OutlineChunks = other.OutlineChunks;
-                DisableDirtySystem = other.DisableDirtySystem;
-                SaveAsTestScene = other.SaveAsTestScene;
-                DisableSave = other.DisableSave;
-                DisableLoad = other.DisableLoad;
+                monothreadSimulate = other.monothreadSimulate;
+                restrictGridSize = other.restrictGridSize;
+                pauseSimulation = other.pauseSimulation;
+                stepByStep = other.stepByStep;
+                outlineChunks = other.outlineChunks;
+                disableDirtySystem = other.disableDirtySystem;
+                saveAsTestScene = other.saveAsTestScene;
+                disableSave = other.disableSave;
+                disableLoad = other.disableLoad;
             }
 
             public bool Equals(GlobalConfigStruct other)
             {
-                if (RestrictGridSize != other.RestrictGridSize
-                    || MonothreadSimulate != other.MonothreadSimulate
-                    || EnableSimulation != other.EnableSimulation
-                    || PauseSimulation != other.PauseSimulation
-                    || StepByStep != other.StepByStep
-                    || OutlineChunks != other.OutlineChunks
-                    || DisableDirtySystem != other.DisableDirtySystem
-                    || SaveAsTestScene != other.SaveAsTestScene
-                    || DisableSave != other.DisableSave
-                    || DisableLoad != other.DisableLoad)
+                if (restrictGridSize != other.restrictGridSize
+                    || monothreadSimulate != other.monothreadSimulate
+                    || pauseSimulation != other.pauseSimulation
+                    || stepByStep != other.stepByStep
+                    || outlineChunks != other.outlineChunks
+                    || disableDirtySystem != other.disableDirtySystem
+                    || saveAsTestScene != other.saveAsTestScene
+                    || disableSave != other.disableSave
+                    || disableLoad != other.disableLoad)
                     return false;
 
                 return true;

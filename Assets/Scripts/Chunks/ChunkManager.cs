@@ -47,7 +47,7 @@ namespace Chunks
 
             ProceduralGenerator.UpdateEvent += ProceduralGeneratorUpdate;
             GlobalDebugConfig.UpdateEvent += GlobalConfigUpdate;
-            var restrict = GlobalDebugConfig.StaticGlobalConfig.RestrictGridSize;
+            var restrict = GlobalDebugConfig.StaticGlobalConfig.restrictGridSize;
             if (restrict > 0)
             {
                 generatedAreaSize = restrict;
@@ -102,8 +102,8 @@ namespace Chunks
 
         private void GlobalConfigUpdate(object sender, EventArgs e)
         {
-            var restrict = GlobalDebugConfig.StaticGlobalConfig.RestrictGridSize;
-            if (restrict > 0 && restrict != generatedAreaSize || !GlobalDebugConfig.StaticGlobalConfig.EnableSimulation)
+            var restrict = GlobalDebugConfig.StaticGlobalConfig.restrictGridSize;
+            if (restrict > 0 && restrict != generatedAreaSize)
             {
                 generatedAreaSize = restrict;
                 ResetGrid(true);
@@ -176,17 +176,14 @@ namespace Chunks
                 Clean(_playerFlooredPosition);
             }
 
-            if (GlobalDebugConfig.StaticGlobalConfig.EnableSimulation)
+            if (GlobalDebugConfig.StaticGlobalConfig.stepByStep && _userPressedSpace)
             {
-                if (GlobalDebugConfig.StaticGlobalConfig.StepByStep && _userPressedSpace)
-                {
-                    _userPressedSpace = false;
-                    Simulate();
-                }
-                else if (!GlobalDebugConfig.StaticGlobalConfig.PauseSimulation)
-                    Simulate();
+                _userPressedSpace = false;
+                Simulate();
             }
-            if (GlobalDebugConfig.StaticGlobalConfig.OutlineChunks)
+            else if (!GlobalDebugConfig.StaticGlobalConfig.pauseSimulation)
+                Simulate();
+            if (GlobalDebugConfig.StaticGlobalConfig.outlineChunks)
             {
                 OutlineChunks();
             }
@@ -271,7 +268,7 @@ namespace Chunks
 
         private void DisposeAndSaveChunk(Chunk chunk)
         {
-            if (GlobalDebugConfig.StaticGlobalConfig.DisableSave)
+            if (GlobalDebugConfig.StaticGlobalConfig.disableSave)
             {
                 ChunkMap.Remove(chunk.Position);
                 chunk.Dispose();
@@ -343,8 +340,8 @@ namespace Chunks
 
         private void Simulate()
         {
-            var enableDirty = !GlobalDebugConfig.StaticGlobalConfig.DisableDirtySystem;
-            var synchronous = GlobalDebugConfig.StaticGlobalConfig.MonothreadSimulate;
+            var enableDirty = !GlobalDebugConfig.StaticGlobalConfig.disableDirtySystem;
+            var synchronous = GlobalDebugConfig.StaticGlobalConfig.monothreadSimulate;
 
             foreach (var batch in _simulationBatchPool)
             {

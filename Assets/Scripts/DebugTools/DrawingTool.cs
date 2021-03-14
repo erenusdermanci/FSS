@@ -64,7 +64,7 @@ namespace DebugTools
 
             var blockPosition = GetWorldPositionFromMousePosition();
 
-            if (GlobalDebugConfig.StaticGlobalConfig.OutlineChunks)
+            if (GlobalDebugConfig.StaticGlobalConfig.outlineChunks)
             {
                 DrawChunkGrid(blockPosition.x, blockPosition.y);
             }

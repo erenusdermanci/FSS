@@ -38,9 +38,9 @@ namespace Chunks
             public int Y;
         }
 
-        private Random _rng;
+        private readonly Random _rng;
 
-        public Chunk[] Chunks;
+        private Chunk[] Chunks;
 
         public Chunk this[int idx]
         {

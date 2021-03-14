@@ -850,16 +850,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   globalConfig:
-    DisableSave: 1
-    DisableLoad: 1
-    MonothreadSimulate: 0
-    RestrictGridSize: 0
-    EnableSimulation: 1
-    PauseSimulation: 0
-    StepByStep: 0
-    OutlineChunks: 1
-    DisableDirtySystem: 0
-    SaveAsTestScene: 0
+    disableSave: 1
+    disableLoad: 1
+    monothreadSimulate: 0
+    restrictGridSize: 0
+    pauseSimulation: 0
+    stepByStep: 0
+    outlineChunks: 0
+    disableDirtySystem: 0
+    saveAsTestScene: 0
 --- !u!4 &1770982830
 Transform:
   m_ObjectHideFlags: 0
@@ -922,6 +921,7 @@ MonoBehaviour:
   selectedDrawBlock: 3
   selectedBrush: 1
   selectedState: 0
+  colorizeOnly: 0
   overrideDefaultColors: 0
   pixelColorOverride:
     serializedVersion: 2
