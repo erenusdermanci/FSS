@@ -16,7 +16,7 @@ namespace Blocks
     // 6 -> upLeft
     // 7 -> upRight
 
-    public class BlockLogic : MonoBehaviour
+    public class BlockLogic
     {
         public static readonly Color32 FireColor = new Color32(240, 127, 19, 255);
 
