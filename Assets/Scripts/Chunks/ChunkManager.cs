@@ -135,6 +135,15 @@ namespace Chunks
                 Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), borderColor);
                 Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x - s, y + s), borderColor);
                 Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x + s, y - s), borderColor);
+            }
+        }
+
+        private void DrawDirtyRects()
+        {
+            foreach (var chunk in ChunkMap.Chunks())
+            {
+                var x = chunk.Position.x;
+                var y = chunk.Position.y;
 
                 var chunkBatchIndex = GetChunkBatchIndex(chunk.Position);
                 Color32 dirtyRectColor;
@@ -183,10 +192,12 @@ namespace Chunks
             }
             else if (!GlobalDebugConfig.StaticGlobalConfig.pauseSimulation)
                 Simulate();
+
             if (GlobalDebugConfig.StaticGlobalConfig.outlineChunks)
-            {
                 OutlineChunks();
-            }
+
+            if (GlobalDebugConfig.StaticGlobalConfig.drawDirtyRects)
+                DrawDirtyRects();
         }
 
         private bool ShouldGenerate()
