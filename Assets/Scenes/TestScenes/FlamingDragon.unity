@@ -140,7 +140,7 @@ MonoBehaviour:
     restrictGridSize: 0
     pauseSimulation: 0
     stepByStep: 0
-    outlineChunks: 0
+    outlineChunks: 1
     disableDirtySystem: 0
     saveAsTestScene: 1
 --- !u!1 &6752796497607087201
@@ -360,13 +360,13 @@ MonoBehaviour:
   disabled: 0
   chunkManager: {fileID: 6752796498615100230}
   selectedDrawBlock: 9
-  selectedBrush: 1
+  selectedBrush: 0
   selectedState: 1
   colorizeOnly: 0
   overrideDefaultColors: 0
   pixelColorOverride:
     serializedVersion: 2
-    rgba: 0
+    rgba: 4292874460
   boxSize: 5
   uiCoordText: {fileID: 6752796499266533311}
 --- !u!4 &6752796498615100225
