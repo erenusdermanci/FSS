@@ -224,7 +224,6 @@ namespace Chunks.Tasks
                                         | (availableTargets[3] << 3);
                             distance = distances[index * 4 + _rng.Next(0, bitCount[index])];
                             break;
-
                     }
 
                     return Chunks.MoveBlock(x, y,
@@ -306,7 +305,9 @@ namespace Chunks.Tasks
                             if (combustionEmissionProbability >= 1.0f
                                 || combustionEmissionProbability > _rng.NextDouble())
                             {
-                                Chunks.PutBlock(x + directionX[i], y + directionY[i], behavior.CombustionEmissionBlockType);
+                                Chunks.PutBlock(x + directionX[i], y + directionY[i], behavior.CombustionEmissionBlockType,
+                                    BlockConstants.BlockDescriptors[behavior.CombustionEmissionBlockType].InitialStates,
+                                    BlockConstants.BlockDescriptors[behavior.CombustionEmissionBlockType].BaseHealth);
                             }
                             break;
                         default:
@@ -340,7 +341,9 @@ namespace Chunks.Tasks
                         || combustionResultProbability > _rng.NextDouble())
                         resultBlockType = behavior.CombustionResultBlockType;
 
-                    Chunks.PutBlock(x, y, resultBlockType, 0, BlockConstants.BlockDescriptors[resultBlockType].BaseHealth);
+                    Chunks.PutBlock(x, y, resultBlockType,
+                        BlockConstants.BlockDescriptors[resultBlockType].InitialStates,
+                        BlockConstants.BlockDescriptors[resultBlockType].BaseHealth);
                     destroyed = true;
                     return true;
                 }
@@ -361,7 +364,9 @@ namespace Chunks.Tasks
                     || despawnProbability > _rng.NextDouble())
                 {
                     // Destroy it
-                    Chunks.PutBlock(x, y, behavior.DespawnResultBlockType, 0, BlockConstants.BlockDescriptors[behavior.DespawnResultBlockType].BaseHealth);
+                    Chunks.PutBlock(x, y, behavior.DespawnResultBlockType,
+                        BlockConstants.BlockDescriptors[behavior.DespawnResultBlockType].InitialStates,
+                        BlockConstants.BlockDescriptors[behavior.DespawnResultBlockType].BaseHealth);
                     destroyed = true;
                     return true;
                 }

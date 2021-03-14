@@ -12,6 +12,7 @@ namespace Blocks
         public readonly float ColorMaxShift;
         public readonly float CombustionProbability;
         public readonly float BaseHealth;
+        public readonly int InitialStates;
         public readonly IBehavior[] Behaviors;
 
         public BlockDescriptor(string name,
@@ -21,6 +22,7 @@ namespace Blocks
             float colorMaxShift,
             float combustionProbability,
             float baseHealth,
+            int initialStates,
             IBehavior[] behaviors)
         {
             Name = name;
@@ -30,6 +32,7 @@ namespace Blocks
             ColorMaxShift = colorMaxShift;
             CombustionProbability = combustionProbability;
             BaseHealth = baseHealth;
+            InitialStates = initialStates;
             Behaviors = behaviors;
         }
     }
