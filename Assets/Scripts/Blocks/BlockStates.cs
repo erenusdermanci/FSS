@@ -1,4 +1,4 @@
-﻿namespace BlockLogic
+﻿namespace Blocks
 {
     public enum BlockStates
     {

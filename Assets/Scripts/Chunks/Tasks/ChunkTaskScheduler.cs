@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using DataComponents;
 using MonoBehaviours;
 using UnityEngine;
 using Random = System.Random;
 
-namespace ChunkTasks
+namespace Chunks.Tasks
 {
     public sealed class ChunkTaskScheduler
     {
         private readonly Dictionary<ChunkTaskManager.Types, ChunkTaskManager> _chunkTaskManagers;
-        
+
         private readonly ThreadLocal<Random> _random = new ThreadLocal<Random>(() =>
             new Random(new Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
 

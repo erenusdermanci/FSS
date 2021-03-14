@@ -1,7 +1,7 @@
 using UnityEngine;
 using Utils;
 
-namespace Assets.Scripts.MonoBehaviours
+namespace Player
 {
     public class PlayerInput : MonoBehaviour
     {
@@ -48,7 +48,7 @@ namespace Assets.Scripts.MonoBehaviours
                 dragging = false;
             }
             HandleMovement();
-        } 
+        }
 
         private void LateUpdate()
         {

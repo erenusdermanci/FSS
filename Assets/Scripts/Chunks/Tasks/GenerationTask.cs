@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using BlockLogic;
-using DataComponents;
+using Blocks;
 using MonoBehaviours;
+using ProceduralGeneration;
 using Utils;
 
-namespace ChunkTasks
+namespace Chunks.Tasks
 {
     public class GenerationTask : ChunkTask
     {

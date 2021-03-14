@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using BlockLogic;
-using DataComponents;
+using Blocks;
+using Chunks;
 using MonoBehaviours;
 using UnityEngine;
 using UnityEngine.UI;

@@ -2,13 +2,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
-using ChunkTasks;
-using DataComponents;
+using Chunks.Tasks;
+using MonoBehaviours;
+using ProceduralGeneration;
 using UnityEngine;
 using Utils;
 using Random = System.Random;
 
-namespace MonoBehaviours
+namespace Chunks
 {
     public class ChunkManager : MonoBehaviour
     {

@@ -1,10 +1,10 @@
 using System.Collections.Concurrent;
-using BlockLogic;
-using DataComponents;
+using Blocks;
 using UnityEngine;
+using Utils;
 using Random = System.Random;
 
-namespace Utils
+namespace Chunks
 {
     public class ChunkNeighborhood
     {

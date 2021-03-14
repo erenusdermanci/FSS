@@ -1,8 +1,8 @@
 ﻿using System;
-using BlockLogic;
+using Blocks;
 using UnityEngine;
 
-namespace DataComponents
+namespace Chunks
 {
     public class Chunk : IDisposable
     {

@@ -2,13 +2,13 @@
 using UnityEngine;
 using Utils;
 
-namespace MonoBehaviours
+namespace ProceduralGeneration
 {
     public class ProceduralGenerator : MonoBehaviour
     {
         public bool Enabled;
         public static bool IsEnabled;
-        
+
         public TerrainGenerationModel GenerationModel;
         public static TerrainGenerationModel StaticGenerationModel;
 

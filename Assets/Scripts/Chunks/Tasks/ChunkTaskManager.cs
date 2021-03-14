@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using DataComponents;
 using MonoBehaviours;
 using UnityEngine;
 
-namespace ChunkTasks
+namespace Chunks.Tasks
 {
     public class ChunkTaskManager
     {
@@ -124,7 +123,7 @@ namespace ChunkTasks
             {
                 saveTask.Join();
             }
-            
+
             ProcessDoneTasks();
         }
 
@@ -149,14 +148,14 @@ namespace ChunkTasks
             {
                 task.Cancel();
             }
-            
+
             foreach (var task in _processing.Values)
             {
                 task.Join();
             }
-            
+
             ProcessDoneTasks();
-            
+
             _queued.Clear();
             _tasks.Clear();
         }

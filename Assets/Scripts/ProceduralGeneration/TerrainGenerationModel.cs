@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Utils;
 
-namespace Utils
+namespace ProceduralGeneration
 {
     [Serializable]
     public class TerrainGenerationModel

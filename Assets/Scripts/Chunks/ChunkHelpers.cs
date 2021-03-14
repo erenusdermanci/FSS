@@ -4,7 +4,7 @@ using MonoBehaviours;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace DataComponents
+namespace Chunks
 {
     public static class ChunkHelpers
     {

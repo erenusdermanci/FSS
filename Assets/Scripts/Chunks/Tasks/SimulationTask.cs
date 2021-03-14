@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using BlockLogic;
 using Blocks;
-using DataComponents;
+using Blocks.Behaviors;
 using Utils;
-using static Utils.ChunkNeighborhood;
+using static Chunks.ChunkNeighborhood;
 
-namespace ChunkTasks
+namespace Chunks.Tasks
 {
     public class SimulationTask : ChunkTask
     {
@@ -105,15 +104,15 @@ namespace ChunkTasks
                         break;
                     switch (behavior.GetId)
                     {
-                        case Blocks.Swap.Id:
+                        case Blocks.Behaviors.Swap.Id:
                             dirtied |= Swap((Swap) behavior, blockData.Type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
                             break;
-                        case BlockLogic.FireSpread.Id:
+                        case Blocks.Behaviors.FireSpread.Id:
                             if (!blockData.GetState((int) BlockStates.Burning))
                                 break;
                             dirtied |= FireSpread((FireSpread) behavior, blockData, x, y, directionX, directionY, ref destroyed);
                             break;
-                        case Blocks.Despawn.Id:
+                        case Blocks.Behaviors.Despawn.Id:
                             dirtied |= Despawn((Despawn) behavior, blockData, x, y, ref destroyed);
                             break;
                     }

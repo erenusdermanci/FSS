@@ -1,16 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using DataComponents;
 using UnityEngine;
 
-namespace ChunkTasks
+namespace Chunks.Tasks
 {
     public class SaveTask : ChunkTask
     {
         private readonly string _chunkSavePath;
         private readonly string _chunkSaveFullPath;
-        
+
         public SaveTask(Chunk chunk) : base(chunk)
         {
             _chunkSavePath = ChunkHelpers.GetChunksSavePath();

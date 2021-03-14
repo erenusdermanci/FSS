@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using DataComponents;
 
-namespace ChunkTasks
+namespace Chunks.Tasks
 {
     public abstract class ChunkTask : IDisposable
     {
         public bool Done;
-        
+
         public readonly Chunk Chunk;
 
         private bool _synchronous;

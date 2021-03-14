@@ -1,4 +1,4 @@
-﻿namespace Blocks
+﻿namespace Blocks.Behaviors
 {
     public class Despawn : IBehavior
     {

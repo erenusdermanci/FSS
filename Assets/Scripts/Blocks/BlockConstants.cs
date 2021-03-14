@@ -1,10 +1,10 @@
-﻿using Blocks;
+﻿using Blocks.Behaviors;
 using Unity.Collections;
 using UnityEngine;
 using static Blocks.BlockMovementType;
 using static Blocks.BlockTags;
 
-namespace BlockLogic
+namespace Blocks
 {
     // directions
     // 0 -> down

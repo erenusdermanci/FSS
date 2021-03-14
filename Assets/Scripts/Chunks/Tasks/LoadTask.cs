@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using DataComponents;
 using UnityEngine;
 
-namespace ChunkTasks
+namespace Chunks.Tasks
 {
     public class LoadTask : ChunkTask
     {
