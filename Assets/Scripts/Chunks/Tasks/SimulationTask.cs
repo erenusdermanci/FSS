@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Blocks;
 using Blocks.Behaviors;
-using Utils;
 using static Chunks.ChunkNeighborhood;
 
 namespace Chunks.Tasks
