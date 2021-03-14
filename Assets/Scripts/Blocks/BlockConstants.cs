@@ -59,7 +59,8 @@ namespace Blocks
                         Smoke,
                         0.01f,
                         Smoke,
-                        0.5f),
+                        0.5f,
+                        true),
                     new Swap(
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 2, 1, 1, 2, 2, 0, 0 ,0 },
@@ -166,7 +167,8 @@ namespace Blocks
                         Smoke,
                         0.0f,
                         Smoke,
-                        0.25f
+                        0.25f,
+                        false
                         ),
                     new Swap(
                         new [] { 5, 5, 6, 7, 3, 4},

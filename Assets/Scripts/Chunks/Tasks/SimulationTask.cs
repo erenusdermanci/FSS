@@ -283,7 +283,7 @@ namespace Chunks.Tasks
             }
 
             // We have our neighbor's types and our air count
-            if (airNeighborsCount + selfNeighborsCount == 0)
+            if (airNeighborsCount + (behavior.SelfExtinguishing ? 0 : selfNeighborsCount) == 0)
             {
                 // fire dies out
                 blockData.ClearState((int)BlockStates.Burning);

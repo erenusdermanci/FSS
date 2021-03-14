@@ -11,18 +11,21 @@
         public readonly float CombustionEmissionProbability;
         public readonly int CombustionResultBlockType;
         public readonly float CombustionResultProbability;
+        public readonly bool SelfExtinguishing;
 
         public FireSpread(float burningRate,
             int combustionEmissionBlockType,
             float combustionEmissionProbability,
             int combustionResultBlockType,
-            float combustionResultProbability)
+            float combustionResultProbability,
+            bool selfExtinguishing)
         {
             BurningRate = burningRate;
             CombustionEmissionBlockType = combustionEmissionBlockType;
             CombustionEmissionProbability = combustionEmissionProbability;
             CombustionResultBlockType = combustionResultBlockType;
             CombustionResultProbability = combustionResultProbability;
+            SelfExtinguishing = selfExtinguishing;
         }
     }
 }
