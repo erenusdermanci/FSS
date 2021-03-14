@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Serialized;
 using UnityEngine;
 
 namespace Chunks.Tasks
@@ -22,7 +23,7 @@ namespace Chunks.Tasks
                 using (var file = File.Open(_chunkSaveFullPath, FileMode.Open))
                 {
                     var loadedData = new BinaryFormatter().Deserialize(file);
-                    Chunk.Data = (Chunk.BlockData)loadedData;
+                    Chunk.Data = (BlockData)loadedData;
                 }
             }
             catch (Exception e)

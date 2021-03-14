@@ -1,5 +1,6 @@
 ﻿using System;
 using Blocks;
+using Serialized;
 using UnityEngine;
 
 namespace Chunks
@@ -10,16 +11,6 @@ namespace Chunks
         public Texture2D Texture;
         public GameObject GameObject;
         public Vector2 Position;
-
-        [Serializable]
-        public struct BlockData
-        {
-            public byte[] colors;
-            public int[] types;
-            public int[] stateBitsets;
-            public float[] healths;
-            public float[] lifetimes;
-        }
 
         public BlockData Data;
 
