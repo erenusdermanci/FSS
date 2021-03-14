@@ -17,7 +17,6 @@ namespace DebugTools
             Point,
             Box,
             Line,
-            ColorPixel,
             Fill
         }
 
@@ -29,6 +28,8 @@ namespace DebugTools
         public DrawType selectedBrush;
         [HideInInspector]
         public int selectedState;
+
+        public bool colorizeOnly;
         public bool overrideDefaultColors;
         public Color32 pixelColorOverride;
 
@@ -78,9 +79,6 @@ namespace DebugTools
                     break;
                 case DrawType.Line:
                     UpdateDrawLine(blockPosition);
-                    break;
-                case DrawType.ColorPixel:
-                    UpdateColorPixel(blockPosition);
                     break;
                 case DrawType.Fill:
                     UpdateFill(blockPosition);
@@ -167,14 +165,6 @@ namespace DebugTools
                     var yEnd = blockPosition.y / Chunk.Size - 0.5f;
                     Debug.DrawLine(new Vector2(xStart, yStart), new Vector2(xEnd, yEnd), Color.white);
                 }
-            }
-        }
-
-        private void UpdateColorPixel(Vector2 blockPosition)
-        {
-            if (Input.GetMouseButton(0))
-            {
-                ColorPixel((int) blockPosition.x, (int) blockPosition.y);
             }
         }
 
@@ -357,9 +347,20 @@ namespace DebugTools
             var blockXInChunk = Helpers.Mod(worldX, Chunk.Size);
             var blockYInChunk = Helpers.Mod(worldY, Chunk.Size);
 
-            chunk.PutBlock(blockXInChunk, blockYInChunk, selectedBlock, blockColor.r, blockColor.g, blockColor.b, blockColor.a,
-                states, BlockConstants.BlockDescriptors[selectedBlock].BaseHealth);
-            chunk.Dirty = true;
+            if (colorizeOnly)
+            {
+                var i = blockYInChunk * Chunk.Size + blockXInChunk;
+                chunk.Data.colors[i * 4] = pixelColorOverride.r;
+                chunk.Data.colors[i * 4 + 1] = pixelColorOverride.g;
+                chunk.Data.colors[i * 4 + 2] = pixelColorOverride.b;
+                chunk.Data.colors[i * 4 + 3] = pixelColorOverride.a;
+            }
+            else
+            {
+                chunk.PutBlock(blockXInChunk, blockYInChunk, selectedBlock, blockColor.r, blockColor.g, blockColor.b, blockColor.a,
+                    states, BlockConstants.BlockDescriptors[selectedBlock].BaseHealth);
+                chunk.Dirty = true;
+            }
 
             _chunksToReload.Add(chunk.Position);
         }
@@ -395,24 +396,6 @@ namespace DebugTools
                 Helpers.ShiftColorComponent(color.g, shiftAmount),
                 Helpers.ShiftColorComponent(color.b, shiftAmount),
                 color.a);
-        }
-
-        private void ColorPixel(int worldX, int worldY)
-        {
-            var chunk = GetChunkFromWorld(worldX, worldY);
-            if (chunk == null)
-                return;
-
-            var blockXInChunk = Helpers.Mod(worldX, Chunk.Size);
-            var blockYInChunk = Helpers.Mod(worldY, Chunk.Size);
-
-
-            var i = blockYInChunk * Chunk.Size + blockXInChunk;
-            chunk.Data.colors[i * 4] = pixelColorOverride.r;
-            chunk.Data.colors[i * 4 + 1] = pixelColorOverride.g;
-            chunk.Data.colors[i * 4 + 2] = pixelColorOverride.b;
-            chunk.Data.colors[i * 4 + 3] = pixelColorOverride.a;
-            _chunksToReload.Add(chunk.Position);
         }
     }
 }
