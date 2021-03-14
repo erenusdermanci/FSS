@@ -15,6 +15,7 @@ namespace Chunks
     {
         // PROPERTIES
         public int generatedAreaSize = 10;
+        [HideInInspector] private int initialGeneratedAreaSize;
         public int cleanAreaSizeOffset = 2;
         public Transform playerTransform;
 
@@ -35,6 +36,9 @@ namespace Chunks
 
         private void Awake()
         {
+            // to be able to go back to initial size if debug value is set to 0
+            initialGeneratedAreaSize = generatedAreaSize;
+
             InitializeRandom();
 
             PlayerPosition = playerTransform.position;
@@ -47,7 +51,7 @@ namespace Chunks
 
             ProceduralGenerator.UpdateEvent += ProceduralGeneratorUpdate;
             GlobalDebugConfig.UpdateEvent += GlobalConfigUpdate;
-            var restrict = GlobalDebugConfig.StaticGlobalConfig.restrictGridSize;
+            var restrict = GlobalDebugConfig.StaticGlobalConfig.overrideGridSize;
             if (restrict > 0)
             {
                 generatedAreaSize = restrict;
@@ -102,12 +106,22 @@ namespace Chunks
 
         private void GlobalConfigUpdate(object sender, EventArgs e)
         {
-            var restrict = GlobalDebugConfig.StaticGlobalConfig.restrictGridSize;
-            if (restrict > 0 && restrict != generatedAreaSize)
+            var restrict = GlobalDebugConfig.StaticGlobalConfig.overrideGridSize;
+            var resetGrid = false;
+
+            if (restrict == 0)
+            {
+                generatedAreaSize = initialGeneratedAreaSize;
+                resetGrid = true;
+            }
+            else if (restrict > 0 && restrict != generatedAreaSize)
             {
                 generatedAreaSize = restrict;
-                ResetGrid(true);
+                resetGrid = true;
             }
+
+            if (resetGrid)
+                ResetGrid(true);
         }
 
         private void OutlineChunks()

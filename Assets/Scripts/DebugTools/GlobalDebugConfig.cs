@@ -30,7 +30,7 @@ namespace DebugTools
             public bool disableSave;
             public bool disableLoad;
             public bool monothreadSimulate;
-            public int restrictGridSize;
+            public int overrideGridSize;
             public bool pauseSimulation;
             public bool stepByStep;
             public bool outlineChunks;
@@ -41,7 +41,7 @@ namespace DebugTools
             public GlobalConfigStruct(GlobalConfigStruct other)
             {
                 monothreadSimulate = other.monothreadSimulate;
-                restrictGridSize = other.restrictGridSize;
+                overrideGridSize = other.overrideGridSize;
                 pauseSimulation = other.pauseSimulation;
                 stepByStep = other.stepByStep;
                 outlineChunks = other.outlineChunks;
@@ -54,7 +54,7 @@ namespace DebugTools
 
             public bool Equals(GlobalConfigStruct other)
             {
-                if (restrictGridSize != other.restrictGridSize
+                if (overrideGridSize != other.overrideGridSize
                     || monothreadSimulate != other.monothreadSimulate
                     || pauseSimulation != other.pauseSimulation
                     || stepByStep != other.stepByStep
