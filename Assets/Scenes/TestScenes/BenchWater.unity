@@ -647,7 +647,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 3
+  orthographic size: 5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -943,6 +943,7 @@ MonoBehaviour:
   ChunkManager: {fileID: 4080857594936859821}
   SelectedDrawBlock: 3
   SelectedBrush: 1
+  SelectedState: 0
   OverrideDefaultColors: 0
   PixelColorOverride:
     serializedVersion: 2
