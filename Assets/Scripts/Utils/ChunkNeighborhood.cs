@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Concurrent;
 using Blocks;
 using DataComponents;
 using UnityEngine;
+using Random = System.Random;
 
 namespace Utils
 {
@@ -38,7 +38,7 @@ namespace Utils
             public int Y;
         }
 
-        private System.Random _rng;
+        private Random _rng;
 
         public Chunk[] Chunks;
 
@@ -48,7 +48,7 @@ namespace Utils
             set => Chunks[idx] = value;
         }
 
-        public ChunkNeighborhood(ConcurrentDictionary<Vector2, Chunk> chunkMap, Chunk centralChunk, System.Random rng)
+        public ChunkNeighborhood(ConcurrentDictionary<Vector2, Chunk> chunkMap, Chunk centralChunk, Random rng)
         {
             _rng = rng;
             UpdateNeighbors(chunkMap, centralChunk);

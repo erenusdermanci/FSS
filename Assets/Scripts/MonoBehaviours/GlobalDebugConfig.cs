@@ -10,12 +10,12 @@ namespace MonoBehaviours
 
         public static event EventHandler UpdateEvent;
 
-        void Awake()
+        private void Awake()
         {
             StaticGlobalConfig = new GlobalConfigStruct(globalConfig);
         }
 
-        void Update()
+        private void Update()
         {
             if (StaticGlobalConfig.Equals(globalConfig))
                 return;

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Unity.Collections;
+﻿using Unity.Collections;
 using UnityEngine;
 using static Blocks.BlockMovementType;
 using static Blocks.BlockTags;
@@ -227,7 +226,5 @@ namespace Blocks
                 }
             )
         };
-
-        public static readonly string[] Names = BlockDescriptors.Select(d => d.Name).ToArray();
     }
 }

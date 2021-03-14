@@ -1,12 +1,10 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Blocks;
 using DataComponents;
-using UnityEngine;
 using Utils;
 using static Utils.ChunkNeighborhood;
-using static Utils.ChunkNeighborhood.BlockData;
-using Random = System.Random;
 
 namespace ChunkTasks
 {
@@ -75,12 +73,12 @@ namespace ChunkTasks
             for (var i = 0; i < Chunk.BlockCounts.Length; ++i)
                 Chunk.BlockCounts[i] = 0;
 
-            var blockMoveInfo = new ChunkNeighborhood.BlockMoveInfo();
+            var blockMoveInfo = new BlockMoveInfo();
             Chunk.DirtyRect.x = -1;
             Chunk.DirtyRect.y = -1;
             Chunk.DirtyRect.xMax = -1;
             Chunk.DirtyRect.yMax = -1;
-            var blockData = new ChunkNeighborhood.BlockData();
+            var blockData = new BlockData();
             var dirtied = false;
 
             const int totalSize = Chunk.Size * Chunk.Size;
@@ -164,7 +162,7 @@ namespace ChunkTasks
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe bool Swap(Swap swap, int block, int x, int y, ref ChunkNeighborhood.BlockMoveInfo blockMoveInfo,
+        private unsafe bool Swap(Swap swap, int block, int x, int y, ref BlockMoveInfo blockMoveInfo,
             int* directionX, int* directionY, int* distances, int* bitCount)
         {
             var availableTargets = stackalloc int[4];
