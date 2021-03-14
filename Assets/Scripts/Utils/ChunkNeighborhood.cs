@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using BlockLogic;
 using Blocks;
 using DataComponents;
 using UnityEngine;
@@ -133,7 +134,7 @@ namespace Utils
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
 
             if (Chunks[chunkIndex] == null)
-                return BlockLogic.Border;
+                return BlockConstants.Border;
 
             var blockIndex = y * Chunk.Size + x;
 
@@ -146,7 +147,7 @@ namespace Utils
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
-            Chunks[chunkIndex].PutBlock(x, y, type, color.r, color.g, color.b, color.a, states, BlockLogic.BlockDescriptors[type].BaseHealth);
+            Chunks[chunkIndex].PutBlock(x, y, type, color.r, color.g, color.b, color.a, states, BlockConstants.BlockDescriptors[type].BaseHealth);
             Chunks[chunkIndex].Dirty = true;
             chunkWritten = Chunks[chunkIndex];
         }
@@ -157,8 +158,8 @@ namespace Utils
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
-            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockLogic.BlockDescriptors[type].ColorMaxShift);
-            var color = BlockLogic.BlockDescriptors[type].Color;
+            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[type].ColorMaxShift);
+            var color = BlockConstants.BlockDescriptors[type].Color;
             Chunks[chunkIndex].PutBlock(x, y, type,
                 Helpers.ShiftColorComponent(color.r, shiftAmount),
                 Helpers.ShiftColorComponent(color.g, shiftAmount),
@@ -173,8 +174,8 @@ namespace Utils
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
-            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockLogic.BlockDescriptors[type].ColorMaxShift);
-            var color = BlockLogic.BlockDescriptors[type].Color;
+            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[type].ColorMaxShift);
+            var color = BlockConstants.BlockDescriptors[type].Color;
             Chunks[chunkIndex].PutBlock(x, y, type,
                 Helpers.ShiftColorComponent(color.r, shiftAmount),
                 Helpers.ShiftColorComponent(color.g, shiftAmount),
@@ -189,8 +190,8 @@ namespace Utils
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
-            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockLogic.BlockDescriptors[type].ColorMaxShift);
-            var color = BlockLogic.BlockDescriptors[type].Color;
+            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[type].ColorMaxShift);
+            var color = BlockConstants.BlockDescriptors[type].Color;
             Chunks[chunkIndex].PutBlock(x, y, type,
                 Helpers.ShiftColorComponent(color.r, shiftAmount),
                 Helpers.ShiftColorComponent(color.g, shiftAmount),
@@ -255,7 +256,7 @@ namespace Utils
             blockMoveInfo.Y = uy;
 
             Chunks[newChunkIndex].SetUpdatedFlag(ux, uy);
-            if (destBlock != BlockLogic.Air)
+            if (destBlock != BlockConstants.Air)
                 Chunks[0].SetUpdatedFlag(x, y);
 
             // put the old destination block at the source position (swap)

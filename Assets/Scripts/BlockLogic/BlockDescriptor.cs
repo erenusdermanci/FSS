@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Blocks;
+using UnityEngine;
 
-namespace Blocks
+namespace BlockLogic
 {
     public readonly struct BlockDescriptor
     {

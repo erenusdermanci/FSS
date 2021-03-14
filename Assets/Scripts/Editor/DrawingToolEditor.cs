@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BlockLogic;
 using Blocks;
 using UnityEditor;
 
@@ -9,7 +10,7 @@ namespace Editor
     [CustomEditor(typeof(DrawingTool))]
     public class DrawingToolEditor : UnityEditor.Editor
     {
-        private readonly string[] _blockNames = BlockLogic.BlockDescriptors.Select(d => d.Name).ToArray();
+        private readonly string[] _blockNames = BlockConstants.BlockDescriptors.Select(d => d.Name).ToArray();
 
         public override void OnInspectorGUI() //2
         {
@@ -18,7 +19,7 @@ namespace Editor
             var tool = (DrawingTool) target;
 
             tool.SelectedDrawBlock = EditorGUILayout.Popup("Block", tool.SelectedDrawBlock, _blockNames);
-            if (!CanBlockBurn(tool.SelectedDrawBlock) && tool.SelectedState == ConvertState(BlockLogic.States.Burning))
+            if (!CanBlockBurn(tool.SelectedDrawBlock) && tool.SelectedState == ConvertState(BlockStates.Burning))
                 tool.SelectedState = 0;
             tool.SelectedState = EditorGUILayout.Popup("State", tool.SelectedState, CreateStates(tool.SelectedDrawBlock).ToArray());
         }
@@ -26,11 +27,11 @@ namespace Editor
         private static IEnumerable<string> CreateStates(int selectedDrawBlock)
         {
             yield return "No state";
-            foreach (var state in Enum.GetValues(typeof(BlockLogic.States)))
+            foreach (var state in Enum.GetValues(typeof(BlockStates)))
             {
                 switch (state)
                 {
-                    case BlockLogic.States.Burning:
+                    case BlockStates.Burning:
                         if (CanBlockBurn(selectedDrawBlock))
                             yield return state.ToString();
                         break;
@@ -43,10 +44,10 @@ namespace Editor
 
         private static bool CanBlockBurn(int block)
         {
-            return BlockLogic.BlockDescriptors[block].CombustionProbability > 0.0f;
+            return BlockConstants.BlockDescriptors[block].CombustionProbability > 0.0f;
         }
 
-        private static int ConvertState(BlockLogic.States state)
+        private static int ConvertState(BlockStates state)
         {
             return (int) state + 1;
         }

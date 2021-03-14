@@ -1,9 +1,10 @@
-﻿using Unity.Collections;
+﻿using Blocks;
+using Unity.Collections;
 using UnityEngine;
 using static Blocks.BlockMovementType;
 using static Blocks.BlockTags;
 
-namespace Blocks
+namespace BlockLogic
 {
     // directions
     // 0 -> down
@@ -15,18 +16,13 @@ namespace Blocks
     // 6 -> upLeft
     // 7 -> upRight
 
-    public class BlockLogic
+    public static class BlockConstants
     {
         public static readonly Color32 FireColor = new Color32(240, 127, 19, 255);
 
         public const int Air = 0;
         public const int Border = 8;
         public const int Smoke = 10;
-
-        public enum States
-        {
-            Burning
-        }
 
         [ReadOnly]
         public static readonly BlockDescriptor[] BlockDescriptors = {

@@ -1,4 +1,6 @@
-﻿namespace Blocks
+﻿using Blocks;
+
+namespace BlockLogic
 {
     public readonly struct FireSpread : IBehavior
     {

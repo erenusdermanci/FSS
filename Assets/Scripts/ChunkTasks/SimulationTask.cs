@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using BlockLogic;
 using Blocks;
 using DataComponents;
 using Utils;
@@ -95,7 +96,7 @@ namespace ChunkTasks
 
                 Chunks.GetBlockData(x, y, ref blockData);
 
-                var blockLogic = BlockLogic.BlockDescriptors[blockData.Type];
+                var blockLogic = BlockConstants.BlockDescriptors[blockData.Type];
 
                 bool destroyed = false;
                 foreach (var behavior in blockLogic.Behaviors)
@@ -107,8 +108,8 @@ namespace ChunkTasks
                         case Blocks.Swap.Id:
                             dirtied |= Swap((Swap) behavior, blockData.Type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
                             break;
-                        case Blocks.FireSpread.Id:
-                            if (!blockData.GetState((int) BlockLogic.States.Burning))
+                        case BlockLogic.FireSpread.Id:
+                            if (!blockData.GetState((int) BlockStates.Burning))
                                 break;
                             dirtied |= FireSpread((FireSpread) behavior, blockData, x, y, directionX, directionY, ref destroyed);
                             break;
@@ -247,13 +248,13 @@ namespace ChunkTasks
             for (var j = 0; j < swap.Directions[directionIdx]; ++j)
             {
                 targetBlocks[j] = Chunks.GetBlock(x + (j + 1) * directionX[directionIdx], y + (j + 1) * directionY[directionIdx]);
-                if (swap.BlockedBy == BlockLogic.BlockDescriptors[targetBlocks[j]].PhysicalBlockTag)
+                if (swap.BlockedBy == BlockConstants.BlockDescriptors[targetBlocks[j]].PhysicalBlockTag)
                 {
                     availableTargets[j] = 0;
                     return targetsFound;
                 }
 
-                if (!(BlockLogic.BlockDescriptors[targetBlocks[j]].DensityPriority < BlockLogic.BlockDescriptors[block].DensityPriority))
+                if (!(BlockConstants.BlockDescriptors[targetBlocks[j]].DensityPriority < BlockConstants.BlockDescriptors[block].DensityPriority))
                     continue;
                 availableTargets[j] = 1;
                 targetsFound = true;
@@ -274,18 +275,20 @@ namespace ChunkTasks
             {
                 var neighborFound = Chunks.GetBlockData(x + directionX[i], y + directionY[i], ref neighborTypes[i]);
 
-                if (neighborFound)
-                    if (neighborTypes[i].Type == BlockLogic.Air)
-                        airNeighborsCount++;
-                    else if (neighborTypes[i].Type == blockData.Type)
-                        selfNeighborsCount++;
+                if (!neighborFound)
+                    continue;
+
+                if (neighborTypes[i].Type == BlockConstants.Air)
+                    airNeighborsCount++;
+                else if (neighborTypes[i].Type == blockData.Type)
+                    selfNeighborsCount++;
             }
 
             // We have our neighbor's types and our air count
             if (airNeighborsCount + selfNeighborsCount == 0)
             {
                 // fire dies out
-                blockData.ClearState((int)BlockLogic.States.Burning);
+                blockData.ClearState((int)BlockStates.Burning);
                 Chunks.PutBlock(x, y, blockData.Type, blockData.StateBitset);
             }
             else
@@ -297,7 +300,7 @@ namespace ChunkTasks
                     {
                         case -1: // there is no neighbour here (chunk doesn't exist)
                             break;
-                        case BlockLogic.Air:
+                        case BlockConstants.Air:
                             // replace Air with smoke
                             var combustionEmissionProbability = behavior.CombustionEmissionProbability;
                             if (combustionEmissionProbability == 0.0f)
@@ -309,18 +312,18 @@ namespace ChunkTasks
                             }
                             break;
                         default:
-                            if (neighborTypes[i].GetState((int)BlockLogic.States.Burning))
+                            if (neighborTypes[i].GetState((int)BlockStates.Burning))
                                 continue;
                             var combustionProbability =
-                                BlockLogic.BlockDescriptors[neighborTypes[i].Type].CombustionProbability;
+                                BlockConstants.BlockDescriptors[neighborTypes[i].Type].CombustionProbability;
                             if (combustionProbability == 0.0f)
                                 continue;
                             if (combustionProbability >= 1.0f
                                 || combustionProbability > _rng.NextDouble())
                             {
                                 // spreading to this block
-                                neighborTypes[i].SetState((int)BlockLogic.States.Burning);
-                                Chunks.PutBlock(x + directionX[i], y + directionY[i], neighborTypes[i].Type, BlockLogic.FireColor, neighborTypes[i].StateBitset);
+                                neighborTypes[i].SetState((int)BlockStates.Burning);
+                                Chunks.PutBlock(x + directionX[i], y + directionY[i], neighborTypes[i].Type, BlockConstants.FireColor, neighborTypes[i].StateBitset);
                             }
                             break;
                     }
@@ -333,13 +336,13 @@ namespace ChunkTasks
                     // Block is consumed by fire, destroy it
 
                     var combustionResultProbability = behavior.CombustionResultProbability;
-                    var resultBlockType = BlockLogic.Air;
+                    var resultBlockType = BlockConstants.Air;
 
                     if (combustionResultProbability >= 1.0f
                         || combustionResultProbability > _rng.NextDouble())
                         resultBlockType = behavior.CombustionResultBlockType;
 
-                    Chunks.PutBlock(x, y, resultBlockType, 0, BlockLogic.BlockDescriptors[resultBlockType].BaseHealth);
+                    Chunks.PutBlock(x, y, resultBlockType, 0, BlockConstants.BlockDescriptors[resultBlockType].BaseHealth);
                     destroyed = true;
                     return true;
                 }
@@ -360,7 +363,7 @@ namespace ChunkTasks
                     || despawnProbability > _rng.NextDouble())
                 {
                     // Destroy it
-                    Chunks.PutBlock(x, y, behavior.DespawnResultBlockType, 0, BlockLogic.BlockDescriptors[behavior.DespawnResultBlockType].BaseHealth);
+                    Chunks.PutBlock(x, y, behavior.DespawnResultBlockType, 0, BlockConstants.BlockDescriptors[behavior.DespawnResultBlockType].BaseHealth);
                     destroyed = true;
                     return true;
                 }

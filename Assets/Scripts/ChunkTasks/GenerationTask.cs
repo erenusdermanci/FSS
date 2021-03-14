@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using BlockLogic;
 using Blocks;
 using DataComponents;
 using MonoBehaviours;
@@ -102,16 +103,16 @@ namespace ChunkTasks
 
         private void GenerateEmpty()
         {
-            var airColor = BlockLogic.BlockDescriptors[BlockLogic.Air].Color;
+            var airColor = BlockConstants.BlockDescriptors[BlockConstants.Air].Color;
             for (var i = 0; i < Chunk.Size * Chunk.Size; i++)
             {
                 Chunk.Data.colors[i * 4] = airColor.r;
                 Chunk.Data.colors[i * 4 + 1] = airColor.g;
                 Chunk.Data.colors[i * 4 + 2] = airColor.b;
                 Chunk.Data.colors[i * 4 + 3] = airColor.a;
-                Chunk.Data.types[i] = BlockLogic.Air;
+                Chunk.Data.types[i] = BlockConstants.Air;
                 Chunk.Data.stateBitsets[i] = 0;
-                Chunk.Data.healths[i] = BlockLogic.BlockDescriptors[BlockLogic.Air].BaseHealth;
+                Chunk.Data.healths[i] = BlockConstants.BlockDescriptors[BlockConstants.Air].BaseHealth;
                 Chunk.Data.lifetimes[i] = 0;
             }
         }
@@ -139,18 +140,18 @@ namespace ChunkTasks
             noiseAcc /= layer.InLayerNoises.Count;
 
             var block = GetBlockFromNoise(layer, noiseAcc);
-            var blockColor = BlockLogic.BlockDescriptors[block].Color;
+            var blockColor = BlockConstants.BlockDescriptors[block].Color;
 
             var idx = y * Chunk.Size + x;
 
-            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockLogic.BlockDescriptors[block].ColorMaxShift);
+            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[block].ColorMaxShift);
             Chunk.Data.colors[idx * 4] = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
             Chunk.Data.colors[idx * 4 + 1] = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
             Chunk.Data.colors[idx * 4 + 2] = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
             Chunk.Data.colors[idx * 4 + 3] = blockColor.a;
             Chunk.Data.types[idx] = block;
             Chunk.Data.stateBitsets[idx] = 0;
-            Chunk.Data.healths[idx] = BlockLogic.BlockDescriptors[block].BaseHealth;
+            Chunk.Data.healths[idx] = BlockConstants.BlockDescriptors[block].BaseHealth;
             Chunk.Data.lifetimes[idx] = 0;
         }
 
@@ -164,7 +165,7 @@ namespace ChunkTasks
                     return thresholds[i].type;
             }
 
-            return BlockLogic.Border;
+            return BlockConstants.Border;
         }
 
         private static int GetLayerForY(int[] vertIdxPerLayer, int y)

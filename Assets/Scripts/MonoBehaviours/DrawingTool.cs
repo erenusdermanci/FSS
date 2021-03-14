@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BlockLogic;
 using Blocks;
 using DataComponents;
 using MonoBehaviours;
@@ -291,7 +292,7 @@ public class DrawingTool : MonoBehaviour
     {
         Chunk chunkWritten = null;
         if (SelectedState == 1)
-            blockColor = BlockLogic.FireColor;
+            blockColor = BlockConstants.FireColor;
         neighborhood.PutBlock(x, y, selectedDrawBlock, blockColor, states, ref chunkWritten);
 
         if (chunkWritten != null)
@@ -304,8 +305,8 @@ public class DrawingTool : MonoBehaviour
             return PixelColorOverride;
 
         var block = SelectedDrawBlock;
-        var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockLogic.BlockDescriptors[block].ColorMaxShift);
-        var color = BlockLogic.BlockDescriptors[block].Color;
+        var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[block].ColorMaxShift);
+        var color = BlockConstants.BlockDescriptors[block].Color;
         return new Color32(
             Helpers.ShiftColorComponent(color.r, shiftAmount),
             Helpers.ShiftColorComponent(color.g, shiftAmount),
