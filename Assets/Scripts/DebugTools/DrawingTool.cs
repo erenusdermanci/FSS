@@ -151,6 +151,18 @@ namespace DebugTools
                     _drawEndPos = null;
                 }
             }
+
+            if (_userDrawingLine)
+            {
+                if (_drawStartPos != null)
+                {
+                    var xStart = _drawStartPos.Value.x / Chunk.Size - 0.5f;
+                    var yStart = _drawStartPos.Value.y / Chunk.Size - 0.5f;
+                    var xEnd = blockPosition.x / Chunk.Size - 0.5f;
+                    var yEnd = blockPosition.y / Chunk.Size - 0.5f;
+                    Debug.DrawLine(new Vector2(xStart, yStart), new Vector2(xEnd, yEnd), Color.white);
+                }
+            }
         }
 
         private void UpdateColorPixel(Vector2 blockPosition)
