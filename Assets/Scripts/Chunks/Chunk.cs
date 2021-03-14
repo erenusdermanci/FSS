@@ -79,6 +79,11 @@ namespace Chunks
             Data.types[i] = type;
         }
 
+        public int GetBlockType(int x, int y)
+        {
+            return Data.types[y * Size + x];
+        }
+
         public void SetUpdatedFlag(int x, int y)
         {
             BlockUpdatedFlags[y * Size + x] = 1;

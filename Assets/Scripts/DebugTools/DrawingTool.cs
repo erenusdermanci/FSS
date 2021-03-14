@@ -17,7 +17,8 @@ namespace DebugTools
             Pixel,
             Box,
             Line,
-            ColorPixel
+            ColorPixel,
+            Fill
         }
 
         public bool disabled;
@@ -79,6 +80,9 @@ namespace DebugTools
                     break;
                 case DrawType.ColorPixel:
                     UpdateColorPixel(blockPosition);
+                    break;
+                case DrawType.Fill:
+                    UpdateFill(blockPosition);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -170,6 +174,51 @@ namespace DebugTools
             if (Input.GetMouseButton(0))
             {
                 ColorPixel((int) blockPosition.x, (int) blockPosition.y);
+            }
+        }
+
+        private void UpdateFill(Vector2 blockPosition)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                var positionQueue = new Queue<Vector2Int>();
+                var processing = new HashSet<Vector2Int>();
+                var first = new Vector2Int((int) blockPosition.x, (int) blockPosition.y);
+                positionQueue.Enqueue(first);
+                var blockUnderCursor = GetBlockType((int) blockPosition.x, (int) blockPosition.y);
+                while (positionQueue.Count != 0)
+                {
+                    var pos = positionQueue.Dequeue();
+
+                    var x = pos.x;
+                    var y = pos.y;
+                    PutBlock(x, y, selectedDrawBlock, GetBlockColor(), selectedState);
+
+                    var right = new Vector2Int(x + 1, y);
+                    var left = new Vector2Int(x - 1, y);
+                    var up = new Vector2Int(x, y + 1);
+                    var down = new Vector2Int(x, y - 1);
+                    if (GetBlockType(right.x, right.y) == blockUnderCursor && !processing.Contains(right))
+                    {
+                        positionQueue.Enqueue(right);
+                        processing.Add(right);
+                    }
+                    if (GetBlockType(left.x, left.y) == blockUnderCursor && !processing.Contains(left))
+                    {
+                        positionQueue.Enqueue(left);
+                        processing.Add(left);
+                    }
+                    if (GetBlockType(up.x, up.y) == blockUnderCursor && !processing.Contains(up))
+                    {
+                        positionQueue.Enqueue(up);
+                        processing.Add(up);
+                    }
+                    if (GetBlockType(down.x, down.y) == blockUnderCursor && !processing.Contains(down))
+                    {
+                        positionQueue.Enqueue(down);
+                        processing.Add(down);
+                    }
+                }
             }
         }
 
@@ -312,6 +361,18 @@ namespace DebugTools
             chunk.Dirty = true;
 
             _chunksToReload.Add(chunk.Position);
+        }
+
+        private int GetBlockType(int worldX, int worldY)
+        {
+            var chunk = GetChunkFromWorld(worldX, worldY);
+            if (chunk == null)
+                return -1;
+
+            var blockXInChunk = Helpers.Mod(worldX, Chunk.Size);
+            var blockYInChunk = Helpers.Mod(worldY, Chunk.Size);
+
+            return chunk.GetBlockType(blockXInChunk, blockYInChunk);
         }
 
         private Chunk GetChunkFromWorld(float worldX, float worldY)
