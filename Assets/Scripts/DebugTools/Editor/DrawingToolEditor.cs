@@ -21,6 +21,9 @@ namespace DebugTools.Editor
             if (!CanBlockBurn(tool.selectedDrawBlock) && tool.selectedState == ConvertState(BlockStates.Burning))
                 tool.selectedState = 0;
             tool.selectedState = EditorGUILayout.Popup("State", tool.selectedState, CreateStates(tool.selectedDrawBlock).ToArray());
+
+            if (tool.selectedBrush == DrawingTool.DrawType.Box)
+                tool.boxSize = EditorGUILayout.IntSlider("Size", tool.boxSize, 0, 1024);
         }
 
         private static IEnumerable<string> CreateStates(int selectedDrawBlock)

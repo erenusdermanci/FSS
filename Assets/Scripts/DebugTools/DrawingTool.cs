@@ -32,6 +32,7 @@ namespace DebugTools
         public bool overrideDefaultColors;
         public Color32 pixelColorOverride;
 
+        [HideInInspector]
         public int boxSize;
 
         public Text uiCoordText;
