@@ -6,7 +6,7 @@ namespace Blocks
     public readonly struct BlockDescriptor
     {
         public readonly string Name;
-        public readonly BlockTags PhysicalBlockTag;
+        public readonly BlockTags Tag;
         public readonly float DensityPriority;
         public readonly Color32 Color;
         public readonly float ColorMaxShift;
@@ -15,7 +15,7 @@ namespace Blocks
         public readonly IBehavior[] Behaviors;
 
         public BlockDescriptor(string name,
-            BlockTags physicalBlockTag,
+            BlockTags tag,
             float densityPriority,
             Color32 color,
             float colorMaxShift,
@@ -24,7 +24,7 @@ namespace Blocks
             IBehavior[] behaviors)
         {
             Name = name;
-            PhysicalBlockTag = physicalBlockTag;
+            Tag = tag;
             DensityPriority = densityPriority;
             Color = color;
             ColorMaxShift = colorMaxShift;
