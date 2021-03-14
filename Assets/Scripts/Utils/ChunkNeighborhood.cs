@@ -15,8 +15,6 @@ namespace Utils
             public float Health;
             public float Lifetime;
 
-            public const int BurningState = 0;
-
             public bool GetState(int stateToCheck)
             {
                 return ((StateBitset >> stateToCheck) & 1) == 1;

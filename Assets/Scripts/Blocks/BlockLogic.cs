@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using Unity.Collections;
+using UnityEngine;
 using static Blocks.BlockMovementType;
 using static Blocks.BlockTags;
 
@@ -14,7 +16,7 @@ namespace Blocks
     // 6 -> upLeft
     // 7 -> upRight
 
-    public static class BlockLogic
+    public class BlockLogic : MonoBehaviour
     {
         public static readonly Color32 FireColor = new Color32(240, 127, 19, 255);
 
@@ -22,6 +24,12 @@ namespace Blocks
         public const int Border = 8;
         public const int Smoke = 10;
 
+        public enum States
+        {
+            Burning
+        }
+
+        [ReadOnly]
         public static readonly BlockDescriptor[] BlockDescriptors = {
             new BlockDescriptor(
                 "Air",
@@ -219,5 +227,7 @@ namespace Blocks
                 }
             )
         };
+
+        public static readonly string[] Names = BlockDescriptors.Select(d => d.Name).ToArray();
     }
 }

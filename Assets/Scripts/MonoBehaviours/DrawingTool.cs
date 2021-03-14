@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Blocks;
 using DataComponents;
 using MonoBehaviours;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
@@ -22,8 +24,12 @@ public class DrawingTool : MonoBehaviour
     public bool Enabled;
     public ChunkManager ChunkManager;
 
+    public List<string> test;
+
+    [HideInInspector]
     public int SelectedDrawBlock;
     public DrawType SelectedBrush;
+    [HideInInspector]
     public int SelectedState;
     public bool OverrideDefaultColors;
     public Color32 PixelColorOverride;
@@ -44,6 +50,8 @@ public class DrawingTool : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        test = new List<string>();
+        test.AddRange(BlockLogic.BlockDescriptors.Select(d => d.Name));
         userDrawingLine = false;
         _rng = new Random();
     }

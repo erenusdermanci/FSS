@@ -110,7 +110,7 @@ namespace ChunkTasks
                             dirtied |= Swap((Swap) behavior, blockData.Type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
                             break;
                         case Blocks.FireSpread.Id:
-                            if (!blockData.GetState(BurningState))
+                            if (!blockData.GetState((int) BlockLogic.States.Burning))
                                 break;
                             dirtied |= FireSpread((FireSpread) behavior, blockData, x, y, directionX, directionY, ref destroyed);
                             break;
@@ -287,7 +287,7 @@ namespace ChunkTasks
             if (airNeighborsCount + selfNeighborsCount == 0)
             {
                 // fire dies out
-                blockData.ClearState(BurningState);
+                blockData.ClearState((int)BlockLogic.States.Burning);
                 Chunks.PutBlock(x, y, blockData.Type, blockData.StateBitset);
             }
             else
@@ -311,7 +311,7 @@ namespace ChunkTasks
                             }
                             break;
                         default:
-                            if (neighborTypes[i].GetState(BurningState))
+                            if (neighborTypes[i].GetState((int)BlockLogic.States.Burning))
                                 continue;
                             var combustionProbability =
                                 BlockLogic.BlockDescriptors[neighborTypes[i].Type].CombustionProbability;
@@ -321,7 +321,7 @@ namespace ChunkTasks
                                 || combustionProbability > _rng.NextDouble())
                             {
                                 // spreading to this block
-                                neighborTypes[i].SetState(BurningState);
+                                neighborTypes[i].SetState((int)BlockLogic.States.Burning);
                                 Chunks.PutBlock(x + directionX[i], y + directionY[i], neighborTypes[i].Type, BlockLogic.FireColor, neighborTypes[i].StateBitset);
                             }
                             break;
