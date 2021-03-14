@@ -48,13 +48,13 @@ namespace Chunks
             set => Chunks[idx] = value;
         }
 
-        public ChunkNeighborhood(ConcurrentDictionary<Vector2, Chunk> chunkMap, Chunk centralChunk, Random rng)
+        public ChunkNeighborhood(ChunkMap chunkMap, Chunk centralChunk, Random rng)
         {
             _rng = rng;
             UpdateNeighbors(chunkMap, centralChunk);
         }
 
-        public void UpdateNeighbors(ConcurrentDictionary<Vector2, Chunk> chunkMap, Chunk centralChunk)
+        public void UpdateNeighbors(ChunkMap chunkMap, Chunk centralChunk)
         {
             // 6 7 8
             // 4 0 5

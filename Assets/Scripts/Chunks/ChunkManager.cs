@@ -20,9 +20,9 @@ namespace Chunks
 
         public static Vector2 PlayerPosition;
 
-        public readonly ConcurrentDictionary<Vector2, Chunk> ChunkMap = new ConcurrentDictionary<Vector2, Chunk>();
         private GameObjectPool _chunkPool;
         private const int BatchNumber = 4;
+        public readonly ChunkMap ChunkMap = new ChunkMap();
         private readonly List<ConcurrentDictionary<Vector2, SimulationTask>> _simulationBatchPool = new List<ConcurrentDictionary<Vector2, SimulationTask>>(BatchNumber);
         private readonly ChunkTaskScheduler _chunkTaskScheduler = new ChunkTaskScheduler();
         private Vector2 _playerFlooredPosition;
@@ -81,7 +81,7 @@ namespace Chunks
             _chunkTaskScheduler.CancelLoading();
             _chunkTaskScheduler.CancelGeneration();
 
-            foreach (var chunk in ChunkMap.Values)
+            foreach (var chunk in ChunkMap.Map.Values)
             {
                 chunk.Dispose();
             }
@@ -113,20 +113,20 @@ namespace Chunks
         private void OutlineChunks()
         {
             const float s = 0.5f;
-            foreach (var chunk in ChunkMap.Values)
+            foreach (var chunk in ChunkMap.Chunks())
             {
                 var x = chunk.Position.x;
                 var y = chunk.Position.y;
                 var mapBorderColor = Color.white;
                 if (!chunk.Dirty)
                 {
-                    if (!ChunkMap.ContainsKey(new Vector2(chunk.Position.x - 1, chunk.Position.y)))
+                    if (!ChunkMap.Contains(new Vector2(chunk.Position.x - 1, chunk.Position.y)))
                         Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), mapBorderColor);
-                    if (!ChunkMap.ContainsKey(new Vector2(chunk.Position.x + 1, chunk.Position.y)))
+                    if (!ChunkMap.Contains(new Vector2(chunk.Position.x + 1, chunk.Position.y)))
                         Debug.DrawLine(new Vector3(x + s, y - s), new Vector3(x + s, y + s), mapBorderColor);
-                    if (!ChunkMap.ContainsKey(new Vector2(chunk.Position.x, chunk.Position.y - 1)))
+                    if (!ChunkMap.Contains(new Vector2(chunk.Position.x, chunk.Position.y - 1)))
                         Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), mapBorderColor);
-                    if (!ChunkMap.ContainsKey(new Vector2(chunk.Position.x, chunk.Position.y + 1)))
+                    if (!ChunkMap.Contains(new Vector2(chunk.Position.x, chunk.Position.y + 1)))
                         Debug.DrawLine(new Vector3(x - s, y + s), new Vector3(x + s, y + s), mapBorderColor);
                     continue;
                 }
@@ -209,7 +209,7 @@ namespace Chunks
                 for (var y = 0; y < generatedAreaSize; ++y)
                 {
                     var pos = new Vector2(aroundPosition.x + (x - generatedAreaSize / 2), aroundPosition.y + (y - generatedAreaSize / 2));
-                    if (ChunkMap.ContainsKey(pos))
+                    if (ChunkMap.Contains(pos))
                         continue;
                     _chunkTaskScheduler.QueueForGeneration(pos, loadFromDisk);
                 }
@@ -219,7 +219,7 @@ namespace Chunks
         private void OnChunkSaved(object sender, EventArgs e)
         {
             var chunk = ((ChunkTaskManager.ChunkEventArgs) e).Chunk;
-            ChunkMap.TryRemove(chunk.Position, out _);
+            ChunkMap.Remove(chunk.Position);
             chunk.Dispose();
             UpdateSimulationPool(chunk, false);
         }
@@ -236,7 +236,7 @@ namespace Chunks
 
         private void FinalizeChunkCreation(Chunk chunk)
         {
-            ChunkMap.TryAdd(chunk.Position, chunk);
+            ChunkMap.Add(chunk);
             chunk.GameObject = _chunkPool.GetObject();
             chunk.Texture = chunk.GameObject.GetComponent<SpriteRenderer>().sprite.texture;
             chunk.GameObject.transform.position = new Vector3(chunk.Position.x, chunk.Position.y, 0);
@@ -252,7 +252,7 @@ namespace Chunks
             var py = aroundPosition.y - (float)generatedAreaSize / 2;
 
             var chunksToRemove = new List<Vector2>();
-            foreach (var chunk in ChunkMap.Values)
+            foreach (var chunk in ChunkMap.Chunks())
             {
                 if (!(chunk.Position.x < px - cleanAreaSizeOffset) &&
                     !(chunk.Position.x > px + generatedAreaSize + cleanAreaSizeOffset) &&
@@ -264,7 +264,7 @@ namespace Chunks
             foreach (var chunkPosition in chunksToRemove)
             {
                 var chunk = ChunkMap[chunkPosition];
-                ChunkMap.TryRemove(chunkPosition, out _);
+                ChunkMap.Remove(chunkPosition);
                 DisposeAndSaveChunk(chunk);
             }
         }
@@ -273,7 +273,7 @@ namespace Chunks
         {
             if (GlobalDebugConfig.StaticGlobalConfig.DisableSave)
             {
-                ChunkMap.TryRemove(chunk.Position, out _);
+                ChunkMap.Remove(chunk.Position);
                 chunk.Dispose();
                 UpdateSimulationPool(chunk, false);
                 return;
@@ -370,7 +370,7 @@ namespace Chunks
             _chunkTaskScheduler.CancelLoading();
             _chunkTaskScheduler.CancelGeneration();
 
-            foreach (var chunk in ChunkMap.Values)
+            foreach (var chunk in ChunkMap.Chunks())
             {
                 DisposeAndSaveChunk(chunk);
             }

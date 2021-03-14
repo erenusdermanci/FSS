@@ -58,7 +58,7 @@ public class DrawingTool : MonoBehaviour
 
         var mousePos = GetAdjustedWorldMousePosition();
         var flooredMousePos = new Vector2(Mathf.Floor(mousePos.x), Mathf.Floor(mousePos.y));
-        if (!ChunkManager.ChunkMap.ContainsKey(flooredMousePos)) // Nothing to draw
+        if (!ChunkManager.ChunkMap.Contains(flooredMousePos)) // Nothing to draw
             return;
 
         var neighborhood = GetNeighborhood(flooredMousePos);

@@ -41,10 +41,10 @@ namespace Chunks
             return File.Exists(GetChunksSaveFullPath(position));
         }
 
-        public static Chunk GetNeighborChunk(ConcurrentDictionary<Vector2, Chunk> chunkMap, Chunk origin, int xOffset, int yOffset)
+        public static Chunk GetNeighborChunk(ChunkMap chunkMap, Chunk origin, int xOffset, int yOffset)
         {
             var neighborPosition = new Vector2(origin.Position.x + xOffset, origin.Position.y + yOffset);
-            return chunkMap.ContainsKey(neighborPosition) ? chunkMap[neighborPosition] : null;
+            return chunkMap.Contains(neighborPosition) ? chunkMap[neighborPosition] : null;
         }
     }
 }
