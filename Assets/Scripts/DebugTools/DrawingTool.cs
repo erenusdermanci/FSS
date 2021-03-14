@@ -14,7 +14,7 @@ namespace DebugTools
         [Serializable]
         public enum DrawType
         {
-            Pixel,
+            Point,
             Box,
             Line,
             ColorPixel,
@@ -70,7 +70,7 @@ namespace DebugTools
 
             switch (selectedBrush)
             {
-                case DrawType.Pixel:
+                case DrawType.Point:
                     UpdateDrawPixel(blockPosition);
                     break;
                 case DrawType.Box:
