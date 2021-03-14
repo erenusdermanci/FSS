@@ -106,17 +106,23 @@ namespace Chunks
 
         private void GlobalConfigUpdate(object sender, EventArgs e)
         {
-            var restrict = GlobalDebugConfig.StaticGlobalConfig.overrideGridSize;
+            var overrideGridSize = GlobalDebugConfig.StaticGlobalConfig.overrideGridSize;
             var resetGrid = false;
 
-            if (restrict == 0)
+            if (overrideGridSize < 0) // invalid value
+                return;
+
+            if (overrideGridSize == 0) // disable override
             {
+                if (generatedAreaSize == initialGeneratedAreaSize) // already at default value
+                    return;
+
                 generatedAreaSize = initialGeneratedAreaSize;
                 resetGrid = true;
             }
-            else if (restrict > 0 && restrict != generatedAreaSize)
+            else if (generatedAreaSize != overrideGridSize)
             {
-                generatedAreaSize = restrict;
+                generatedAreaSize = overrideGridSize;
                 resetGrid = true;
             }
 
