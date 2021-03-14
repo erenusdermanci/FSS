@@ -143,7 +143,7 @@ MonoBehaviour:
     StepByStep: 0
     OutlineChunks: 0
     DisableDirtySystem: 0
-    SaveAsTestScene: 0
+    SaveAsTestScene: 1
 --- !u!1 &6752796497607087201
 GameObject:
   m_ObjectHideFlags: 0
