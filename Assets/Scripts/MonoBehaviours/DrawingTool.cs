@@ -24,8 +24,6 @@ public class DrawingTool : MonoBehaviour
     public bool Enabled;
     public ChunkManager ChunkManager;
 
-    public List<string> test;
-
     [HideInInspector]
     public int SelectedDrawBlock;
     public DrawType SelectedBrush;
@@ -50,8 +48,6 @@ public class DrawingTool : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        test = new List<string>();
-        test.AddRange(BlockLogic.BlockDescriptors.Select(d => d.Name));
         userDrawingLine = false;
         _rng = new Random();
     }
