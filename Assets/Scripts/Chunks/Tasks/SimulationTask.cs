@@ -96,7 +96,7 @@ namespace Chunks.Tasks
 
                 var blockLogic = BlockConstants.BlockDescriptors[blockData.Type];
 
-                bool destroyed = false;
+                var destroyed = false;
                 foreach (var behavior in blockLogic.Behaviors)
                 {
                     if (destroyed)
@@ -346,7 +346,7 @@ namespace Chunks.Tasks
                 }
             }
 
-            return false;
+            return true;
         }
 
         private bool Despawn(Despawn behavior, BlockData blockData, int x, int y, ref bool destroyed)
@@ -367,7 +367,7 @@ namespace Chunks.Tasks
                 }
             }
 
-            return false;
+            return true;
         }
     }
 }
