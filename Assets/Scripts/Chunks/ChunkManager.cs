@@ -143,6 +143,9 @@ namespace Chunks
                 if (!ChunkMap.Contains(new Vector2(chunk.Position.x, chunk.Position.y + 1)))
                     Debug.DrawLine(new Vector3(x - s, y + s), new Vector3(x + s, y + s), mapBorderColor);
 
+                if (GlobalDebugConfig.StaticGlobalConfig.hideCleanChunkOutlines && !chunk.Dirty)
+                    continue;
+
                 // draw the chunk borders
                 var borderColor = chunk.Dirty ? Color.red : Color.white;
                 Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), borderColor);

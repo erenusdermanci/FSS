@@ -34,6 +34,7 @@ namespace DebugTools
             public bool pauseSimulation;
             public bool stepByStep;
             public bool outlineChunks;
+            public bool hideCleanChunkOutlines;
             public bool drawDirtyRects;
             public bool disableDirtySystem;
             public bool saveAsTestScene;
@@ -45,6 +46,7 @@ namespace DebugTools
                 pauseSimulation = other.pauseSimulation;
                 stepByStep = other.stepByStep;
                 outlineChunks = other.outlineChunks;
+                hideCleanChunkOutlines = other.hideCleanChunkOutlines;
                 drawDirtyRects = other.drawDirtyRects;
                 disableDirtySystem = other.disableDirtySystem;
                 saveAsTestScene = other.saveAsTestScene;
@@ -59,6 +61,7 @@ namespace DebugTools
                     || pauseSimulation != other.pauseSimulation
                     || stepByStep != other.stepByStep
                     || outlineChunks != other.outlineChunks
+                    || hideCleanChunkOutlines != other.hideCleanChunkOutlines
                     || drawDirtyRects != other.drawDirtyRects
                     || disableDirtySystem != other.disableDirtySystem
                     || saveAsTestScene != other.saveAsTestScene
