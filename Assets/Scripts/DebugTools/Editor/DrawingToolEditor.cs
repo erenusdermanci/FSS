@@ -4,23 +4,23 @@ using System.Linq;
 using Blocks;
 using UnityEditor;
 
-namespace Editor
+namespace DebugTools.Editor
 {
     [CustomEditor(typeof(DrawingTool))]
     public class DrawingToolEditor : UnityEditor.Editor
     {
         private readonly string[] _blockNames = BlockConstants.BlockDescriptors.Select(d => d.Name).ToArray();
 
-        public override void OnInspectorGUI() //2
+        public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
             var tool = (DrawingTool) target;
 
-            tool.SelectedDrawBlock = EditorGUILayout.Popup("Block", tool.SelectedDrawBlock, _blockNames);
-            if (!CanBlockBurn(tool.SelectedDrawBlock) && tool.SelectedState == ConvertState(BlockStates.Burning))
-                tool.SelectedState = 0;
-            tool.SelectedState = EditorGUILayout.Popup("State", tool.SelectedState, CreateStates(tool.SelectedDrawBlock).ToArray());
+            tool.selectedDrawBlock = EditorGUILayout.Popup("Block", tool.selectedDrawBlock, _blockNames);
+            if (!CanBlockBurn(tool.selectedDrawBlock) && tool.selectedState == ConvertState(BlockStates.Burning))
+                tool.selectedState = 0;
+            tool.selectedState = EditorGUILayout.Popup("State", tool.selectedState, CreateStates(tool.selectedDrawBlock).ToArray());
         }
 
         private static IEnumerable<string> CreateStates(int selectedDrawBlock)

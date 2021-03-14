@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Chunks
@@ -8,7 +9,8 @@ namespace Chunks
     {
         public readonly ConcurrentDictionary<Vector2, Chunk> Map = new ConcurrentDictionary<Vector2, Chunk>();
 
-        public Chunk this[Vector2 i] => Map[i];
+        [CanBeNull]
+        public Chunk this[Vector2 i] => Map.ContainsKey(i) ? Map[i] : null;
 
         public void Clear()
         {

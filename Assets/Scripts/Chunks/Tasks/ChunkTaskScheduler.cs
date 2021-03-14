@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using MonoBehaviours;
+using DebugTools;
 using UnityEngine;
 using Random = System.Random;
 

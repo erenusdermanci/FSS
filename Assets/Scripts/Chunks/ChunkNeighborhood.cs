@@ -140,17 +140,6 @@ namespace Chunks
             return Chunks[chunkIndex].Data.types[blockIndex];
         }
 
-        // Put block
-        public void PutBlock(int x, int y, int type, Color32 color, int states, ref Chunk chunkWritten)
-        {
-            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
-            if (Chunks[chunkIndex] == null)
-                return;
-            Chunks[chunkIndex].PutBlock(x, y, type, color.r, color.g, color.b, color.a, states, BlockConstants.BlockDescriptors[type].BaseHealth);
-            Chunks[chunkIndex].Dirty = true;
-            chunkWritten = Chunks[chunkIndex];
-        }
-
         // Put block with shifted base color
         public void PutBlock(int x, int y, int type)
         {
@@ -196,15 +185,6 @@ namespace Chunks
                 Helpers.ShiftColorComponent(color.g, shiftAmount),
                 Helpers.ShiftColorComponent(color.b, shiftAmount),
                 color.a, states, health, 0);
-            Chunks[chunkIndex].Dirty = true;
-        }
-
-        public void PutBlock(int x, int y, int type, Color32 color)
-        {
-            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
-            if (Chunks[chunkIndex] == null)
-                return;
-            Chunks[chunkIndex].PutBlock(x, y, type, color.r, color.g, color.b, color.a);
             Chunks[chunkIndex].Dirty = true;
         }
 
