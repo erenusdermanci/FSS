@@ -165,6 +165,9 @@ namespace Chunks
         {
             foreach (var chunk in ChunkMap.Chunks())
             {
+                if (!chunk.Dirty)
+                    continue;
+
                 var x = chunk.Position.x;
                 var y = chunk.Position.y;
 
