@@ -6,11 +6,10 @@ using UnityEditor;
 
 namespace Editor
 {
-    [CustomEditor(typeof(DrawingTool))] //1
+    [CustomEditor(typeof(DrawingTool))]
     public class DrawingToolEditor : UnityEditor.Editor
     {
         private readonly string[] _blockNames = BlockLogic.BlockDescriptors.Select(d => d.Name).ToArray();
-        private readonly string[] _stateNames = CreateStates().ToArray();
 
         public override void OnInspectorGUI() //2
         {
@@ -19,14 +18,37 @@ namespace Editor
             var tool = (DrawingTool) target;
 
             tool.SelectedDrawBlock = EditorGUILayout.Popup("Block", tool.SelectedDrawBlock, _blockNames);
-            tool.SelectedState = EditorGUILayout.Popup("State", tool.SelectedState, _stateNames);
+            if (!CanBlockBurn(tool.SelectedDrawBlock) && tool.SelectedState == ConvertState(BlockLogic.States.Burning))
+                tool.SelectedState = 0;
+            tool.SelectedState = EditorGUILayout.Popup("State", tool.SelectedState, CreateStates(tool.SelectedDrawBlock).ToArray());
         }
 
-        private static IEnumerable<string> CreateStates()
+        private static IEnumerable<string> CreateStates(int selectedDrawBlock)
         {
             yield return "No state";
-            foreach (var state in Enum.GetNames(typeof(BlockLogic.States)))
-                yield return state;
+            foreach (var state in Enum.GetValues(typeof(BlockLogic.States)))
+            {
+                switch (state)
+                {
+                    case BlockLogic.States.Burning:
+                        if (CanBlockBurn(selectedDrawBlock))
+                            yield return state.ToString();
+                        break;
+                    default:
+                        yield return state.ToString();
+                        break;
+                }
+            }
+        }
+
+        private static bool CanBlockBurn(int block)
+        {
+            return BlockLogic.BlockDescriptors[block].CombustionProbability > 0.0f;
+        }
+
+        private static int ConvertState(BlockLogic.States state)
+        {
+            return (int) state + 1;
         }
     }
 }
