@@ -24,7 +24,6 @@ namespace Blocks
         public const int Border = 8;
         public const int Smoke = 10;
 
-        [ReadOnly]
         public static readonly BlockDescriptor[] BlockDescriptors = {
             new BlockDescriptor(
                 "Air",
