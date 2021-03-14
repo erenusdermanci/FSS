@@ -25,6 +25,7 @@ namespace DebugTools
 
         [HideInInspector]
         public int selectedDrawBlock;
+        public bool drawBrushSelection;
         public DrawType selectedBrush;
         [HideInInspector]
         public int selectedState;
@@ -64,6 +65,11 @@ namespace DebugTools
 
             var blockPosition = GetWorldPositionFromMousePosition();
 
+            if (drawBrushSelection)
+            {
+                DrawSelected(blockPosition.x, blockPosition.y);
+            }
+
             if (GlobalDebugConfig.StaticGlobalConfig.outlineChunks)
             {
                 DrawChunkGrid(blockPosition.x, blockPosition.y);
@@ -100,11 +106,19 @@ namespace DebugTools
             if (chunk == null)
                 return;
 
+            // Draw block grid in chunk
+            DrawBlockGrid(chunk.Position);
+        }
+
+        private void DrawSelected(float worldX, float worldY)
+        {
+            var chunk = GetChunkFromWorld(worldX, worldY);
+            if (chunk == null)
+                return;
+
             var blockXInChunk = Helpers.Mod((int) worldX, Chunk.Size);
             var blockYInChunk = Helpers.Mod((int) worldY, Chunk.Size);
 
-            // Draw block grid in chunk
-            DrawBlockGrid(chunk.Position);
             // Draw selected
             DrawSelectedBlock(chunk.Position, blockXInChunk, blockYInChunk);
 
