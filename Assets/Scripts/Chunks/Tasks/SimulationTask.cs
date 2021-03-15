@@ -245,7 +245,7 @@ namespace Chunks.Tasks
             var targetsFound = false;
             for (var j = 0; j < swap.Directions[directionIdx]; ++j)
             {
-                targetBlocks[j] = Chunks.GetBlock(x + (j + 1) * directionX[directionIdx], y + (j + 1) * directionY[directionIdx]);
+                targetBlocks[j] = Chunks.GetBlockType(x + (j + 1) * directionX[directionIdx], y + (j + 1) * directionY[directionIdx]);
                 if (swap.BlockedBy == BlockConstants.BlockDescriptors[targetBlocks[j]].Tag)
                 {
                     availableTargets[j] = 0;

@@ -37,6 +37,11 @@ namespace Chunks.Tasks
             }
         }
 
+        public bool Scheduled()
+        {
+            return _task != null;
+        }
+
         public bool Queued()
         {
             return _task.Status <= TaskStatus.Created;

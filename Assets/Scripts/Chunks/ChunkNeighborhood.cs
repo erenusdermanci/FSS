@@ -128,7 +128,7 @@ namespace Chunks
             return true;
         }
 
-        public int GetBlock(int x, int y)
+        public int GetBlockType(int x, int y)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
 

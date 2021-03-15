@@ -391,7 +391,7 @@ namespace Chunks
 
                 foreach (var task in batch.Values)
                 {
-                    if (enableDirty && !task.Chunk.Dirty)
+                    if (!task.Scheduled())
                         continue;
                     task.Join();
                     task.Chunk.UpdateTexture();
