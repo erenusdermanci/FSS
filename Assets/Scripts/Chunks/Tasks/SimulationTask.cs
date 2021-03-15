@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Blocks;
 using Blocks.Behaviors;
+using Utils;
 using static Chunks.ChunkNeighborhood;
 
 namespace Chunks.Tasks
@@ -322,7 +323,14 @@ namespace Chunks.Tasks
                             {
                                 // spreading to this block
                                 neighborTypes[i].SetState((int)BlockStates.Burning);
-                                Chunks.PutBlock(x + directionX[i], y + directionY[i], neighborTypes[i].Type, BlockConstants.FireColor, neighborTypes[i].StateBitset);
+                                var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.FireColorMaxShift);
+                                var color = BlockConstants.FireColor;
+                                Chunks.PutBlock(x + directionX[i], y + directionY[i], neighborTypes[i].Type,
+                                    Helpers.ShiftColorComponent(color.r, shiftAmount),
+                                    Helpers.ShiftColorComponent(color.g, shiftAmount),
+                                    Helpers.ShiftColorComponent(color.b, shiftAmount),
+                                    color.a,
+                                    neighborTypes[i].StateBitset);
                             }
                             break;
                     }

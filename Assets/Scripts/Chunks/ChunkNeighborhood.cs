@@ -188,12 +188,12 @@ namespace Chunks
             Chunks[chunkIndex].Dirty = true;
         }
 
-        public void PutBlock(int x, int y, int type, Color32 color, int states)
+        public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
-            Chunks[chunkIndex].PutBlock(x, y, type, color.r, color.g, color.b, color.a, states);
+            Chunks[chunkIndex].PutBlock(x, y, type, r, g, b, a, states);
             Chunks[chunkIndex].Dirty = true;
         }
 

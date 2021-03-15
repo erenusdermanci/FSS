@@ -18,6 +18,7 @@ namespace Blocks
     public static class BlockConstants
     {
         public static readonly Color32 FireColor = new Color32(240, 127, 19, 255);
+        public const float FireColorMaxShift = 0.3f;
 
         public const int Air = 0;
         public const int Cloud = 1;
