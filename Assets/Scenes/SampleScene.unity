@@ -145,7 +145,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 153382463}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.055651214, y: 0.75476456, z: 7.7807164}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
@@ -283,7 +283,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 429156182}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.055651214, y: 0.75476456, z: 7.7807164}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
@@ -626,7 +626,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 721481470}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.055651214, y: 0.75476456, z: 7.7807164}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
@@ -853,10 +853,12 @@ MonoBehaviour:
     disableSave: 1
     disableLoad: 1
     monothreadSimulate: 0
-    restrictGridSize: 0
+    overrideGridSize: 0
     pauseSimulation: 0
     stepByStep: 0
     outlineChunks: 0
+    hideCleanChunkOutlines: 0
+    drawDirtyRects: 0
     disableDirtySystem: 0
     saveAsTestScene: 0
 --- !u!4 &1770982830
@@ -919,6 +921,7 @@ MonoBehaviour:
   disabled: 0
   chunkManager: {fileID: 1436826251}
   selectedDrawBlock: 3
+  drawBrushSelection: 1
   selectedBrush: 1
   selectedState: 0
   colorizeOnly: 0
