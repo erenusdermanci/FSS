@@ -120,7 +120,7 @@ namespace DebugTools
             var blockYInChunk = Helpers.Mod((int) worldY, Chunk.Size);
             var blockIndexInChunk = blockYInChunk * Chunk.Size + blockXInChunk;
             var blockInfo = new Chunk.BlockInfo();
-            chunk.FillBlockInfo(blockIndexInChunk, ref blockInfo);
+            chunk.GetBlockInfo(blockIndexInChunk, ref blockInfo);
 
             // Draw selected
             DrawSelectedBlock(chunk.Position, blockXInChunk, blockYInChunk);
@@ -392,8 +392,7 @@ namespace DebugTools
                 if (BlockConstants.BlockDescriptors[selectedBlock].InitialStates != 0 && selectedState == 0)
                     selectedState = BlockConstants.BlockDescriptors[selectedBlock].InitialStates;
                 chunk.PutBlock(blockXInChunk, blockYInChunk, selectedBlock, r, g, b, blockColor.a,
-                    states, BlockConstants.BlockDescriptors[selectedBlock].BaseHealth);
-                chunk.Dirty = true;
+                    states, BlockConstants.BlockDescriptors[selectedBlock].BaseHealth, 0);
             }
 
             _chunksToReload.Add(chunk.Position);
@@ -408,7 +407,7 @@ namespace DebugTools
             var blockXInChunk = Helpers.Mod(worldX, Chunk.Size);
             var blockYInChunk = Helpers.Mod(worldY, Chunk.Size);
 
-            return chunk.GetBlockType(blockXInChunk, blockYInChunk);
+            return chunk.GetBlockType(blockYInChunk * Chunk.Size + blockXInChunk);
         }
 
         private Chunk GetChunkFromWorld(float worldX, float worldY)

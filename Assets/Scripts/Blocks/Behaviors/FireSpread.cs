@@ -61,7 +61,7 @@ namespace Blocks.Behaviors
             {
                 // fire dies out
                 blockInfo.ClearState((int)BlockStates.Burning);
-                chunkNeighborhood.PutBlock(x, y, blockInfo.Type, blockInfo.StateBitset);
+                chunkNeighborhood.UpdateBlock(x, y, blockInfo, true);
             }
             else
             {
@@ -80,9 +80,9 @@ namespace Blocks.Behaviors
                             if (combustionEmissionProbability >= 1.0f
                                 || combustionEmissionProbability > rng.NextDouble())
                             {
-                                chunkNeighborhood.PutBlock(x + directionX[i], y + directionY[i], _combustionEmissionBlockType,
+                                chunkNeighborhood.ReplaceBlock(x + directionX[i], y + directionY[i], _combustionEmissionBlockType,
                                     BlockConstants.BlockDescriptors[_combustionEmissionBlockType].InitialStates,
-                                    BlockConstants.BlockDescriptors[_combustionEmissionBlockType].BaseHealth);
+                                    BlockConstants.BlockDescriptors[_combustionEmissionBlockType].BaseHealth, 0);
                             }
                             break;
                         default:
@@ -99,19 +99,18 @@ namespace Blocks.Behaviors
                                 neighborTypes[i].SetState((int)BlockStates.Burning);
                                 var shiftAmount = Helpers.GetRandomShiftAmount(rng, BlockConstants.FireColorMaxShift);
                                 var color = BlockConstants.FireColor;
-                                chunkNeighborhood.PutBlock(x + directionX[i], y + directionY[i], neighborTypes[i].Type,
+                                chunkNeighborhood.UpdateBlock(x + directionX[i], y + directionY[i], neighborTypes[i],
                                     Helpers.ShiftColorComponent(color.r, shiftAmount),
                                     Helpers.ShiftColorComponent(color.g, shiftAmount),
                                     Helpers.ShiftColorComponent(color.b, shiftAmount),
-                                    color.a,
-                                    neighborTypes[i].StateBitset);
+                                    color.a);
                             }
                             break;
                     }
                 }
 
-                var updatedHealth = blockInfo.Health - _burningRate * (1 + airNeighborsCount);
-                if (updatedHealth <= 0.0f)
+                blockInfo.Health -= _burningRate * (1 + airNeighborsCount);
+                if (blockInfo.Health <= 0.0f)
                 {
                     // Block is consumed by fire, destroy it
 
@@ -122,14 +121,14 @@ namespace Blocks.Behaviors
                         || combustionResultProbability > rng.NextDouble())
                         resultBlockType = _combustionResultBlockType;
 
-                    chunkNeighborhood.PutBlock(x, y, resultBlockType,
+                    chunkNeighborhood.ReplaceBlock(x, y, resultBlockType,
                         BlockConstants.BlockDescriptors[resultBlockType].InitialStates,
-                        BlockConstants.BlockDescriptors[resultBlockType].BaseHealth);
+                        BlockConstants.BlockDescriptors[resultBlockType].BaseHealth, 0);
                     destroyed = true;
                     return true;
                 }
 
-                chunkNeighborhood.SetBlockHealth(x, y, updatedHealth);
+                chunkNeighborhood.UpdateBlock(x, y, blockInfo);
             }
 
             return true;

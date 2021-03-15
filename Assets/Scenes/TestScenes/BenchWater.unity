@@ -786,7 +786,8 @@ MonoBehaviour:
     outlineChunks: 0
     hideCleanChunkOutlines: 1
     drawDirtyRects: 0
-    disableDirtySystem: 0
+    disableDirtyChunks: 0
+    disableDirtyRects: 1
     saveAsTestScene: 1
 --- !u!4 &4080857594078142498
 Transform:

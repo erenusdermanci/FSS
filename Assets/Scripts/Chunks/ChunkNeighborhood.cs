@@ -51,43 +51,7 @@ namespace Chunks
                 return false;
             }
 
-            Chunks[chunkIndex].FillBlockInfo(y * Chunk.Size + x, ref blockInfo);
-            return true;
-        }
-
-        public bool SetBlockStates(int x, int y, int states)
-        {
-            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
-
-            if (Chunks[chunkIndex] == null)
-                return false;
-
-            Chunks[chunkIndex].Data.stateBitsets[y * Chunk.Size + x] = states;
-
-            return true;
-        }
-
-        public bool SetBlockHealth(int x, int y, float health)
-        {
-            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
-
-            if (Chunks[chunkIndex] == null)
-                return false;
-
-            Chunks[chunkIndex].Data.healths[y * Chunk.Size + x] = health;
-
-            return true;
-        }
-
-        public bool SetBlockLifetime(int x, int y, float lifetime)
-        {
-            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
-
-            if (Chunks[chunkIndex] == null)
-                return false;
-
-            Chunks[chunkIndex].Data.lifetimes[y * Chunk.Size + x] = lifetime;
-
+            Chunks[chunkIndex].GetBlockInfo(y * Chunk.Size + x, ref blockInfo);
             return true;
         }
 
@@ -98,13 +62,10 @@ namespace Chunks
             if (Chunks[chunkIndex] == null)
                 return BlockConstants.Border;
 
-            var blockIndex = y * Chunk.Size + x;
-
-            return Chunks[chunkIndex].Data.types[blockIndex];
+            return Chunks[chunkIndex].GetBlockType(y * Chunk.Size + x);
         }
 
-        // Put block with shifted base color
-        public void PutBlock(int x, int y, int type)
+        public void ReplaceBlock(int x, int y, int type, int stateBitset, float health, float lifetime)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
@@ -115,52 +76,39 @@ namespace Chunks
                 Helpers.ShiftColorComponent(color.r, shiftAmount),
                 Helpers.ShiftColorComponent(color.g, shiftAmount),
                 Helpers.ShiftColorComponent(color.b, shiftAmount),
-                color.a);
-            Chunks[chunkIndex].Dirty = true;
+                color.a, stateBitset, health, lifetime);
         }
 
-        // Put block with shifted base color and states
-        public void PutBlock(int x, int y, int type, int states)
+        public void UpdateBlock(int x, int y, Chunk.BlockInfo blockInfo, bool resetColor = false)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
-            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[type].ColorMaxShift);
-            var color = BlockConstants.BlockDescriptors[type].Color;
-            Chunks[chunkIndex].PutBlock(x, y, type,
-                Helpers.ShiftColorComponent(color.r, shiftAmount),
-                Helpers.ShiftColorComponent(color.g, shiftAmount),
-                Helpers.ShiftColorComponent(color.b, shiftAmount),
-                color.a, states);
-            Chunks[chunkIndex].Dirty = true;
+            if (resetColor)
+            {
+                var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[blockInfo.Type].ColorMaxShift);
+                var color = BlockConstants.BlockDescriptors[blockInfo.Type].Color;
+                Chunks[chunkIndex].PutBlock(x, y, blockInfo.Type,
+                    Helpers.ShiftColorComponent(color.r, shiftAmount),
+                    Helpers.ShiftColorComponent(color.g, shiftAmount),
+                    Helpers.ShiftColorComponent(color.b, shiftAmount),
+                    color.a, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
+            }
+            else
+            {
+                Chunks[chunkIndex].PutBlock(x, y, blockInfo.Type, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
+            }
         }
 
-        // Put block and change its health and states
-        public void PutBlock(int x, int y, int type, int states, float health)
+        public void UpdateBlock(int x, int y, Chunk.BlockInfo blockInfo, byte r, byte g, byte b, byte a)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
-            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[type].ColorMaxShift);
-            var color = BlockConstants.BlockDescriptors[type].Color;
-            Chunks[chunkIndex].PutBlock(x, y, type,
-                Helpers.ShiftColorComponent(color.r, shiftAmount),
-                Helpers.ShiftColorComponent(color.g, shiftAmount),
-                Helpers.ShiftColorComponent(color.b, shiftAmount),
-                color.a, states, health, 0);
-            Chunks[chunkIndex].Dirty = true;
+            Chunks[chunkIndex].PutBlock(x, y, blockInfo.Type, r, g, b, a, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
         }
 
-        public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states)
-        {
-            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
-            if (Chunks[chunkIndex] == null)
-                return;
-            Chunks[chunkIndex].PutBlock(x, y, type, r, g, b, a, states);
-            Chunks[chunkIndex].Dirty = true;
-        }
-
-        public unsafe bool MoveBlock(int x, int y, int xOffset, int yOffset, int srcBlock, int destBlock, ref BlockMoveInfo blockMoveInfo)
+        public unsafe bool MoveBlock(int x, int y, int xOffset, int yOffset, int srcBlock, int destBlock)
         {
             // compute the new coordinates and chunk index if we go outside of the current chunk
             var ux = x + xOffset;
@@ -193,9 +141,6 @@ namespace Chunks
                 Chunks[0].Data.stateBitsets[srcIndex],
                 Chunks[0].Data.healths[srcIndex],
                 Chunks[0].Data.lifetimes[srcIndex]);
-            blockMoveInfo.Chunk = newChunkIndex;
-            blockMoveInfo.X = ux;
-            blockMoveInfo.Y = uy;
 
             Chunks[newChunkIndex].SetUpdatedFlag(ux, uy);
             if (destBlock != BlockConstants.Air)

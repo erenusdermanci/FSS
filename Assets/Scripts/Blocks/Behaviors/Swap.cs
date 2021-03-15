@@ -22,7 +22,7 @@ namespace Blocks.Behaviors
             _blockedBy = blockedBy;
         }
 
-        public unsafe bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, int block, int x, int y, ref BlockMoveInfo blockMoveInfo,
+        public unsafe bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, int block, int x, int y,
             int* directionX, int* directionY, int* distances, int* bitCount)
         {
             var availableTargets = stackalloc int[4];
@@ -90,8 +90,7 @@ namespace Blocks.Behaviors
                     return chunkNeighborhood.MoveBlock(x, y,
                         distance * directionX[directionIdx],
                         distance * directionY[directionIdx],
-                        block, targetBlocks[distance - 1],
-                        ref blockMoveInfo);
+                        block, targetBlocks[distance - 1]);
                 }
             }
 

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace DebugTools
 {
@@ -36,7 +37,9 @@ namespace DebugTools
             public bool outlineChunks;
             public bool hideCleanChunkOutlines;
             public bool drawDirtyRects;
-            public bool disableDirtySystem;
+            [FormerlySerializedAs("disableDirtySystem")]
+            public bool disableDirtyChunks;
+            public bool disableDirtyRects;
             public bool saveAsTestScene;
 
             public GlobalConfigStruct(GlobalConfigStruct other)
@@ -48,7 +51,8 @@ namespace DebugTools
                 outlineChunks = other.outlineChunks;
                 hideCleanChunkOutlines = other.hideCleanChunkOutlines;
                 drawDirtyRects = other.drawDirtyRects;
-                disableDirtySystem = other.disableDirtySystem;
+                disableDirtyChunks = other.disableDirtyChunks;
+                disableDirtyRects = other.disableDirtyRects;
                 saveAsTestScene = other.saveAsTestScene;
                 disableSave = other.disableSave;
                 disableLoad = other.disableLoad;
@@ -63,7 +67,8 @@ namespace DebugTools
                     || outlineChunks != other.outlineChunks
                     || hideCleanChunkOutlines != other.hideCleanChunkOutlines
                     || drawDirtyRects != other.drawDirtyRects
-                    || disableDirtySystem != other.disableDirtySystem
+                    || disableDirtyChunks != other.disableDirtyChunks
+                    || disableDirtyRects != other.disableDirtyRects
                     || saveAsTestScene != other.saveAsTestScene
                     || disableSave != other.disableSave
                     || disableLoad != other.disableLoad)

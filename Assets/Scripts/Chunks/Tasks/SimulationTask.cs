@@ -2,6 +2,7 @@
 using System.Threading;
 using Blocks;
 using Blocks.Behaviors;
+using DebugTools;
 
 namespace Chunks.Tasks
 {
@@ -70,21 +71,45 @@ namespace Chunks.Tasks
             for (var i = 0; i < Chunk.BlockCounts.Length; ++i)
                 Chunk.BlockCounts[i] = 0;
 
-            var blockMoveInfo = new BlockMoveInfo();
-            Chunk.DirtyRect.X = -1;
-            Chunk.DirtyRect.Y = -1;
-            Chunk.DirtyRect.XMax = -1;
-            Chunk.DirtyRect.YMax = -1;
             var blockInfo = new Chunk.BlockInfo();
             var dirtied = false;
 
-            const int totalSize = Chunk.Size * Chunk.Size;
-            for (var i = 0; i < totalSize; ++i)
+            if (GlobalDebugConfig.StaticGlobalConfig.disableDirtyRects)
             {
-                var x = _indexingOrder[i] / Chunk.Size;
-                var y = _indexingOrder[i] % Chunk.Size;
+                const int totalSize = Chunk.Size * Chunk.Size;
+                for (var i = 0; i < totalSize; ++i)
+                {
+                    var x = _indexingOrder[i] / Chunk.Size;
+                    var y = _indexingOrder[i] % Chunk.Size;
 
-                dirtied |= SimulateBlock(x, y, ref blockMoveInfo, ref blockInfo, distances, bitCount, directionX, directionY);
+                    dirtied |= SimulateBlock(x, y, ref blockInfo, distances, bitCount, directionX, directionY);
+                }
+            }
+            else
+            {
+                int startX, startY, endX, endY;
+
+                // First time we calculate the dirty rect, loop over all chunk
+                // if (Chunk.DirtyRect.X < 0)
+                // {
+                    startX = 0;
+                    startY = 0;
+                    endX = Chunk.Size - 1;
+                    endY = Chunk.Size - 1;
+                // }
+                // // We already have a dirty rect, loop over it and reset it
+                // else
+                // {
+                //     startX = Chunk.DirtyRect.X;
+                //     startY = Chunk.DirtyRect.Y;
+                //     endX = Chunk.DirtyRect.XMax;
+                //     endY = Chunk.DirtyRect.YMax;
+                //     Chunk.DirtyRect.Reset();
+                // }
+
+                for (var y = startY; y <= endY; ++y)
+                    for (var x = startX; x <= endX; ++x)
+                        dirtied |= SimulateBlock(x, y, ref blockInfo, distances, bitCount, directionX, directionY);
             }
 
             Chunk.Dirty = dirtied;
@@ -100,13 +125,9 @@ namespace Chunks.Tasks
             }
         }
 
-        private unsafe bool SimulateBlock(int x, int y, ref BlockMoveInfo blockMoveInfo, ref Chunk.BlockInfo blockInfo,
+        private unsafe bool SimulateBlock(int x, int y, ref Chunk.BlockInfo blockInfo,
             int* distances, int* bitCount, int* directionX, int* directionY)
         {
-            blockMoveInfo.Chunk = -1;
-            blockMoveInfo.X = -1;
-            blockMoveInfo.Y = -1;
-
             if (Chunks[0].BlockUpdatedFlags[y * Chunk.Size + x] == 1)
                 return false;
 
@@ -123,7 +144,7 @@ namespace Chunks.Tasks
                 switch (behavior.GetId)
                 {
                     case Swap.Id:
-                        dirtied |= ((Swap) behavior).Execute(_rng, Chunks, blockInfo.Type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
+                        dirtied |= ((Swap) behavior).Execute(_rng, Chunks, blockInfo.Type, x, y, directionX, directionY, distances, bitCount);
                         break;
                     case FireSpread.Id:
                         dirtied |= ((FireSpread) behavior).Execute(_rng, Chunks, blockInfo, x, y, directionX, directionY, ref destroyed);
@@ -132,35 +153,6 @@ namespace Chunks.Tasks
                         dirtied |= ((Despawn) behavior).Execute(_rng, Chunks, blockInfo, x, y, ref destroyed);
                         break;
                 }
-            }
-
-            if (blockMoveInfo.Chunk == 0)
-            {
-                var c = Chunks[blockMoveInfo.Chunk];
-
-                if (c.DirtyRect.X < 0.0f)
-                {
-                    if (c.DirtyRect.X < 0.0f) c.DirtyRect.X = blockMoveInfo.X;
-                    if (c.DirtyRect.XMax < 0.0f) c.DirtyRect.XMax = blockMoveInfo.X;
-                    if (c.DirtyRect.Y < 0.0f) c.DirtyRect.Y = blockMoveInfo.Y;
-                    if (c.DirtyRect.YMax < 0.0f) c.DirtyRect.YMax = blockMoveInfo.Y;
-                }
-                else
-                {
-                    if (c.DirtyRect.X > blockMoveInfo.X)
-                        c.DirtyRect.X = blockMoveInfo.X;
-                    if (c.DirtyRect.XMax < blockMoveInfo.X)
-                        c.DirtyRect.XMax = blockMoveInfo.X;
-                    if (c.DirtyRect.Y > blockMoveInfo.Y)
-                        c.DirtyRect.Y = blockMoveInfo.Y;
-                    if (c.DirtyRect.YMax < blockMoveInfo.Y)
-                        c.DirtyRect.YMax = blockMoveInfo.Y;
-                }
-            }
-
-            if (blockMoveInfo.Chunk > 0)
-            {
-                Chunks[blockMoveInfo.Chunk].Dirty = true;
             }
 
             return dirtied;

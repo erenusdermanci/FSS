@@ -16,21 +16,30 @@ namespace Chunks
 
         public readonly byte[] BlockUpdatedFlags = new byte[Size * Size];
         public readonly int[] BlockCounts = new int[BlockConstants.BlockDescriptors.Length];
-        public ChunkDirtyRect DirtyRect;
+        public readonly ChunkDirtyRect[] DirtyRects = new ChunkDirtyRect[4];
         public bool Dirty;
 
         public Chunk()
         {
-            DirtyRect.X = -1;
-            DirtyRect.Y = -1;
-            DirtyRect.XMax = -1;
-            DirtyRect.YMax = -1;
+            foreach (var dirtyRect in DirtyRects)
+            {
+                dirtyRect.Reset();
+            }
         }
 
         public void UpdateTexture()
         {
             Texture.LoadRawTextureData(Data.colors);
             Texture.Apply();
+        }
+
+        public void PutBlock(int x, int y, int type, int states, float health, float lifetime)
+        {
+            var i = y * Size + x;
+            Data.types[i] = type;
+            Data.stateBitsets[i] = states;
+            Data.healths[i] = health;
+            Data.lifetimes[i] = lifetime;
         }
 
         public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health, float lifetime)
@@ -44,44 +53,30 @@ namespace Chunks
             Data.stateBitsets[i] = states;
             Data.healths[i] = health;
             Data.lifetimes[i] = lifetime;
-        }
 
-        public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health)
-        {
-            var i = y * Size + x;
-            Data.colors[i * 4] = r;
-            Data.colors[i * 4 + 1] = g;
-            Data.colors[i * 4 + 2] = b;
-            Data.colors[i * 4 + 3] = a;
-            Data.types[i] = type;
-            Data.stateBitsets[i] = states;
-            Data.healths[i] = health;
-        }
-
-        public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states)
-        {
-            var i = y * Size + x;
-            Data.colors[i * 4] = r;
-            Data.colors[i * 4 + 1] = g;
-            Data.colors[i * 4 + 2] = b;
-            Data.colors[i * 4 + 3] = a;
-            Data.types[i] = type;
-            Data.stateBitsets[i] = states;
-        }
-
-        public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a)
-        {
-            var i = y * Size + x;
-            Data.colors[i * 4] = r;
-            Data.colors[i * 4 + 1] = g;
-            Data.colors[i * 4 + 2] = b;
-            Data.colors[i * 4 + 3] = a;
-            Data.types[i] = type;
-        }
-
-        public int GetBlockType(int x, int y)
-        {
-            return Data.types[y * Size + x];
+            // if (c.DirtyRect.X < 0.0f)
+            // {
+            //     if (c.DirtyRect.X < 0.0f)
+            //         c.DirtyRect.X = ux;
+            //     if (c.DirtyRect.XMax < 0.0f)
+            //         c.DirtyRect.XMax = ux;
+            //     if (c.DirtyRect.Y < 0.0f)
+            //         c.DirtyRect.Y = blockMoveInfo.Y;
+            //     if (c.DirtyRect.YMax < 0.0f)
+            //         c.DirtyRect.YMax = blockMoveInfo.Y;
+            // }
+            // else
+            // {
+            //     if (c.DirtyRect.X > ux)
+            //         c.DirtyRect.X = ux;
+            //     if (c.DirtyRect.XMax < ux)
+            //         c.DirtyRect.XMax = ux;
+            //     if (c.DirtyRect.Y > blockMoveInfo.Y)
+            //         c.DirtyRect.Y = blockMoveInfo.Y;
+            //     if (c.DirtyRect.YMax < blockMoveInfo.Y)
+            //         c.DirtyRect.YMax = blockMoveInfo.Y;
+            // }
+            Dirty = true;
         }
 
         public void SetUpdatedFlag(int x, int y)
@@ -98,12 +93,17 @@ namespace Chunks
             }
         }
 
-        public void FillBlockInfo(int blockIndex, ref BlockInfo blockInfo)
+        public void GetBlockInfo(int blockIndex, ref BlockInfo blockInfo)
         {
             blockInfo.Type = Data.types[blockIndex];
             blockInfo.StateBitset = Data.stateBitsets[blockIndex];
             blockInfo.Health = Data.healths[blockIndex];
             blockInfo.Lifetime = Data.lifetimes[blockIndex];
+        }
+
+        public int GetBlockType(int blockIndex)
+        {
+            return Data.types[blockIndex];
         }
 
         public struct BlockInfo

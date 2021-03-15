@@ -312,6 +312,7 @@ MonoBehaviour:
   disabled: 0
   chunkManager: {fileID: 4080857593054456511}
   selectedDrawBlock: 0
+  drawBrushSelection: 0
   selectedBrush: 1
   selectedState: 0
   colorizeOnly: 0
@@ -354,11 +355,14 @@ MonoBehaviour:
     disableSave: 1
     disableLoad: 0
     monothreadSimulate: 0
-    restrictGridSize: 0
+    overrideGridSize: 0
     pauseSimulation: 0
     stepByStep: 0
     outlineChunks: 0
-    disableDirtySystem: 0
+    hideCleanChunkOutlines: 0
+    drawDirtyRects: 0
+    disableDirtyChunks: 0
+    disableDirtyRects: 1
     saveAsTestScene: 1
 --- !u!4 &4080857593656663450
 Transform:

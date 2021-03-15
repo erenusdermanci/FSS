@@ -24,9 +24,11 @@ namespace Blocks.Behaviors
 
         public bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, Chunk.BlockInfo blockInfo, int x, int y, ref bool destroyed)
         {
-            var currentLifetime = blockInfo.Lifetime;
-            if (currentLifetime < _lifetime)
-                chunkNeighborhood.SetBlockLifetime(x, y, currentLifetime + 1.0f);
+            if (blockInfo.Lifetime < _lifetime)
+            {
+                blockInfo.Lifetime += 1.0f;
+                chunkNeighborhood.UpdateBlock(x, y, blockInfo);
+            }
             else
             {
                 var despawnProbability = _despawnProbability;
@@ -34,9 +36,9 @@ namespace Blocks.Behaviors
                     || despawnProbability > rng.NextDouble())
                 {
                     // Destroy it
-                    chunkNeighborhood.PutBlock(x, y, _despawnResultBlockType,
+                    chunkNeighborhood.ReplaceBlock(x, y, _despawnResultBlockType,
                         BlockConstants.BlockDescriptors[_despawnResultBlockType].InitialStates,
-                        BlockConstants.BlockDescriptors[_despawnResultBlockType].BaseHealth);
+                        BlockConstants.BlockDescriptors[_despawnResultBlockType].BaseHealth, 0);
                     destroyed = true;
                     return true;
                 }
