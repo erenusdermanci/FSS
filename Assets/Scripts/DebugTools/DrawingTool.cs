@@ -371,6 +371,8 @@ namespace DebugTools
             }
             else
             {
+                if (BlockConstants.BlockDescriptors[selectedBlock].InitialStates != 0 && selectedState == 0)
+                    selectedState = BlockConstants.BlockDescriptors[selectedBlock].InitialStates;
                 chunk.PutBlock(blockXInChunk, blockYInChunk, selectedBlock, blockColor.r, blockColor.g, blockColor.b, blockColor.a,
                     states, BlockConstants.BlockDescriptors[selectedBlock].BaseHealth);
                 chunk.Dirty = true;
