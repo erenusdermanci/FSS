@@ -78,7 +78,7 @@ namespace Chunks.Tasks
             Chunk.DirtyRect.y = -1;
             Chunk.DirtyRect.xMax = -1;
             Chunk.DirtyRect.yMax = -1;
-            var blockData = new BlockData();
+            var blockInfo = new Chunk.BlockInfo();
             var dirtied = false;
 
             const int totalSize = Chunk.Size * Chunk.Size;
@@ -93,9 +93,9 @@ namespace Chunks.Tasks
                 if (Chunks[0].BlockUpdatedFlags[y * Chunk.Size + x] == 1)
                     continue;
 
-                Chunks.GetBlockData(x, y, ref blockData);
+                Chunks.GetBlockInfo(x, y, ref blockInfo);
 
-                var blockLogic = BlockConstants.BlockDescriptors[blockData.Type];
+                var blockLogic = BlockConstants.BlockDescriptors[blockInfo.Type];
 
                 var destroyed = false;
                 foreach (var behavior in blockLogic.Behaviors)
@@ -105,15 +105,15 @@ namespace Chunks.Tasks
                     switch (behavior.GetId)
                     {
                         case Blocks.Behaviors.Swap.Id:
-                            dirtied |= Swap((Swap) behavior, blockData.Type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
+                            dirtied |= Swap((Swap) behavior, blockInfo.Type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
                             break;
                         case Blocks.Behaviors.FireSpread.Id:
-                            if (!blockData.GetState((int) BlockStates.Burning))
+                            if (!blockInfo.GetState((int) BlockStates.Burning))
                                 break;
-                            dirtied |= FireSpread((FireSpread) behavior, blockData, x, y, directionX, directionY, ref destroyed);
+                            dirtied |= FireSpread((FireSpread) behavior, blockInfo, x, y, directionX, directionY, ref destroyed);
                             break;
                         case Blocks.Behaviors.Despawn.Id:
-                            dirtied |= Despawn((Despawn) behavior, blockData, x, y, ref destroyed);
+                            dirtied |= Despawn((Despawn) behavior, blockInfo, x, y, ref destroyed);
                             break;
                     }
                 }
@@ -261,24 +261,24 @@ namespace Chunks.Tasks
             return targetsFound;
         }
 
-        private unsafe bool FireSpread(FireSpread behavior, BlockData blockData, int x, int y, int* directionX,
+        private unsafe bool FireSpread(FireSpread behavior, Chunk.BlockInfo blockInfo, int x, int y, int* directionX,
             int* directionY, ref bool destroyed)
         {
-            var neighborTypes = stackalloc BlockData[8];
+            var neighborTypes = stackalloc Chunk.BlockInfo[8];
             var airNeighborsCount = 0;
             var selfNeighborsCount = 0;
 
             // We need to go through the neighbours of this fire block
             for (var i = 0; i < 8; ++i)
             {
-                var neighborFound = Chunks.GetBlockData(x + directionX[i], y + directionY[i], ref neighborTypes[i]);
+                var neighborFound = Chunks.GetBlockInfo(x + directionX[i], y + directionY[i], ref neighborTypes[i]);
 
                 if (!neighborFound)
                     continue;
 
                 if (neighborTypes[i].Type == BlockConstants.Air)
                     airNeighborsCount++;
-                else if (neighborTypes[i].Type == blockData.Type)
+                else if (neighborTypes[i].Type == blockInfo.Type)
                     selfNeighborsCount++;
             }
 
@@ -286,8 +286,8 @@ namespace Chunks.Tasks
             if (airNeighborsCount + (behavior.SelfExtinguishing ? 0 : selfNeighborsCount) == 0)
             {
                 // fire dies out
-                blockData.ClearState((int)BlockStates.Burning);
-                Chunks.PutBlock(x, y, blockData.Type, blockData.StateBitset);
+                blockInfo.ClearState((int)BlockStates.Burning);
+                Chunks.PutBlock(x, y, blockInfo.Type, blockInfo.StateBitset);
             }
             else
             {
@@ -336,7 +336,7 @@ namespace Chunks.Tasks
                     }
                 }
 
-                var updatedHealth = blockData.Health - behavior.BurningRate * (1 + airNeighborsCount);
+                var updatedHealth = blockInfo.Health - behavior.BurningRate * (1 + airNeighborsCount);
                 if (updatedHealth <= 0.0f)
                 {
                     // Block is consumed by fire, destroy it
@@ -361,9 +361,9 @@ namespace Chunks.Tasks
             return true;
         }
 
-        private bool Despawn(Despawn behavior, BlockData blockData, int x, int y, ref bool destroyed)
+        private bool Despawn(Despawn behavior, Chunk.BlockInfo blockInfo, int x, int y, ref bool destroyed)
         {
-            var currentLifetime = blockData.Lifetime;
+            var currentLifetime = blockInfo.Lifetime;
             if (currentLifetime < behavior.Lifetime)
                 Chunks.SetBlockLifetime(x, y, currentLifetime + 1.0f);
             else

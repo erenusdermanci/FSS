@@ -97,5 +97,36 @@ namespace Chunks
                 GameObject.SetActive(false);
             }
         }
+
+        public void FillBlockInfo(int blockIndex, ref BlockInfo blockInfo)
+        {
+            blockInfo.Type = Data.types[blockIndex];
+            blockInfo.StateBitset = Data.stateBitsets[blockIndex];
+            blockInfo.Health = Data.healths[blockIndex];
+            blockInfo.Lifetime = Data.lifetimes[blockIndex];
+        }
+
+        public struct BlockInfo
+        {
+            public int Type;
+            public int StateBitset;
+            public float Health;
+            public float Lifetime;
+
+            public bool GetState(int stateToCheck)
+            {
+                return ((StateBitset >> stateToCheck) & 1) == 1;
+            }
+
+            public void SetState(int stateToSet)
+            {
+                StateBitset |= 1 << stateToSet;
+            }
+
+            public void ClearState(int stateToClear)
+            {
+                StateBitset &= ~(1 << stateToClear);
+            }
+        }
     }
 }

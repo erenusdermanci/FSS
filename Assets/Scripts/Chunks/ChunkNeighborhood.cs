@@ -8,29 +8,6 @@ namespace Chunks
 {
     public class ChunkNeighborhood
     {
-        public struct BlockData
-        {
-            public int Type;
-            public int StateBitset;
-            public float Health;
-            public float Lifetime;
-
-            public bool GetState(int stateToCheck)
-            {
-                return ((StateBitset >> stateToCheck) & 1) == 1;
-            }
-
-            public void SetState(int stateToSet)
-            {
-                StateBitset |= 1 << stateToSet;
-            }
-
-            public void ClearState(int stateToClear)
-            {
-                StateBitset &= ~(1 << stateToClear);
-            }
-        }
-
         public struct BlockMoveInfo
         {
             public int Chunk;
@@ -73,22 +50,17 @@ namespace Chunks
             };
         }
 
-        public bool GetBlockData(int x, int y, ref BlockData blockData)
+        public bool GetBlockInfo(int x, int y, ref Chunk.BlockInfo blockInfo)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
 
             if (Chunks[chunkIndex] == null)
             {
-                blockData.Type = -1;
+                blockInfo.Type = -1;
                 return false;
             }
 
-            var chunkData = Chunks[chunkIndex].Data;
-            var blockIndex = y * Chunk.Size + x;
-            blockData.Type = chunkData.types[blockIndex];
-            blockData.StateBitset = chunkData.stateBitsets[blockIndex];
-            blockData.Health = chunkData.healths[blockIndex];
-            blockData.Lifetime = chunkData.lifetimes[blockIndex];
+            Chunks[chunkIndex].FillBlockInfo(y * Chunk.Size + x, ref blockInfo);
             return true;
         }
 
