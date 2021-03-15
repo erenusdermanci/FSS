@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using Blocks;
 using Blocks.Behaviors;
-using Utils;
 
 namespace Chunks.Tasks
 {
@@ -103,16 +101,14 @@ namespace Chunks.Tasks
                         break;
                     switch (behavior.GetId)
                     {
-                        case Blocks.Behaviors.Swap.Id:
-                            dirtied |= Swap((Swap) behavior, blockInfo.Type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
+                        case Swap.Id:
+                            dirtied |= ((Swap) behavior).Execute(_rng, Chunks, blockInfo.Type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
                             break;
-                        case Blocks.Behaviors.FireSpread.Id:
-                            if (!blockInfo.GetState((int) BlockStates.Burning))
-                                break;
-                            dirtied |= FireSpread((FireSpread) behavior, blockInfo, x, y, directionX, directionY, ref destroyed);
+                        case FireSpread.Id:
+                            dirtied |= ((FireSpread) behavior).Execute(_rng, Chunks, blockInfo, x, y, directionX, directionY, ref destroyed);
                             break;
-                        case Blocks.Behaviors.Despawn.Id:
-                            dirtied |= Despawn((Despawn) behavior, blockInfo, x, y, ref destroyed);
+                        case Despawn.Id:
+                            dirtied |= ((Despawn) behavior).Execute(_rng, Chunks, blockInfo, x, y, ref destroyed);
                             break;
                     }
                 }
@@ -158,229 +154,6 @@ namespace Chunks.Tasks
                     Chunk.BlockUpdatedFlags[i] = 0;
                 }
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe bool Swap(Swap swap, int block, int x, int y, ref BlockMoveInfo blockMoveInfo,
-            int* directionX, int* directionY, int* distances, int* bitCount)
-        {
-            var availableTargets = stackalloc int[4];
-            var targetBlocks = stackalloc int[4];
-
-            // Traverse priority array
-            const int maximumDirections = 2;
-            for (var i = 0; i < swap.Priorities.Length; i += maximumDirections)
-            {
-                int loopRange;
-                int loopStart;
-                if (swap.Priorities[i] == swap.Priorities[i + 1])
-                {
-                    loopRange = 1;
-                    loopStart = 0;
-                }
-                else
-                {
-                    loopRange = 2;
-                    loopStart = _rng.Next(0, loopRange);
-                }
-
-                for (var k = 0; k < loopRange; k++)
-                {
-                    var directionIdx = swap.Priorities[i + (loopStart + k) % loopRange];
-
-                    // we need to check our possible movements in this direction
-                    if (!FillAvailableTargets(swap, x, y, block, directionIdx, directionX,
-                        directionY, availableTargets, targetBlocks))
-                        continue; // we found no targets, check other direction
-
-                    // we found at least 1 target, proceed to swap
-                    var distance = 0;
-                    switch (swap.MovementTypes[directionIdx])
-                    {
-                        case BlockMovementType.Closest:
-                            for (var j = 0; j < swap.Directions[directionIdx]; ++j)
-                            {
-                                if (availableTargets[j] != 1)
-                                    continue;
-                                distance = j + 1;
-                                break;
-                            }
-
-                            break;
-                        case BlockMovementType.Farthest:
-                            for (var j = swap.Directions[directionIdx] - 1; j >= 0; --j)
-                            {
-                                if (availableTargets[j] != 1)
-                                    continue;
-                                distance = j + 1;
-                                break;
-                            }
-
-                            break;
-                        case BlockMovementType.Randomized:
-                            var index = availableTargets[0]
-                                        | (availableTargets[1] << 1)
-                                        | (availableTargets[2] << 2)
-                                        | (availableTargets[3] << 3);
-                            distance = distances[index * 4 + _rng.Next(0, bitCount[index])];
-                            break;
-                    }
-
-                    return Chunks.MoveBlock(x, y,
-                        distance * directionX[directionIdx],
-                        distance * directionY[directionIdx],
-                        block, targetBlocks[distance - 1],
-                        ref blockMoveInfo);
-                }
-            }
-
-            return false;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe bool FillAvailableTargets(Swap swap, int x, int y, int block, int directionIdx,
-            int* directionX, int* directionY, int* availableTargets, int* targetBlocks)
-        {
-            var targetsFound = false;
-            for (var j = 0; j < swap.Directions[directionIdx]; ++j)
-            {
-                targetBlocks[j] = Chunks.GetBlockType(x + (j + 1) * directionX[directionIdx], y + (j + 1) * directionY[directionIdx]);
-                if (swap.BlockedBy == BlockConstants.BlockDescriptors[targetBlocks[j]].Tag)
-                {
-                    availableTargets[j] = 0;
-                    return targetsFound;
-                }
-
-                if (!(BlockConstants.BlockDescriptors[targetBlocks[j]].DensityPriority < BlockConstants.BlockDescriptors[block].DensityPriority))
-                    continue;
-                availableTargets[j] = 1;
-                targetsFound = true;
-            }
-
-            return targetsFound;
-        }
-
-        private unsafe bool FireSpread(FireSpread behavior, Chunk.BlockInfo blockInfo, int x, int y, int* directionX,
-            int* directionY, ref bool destroyed)
-        {
-            var neighborTypes = stackalloc Chunk.BlockInfo[8];
-            var airNeighborsCount = 0;
-            var selfNeighborsCount = 0;
-
-            // We need to go through the neighbours of this fire block
-            for (var i = 0; i < 8; ++i)
-            {
-                var neighborFound = Chunks.GetBlockInfo(x + directionX[i], y + directionY[i], ref neighborTypes[i]);
-
-                if (!neighborFound)
-                    continue;
-
-                if (neighborTypes[i].Type == BlockConstants.Air)
-                    airNeighborsCount++;
-                else if (neighborTypes[i].Type == blockInfo.Type)
-                    selfNeighborsCount++;
-            }
-
-            // We have our neighbor's types and our air count
-            if (airNeighborsCount + (behavior.SelfExtinguishing ? 0 : selfNeighborsCount) == 0)
-            {
-                // fire dies out
-                blockInfo.ClearState((int)BlockStates.Burning);
-                Chunks.PutBlock(x, y, blockInfo.Type, blockInfo.StateBitset);
-            }
-            else
-            {
-                // now we try to spread
-                for (var i = 0; i < 8; i++)
-                {
-                    switch (neighborTypes[i].Type)
-                    {
-                        case -1: // there is no neighbour here (chunk doesn't exist)
-                            break;
-                        case BlockConstants.Air:
-                            // replace Air with CombustionEmissionBlockType
-                            var combustionEmissionProbability = behavior.CombustionEmissionProbability;
-                            if (combustionEmissionProbability == 0.0f)
-                                continue;
-                            if (combustionEmissionProbability >= 1.0f
-                                || combustionEmissionProbability > _rng.NextDouble())
-                            {
-                                Chunks.PutBlock(x + directionX[i], y + directionY[i], behavior.CombustionEmissionBlockType,
-                                    BlockConstants.BlockDescriptors[behavior.CombustionEmissionBlockType].InitialStates,
-                                    BlockConstants.BlockDescriptors[behavior.CombustionEmissionBlockType].BaseHealth);
-                            }
-                            break;
-                        default:
-                            if (neighborTypes[i].GetState((int)BlockStates.Burning))
-                                continue;
-                            var combustionProbability =
-                                BlockConstants.BlockDescriptors[neighborTypes[i].Type].CombustionProbability;
-                            if (combustionProbability == 0.0f)
-                                continue;
-                            if (combustionProbability >= 1.0f
-                                || combustionProbability > _rng.NextDouble())
-                            {
-                                // spreading to this block
-                                neighborTypes[i].SetState((int)BlockStates.Burning);
-                                var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.FireColorMaxShift);
-                                var color = BlockConstants.FireColor;
-                                Chunks.PutBlock(x + directionX[i], y + directionY[i], neighborTypes[i].Type,
-                                    Helpers.ShiftColorComponent(color.r, shiftAmount),
-                                    Helpers.ShiftColorComponent(color.g, shiftAmount),
-                                    Helpers.ShiftColorComponent(color.b, shiftAmount),
-                                    color.a,
-                                    neighborTypes[i].StateBitset);
-                            }
-                            break;
-                    }
-                }
-
-                var updatedHealth = blockInfo.Health - behavior.BurningRate * (1 + airNeighborsCount);
-                if (updatedHealth <= 0.0f)
-                {
-                    // Block is consumed by fire, destroy it
-
-                    var combustionResultProbability = behavior.CombustionResultProbability;
-                    var resultBlockType = BlockConstants.Air;
-
-                    if (combustionResultProbability >= 1.0f
-                        || combustionResultProbability > _rng.NextDouble())
-                        resultBlockType = behavior.CombustionResultBlockType;
-
-                    Chunks.PutBlock(x, y, resultBlockType,
-                        BlockConstants.BlockDescriptors[resultBlockType].InitialStates,
-                        BlockConstants.BlockDescriptors[resultBlockType].BaseHealth);
-                    destroyed = true;
-                    return true;
-                }
-
-                Chunks.SetBlockHealth(x, y, updatedHealth);
-            }
-
-            return true;
-        }
-
-        private bool Despawn(Despawn behavior, Chunk.BlockInfo blockInfo, int x, int y, ref bool destroyed)
-        {
-            var currentLifetime = blockInfo.Lifetime;
-            if (currentLifetime < behavior.Lifetime)
-                Chunks.SetBlockLifetime(x, y, currentLifetime + 1.0f);
-            else
-            {
-                var despawnProbability = behavior.DespawnProbability;
-                if (despawnProbability >= 1.0f
-                    || despawnProbability > _rng.NextDouble())
-                {
-                    // Destroy it
-                    Chunks.PutBlock(x, y, behavior.DespawnResultBlockType,
-                        BlockConstants.BlockDescriptors[behavior.DespawnResultBlockType].InitialStates,
-                        BlockConstants.BlockDescriptors[behavior.DespawnResultBlockType].BaseHealth);
-                    destroyed = true;
-                    return true;
-                }
-            }
-
-            return true;
         }
     }
 }

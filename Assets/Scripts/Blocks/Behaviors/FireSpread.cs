@@ -1,4 +1,8 @@
-﻿namespace Blocks.Behaviors
+﻿using System;
+using Chunks;
+using Utils;
+
+namespace Blocks.Behaviors
 {
     public readonly struct FireSpread : IBehavior
     {
@@ -6,12 +10,12 @@
 
         public int GetId => Id;
 
-        public readonly float BurningRate;
-        public readonly int CombustionEmissionBlockType;
-        public readonly float CombustionEmissionProbability;
-        public readonly int CombustionResultBlockType;
-        public readonly float CombustionResultProbability;
-        public readonly bool SelfExtinguishing;
+        private readonly float _burningRate;
+        private readonly int _combustionEmissionBlockType;
+        private readonly float _combustionEmissionProbability;
+        private readonly int _combustionResultBlockType;
+        private readonly float _combustionResultProbability;
+        private readonly bool _selfExtinguishing;
 
         public FireSpread(float burningRate,
             int combustionEmissionBlockType,
@@ -20,12 +24,115 @@
             float combustionResultProbability,
             bool selfExtinguishing)
         {
-            BurningRate = burningRate;
-            CombustionEmissionBlockType = combustionEmissionBlockType;
-            CombustionEmissionProbability = combustionEmissionProbability;
-            CombustionResultBlockType = combustionResultBlockType;
-            CombustionResultProbability = combustionResultProbability;
-            SelfExtinguishing = selfExtinguishing;
+            _burningRate = burningRate;
+            _combustionEmissionBlockType = combustionEmissionBlockType;
+            _combustionEmissionProbability = combustionEmissionProbability;
+            _combustionResultBlockType = combustionResultBlockType;
+            _combustionResultProbability = combustionResultProbability;
+            _selfExtinguishing = selfExtinguishing;
+        }
+
+        public unsafe bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, Chunk.BlockInfo blockInfo, int x, int y, int* directionX,
+            int* directionY, ref bool destroyed)
+        {
+            if (!blockInfo.GetState((int) BlockStates.Burning))
+                return false;
+
+            var neighborTypes = stackalloc Chunk.BlockInfo[8];
+            var airNeighborsCount = 0;
+            var selfNeighborsCount = 0;
+
+            // We need to go through the neighbours of this fire block
+            for (var i = 0; i < 8; ++i)
+            {
+                var neighborFound = chunkNeighborhood.GetBlockInfo(x + directionX[i], y + directionY[i], ref neighborTypes[i]);
+
+                if (!neighborFound)
+                    continue;
+
+                if (neighborTypes[i].Type == BlockConstants.Air)
+                    airNeighborsCount++;
+                else if (neighborTypes[i].Type == blockInfo.Type)
+                    selfNeighborsCount++;
+            }
+
+            // We have our neighbor's types and our air count
+            if (airNeighborsCount + (_selfExtinguishing ? 0 : selfNeighborsCount) == 0)
+            {
+                // fire dies out
+                blockInfo.ClearState((int)BlockStates.Burning);
+                chunkNeighborhood.PutBlock(x, y, blockInfo.Type, blockInfo.StateBitset);
+            }
+            else
+            {
+                // now we try to spread
+                for (var i = 0; i < 8; i++)
+                {
+                    switch (neighborTypes[i].Type)
+                    {
+                        case -1: // there is no neighbour here (chunk doesn't exist)
+                            break;
+                        case BlockConstants.Air:
+                            // replace Air with CombustionEmissionBlockType
+                            var combustionEmissionProbability = _combustionEmissionProbability;
+                            if (combustionEmissionProbability == 0.0f)
+                                continue;
+                            if (combustionEmissionProbability >= 1.0f
+                                || combustionEmissionProbability > rng.NextDouble())
+                            {
+                                chunkNeighborhood.PutBlock(x + directionX[i], y + directionY[i], _combustionEmissionBlockType,
+                                    BlockConstants.BlockDescriptors[_combustionEmissionBlockType].InitialStates,
+                                    BlockConstants.BlockDescriptors[_combustionEmissionBlockType].BaseHealth);
+                            }
+                            break;
+                        default:
+                            if (neighborTypes[i].GetState((int)BlockStates.Burning))
+                                continue;
+                            var combustionProbability =
+                                BlockConstants.BlockDescriptors[neighborTypes[i].Type].CombustionProbability;
+                            if (combustionProbability == 0.0f)
+                                continue;
+                            if (combustionProbability >= 1.0f
+                                || combustionProbability > rng.NextDouble())
+                            {
+                                // spreading to this block
+                                neighborTypes[i].SetState((int)BlockStates.Burning);
+                                var shiftAmount = Helpers.GetRandomShiftAmount(rng, BlockConstants.FireColorMaxShift);
+                                var color = BlockConstants.FireColor;
+                                chunkNeighborhood.PutBlock(x + directionX[i], y + directionY[i], neighborTypes[i].Type,
+                                    Helpers.ShiftColorComponent(color.r, shiftAmount),
+                                    Helpers.ShiftColorComponent(color.g, shiftAmount),
+                                    Helpers.ShiftColorComponent(color.b, shiftAmount),
+                                    color.a,
+                                    neighborTypes[i].StateBitset);
+                            }
+                            break;
+                    }
+                }
+
+                var updatedHealth = blockInfo.Health - _burningRate * (1 + airNeighborsCount);
+                if (updatedHealth <= 0.0f)
+                {
+                    // Block is consumed by fire, destroy it
+
+                    var combustionResultProbability = _combustionResultProbability;
+                    var resultBlockType = BlockConstants.Air;
+
+                    if (combustionResultProbability >= 1.0f
+                        || combustionResultProbability > rng.NextDouble())
+                        resultBlockType = _combustionResultBlockType;
+
+                    chunkNeighborhood.PutBlock(x, y, resultBlockType,
+                        BlockConstants.BlockDescriptors[resultBlockType].InitialStates,
+                        BlockConstants.BlockDescriptors[resultBlockType].BaseHealth);
+                    destroyed = true;
+                    return true;
+                }
+
+                chunkNeighborhood.SetBlockHealth(x, y, updatedHealth);
+            }
+
+            return true;
         }
     }
 }
