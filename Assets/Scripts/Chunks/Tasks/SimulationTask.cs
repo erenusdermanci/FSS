@@ -299,7 +299,7 @@ namespace Chunks.Tasks
                         case -1: // there is no neighbour here (chunk doesn't exist)
                             break;
                         case BlockConstants.Air:
-                            // replace Air with smoke
+                            // replace Air with CombustionEmissionBlockType
                             var combustionEmissionProbability = behavior.CombustionEmissionProbability;
                             if (combustionEmissionProbability == 0.0f)
                                 continue;
@@ -336,9 +336,8 @@ namespace Chunks.Tasks
                     }
                 }
 
-                Chunks.SetBlockHealth(x, y, blockData.Health - behavior.BurningRate * (1 + airNeighborsCount));
-
-                if (blockData.Health <= 0.0f)
+                var updatedHealth = blockData.Health - behavior.BurningRate * (1 + airNeighborsCount);
+                if (updatedHealth <= 0.0f)
                 {
                     // Block is consumed by fire, destroy it
 
@@ -355,6 +354,8 @@ namespace Chunks.Tasks
                     destroyed = true;
                     return true;
                 }
+
+                Chunks.SetBlockHealth(x, y, updatedHealth);
             }
 
             return true;
