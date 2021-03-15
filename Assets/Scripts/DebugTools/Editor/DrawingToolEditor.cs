@@ -9,15 +9,13 @@ namespace DebugTools.Editor
     [CustomEditor(typeof(DrawingTool))]
     public class DrawingToolEditor : UnityEditor.Editor
     {
-        private readonly string[] _blockNames = BlockConstants.BlockDescriptors.Select(d => d.Name).ToArray();
-
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
             var tool = (DrawingTool) target;
 
-            tool.selectedDrawBlock = EditorGUILayout.Popup("Block", tool.selectedDrawBlock, _blockNames);
+            tool.selectedDrawBlock = EditorGUILayout.Popup("Block", tool.selectedDrawBlock, BlockConstants.BlockNames);
             if (!CanBlockBurn(tool.selectedDrawBlock) && tool.selectedState == ConvertState(BlockStates.Burning))
                 tool.selectedState = 0;
             tool.selectedState = EditorGUILayout.Popup("State", tool.selectedState, CreateStates(tool.selectedDrawBlock).ToArray());

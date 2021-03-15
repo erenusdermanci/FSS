@@ -1,5 +1,5 @@
-﻿using Blocks.Behaviors;
-using Unity.Collections;
+﻿using System.Linq;
+using Blocks.Behaviors;
 using UnityEngine;
 using static Blocks.BlockMovementType;
 
@@ -190,7 +190,7 @@ namespace Blocks
                         Smoke,
                         0.25f,
                         false
-                        ),
+                    ),
                     new Swap(
                         new [] { 5, 5, 6, 7, 3, 4},
                         new [] { 0, 0, 0, 2, 2, 2, 1, 1 },
@@ -292,5 +292,7 @@ namespace Blocks
                 }
             )
         };
+
+        public static readonly string[] BlockNames = BlockDescriptors.Select(d => d.Name).ToArray();
     }
 }

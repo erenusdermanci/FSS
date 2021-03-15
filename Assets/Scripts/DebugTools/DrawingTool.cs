@@ -118,12 +118,21 @@ namespace DebugTools
 
             var blockXInChunk = Helpers.Mod((int) worldX, Chunk.Size);
             var blockYInChunk = Helpers.Mod((int) worldY, Chunk.Size);
+            var blockIndexInChunk = blockYInChunk * Chunk.Size + blockXInChunk;
+            var blockInfo = new Chunk.BlockInfo();
+            chunk.FillBlockInfo(blockIndexInChunk, ref blockInfo);
 
             // Draw selected
             DrawSelectedBlock(chunk.Position, blockXInChunk, blockYInChunk);
 
-            uiCoordText.text = $@"x: {blockXInChunk}, y: {blockYInChunk}
-                                     chunk x:{chunk.Position.x}, chunk y: {chunk.Position.y}";
+            // Update info text
+            uiCoordText.text =
+                $"X: {blockXInChunk}, Y: {blockYInChunk}\n"
+                + $"Type: {BlockConstants.BlockNames[blockInfo.Type]}\n"
+                + $"StateBitset: {blockInfo.StateBitset}\n"
+                + $"Health: {blockInfo.Health}\n"
+                + $"Lifetime: {blockInfo.Lifetime}\n"
+                + $"Chunk X:{chunk.Position.x}, Chunk Y: {chunk.Position.y}";
         }
 
         private void UpdateDrawPixel(Vector2 blockPosition)
