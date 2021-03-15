@@ -351,8 +351,17 @@ namespace DebugTools
 
         private void PutBlock(int worldX, int worldY, int selectedBlock, Color32 blockColor, int states)
         {
+            var r = blockColor.r;
+            var g = blockColor.g;
+            var b = blockColor.b;
             if (selectedState == 1)
+            {
                 blockColor = BlockConstants.FireColor;
+                var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.FireColorMaxShift);
+                r = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
+                g = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
+                b = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
+            }
 
             var chunk = GetChunkFromWorld(worldX, worldY);
             if (chunk == null)
@@ -373,7 +382,7 @@ namespace DebugTools
             {
                 if (BlockConstants.BlockDescriptors[selectedBlock].InitialStates != 0 && selectedState == 0)
                     selectedState = BlockConstants.BlockDescriptors[selectedBlock].InitialStates;
-                chunk.PutBlock(blockXInChunk, blockYInChunk, selectedBlock, blockColor.r, blockColor.g, blockColor.b, blockColor.a,
+                chunk.PutBlock(blockXInChunk, blockYInChunk, selectedBlock, r, g, b, blockColor.a,
                     states, BlockConstants.BlockDescriptors[selectedBlock].BaseHealth);
                 chunk.Dirty = true;
             }
