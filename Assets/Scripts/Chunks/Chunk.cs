@@ -16,15 +16,15 @@ namespace Chunks
 
         public readonly byte[] BlockUpdatedFlags = new byte[Size * Size];
         public readonly int[] BlockCounts = new int[BlockConstants.BlockDescriptors.Length];
-        public Rect DirtyRect;
+        public ChunkDirtyRect DirtyRect;
         public bool Dirty;
 
         public Chunk()
         {
-            DirtyRect.x = -1;
-            DirtyRect.y = -1;
-            DirtyRect.xMax = -1;
-            DirtyRect.yMax = -1;
+            DirtyRect.X = -1;
+            DirtyRect.Y = -1;
+            DirtyRect.XMax = -1;
+            DirtyRect.YMax = -1;
         }
 
         public void UpdateTexture()

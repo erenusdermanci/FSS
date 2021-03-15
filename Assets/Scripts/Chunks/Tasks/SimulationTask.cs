@@ -71,10 +71,10 @@ namespace Chunks.Tasks
                 Chunk.BlockCounts[i] = 0;
 
             var blockMoveInfo = new BlockMoveInfo();
-            Chunk.DirtyRect.x = -1;
-            Chunk.DirtyRect.y = -1;
-            Chunk.DirtyRect.xMax = -1;
-            Chunk.DirtyRect.yMax = -1;
+            Chunk.DirtyRect.X = -1;
+            Chunk.DirtyRect.Y = -1;
+            Chunk.DirtyRect.XMax = -1;
+            Chunk.DirtyRect.YMax = -1;
             var blockInfo = new Chunk.BlockInfo();
             var dirtied = false;
 
@@ -83,64 +83,8 @@ namespace Chunks.Tasks
             {
                 var x = _indexingOrder[i] / Chunk.Size;
                 var y = _indexingOrder[i] % Chunk.Size;
-                blockMoveInfo.Chunk = -1;
-                blockMoveInfo.X = -1;
-                blockMoveInfo.Y = -1;
 
-                if (Chunks[0].BlockUpdatedFlags[y * Chunk.Size + x] == 1)
-                    continue;
-
-                Chunks.GetBlockInfo(x, y, ref blockInfo);
-
-                var blockLogic = BlockConstants.BlockDescriptors[blockInfo.Type];
-
-                var destroyed = false;
-                foreach (var behavior in blockLogic.Behaviors)
-                {
-                    if (destroyed)
-                        break;
-                    switch (behavior.GetId)
-                    {
-                        case Swap.Id:
-                            dirtied |= ((Swap) behavior).Execute(_rng, Chunks, blockInfo.Type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
-                            break;
-                        case FireSpread.Id:
-                            dirtied |= ((FireSpread) behavior).Execute(_rng, Chunks, blockInfo, x, y, directionX, directionY, ref destroyed);
-                            break;
-                        case Despawn.Id:
-                            dirtied |= ((Despawn) behavior).Execute(_rng, Chunks, blockInfo, x, y, ref destroyed);
-                            break;
-                    }
-                }
-
-                if (blockMoveInfo.Chunk == 0)
-                {
-                    var c = Chunks[blockMoveInfo.Chunk];
-
-                    if (c.DirtyRect.x < 0.0f)
-                    {
-                        if (c.DirtyRect.x < 0.0f) c.DirtyRect.x = blockMoveInfo.X;
-                        if (c.DirtyRect.xMax < 0.0f) c.DirtyRect.xMax = blockMoveInfo.X;
-                        if (c.DirtyRect.y < 0.0f) c.DirtyRect.y = blockMoveInfo.Y;
-                        if (c.DirtyRect.yMax < 0.0f) c.DirtyRect.yMax = blockMoveInfo.Y;
-                    }
-                    else
-                    {
-                        if (c.DirtyRect.x > blockMoveInfo.X)
-                            c.DirtyRect.x = blockMoveInfo.X;
-                        if (c.DirtyRect.xMax < blockMoveInfo.X)
-                            c.DirtyRect.xMax = blockMoveInfo.X;
-                        if (c.DirtyRect.y > blockMoveInfo.Y)
-                            c.DirtyRect.y = blockMoveInfo.Y;
-                        if (c.DirtyRect.yMax < blockMoveInfo.Y)
-                            c.DirtyRect.yMax = blockMoveInfo.Y;
-                    }
-                }
-
-                if (blockMoveInfo.Chunk > 0)
-                {
-                    Chunks[blockMoveInfo.Chunk].Dirty = true;
-                }
+                dirtied |= SimulateBlock(x, y, ref blockMoveInfo, ref blockInfo, distances, bitCount, directionX, directionY);
             }
 
             Chunk.Dirty = dirtied;
@@ -154,6 +98,72 @@ namespace Chunks.Tasks
                     Chunk.BlockUpdatedFlags[i] = 0;
                 }
             }
+        }
+
+        private unsafe bool SimulateBlock(int x, int y, ref BlockMoveInfo blockMoveInfo, ref Chunk.BlockInfo blockInfo,
+            int* distances, int* bitCount, int* directionX, int* directionY)
+        {
+            blockMoveInfo.Chunk = -1;
+            blockMoveInfo.X = -1;
+            blockMoveInfo.Y = -1;
+
+            if (Chunks[0].BlockUpdatedFlags[y * Chunk.Size + x] == 1)
+                return false;
+
+            Chunks.GetBlockInfo(x, y, ref blockInfo);
+
+            var blockLogic = BlockConstants.BlockDescriptors[blockInfo.Type];
+
+            var destroyed = false;
+            var dirtied = false;
+            foreach (var behavior in blockLogic.Behaviors)
+            {
+                if (destroyed)
+                    break;
+                switch (behavior.GetId)
+                {
+                    case Swap.Id:
+                        dirtied |= ((Swap) behavior).Execute(_rng, Chunks, blockInfo.Type, x, y, ref blockMoveInfo, directionX, directionY, distances, bitCount);
+                        break;
+                    case FireSpread.Id:
+                        dirtied |= ((FireSpread) behavior).Execute(_rng, Chunks, blockInfo, x, y, directionX, directionY, ref destroyed);
+                        break;
+                    case Despawn.Id:
+                        dirtied |= ((Despawn) behavior).Execute(_rng, Chunks, blockInfo, x, y, ref destroyed);
+                        break;
+                }
+            }
+
+            if (blockMoveInfo.Chunk == 0)
+            {
+                var c = Chunks[blockMoveInfo.Chunk];
+
+                if (c.DirtyRect.X < 0.0f)
+                {
+                    if (c.DirtyRect.X < 0.0f) c.DirtyRect.X = blockMoveInfo.X;
+                    if (c.DirtyRect.XMax < 0.0f) c.DirtyRect.XMax = blockMoveInfo.X;
+                    if (c.DirtyRect.Y < 0.0f) c.DirtyRect.Y = blockMoveInfo.Y;
+                    if (c.DirtyRect.YMax < 0.0f) c.DirtyRect.YMax = blockMoveInfo.Y;
+                }
+                else
+                {
+                    if (c.DirtyRect.X > blockMoveInfo.X)
+                        c.DirtyRect.X = blockMoveInfo.X;
+                    if (c.DirtyRect.XMax < blockMoveInfo.X)
+                        c.DirtyRect.XMax = blockMoveInfo.X;
+                    if (c.DirtyRect.Y > blockMoveInfo.Y)
+                        c.DirtyRect.Y = blockMoveInfo.Y;
+                    if (c.DirtyRect.YMax < blockMoveInfo.Y)
+                        c.DirtyRect.YMax = blockMoveInfo.Y;
+                }
+            }
+
+            if (blockMoveInfo.Chunk > 0)
+            {
+                Chunks[blockMoveInfo.Chunk].Dirty = true;
+            }
+
+            return dirtied;
         }
     }
 }

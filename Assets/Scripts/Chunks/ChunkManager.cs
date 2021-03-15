@@ -191,10 +191,10 @@ namespace Chunks
                         return;
                 }
 
-                var rx = x - 0.5f + chunk.DirtyRect.x / Chunk.Size;
-                var ry = y - 0.5f + chunk.DirtyRect.y / Chunk.Size;
-                var rxMax = x - 0.5f + (chunk.DirtyRect.xMax + 1) / Chunk.Size;
-                var ryMax = y - 0.5f + (chunk.DirtyRect.yMax + 1) / Chunk.Size;
+                var rx = x - 0.5f + (float)chunk.DirtyRect.X / Chunk.Size;
+                var ry = y - 0.5f + (float)chunk.DirtyRect.Y / Chunk.Size;
+                var rxMax = x - 0.5f + ((float)chunk.DirtyRect.XMax + 1) / Chunk.Size;
+                var ryMax = y - 0.5f + ((float)chunk.DirtyRect.YMax + 1) / Chunk.Size;
                 Debug.DrawLine(new Vector3(rx, ry), new Vector3(rxMax, ry), dirtyRectColor);
                 Debug.DrawLine(new Vector3(rx, ry), new Vector3(rx, ryMax), dirtyRectColor);
                 Debug.DrawLine(new Vector3(rxMax, ry), new Vector3(rxMax, ryMax), dirtyRectColor);
