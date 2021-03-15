@@ -9,25 +9,25 @@ namespace Chunks.Tasks
 {
     public sealed class ChunkTaskScheduler
     {
-        private readonly Dictionary<ChunkTaskManager.Types, ChunkTaskManager> _chunkTaskManagers;
+        private readonly Dictionary<ChunkTaskTypes, ChunkTaskManager> _chunkTaskManagers;
 
         private readonly ThreadLocal<Random> _random = new ThreadLocal<Random>(() =>
             new Random(new Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
 
         public ChunkTaskScheduler()
         {
-            _chunkTaskManagers = new Dictionary<ChunkTaskManager.Types, ChunkTaskManager>
+            _chunkTaskManagers = new Dictionary<ChunkTaskTypes, ChunkTaskManager>
             {
                 {
-                    ChunkTaskManager.Types.Save,
+                    ChunkTaskTypes.Save,
                     new ChunkTaskManager(16, chunk => new SaveTask(chunk))
                 },
                 {
-                    ChunkTaskManager.Types.Load,
+                    ChunkTaskTypes.Load,
                     new ChunkTaskManager(16, chunk => new LoadTask(chunk))
                 },
                 {
-                    ChunkTaskManager.Types.Generate,
+                    ChunkTaskTypes.Generate,
                     new ChunkTaskManager(16, chunk => new GenerationTask(chunk)
                     {
                         Rng = _random
@@ -36,9 +36,9 @@ namespace Chunks.Tasks
             };
         }
 
-        public ChunkTaskManager GetTaskManager(ChunkTaskManager.Types type)
+        public ChunkTaskManager GetTaskManager(ChunkTaskTypes chunkTaskType)
         {
-            return _chunkTaskManagers[type];
+            return _chunkTaskManagers[chunkTaskType];
         }
 
         public void Update()
@@ -51,46 +51,46 @@ namespace Chunks.Tasks
 
         public void QueueForGeneration(Vector2 pos, bool loadFromDisk)
         {
-            if (_chunkTaskManagers[ChunkTaskManager.Types.Generate].Pending(pos))
+            if (_chunkTaskManagers[ChunkTaskTypes.Generate].Pending(pos))
                 return;
-            if (_chunkTaskManagers[ChunkTaskManager.Types.Load].Pending(pos)) // chunk is already being loaded or queued for loading
+            if (_chunkTaskManagers[ChunkTaskTypes.Load].Pending(pos)) // chunk is already being loaded or queued for loading
                 return;
-            if (_chunkTaskManagers[ChunkTaskManager.Types.Save].Pending(pos)) // chunk is being saved or queued for saving
+            if (_chunkTaskManagers[ChunkTaskTypes.Save].Pending(pos)) // chunk is being saved or queued for saving
             {
                 // if it was queued we have a chance to remove it so that we don't take the time to save before loading
-                _chunkTaskManagers[ChunkTaskManager.Types.Save].Cancel(pos);
+                _chunkTaskManagers[ChunkTaskTypes.Save].Cancel(pos);
             }
 
             if (!GlobalDebugConfig.StaticGlobalConfig.disableLoad
                 && loadFromDisk
                 && ChunkHelpers.IsChunkPersisted(pos))
             {
-                _chunkTaskManagers[ChunkTaskManager.Types.Load].Enqueue(pos);
+                _chunkTaskManagers[ChunkTaskTypes.Load].Enqueue(pos);
             }
             else
             {
-                _chunkTaskManagers[ChunkTaskManager.Types.Generate].Enqueue(pos);
+                _chunkTaskManagers[ChunkTaskTypes.Generate].Enqueue(pos);
             }
         }
 
         public void QueueForSaving(Chunk chunk)
         {
-            _chunkTaskManagers[ChunkTaskManager.Types.Save].Enqueue(chunk);
+            _chunkTaskManagers[ChunkTaskTypes.Save].Enqueue(chunk);
         }
 
         public void CancelGeneration()
         {
-            _chunkTaskManagers[ChunkTaskManager.Types.Generate].CancelAll();
+            _chunkTaskManagers[ChunkTaskTypes.Generate].CancelAll();
         }
 
         public void CancelLoading()
         {
-            _chunkTaskManagers[ChunkTaskManager.Types.Load].CancelAll();
+            _chunkTaskManagers[ChunkTaskTypes.Load].CancelAll();
         }
 
         public void ForceSaving()
         {
-            _chunkTaskManagers[ChunkTaskManager.Types.Save].CompleteAll();
+            _chunkTaskManagers[ChunkTaskTypes.Save].CompleteAll();
         }
     }
 }

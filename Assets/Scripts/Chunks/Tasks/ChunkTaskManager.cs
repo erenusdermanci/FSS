@@ -7,33 +7,6 @@ namespace Chunks.Tasks
 {
     public class ChunkTaskManager
     {
-        public enum Types
-        {
-            Save,
-            Load,
-            Generate
-        }
-
-        public class ChunkEventArgs : EventArgs
-        {
-            public Chunk Chunk { get; }
-
-            public ChunkEventArgs(Chunk chunk)
-            {
-                Chunk = chunk;
-            }
-        }
-
-        private class Vector2Comparer : IComparer<Vector2>
-        {
-            public int Compare(Vector2 x, Vector2 y)
-            {
-                var playerPosition = ChunkManager.PlayerPosition;
-                return -Vector2.Distance(x, playerPosition)
-                    .CompareTo(Vector2.Distance(y, playerPosition));
-            }
-        }
-
         private readonly int _maximumProcessing;
         private readonly Dictionary<Vector2, ChunkTask> _tasks = new Dictionary<Vector2, ChunkTask>();
         private readonly List<Vector2> _queued = new List<Vector2>();
@@ -53,7 +26,7 @@ namespace Chunks.Tasks
 
         public void Update()
         {
-            _queued.Sort(new Vector2Comparer());
+            _queued.Sort(new ChunkDistanceToPlayerComparer());
             while (_queued.Count != 0 && _processing.Count < _maximumProcessing)
             {
                 var index = _queued.Count - 1;
@@ -87,11 +60,6 @@ namespace Chunks.Tasks
         public bool Pending(Vector2 position)
         {
             return _tasks.ContainsKey(position);
-        }
-
-        public bool Processing(Vector2 position)
-        {
-            return _processing.ContainsKey(position);
         }
 
         public void Enqueue(Vector2 position)
@@ -165,7 +133,7 @@ namespace Chunks.Tasks
             _tasks.Remove(task.Chunk.Position);
             _processing.Remove(task.Chunk.Position);
             task.Dispose();
-            Processed?.Invoke(this, new ChunkEventArgs(task.Chunk));
+            Processed?.Invoke(this, new ChunkTaskEvent(task.Chunk));
         }
     }
 }

@@ -1,20 +1,11 @@
-using System.Collections.Concurrent;
+using System;
 using Blocks;
-using UnityEngine;
 using Utils;
-using Random = System.Random;
 
 namespace Chunks
 {
     public class ChunkNeighborhood
     {
-        public struct BlockMoveInfo
-        {
-            public int Chunk;
-            public int X;
-            public int Y;
-        }
-
         private readonly Random _rng;
 
         private Chunk[] Chunks;

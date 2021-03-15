@@ -43,9 +43,9 @@ namespace Chunks
 
             PlayerPosition = playerTransform.position;
 
-            _chunkTaskScheduler.GetTaskManager(ChunkTaskManager.Types.Save).Processed += OnChunkSaved;
-            _chunkTaskScheduler.GetTaskManager(ChunkTaskManager.Types.Load).Processed += OnChunkLoaded;
-            _chunkTaskScheduler.GetTaskManager(ChunkTaskManager.Types.Generate).Processed += OnChunkGenerated;
+            _chunkTaskScheduler.GetTaskManager(ChunkTaskTypes.Save).Processed += OnChunkSaved;
+            _chunkTaskScheduler.GetTaskManager(ChunkTaskTypes.Load).Processed += OnChunkLoaded;
+            _chunkTaskScheduler.GetTaskManager(ChunkTaskTypes.Generate).Processed += OnChunkGenerated;
 
             _chunkPool = new GameObjectPool(generatedAreaSize * generatedAreaSize);
 
@@ -252,7 +252,7 @@ namespace Chunks
 
         private void OnChunkSaved(object sender, EventArgs e)
         {
-            var chunk = ((ChunkTaskManager.ChunkEventArgs) e).Chunk;
+            var chunk = ((ChunkTaskEvent) e).Chunk;
             ChunkMap.Remove(chunk.Position);
             chunk.Dispose();
             UpdateSimulationPool(chunk, false);
@@ -260,12 +260,12 @@ namespace Chunks
 
         private void OnChunkLoaded(object sender, EventArgs e)
         {
-            FinalizeChunkCreation(((ChunkTaskManager.ChunkEventArgs) e).Chunk);
+            FinalizeChunkCreation(((ChunkTaskEvent) e).Chunk);
         }
 
         private void OnChunkGenerated(object sender, EventArgs e)
         {
-            FinalizeChunkCreation(((ChunkTaskManager.ChunkEventArgs) e).Chunk);
+            FinalizeChunkCreation(((ChunkTaskEvent) e).Chunk);
         }
 
         private void FinalizeChunkCreation(Chunk chunk)
