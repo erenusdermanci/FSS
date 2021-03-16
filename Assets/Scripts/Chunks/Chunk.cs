@@ -62,6 +62,16 @@ namespace Chunks
         // TODO optimize this, highly critical
         public void UpdateBlockDirty(int x, int y)
         {
+            // TODO replace by a lookup in block descriptor to now if this block should update the dirty rect
+            switch (GetBlockType(y * Size + x))
+            {
+                case BlockConstants.Air:
+                case BlockConstants.Cloud:
+                case BlockConstants.Stone:
+                case BlockConstants.Metal:
+                case BlockConstants.Border:
+                    return;
+            }
             int i;
             if (x < Size / 2)
                 i = y < Size / 2 ? 0 : 2;

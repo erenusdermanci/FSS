@@ -170,15 +170,6 @@ namespace Chunks
             UpdateOutsideChunk(ref x, ref y, out var chunk);
             if (Chunks[chunk] != null)
             {
-                // switch (Chunks[chunk].GetBlockType(y * Chunk.Size + x))
-                // {
-                //     case BlockConstants.Air:
-                //     case BlockConstants.Cloud:
-                //     case BlockConstants.Stone:
-                //     case BlockConstants.Metal:
-                //     case BlockConstants.Border:
-                //         break;
-                // }
                 Chunks[chunk].UpdateBlockDirty(x, y);
             }
         }
