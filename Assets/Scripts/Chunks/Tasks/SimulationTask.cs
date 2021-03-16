@@ -1,8 +1,10 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Threading;
 using Blocks;
 using Blocks.Behaviors;
 using DebugTools;
+using Utils;
+using Random = System.Random;
 
 namespace Chunks.Tasks
 {
@@ -14,27 +16,36 @@ namespace Chunks.Tasks
 
         private Random _rng;
 
-        private readonly int[] _indexingOrder;
+        private readonly KnuthShuffle _noDirtyRectShuffle;
+
+        private static readonly KnuthShuffle[,] DirtyRectShuffles;
+
+        static SimulationTask()
+        {
+            var rng = new Random();
+            var sizes = new SortedSet<int>();
+            for (var x = 0; x < 32; ++x)
+            {
+                for (var y = 0; y < 32; ++y)
+                {
+                    sizes.Add((x + 1) * (y + 1));
+                }
+            }
+
+            DirtyRectShuffles = new KnuthShuffle[4, sizes.Max + 1];
+            for (var i = 0; i < 4; ++i)
+            {
+                foreach (var size in sizes)
+                {
+                    DirtyRectShuffles[i, size] = new KnuthShuffle(rng.Next(), size);
+                }
+            }
+        }
 
         public SimulationTask(Chunk chunk) : base(chunk)
         {
-            var size = Chunk.Size * Chunk.Size;
-            _indexingOrder = new int[size];
-
-            for (var i = 0; i < size; ++i)
-            {
-                _indexingOrder[i] = i;
-            }
-
             var rng = new Random();
-
-            while (size > 1)
-            {
-                var i = rng.Next(size--);
-                var tmp = _indexingOrder[size];
-                _indexingOrder[size] = _indexingOrder[i];
-                _indexingOrder[i] = tmp;
-            }
+            _noDirtyRectShuffle = new KnuthShuffle(rng.Next(), Chunk.Size * Chunk.Size);
         }
 
         protected override unsafe void Execute()
@@ -79,37 +90,45 @@ namespace Chunks.Tasks
                 const int totalSize = Chunk.Size * Chunk.Size;
                 for (var i = 0; i < totalSize; ++i)
                 {
-                    var x = _indexingOrder[i] / Chunk.Size;
-                    var y = _indexingOrder[i] % Chunk.Size;
+                    var x = _noDirtyRectShuffle[i] / Chunk.Size;
+                    var y = _noDirtyRectShuffle[i] % Chunk.Size;
 
                     dirtied |= SimulateBlock(x, y, ref blockInfo, distances, bitCount, directionX, directionY);
                 }
             }
             else
             {
-                int startX, startY, endX, endY;
+                for (var i = 0; i < Chunk.DirtyRects.Length; ++i)
+                {
+                    int startX, startY, endX, endY;
+                    // First time we calculate the dirty rect, loop over all chunk
+                    if (Chunk.DirtyRects[i].X < 0)
+                    {
+                        startX = Chunk.DirtyRectX[i];
+                        startY = Chunk.DirtyRectY[i];
+                        endX = Chunk.DirtyRectX[i] + Chunk.Size / 2 - 1;
+                        endY = Chunk.DirtyRectY[i] + Chunk.Size / 2 - 1;
+                    }
+                    // We already have a dirty rect, loop over it and reset it
+                    else
+                    {
+                        startX = Chunk.DirtyRectX[i] + Chunk.DirtyRects[i].X;
+                        startY = Chunk.DirtyRectY[i] + Chunk.DirtyRects[i].Y;
+                        endX = Chunk.DirtyRectX[i] + Chunk.DirtyRects[i].XMax;
+                        endY = Chunk.DirtyRectY[i] + Chunk.DirtyRects[i].YMax;
+                        Chunk.DirtyRects[i].Reset();
+                    }
 
-                // First time we calculate the dirty rect, loop over all chunk
-                // if (Chunk.DirtyRect.X < 0)
-                // {
-                    startX = 0;
-                    startY = 0;
-                    endX = Chunk.Size - 1;
-                    endY = Chunk.Size - 1;
-                // }
-                // // We already have a dirty rect, loop over it and reset it
-                // else
-                // {
-                //     startX = Chunk.DirtyRect.X;
-                //     startY = Chunk.DirtyRect.Y;
-                //     endX = Chunk.DirtyRect.XMax;
-                //     endY = Chunk.DirtyRect.YMax;
-                //     Chunk.DirtyRect.Reset();
-                // }
+                    var knuthRngIndex = _rng.Next(0, 4);
+                    var totalSize = (endX - startX + 1) * (endY - startY + 1);
+                    for (var j = 0; j < totalSize; ++j)
+                    {
+                        var x = startX + DirtyRectShuffles[knuthRngIndex, totalSize][j] % (endX - startX + 1);
+                        var y = startY + DirtyRectShuffles[knuthRngIndex, totalSize][j] / (endX - startX + 1);
 
-                for (var y = startY; y <= endY; ++y)
-                    for (var x = startX; x <= endX; ++x)
                         dirtied |= SimulateBlock(x, y, ref blockInfo, distances, bitCount, directionX, directionY);
+                    }
+                }
             }
 
             Chunk.Dirty = dirtied;

@@ -149,7 +149,7 @@ namespace Blocks
                 0.0f,
                 0.0f,
                 0,
-                new IBehavior[] { }
+                new IBehavior[] {}
             ),
             new BlockDescriptor (
                 "Metal",
@@ -160,7 +160,7 @@ namespace Blocks
                 0.0f,
                 0.0f,
                 0,
-                new IBehavior[] { }
+                new IBehavior[] {}
             ),
             new BlockDescriptor (
                 "Border",
@@ -171,7 +171,7 @@ namespace Blocks
                 0.0f,
                 0.0f,
                 0,
-                new IBehavior[] { }
+                new IBehavior[] {}
             ),
             new BlockDescriptor(
                 "Gas",
@@ -276,7 +276,7 @@ namespace Blocks
                 100.0f,
                 1,
                 new IBehavior[] {
-                    new FireSpread(50.0f,
+                    new FireSpread(15.0f,
                         Spark,
                         0.1f,
                         Smoke,

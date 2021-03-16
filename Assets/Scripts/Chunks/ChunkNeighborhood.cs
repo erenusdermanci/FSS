@@ -77,6 +77,7 @@ namespace Chunks
                 Helpers.ShiftColorComponent(color.g, shiftAmount),
                 Helpers.ShiftColorComponent(color.b, shiftAmount),
                 color.a, stateBitset, health, lifetime);
+            UpdateAdjacentBlockDirty(x, y);
         }
 
         public void UpdateBlock(int x, int y, Chunk.BlockInfo blockInfo, bool resetColor = false)
@@ -98,6 +99,7 @@ namespace Chunks
             {
                 Chunks[chunkIndex].PutBlock(x, y, blockInfo.Type, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
             }
+            UpdateAdjacentBlockDirty(x, y);
         }
 
         public void UpdateBlock(int x, int y, Chunk.BlockInfo blockInfo, byte r, byte g, byte b, byte a)
@@ -106,6 +108,7 @@ namespace Chunks
             if (Chunks[chunkIndex] == null)
                 return;
             Chunks[chunkIndex].PutBlock(x, y, blockInfo.Type, r, g, b, a, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
+            UpdateAdjacentBlockDirty(x, y);
         }
 
         public unsafe bool MoveBlock(int x, int y, int xOffset, int yOffset, int srcBlock, int destBlock)
@@ -142,9 +145,9 @@ namespace Chunks
                 Chunks[0].Data.healths[srcIndex],
                 Chunks[0].Data.lifetimes[srcIndex]);
 
-            Chunks[newChunkIndex].SetUpdatedFlag(ux, uy);
-            if (destBlock != BlockConstants.Air)
-                Chunks[0].SetUpdatedFlag(x, y);
+            // Chunks[newChunkIndex].SetUpdatedFlag(ux, uy);
+            // if (destBlock != BlockConstants.Air)
+            //     Chunks[0].SetUpdatedFlag(x, y);
 
             // put the old destination block at the source position (swap)
             Chunks[0].PutBlock(x, y, destBlock,
@@ -155,40 +158,41 @@ namespace Chunks
                 destState,
                 destHealth,
                 destLifetime);
+            UpdateAdjacentBlockDirty(x, y);
 
-            UpdateDirtyInBorderChunks(x, y);
+            // UpdateDirtyInBorderChunks(x, y);
 
             return true;
         }
 
-        private void UpdateDirtyInBorderChunks(int x, int y)
+        public void UpdateDirtyRectForAdjacentBlock(int x, int y)
         {
-            switch (y)
+            UpdateOutsideChunk(ref x, ref y, out var chunk);
+            if (Chunks[chunk] != null)
             {
-                case Chunk.Size - 1:
-                    DoUpdateDirtyInBorderChunks(x, y + 1);
-                    break;
-                case 0:
-                    DoUpdateDirtyInBorderChunks(x, y - 1);
-                    break;
-            }
-
-            switch (x)
-            {
-                case Chunk.Size - 1:
-                    DoUpdateDirtyInBorderChunks(x + 1, y);
-                    break;
-                case 0:
-                    DoUpdateDirtyInBorderChunks(x - 1, y);
-                    break;
+                // switch (Chunks[chunk].GetBlockType(y * Chunk.Size + x))
+                // {
+                //     case BlockConstants.Air:
+                //     case BlockConstants.Cloud:
+                //     case BlockConstants.Stone:
+                //     case BlockConstants.Metal:
+                //     case BlockConstants.Border:
+                //         break;
+                // }
+                Chunks[chunk].UpdateBlockDirty(x, y);
             }
         }
 
-        private void DoUpdateDirtyInBorderChunks(int xOffset, int yOffset)
+        public void UpdateAdjacentBlockDirty(int x, int y)
         {
-            UpdateOutsideChunk(ref xOffset, ref yOffset, out var aboveChunkIndex);
-            if (Chunks[aboveChunkIndex] != null)
-                Chunks[aboveChunkIndex].Dirty = true;
+            UpdateDirtyRectForAdjacentBlock(x - 1, y - 1);
+            UpdateDirtyRectForAdjacentBlock(x, y - 1);
+            UpdateDirtyRectForAdjacentBlock(x + 1, y - 1);
+            UpdateDirtyRectForAdjacentBlock(x - 1, y);
+            UpdateDirtyRectForAdjacentBlock(x + 1, y);
+            UpdateDirtyRectForAdjacentBlock(x - 1, y + 1);
+            UpdateDirtyRectForAdjacentBlock(x, y + 1);
+            UpdateDirtyRectForAdjacentBlock(x + 1, y + 1);
         }
 
         private static void UpdateOutsideChunk(ref int x, ref int y, out int chunkIndex)

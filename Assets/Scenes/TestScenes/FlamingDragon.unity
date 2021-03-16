@@ -222,7 +222,7 @@ MonoBehaviour:
     hideCleanChunkOutlines: 1
     drawDirtyRects: 0
     disableDirtyChunks: 0
-    disableDirtyRects: 1
+    disableDirtyRects: 0
     saveAsTestScene: 1
 --- !u!1 &6752796497607087201
 GameObject:

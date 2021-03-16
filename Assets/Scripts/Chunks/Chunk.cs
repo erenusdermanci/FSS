@@ -17,13 +17,15 @@ namespace Chunks
         public readonly byte[] BlockUpdatedFlags = new byte[Size * Size];
         public readonly int[] BlockCounts = new int[BlockConstants.BlockDescriptors.Length];
         public readonly ChunkDirtyRect[] DirtyRects = new ChunkDirtyRect[4];
+        public static readonly int[] DirtyRectX = { 0, Size / 2, 0, Size / 2 }; // 2 3
+        public static readonly int[] DirtyRectY = { 0, 0, Size / 2, Size / 2 }; // 0 1
         public bool Dirty;
 
         public Chunk()
         {
-            foreach (var dirtyRect in DirtyRects)
+            for (var i = 0; i < DirtyRects.Length; ++i)
             {
-                dirtyRect.Reset();
+                DirtyRects[i].Reset();
             }
         }
 
@@ -42,7 +44,7 @@ namespace Chunks
             Data.lifetimes[i] = lifetime;
         }
 
-        public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health, float lifetime)
+        public unsafe void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health, float lifetime)
         {
             var i = y * Size + x;
             Data.colors[i * 4] = r;
@@ -54,35 +56,47 @@ namespace Chunks
             Data.healths[i] = health;
             Data.lifetimes[i] = lifetime;
 
-            // if (c.DirtyRect.X < 0.0f)
-            // {
-            //     if (c.DirtyRect.X < 0.0f)
-            //         c.DirtyRect.X = ux;
-            //     if (c.DirtyRect.XMax < 0.0f)
-            //         c.DirtyRect.XMax = ux;
-            //     if (c.DirtyRect.Y < 0.0f)
-            //         c.DirtyRect.Y = blockMoveInfo.Y;
-            //     if (c.DirtyRect.YMax < 0.0f)
-            //         c.DirtyRect.YMax = blockMoveInfo.Y;
-            // }
-            // else
-            // {
-            //     if (c.DirtyRect.X > ux)
-            //         c.DirtyRect.X = ux;
-            //     if (c.DirtyRect.XMax < ux)
-            //         c.DirtyRect.XMax = ux;
-            //     if (c.DirtyRect.Y > blockMoveInfo.Y)
-            //         c.DirtyRect.Y = blockMoveInfo.Y;
-            //     if (c.DirtyRect.YMax < blockMoveInfo.Y)
-            //         c.DirtyRect.YMax = blockMoveInfo.Y;
-            // }
+            UpdateBlockDirty(x, y);
+        }
+
+        // TODO optimize this, highly critical
+        public void UpdateBlockDirty(int x, int y)
+        {
+            int i;
+            if (x < Size / 2)
+                i = y < Size / 2 ? 0 : 2;
+            else
+                i = y < Size / 2 ? 1 : 3;
+
+            x -= DirtyRectX[i];
+            y -= DirtyRectY[i];
+            if (DirtyRects[i].X < 0.0f)
+            {
+                DirtyRects[i].X = x;
+                DirtyRects[i].XMax = x;
+                DirtyRects[i].Y = y;
+                DirtyRects[i].YMax = y;
+            }
+            else
+            {
+                if (DirtyRects[i].X > x)
+                    DirtyRects[i].X = x;
+                if (DirtyRects[i].XMax < x)
+                    DirtyRects[i].XMax = x;
+                if (DirtyRects[i].Y > y)
+                    DirtyRects[i].Y = y;
+                if (DirtyRects[i].YMax < y)
+                    DirtyRects[i].YMax = y;
+            }
             Dirty = true;
         }
 
         public void SetUpdatedFlag(int x, int y)
         {
-            BlockUpdatedFlags[y * Size + x] = 1;
-            Dirty = true;
+            var i = y * Size + x;
+            BlockUpdatedFlags[i] = 1;
+
+            UpdateBlockDirty(x, y);
         }
 
         public void Dispose()
