@@ -63,7 +63,7 @@ namespace Chunks
         public void UpdateBlockDirty(int x, int y)
         {
             // TODO replace by a lookup in block descriptor to now if this block should update the dirty rect
-            switch (GetBlockType(y * Size + x))
+            switch (Data.types[y * Size + x])
             {
                 case BlockConstants.Air:
                 case BlockConstants.Cloud:

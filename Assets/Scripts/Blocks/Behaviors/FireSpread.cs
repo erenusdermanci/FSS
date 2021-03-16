@@ -1,6 +1,7 @@
-﻿using System;
-using Chunks;
+﻿using Chunks;
+using UnityEngine;
 using Utils;
+using Random = System.Random;
 
 namespace Blocks.Behaviors
 {
@@ -16,13 +17,15 @@ namespace Blocks.Behaviors
         private readonly int _combustionResultBlockType;
         private readonly float _combustionResultProbability;
         private readonly bool _selfExtinguishing;
+        private readonly bool _destroyedWhenExtinguished;
 
         public FireSpread(float burningRate,
             int combustionEmissionBlockType,
             float combustionEmissionProbability,
             int combustionResultBlockType,
             float combustionResultProbability,
-            bool selfExtinguishing)
+            bool selfExtinguishing,
+            bool destroyedWhenExtinguished)
         {
             _burningRate = burningRate;
             _combustionEmissionBlockType = combustionEmissionBlockType;
@@ -30,6 +33,7 @@ namespace Blocks.Behaviors
             _combustionResultBlockType = combustionResultBlockType;
             _combustionResultProbability = combustionResultProbability;
             _selfExtinguishing = selfExtinguishing;
+            _destroyedWhenExtinguished = destroyedWhenExtinguished;
         }
 
         public unsafe bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, Chunk.BlockInfo blockInfo, int x, int y, int* directionX,
@@ -61,6 +65,10 @@ namespace Blocks.Behaviors
             {
                 // fire dies out
                 blockInfo.ClearState((int)BlockStates.Burning);
+                if (_destroyedWhenExtinguished)
+                {
+                    return DestroyBlock(rng, chunkNeighborhood, x, y, ref destroyed);
+                }
                 chunkNeighborhood.UpdateBlock(x, y, blockInfo, true);
             }
             else
@@ -113,24 +121,28 @@ namespace Blocks.Behaviors
                 if (blockInfo.Health <= 0.0f)
                 {
                     // Block is consumed by fire, destroy it
-
-                    var combustionResultProbability = _combustionResultProbability;
-                    var resultBlockType = BlockConstants.Air;
-
-                    if (combustionResultProbability >= 1.0f
-                        || combustionResultProbability > rng.NextDouble())
-                        resultBlockType = _combustionResultBlockType;
-
-                    chunkNeighborhood.ReplaceBlock(x, y, resultBlockType,
-                        BlockConstants.BlockDescriptors[resultBlockType].InitialStates,
-                        BlockConstants.BlockDescriptors[resultBlockType].BaseHealth, 0);
-                    destroyed = true;
-                    return true;
+                    return DestroyBlock(rng, chunkNeighborhood, x, y, ref destroyed);
                 }
 
                 chunkNeighborhood.UpdateBlock(x, y, blockInfo);
             }
 
+            return true;
+        }
+
+        private bool DestroyBlock(Random rng, ChunkNeighborhood chunkNeighborhood, int x, int y, ref bool destroyed)
+        {
+            var combustionResultProbability = _combustionResultProbability;
+            var resultBlockType = BlockConstants.Air;
+
+            if (combustionResultProbability >= 1.0f
+                || combustionResultProbability > rng.NextDouble())
+                resultBlockType = _combustionResultBlockType;
+
+            chunkNeighborhood.ReplaceBlock(x, y, resultBlockType,
+                BlockConstants.BlockDescriptors[resultBlockType].InitialStates,
+                BlockConstants.BlockDescriptors[resultBlockType].BaseHealth, 0);
+            destroyed = true;
             return true;
         }
     }

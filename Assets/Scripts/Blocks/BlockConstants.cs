@@ -74,7 +74,8 @@ namespace Blocks
                         0.01f,
                         Smoke,
                         0.5f,
-                        true),
+                        true,
+                        false),
                     new Swap(
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 2, 1, 1, 2, 2, 0, 0 ,0 },
@@ -189,6 +190,7 @@ namespace Blocks
                         0.0f,
                         Smoke,
                         0.25f,
+                        false,
                         false
                     ),
                     new Swap(
@@ -237,7 +239,8 @@ namespace Blocks
                         0.005f,
                         Coal,
                         1.0f,
-                        true
+                        true,
+                        false
                     )
                 }
             ),
@@ -256,7 +259,8 @@ namespace Blocks
                         0.1f,
                         Smoke,
                         1.0f,
-                        true
+                        true,
+                        false
                     ),
                     new Swap(
                         new [] { 0, 0, 1, 2 },
@@ -276,12 +280,13 @@ namespace Blocks
                 100.0f,
                 1,
                 new IBehavior[] {
-                    new FireSpread(15.0f,
+                    new FireSpread(10.0f,
                         Spark,
-                        0.1f,
+                        0.0f,
                         Smoke,
-                        1.0f,
-                        false
+                        0.1f,
+                        false,
+                        true
                     ),
                     new Swap(
                         new [] { 5, 0, 3, 4, 1, 7, 2, 6 },
