@@ -44,7 +44,7 @@ namespace Chunks
             Data.lifetimes[i] = lifetime;
         }
 
-        public unsafe void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health, float lifetime)
+        public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health, float lifetime)
         {
             var i = y * Size + x;
             Data.colors[i * 4] = r;

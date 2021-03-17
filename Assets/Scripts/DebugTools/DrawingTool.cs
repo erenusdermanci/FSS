@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Blocks;
 using Chunks;
 using UnityEngine;
@@ -95,7 +96,14 @@ namespace DebugTools
 
             foreach (var chunkPos in _chunksToReload)
             {
-                _chunkMap[chunkPos]?.UpdateTexture();
+                var chunk = _chunkMap[chunkPos];
+                if (chunk == null)
+                    continue;
+                chunk.UpdateTexture();
+                var chunkDirtyRects = chunk.DirtyRects;
+                foreach (var chunkDirtyRect in chunkDirtyRects)
+                    chunkDirtyRect.Reset();
+                chunk.Dirty = true;
             }
             _chunksToReload.Clear();
         }
