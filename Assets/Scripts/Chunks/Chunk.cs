@@ -14,8 +14,6 @@ namespace Chunks
 
         public BlockData Data;
 
-        public readonly byte[] BlockUpdatedFlags = new byte[Size * Size];
-        public readonly int[] BlockCounts = new int[BlockConstants.BlockDescriptors.Length];
         public readonly ChunkDirtyRect[] DirtyRects = new ChunkDirtyRect[4];
         public static readonly int[] DirtyRectX = { 0, Size / 2, 0, Size / 2 }; // 2 3
         public static readonly int[] DirtyRectY = { 0, 0, Size / 2, Size / 2 }; // 0 1
@@ -99,14 +97,6 @@ namespace Chunks
                     DirtyRects[i].YMax = y;
             }
             Dirty = true;
-        }
-
-        public void SetUpdatedFlag(int x, int y)
-        {
-            var i = y * Size + x;
-            BlockUpdatedFlags[i] = 1;
-
-            UpdateBlockDirty(x, y);
         }
 
         public void Dispose()

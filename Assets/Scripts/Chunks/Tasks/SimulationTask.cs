@@ -79,9 +79,6 @@ namespace Chunks.Tasks
 
             _rng = Random.Value;
 
-            for (var i = 0; i < Chunk.BlockCounts.Length; ++i)
-                Chunk.BlockCounts[i] = 0;
-
             var blockInfo = new Chunk.BlockInfo();
             var dirtied = false;
 
@@ -132,24 +129,11 @@ namespace Chunks.Tasks
             }
 
             Chunk.Dirty = dirtied;
-
-            for (var y = 0; y < Chunk.Size; ++y)
-            {
-                for (var x = 0; x < Chunk.Size; ++x)
-                {
-                    var i = y * Chunk.Size + x;
-                    Chunk.BlockCounts[Chunks[0].Data.types[i]] += 1;
-                    Chunk.BlockUpdatedFlags[i] = 0;
-                }
-            }
         }
 
         private unsafe bool SimulateBlock(int x, int y, ref Chunk.BlockInfo blockInfo,
             int* distances, int* bitCount, int* directionX, int* directionY)
         {
-            if (Chunks[0].BlockUpdatedFlags[y * Chunk.Size + x] == 1)
-                return false;
-
             Chunks.GetBlockInfo(x, y, ref blockInfo);
 
             var blockLogic = BlockConstants.BlockDescriptors[blockInfo.Type];

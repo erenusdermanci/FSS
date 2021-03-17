@@ -21,9 +21,6 @@ namespace Chunks.Tasks
         {
             if (ShouldCancel()) return;
 
-            for (var i = 0; i < Chunk.BlockCounts.Length; ++i)
-                Chunk.BlockCounts[i] = 0;
-
             Chunk.Data.colors = new byte[Chunk.Size * Chunk.Size * 4];
             Chunk.Data.types = new int[Chunk.Size * Chunk.Size];
             Chunk.Data.stateBitsets = new int[Chunk.Size * Chunk.Size];
@@ -40,9 +37,6 @@ namespace Chunks.Tasks
             }
             else
                 GenerateEmpty();
-
-            for (var i = 0; i < Chunk.Size * Chunk.Size; i++)
-                Chunk.BlockCounts[Chunk.Data.types[i]] += 1;
 
             Chunk.Dirty = true;
         }
