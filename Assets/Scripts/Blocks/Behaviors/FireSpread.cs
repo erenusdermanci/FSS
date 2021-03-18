@@ -1,7 +1,6 @@
-﻿using Chunks;
-using UnityEngine;
+﻿using System;
+using Chunks;
 using Utils;
-using Random = System.Random;
 
 namespace Blocks.Behaviors
 {

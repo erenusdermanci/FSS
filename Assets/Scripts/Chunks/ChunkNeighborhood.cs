@@ -1,9 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using Blocks;
-using UnityEngine;
 using Utils;
-using Random = System.Random;
 
 namespace Chunks
 {
@@ -178,6 +176,7 @@ namespace Chunks
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void UpdateOutsideChunk(ref int x, ref int y, out int chunkIndex)
         {
             var ix = (int) (x / 64.0f + 32768.0f) - 32768;
