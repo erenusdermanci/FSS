@@ -142,7 +142,9 @@ namespace DebugTools
                 + $"StateBitset: {blockInfo.StateBitset}\n"
                 + $"Health: {blockInfo.Health}\n"
                 + $"Lifetime: {blockInfo.Lifetime}\n"
-                + $"Chunk X:{chunk.Position.x}, Chunk Y: {chunk.Position.y}";
+                + $"UpdatedFlag: {chunk.BlockUpdatedFlags[blockIndexInChunk]}\n"
+                + $"Chunk X:{chunk.Position.x}, Chunk Y: {chunk.Position.y}\n"
+                + $"Current UpdatedFlag: {ChunkManager.UpdatedFlag}";
         }
 
         private void UpdateDrawPixel(Vector2 blockPosition)

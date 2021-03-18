@@ -61,6 +61,16 @@ namespace Chunks
             return _chunks[chunkIndex].GetBlockType(y * Chunk.Size + x);
         }
 
+        public int GetBlockUpdatedFlag(int x, int y)
+        {
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+
+            if (_chunks[chunkIndex] == null)
+                return ChunkManager.UpdatedFlag;
+
+            return _chunks[chunkIndex].BlockUpdatedFlags[y * Chunk.Size + x];
+        }
+
         public void ReplaceBlock(int x, int y, int type, int stateBitset, float health, float lifetime)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);

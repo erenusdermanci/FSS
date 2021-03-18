@@ -6,6 +6,7 @@ namespace Chunks
     public class ChunkServer : Chunk
     {
         public BlockData Data;
+        public readonly int[] BlockUpdatedFlags = new int[Size * Size];
 
         public readonly ChunkDirtyRect[] DirtyRects = new ChunkDirtyRect[4];
         public static readonly int[] DirtyRectX = { 0, Size / 2, 0, Size / 2 }; // 2 3
@@ -36,6 +37,21 @@ namespace Chunks
             Data.stateBitsets[i] = states;
             Data.healths[i] = health;
             Data.lifetimes[i] = lifetime;
+
+            UpdateBlockDirty(x, y);
+
+            // TODO replace by a lookup in block descriptor to know if this block should update the dirty rect
+            switch (type)
+            {
+                case BlockConstants.Air:
+                case BlockConstants.Cloud:
+                case BlockConstants.Stone:
+                case BlockConstants.Metal:
+                case BlockConstants.Border:
+                    return;
+            }
+
+            BlockUpdatedFlags[i] = ChunkManager.UpdatedFlag;
         }
 
         public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health, float lifetime)
@@ -51,12 +67,25 @@ namespace Chunks
             Data.lifetimes[i] = lifetime;
 
             UpdateBlockDirty(x, y);
+
+            // TODO replace by a lookup in block descriptor to know if this block should update the dirty rect
+            switch (type)
+            {
+                case BlockConstants.Air:
+                case BlockConstants.Cloud:
+                case BlockConstants.Stone:
+                case BlockConstants.Metal:
+                case BlockConstants.Border:
+                    return;
+            }
+
+            BlockUpdatedFlags[i] = ChunkManager.UpdatedFlag;
         }
 
         // TODO optimize this, highly critical
         public void UpdateBlockDirty(int x, int y)
         {
-            // TODO replace by a lookup in block descriptor to now if this block should update the dirty rect
+            // TODO replace by a lookup in block descriptor to know if this block should update the dirty rect
             switch (Data.types[y * Size + x])
             {
                 case BlockConstants.Air:

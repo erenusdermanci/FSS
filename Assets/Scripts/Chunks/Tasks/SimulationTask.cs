@@ -95,25 +95,28 @@ namespace Chunks.Tasks
             }
             else
             {
+                var shuffledDirtyRectOrder = new KnuthShuffle(_rng.Next(), Chunk.DirtyRects.Length);
+                // need to randomize the dirtyrect traversal order...
                 for (var i = 0; i < Chunk.DirtyRects.Length; ++i)
                 {
+                    var shuffledIndex = shuffledDirtyRectOrder[i];
                     int startX, startY, endX, endY;
                     // First time we calculate the dirty rect, loop over all chunk
-                    if (Chunk.DirtyRects[i].X < 0)
+                    if (Chunk.DirtyRects[shuffledIndex].X < 0)
                     {
-                        startX = ChunkServer.DirtyRectX[i];
-                        startY = ChunkServer.DirtyRectY[i];
-                        endX = ChunkServer.DirtyRectX[i] + global::Chunks.Chunk.Size / 2 - 1;
-                        endY = ChunkServer.DirtyRectY[i] + global::Chunks.Chunk.Size / 2 - 1;
+                        startX = ChunkServer.DirtyRectX[shuffledIndex];
+                        startY = ChunkServer.DirtyRectY[shuffledIndex];
+                        endX = ChunkServer.DirtyRectX[shuffledIndex] + global::Chunks.Chunk.Size / 2 - 1;
+                        endY = ChunkServer.DirtyRectY[shuffledIndex] + global::Chunks.Chunk.Size / 2 - 1;
                     }
                     // We already have a dirty rect, loop over it and reset it
                     else
                     {
-                        startX = ChunkServer.DirtyRectX[i] + Chunk.DirtyRects[i].X;
-                        startY = ChunkServer.DirtyRectY[i] + Chunk.DirtyRects[i].Y;
-                        endX = ChunkServer.DirtyRectX[i] + Chunk.DirtyRects[i].XMax;
-                        endY = ChunkServer.DirtyRectY[i] + Chunk.DirtyRects[i].YMax;
-                        Chunk.DirtyRects[i].Reset();
+                        startX = ChunkServer.DirtyRectX[shuffledIndex] + Chunk.DirtyRects[shuffledIndex].X;
+                        startY = ChunkServer.DirtyRectY[shuffledIndex] + Chunk.DirtyRects[shuffledIndex].Y;
+                        endX = ChunkServer.DirtyRectX[shuffledIndex] + Chunk.DirtyRects[shuffledIndex].XMax;
+                        endY = ChunkServer.DirtyRectY[shuffledIndex] + Chunk.DirtyRects[shuffledIndex].YMax;
+                        Chunk.DirtyRects[shuffledIndex].Reset();
                     }
 
                     var knuthRngIndex = _rng.Next(0, 4);
@@ -134,6 +137,12 @@ namespace Chunks.Tasks
         private unsafe bool SimulateBlock(int x, int y, ref ChunkServer.BlockInfo blockInfo,
             int* distances, int* bitCount, int* directionX, int* directionY)
         {
+            if (Chunk.BlockUpdatedFlags[y * global::Chunks.Chunk.Size + x] == ChunkManager.UpdatedFlag)
+            {
+                Chunk.UpdateBlockDirty(x, y);
+                return true;
+            }
+
             Chunks.GetBlockInfo(x, y, ref blockInfo);
 
             var blockLogic = BlockConstants.BlockDescriptors[blockInfo.Type];
