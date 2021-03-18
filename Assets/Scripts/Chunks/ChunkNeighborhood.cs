@@ -1,6 +1,9 @@
 using System;
+using System.Runtime.CompilerServices;
 using Blocks;
+using UnityEngine;
 using Utils;
+using Random = System.Random;
 
 namespace Chunks
 {
@@ -8,13 +11,7 @@ namespace Chunks
     {
         private readonly Random _rng;
 
-        private Chunk[] Chunks;
-
-        public Chunk this[int idx]
-        {
-            get => Chunks[idx];
-            set => Chunks[idx] = value;
-        }
+        private Chunk[] _chunks;
 
         public ChunkNeighborhood(ChunkMap chunkMap, Chunk centralChunk, Random rng)
         {
@@ -27,13 +24,15 @@ namespace Chunks
             // 6 7 8
             // 4 0 5
             // 1 2 3
-            Chunks = new[]
+
+            // [-1,-1] [0, -1] [1, -1]
+            _chunks = new[]
             {
-                centralChunk,
                 ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, -1, -1),
                 ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, 0, -1),
                 ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, 1, -1),
                 ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, -1, 0),
+                centralChunk,
                 ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, 1, 0),
                 ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, -1, 1),
                 ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, 0, 1),
@@ -45,13 +44,13 @@ namespace Chunks
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
 
-            if (Chunks[chunkIndex] == null)
+            if (_chunks[chunkIndex] == null)
             {
                 blockInfo.Type = -1;
                 return false;
             }
 
-            Chunks[chunkIndex].GetBlockInfo(y * Chunk.Size + x, ref blockInfo);
+            _chunks[chunkIndex].GetBlockInfo(y * Chunk.Size + x, ref blockInfo);
             return true;
         }
 
@@ -59,20 +58,20 @@ namespace Chunks
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
 
-            if (Chunks[chunkIndex] == null)
+            if (_chunks[chunkIndex] == null)
                 return BlockConstants.Border;
 
-            return Chunks[chunkIndex].GetBlockType(y * Chunk.Size + x);
+            return _chunks[chunkIndex].GetBlockType(y * Chunk.Size + x);
         }
 
         public void ReplaceBlock(int x, int y, int type, int stateBitset, float health, float lifetime)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
-            if (Chunks[chunkIndex] == null)
+            if (_chunks[chunkIndex] == null)
                 return;
             var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[type].ColorMaxShift);
             var color = BlockConstants.BlockDescriptors[type].Color;
-            Chunks[chunkIndex].PutBlock(x, y, type,
+            _chunks[chunkIndex].PutBlock(x, y, type,
                 Helpers.ShiftColorComponent(color.r, shiftAmount),
                 Helpers.ShiftColorComponent(color.g, shiftAmount),
                 Helpers.ShiftColorComponent(color.b, shiftAmount),
@@ -83,13 +82,13 @@ namespace Chunks
         public void UpdateBlock(int x, int y, Chunk.BlockInfo blockInfo, bool resetColor = false)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
-            if (Chunks[chunkIndex] == null)
+            if (_chunks[chunkIndex] == null)
                 return;
             if (resetColor)
             {
                 var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[blockInfo.Type].ColorMaxShift);
                 var color = BlockConstants.BlockDescriptors[blockInfo.Type].Color;
-                Chunks[chunkIndex].PutBlock(x, y, blockInfo.Type,
+                _chunks[chunkIndex].PutBlock(x, y, blockInfo.Type,
                     Helpers.ShiftColorComponent(color.r, shiftAmount),
                     Helpers.ShiftColorComponent(color.g, shiftAmount),
                     Helpers.ShiftColorComponent(color.b, shiftAmount),
@@ -97,7 +96,7 @@ namespace Chunks
             }
             else
             {
-                Chunks[chunkIndex].PutBlock(x, y, blockInfo.Type, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
+                _chunks[chunkIndex].PutBlock(x, y, blockInfo.Type, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
             }
             UpdateAdjacentBlockDirty(x, y);
         }
@@ -105,9 +104,9 @@ namespace Chunks
         public void UpdateBlock(int x, int y, Chunk.BlockInfo blockInfo, byte r, byte g, byte b, byte a)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
-            if (Chunks[chunkIndex] == null)
+            if (_chunks[chunkIndex] == null)
                 return;
-            Chunks[chunkIndex].PutBlock(x, y, blockInfo.Type, r, g, b, a, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
+            _chunks[chunkIndex].PutBlock(x, y, blockInfo.Type, r, g, b, a, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
             UpdateAdjacentBlockDirty(x, y);
         }
 
@@ -119,7 +118,7 @@ namespace Chunks
             UpdateOutsideChunk(ref ux, ref uy, out var newChunkIndex);
 
             // if there is no chunk at the destination, the block cannot move there
-            if (Chunks[newChunkIndex] == null)
+            if (_chunks[newChunkIndex] == null)
                 return false;
 
             // put the source block at its destination
@@ -127,30 +126,26 @@ namespace Chunks
             var srcIndex = Chunk.Size * y + x;
             var dstIndex = Chunk.Size * uy + ux;
             var destColorBuffer = stackalloc byte[4] {
-                Chunks[newChunkIndex].Data.colors[dstIndex * 4],
-                Chunks[newChunkIndex].Data.colors[dstIndex * 4 + 1],
-                Chunks[newChunkIndex].Data.colors[dstIndex * 4 + 2],
-                Chunks[newChunkIndex].Data.colors[dstIndex * 4 + 3]
+                _chunks[newChunkIndex].Data.colors[dstIndex * 4],
+                _chunks[newChunkIndex].Data.colors[dstIndex * 4 + 1],
+                _chunks[newChunkIndex].Data.colors[dstIndex * 4 + 2],
+                _chunks[newChunkIndex].Data.colors[dstIndex * 4 + 3]
             };
-            var destState = Chunks[newChunkIndex].Data.stateBitsets[dstIndex];
-            var destHealth = Chunks[newChunkIndex].Data.healths[dstIndex];
-            var destLifetime = Chunks[newChunkIndex].Data.lifetimes[dstIndex];
+            var destState = _chunks[newChunkIndex].Data.stateBitsets[dstIndex];
+            var destHealth = _chunks[newChunkIndex].Data.healths[dstIndex];
+            var destLifetime = _chunks[newChunkIndex].Data.lifetimes[dstIndex];
 
-            Chunks[newChunkIndex].PutBlock(ux, uy, srcBlock,
-                Chunks[0].Data.colors[srcIndex * 4],
-                Chunks[0].Data.colors[srcIndex * 4 + 1],
-                Chunks[0].Data.colors[srcIndex * 4 + 2],
-                Chunks[0].Data.colors[srcIndex * 4 + 3],
-                Chunks[0].Data.stateBitsets[srcIndex],
-                Chunks[0].Data.healths[srcIndex],
-                Chunks[0].Data.lifetimes[srcIndex]);
-
-            // Chunks[newChunkIndex].SetUpdatedFlag(ux, uy);
-            // if (destBlock != BlockConstants.Air)
-            //     Chunks[0].SetUpdatedFlag(x, y);
+            _chunks[newChunkIndex].PutBlock(ux, uy, srcBlock,
+                _chunks[4].Data.colors[srcIndex * 4],
+                _chunks[4].Data.colors[srcIndex * 4 + 1],
+                _chunks[4].Data.colors[srcIndex * 4 + 2],
+                _chunks[4].Data.colors[srcIndex * 4 + 3],
+                _chunks[4].Data.stateBitsets[srcIndex],
+                _chunks[4].Data.healths[srcIndex],
+                _chunks[4].Data.lifetimes[srcIndex]);
 
             // put the old destination block at the source position (swap)
-            Chunks[0].PutBlock(x, y, destBlock,
+            _chunks[4].PutBlock(x, y, destBlock,
                 destColorBuffer[0],
                 destColorBuffer[1],
                 destColorBuffer[2],
@@ -160,18 +155,7 @@ namespace Chunks
                 destLifetime);
             UpdateAdjacentBlockDirty(x, y);
 
-            // UpdateDirtyInBorderChunks(x, y);
-
             return true;
-        }
-
-        public void UpdateDirtyRectForAdjacentBlock(int x, int y)
-        {
-            UpdateOutsideChunk(ref x, ref y, out var chunk);
-            if (Chunks[chunk] != null)
-            {
-                Chunks[chunk].UpdateBlockDirty(x, y);
-            }
         }
 
         public void UpdateAdjacentBlockDirty(int x, int y)
@@ -186,61 +170,22 @@ namespace Chunks
             UpdateDirtyRectForAdjacentBlock(x + 1, y + 1);
         }
 
-        private static void UpdateOutsideChunk(ref int x, ref int y, out int chunkIndex)
+        public void UpdateDirtyRectForAdjacentBlock(int x, int y)
         {
-            chunkIndex = 0;
-            if (x < 0 && y < 0)
+            UpdateOutsideChunk(ref x, ref y, out var chunk);
+            if (_chunks[chunk] != null)
             {
-                // Down Left
-                chunkIndex = 1;
-                x = Chunk.Size + x;
-                y = Chunk.Size + y;
+                _chunks[chunk].UpdateBlockDirty(x, y);
             }
-            else if (x >= Chunk.Size && y < 0)
-            {
-                // Down Right
-                chunkIndex = 3;
-                x -= Chunk.Size;
-                y = Chunk.Size + y;
-            }
-            else if (y < 0)
-            {
-                // Down
-                chunkIndex = 2;
-                y = Chunk.Size + y;
-            }
-            else if (x < 0 && y >= Chunk.Size)
-            {
-                // Up Left
-                chunkIndex = 6;
-                y -= Chunk.Size;
-                x = Chunk.Size + x;
-            }
-            else if (x >= Chunk.Size && y >= Chunk.Size)
-            {
-                // Up Right
-                chunkIndex = 8;
-                y -= Chunk.Size;
-                x -= Chunk.Size;
-            }
-            else if (y >= Chunk.Size)
-            {
-                // Up
-                chunkIndex = 7;
-                y -= Chunk.Size;
-            }
-            else if (x < 0)
-            {
-                // Left
-                chunkIndex = 4;
-                x = Chunk.Size + x;
-            }
-            else if (x >= Chunk.Size)
-            {
-                // Right
-                chunkIndex = 5;
-                x -= Chunk.Size;
-            }
+        }
+
+        public static unsafe void UpdateOutsideChunk(ref int x, ref int y, out int chunkIndex)
+        {
+            var ix = (int) (x / 64.0f + 32768.0f) - 32768;
+            var iy = (int) (y / 64.0f + 32768.0f) - 32768;
+            chunkIndex = (iy + 1) * 3 + ix + 1;
+            x += -ix * Chunk.Size;
+            y += -iy * Chunk.Size;
         }
     }
 }

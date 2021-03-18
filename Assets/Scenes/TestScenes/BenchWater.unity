@@ -781,7 +781,7 @@ MonoBehaviour:
     disableLoad: 0
     monothreadSimulate: 0
     overrideGridSize: 0
-    pauseSimulation: 0
+    pauseSimulation: 1
     stepByStep: 0
     outlineChunks: 0
     hideCleanChunkOutlines: 1
