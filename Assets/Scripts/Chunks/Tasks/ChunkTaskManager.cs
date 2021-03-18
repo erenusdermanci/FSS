@@ -17,9 +17,9 @@ namespace Chunks.Tasks
 
         public event EventHandler Processed;
 
-        private readonly Func<Chunk, ChunkTask> _taskCreator;
+        private readonly Func<ChunkServer, ChunkTask> _taskCreator;
 
-        public ChunkTaskManager(int maximumProcessing, Func<Chunk, ChunkTask> taskCreator)
+        public ChunkTaskManager(int maximumProcessing, Func<ChunkServer, ChunkTask> taskCreator)
         {
             _maximumProcessing = maximumProcessing;
             _taskCreator = taskCreator;
@@ -67,10 +67,10 @@ namespace Chunks.Tasks
         {
             if (_tasks.ContainsKey(position))
                 return;
-            Enqueue(new Chunk { Position = position });
+            Enqueue(new ChunkServer { Position = position });
         }
 
-        public void Enqueue(Chunk chunk)
+        public void Enqueue(ChunkServer chunk)
         {
             var task = _taskCreator(chunk);
             _queued.Add(chunk.Position);

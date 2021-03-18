@@ -40,7 +40,7 @@ namespace Utils
             obj.GetComponent<SpriteRenderer>().sprite = Sprite.Create(
                 texture,
                 new Rect(new Vector2(0, 0), new Vector2(Chunk.Size, Chunk.Size)), new Vector2(0.5f, 0.5f),
-                Chunk.Size, 
+                Chunk.Size,
                 0,
                 SpriteMeshType.FullRect);
             _pooledObjects.Add(obj);

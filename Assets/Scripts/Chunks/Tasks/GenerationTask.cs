@@ -13,7 +13,7 @@ namespace Chunks.Tasks
         private Random _rng;
         private Dictionary<int, ConfiguredNoisesForLayer> _noisesPerLayer;
 
-        public GenerationTask(Chunk chunk) : base(chunk)
+        public GenerationTask(ChunkServer chunk) : base(chunk)
         {
         }
 
@@ -47,7 +47,7 @@ namespace Chunks.Tasks
 
         private void GenerateProcedurally(TerrainGenerationModel model)
         {
-            for (var x = 0; x < Chunk.Size; x++)
+            for (var x = 0; x < Chunks.Chunk.Size; x++)
             {
                 if (ShouldCancel()) return;
                 // for each x in our world
@@ -67,20 +67,20 @@ namespace Chunks.Tasks
                         // for each noise
                         var xAmp = layer.HeightNoises[j].XAmplitude;
                         var yAmp = layer.HeightNoises[j].YAmplitude;
-                        var vertNoise = _noisesPerLayer[i].HeightConfiguredNoises[j].GetNoise((Chunk.Position.x * Chunk.Size + x) / (Chunk.Size * xAmp), 0);
+                        var vertNoise = _noisesPerLayer[i].HeightConfiguredNoises[j].GetNoise((Chunk.Position.x * Chunks.Chunk.Size + x) / (Chunks.Chunk.Size * xAmp), 0);
                         vertNoiseAcc += vertNoise;
                         yAmpTotal *= yAmp;
                     }
 
                     vertNoiseAcc /= layer.HeightNoises.Count;
-                    var vertIdx = (int)(vertNoiseAcc * Chunk.Size * yAmpTotal - totalDepth);
+                    var vertIdx = (int)(vertNoiseAcc * Chunks.Chunk.Size * yAmpTotal - totalDepth);
 
                     verticalIdxPerLayer[i] = vertIdx;
                 }
 
-                for (var y = 0; y < Chunk.Size; y++)
+                for (var y = 0; y < Chunks.Chunk.Size; y++)
                 {
-                    var separator = (int)(Chunk.Position.y * Chunk.Size) + y; // what layer does this Y belong to for this X?
+                    var separator = (int)(Chunk.Position.y * Chunks.Chunk.Size) + y; // what layer does this Y belong to for this X?
                     var layerIdx = GetLayerForY(verticalIdxPerLayer, separator);
 
                     // Generate y within layer
@@ -103,8 +103,8 @@ namespace Chunks.Tasks
                 var yAmp = layer.InLayerNoises[i].YAmplitude;
 
                 var noise = _noisesPerLayer[layerIdx].InLayerConfiguredNoises[i].GetNoise(
-                    (Chunk.Position.x * Chunk.Size + x) / (Chunk.Size * xAmp),
-                    (Chunk.Position.y * Chunk.Size + y) / (Chunk.Size * yAmp));
+                    (Chunk.Position.x * Chunks.Chunk.Size + x) / (Chunks.Chunk.Size * xAmp),
+                    (Chunk.Position.y * Chunks.Chunk.Size + y) / (Chunks.Chunk.Size * yAmp));
 
                 noiseAcc += noise;
             }
@@ -114,7 +114,7 @@ namespace Chunks.Tasks
             var block = GetBlockFromNoise(layer, noiseAcc);
             var blockColor = BlockConstants.BlockDescriptors[block].Color;
 
-            var idx = y * Chunk.Size + x;
+            var idx = y * Chunks.Chunk.Size + x;
 
             var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[block].ColorMaxShift);
             Chunk.Data.colors[idx * 4] = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);

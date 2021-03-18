@@ -42,10 +42,10 @@ namespace Chunks.Tasks
             }
         }
 
-        public SimulationTask(Chunk chunk) : base(chunk)
+        public SimulationTask(ChunkServer chunk) : base(chunk)
         {
             var rng = new Random();
-            _noDirtyRectShuffle = new KnuthShuffle(rng.Next(), Chunk.Size * Chunk.Size);
+            _noDirtyRectShuffle = new KnuthShuffle(rng.Next(), global::Chunks.Chunk.Size * global::Chunks.Chunk.Size);
         }
 
         protected override unsafe void Execute()
@@ -79,16 +79,16 @@ namespace Chunks.Tasks
 
             _rng = Random.Value;
 
-            var blockInfo = new Chunk.BlockInfo();
+            var blockInfo = new ChunkServer.BlockInfo();
             var dirtied = false;
 
             if (GlobalDebugConfig.StaticGlobalConfig.disableDirtyRects)
             {
-                const int totalSize = Chunk.Size * Chunk.Size;
+                const int totalSize = global::Chunks.Chunk.Size * global::Chunks.Chunk.Size;
                 for (var i = 0; i < totalSize; ++i)
                 {
-                    var x = _noDirtyRectShuffle[i] / Chunk.Size;
-                    var y = _noDirtyRectShuffle[i] % Chunk.Size;
+                    var x = _noDirtyRectShuffle[i] / global::Chunks.Chunk.Size;
+                    var y = _noDirtyRectShuffle[i] % global::Chunks.Chunk.Size;
 
                     dirtied |= SimulateBlock(x, y, ref blockInfo, distances, bitCount, directionX, directionY);
                 }
@@ -101,18 +101,18 @@ namespace Chunks.Tasks
                     // First time we calculate the dirty rect, loop over all chunk
                     if (Chunk.DirtyRects[i].X < 0)
                     {
-                        startX = Chunk.DirtyRectX[i];
-                        startY = Chunk.DirtyRectY[i];
-                        endX = Chunk.DirtyRectX[i] + Chunk.Size / 2 - 1;
-                        endY = Chunk.DirtyRectY[i] + Chunk.Size / 2 - 1;
+                        startX = ChunkServer.DirtyRectX[i];
+                        startY = ChunkServer.DirtyRectY[i];
+                        endX = ChunkServer.DirtyRectX[i] + global::Chunks.Chunk.Size / 2 - 1;
+                        endY = ChunkServer.DirtyRectY[i] + global::Chunks.Chunk.Size / 2 - 1;
                     }
                     // We already have a dirty rect, loop over it and reset it
                     else
                     {
-                        startX = Chunk.DirtyRectX[i] + Chunk.DirtyRects[i].X;
-                        startY = Chunk.DirtyRectY[i] + Chunk.DirtyRects[i].Y;
-                        endX = Chunk.DirtyRectX[i] + Chunk.DirtyRects[i].XMax;
-                        endY = Chunk.DirtyRectY[i] + Chunk.DirtyRects[i].YMax;
+                        startX = ChunkServer.DirtyRectX[i] + Chunk.DirtyRects[i].X;
+                        startY = ChunkServer.DirtyRectY[i] + Chunk.DirtyRects[i].Y;
+                        endX = ChunkServer.DirtyRectX[i] + Chunk.DirtyRects[i].XMax;
+                        endY = ChunkServer.DirtyRectY[i] + Chunk.DirtyRects[i].YMax;
                         Chunk.DirtyRects[i].Reset();
                     }
 
@@ -131,7 +131,7 @@ namespace Chunks.Tasks
             Chunk.Dirty = dirtied;
         }
 
-        private unsafe bool SimulateBlock(int x, int y, ref Chunk.BlockInfo blockInfo,
+        private unsafe bool SimulateBlock(int x, int y, ref ChunkServer.BlockInfo blockInfo,
             int* distances, int* bitCount, int* directionX, int* directionY)
         {
             Chunks.GetBlockInfo(x, y, ref blockInfo);

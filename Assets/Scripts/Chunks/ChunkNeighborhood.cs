@@ -11,15 +11,15 @@ namespace Chunks
     {
         private readonly Random _rng;
 
-        private Chunk[] _chunks;
+        private ChunkServer[] _chunks;
 
-        public ChunkNeighborhood(ChunkMap chunkMap, Chunk centralChunk, Random rng)
+        public ChunkNeighborhood(ChunkMap<ChunkServer> chunkMap, ChunkServer centralChunk, Random rng)
         {
             _rng = rng;
             UpdateNeighbors(chunkMap, centralChunk);
         }
 
-        public void UpdateNeighbors(ChunkMap chunkMap, Chunk centralChunk)
+        public void UpdateNeighbors(ChunkMap<ChunkServer> chunkMap, ChunkServer centralChunk)
         {
             // 6 7 8
             // 4 0 5
@@ -39,7 +39,7 @@ namespace Chunks
             };
         }
 
-        public bool GetBlockInfo(int x, int y, ref Chunk.BlockInfo blockInfo)
+        public bool GetBlockInfo(int x, int y, ref ChunkServer.BlockInfo blockInfo)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
 
@@ -78,7 +78,7 @@ namespace Chunks
             UpdateAdjacentBlockDirty(x, y);
         }
 
-        public void UpdateBlock(int x, int y, Chunk.BlockInfo blockInfo, bool resetColor = false)
+        public void UpdateBlock(int x, int y, ChunkServer.BlockInfo blockInfo, bool resetColor = false)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (_chunks[chunkIndex] == null)
@@ -100,7 +100,7 @@ namespace Chunks
             UpdateAdjacentBlockDirty(x, y);
         }
 
-        public void UpdateBlock(int x, int y, Chunk.BlockInfo blockInfo, byte r, byte g, byte b, byte a)
+        public void UpdateBlock(int x, int y, ChunkServer.BlockInfo blockInfo, byte r, byte g, byte b, byte a)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (_chunks[chunkIndex] == null)

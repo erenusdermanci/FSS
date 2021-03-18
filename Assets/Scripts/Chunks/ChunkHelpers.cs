@@ -41,7 +41,7 @@ namespace Chunks
             return File.Exists(GetChunksSaveFullPath(position));
         }
 
-        public static Chunk GetNeighborChunk(ChunkMap chunkMap, Chunk origin, int xOffset, int yOffset)
+        public static ChunkServer GetNeighborChunk(ChunkMap<ChunkServer> chunkMap, ChunkServer origin, int xOffset, int yOffset)
         {
             var neighborPosition = new Vector2i(origin.Position.x + xOffset, origin.Position.y + yOffset);
             return chunkMap.Contains(neighborPosition) ? chunkMap[neighborPosition] : null;

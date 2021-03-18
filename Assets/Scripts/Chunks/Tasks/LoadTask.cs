@@ -10,7 +10,7 @@ namespace Chunks.Tasks
     {
         private readonly string _chunkSaveFullPath;
 
-        public LoadTask(Chunk chunk) : base(chunk)
+        public LoadTask(ChunkServer chunk) : base(chunk)
         {
             _chunkSaveFullPath = ChunkHelpers.GetChunksSaveFullPath(Chunk.Position);
         }

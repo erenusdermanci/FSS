@@ -4,9 +4,9 @@ namespace Chunks.Tasks
 {
     public class ChunkTaskEvent : EventArgs
     {
-        public Chunk Chunk { get; }
+        public ChunkServer Chunk { get; }
 
-        public ChunkTaskEvent(Chunk chunk)
+        public ChunkTaskEvent(ChunkServer chunk)
         {
             Chunk = chunk;
         }

@@ -48,14 +48,16 @@ namespace DebugTools
 
         private readonly HashSet<Vector2i> _chunksToReload = new HashSet<Vector2i>();
 
-        private ChunkMap _chunkMap;
+        private ChunkMap<ChunkServer> _serverChunkMap;
+        private ChunkMap<ChunkClient> _clientChunkMap;
 
         // Start is called before the first frame update
         private void Awake()
         {
             _userDrawingLine = false;
             _rng = new Random();
-            _chunkMap = chunkManager.ChunkMap;
+            _serverChunkMap = chunkManager.ServerChunkMap;
+            _clientChunkMap = chunkManager.ClientChunkMap;
         }
 
         // Update is called once per frame
@@ -96,14 +98,14 @@ namespace DebugTools
 
             foreach (var chunkPos in _chunksToReload)
             {
-                var chunk = _chunkMap[chunkPos];
-                if (chunk == null)
+                var serverChunk = _serverChunkMap[chunkPos];
+                if (serverChunk == null)
                     continue;
-                chunk.UpdateTexture();
-                var chunkDirtyRects = chunk.DirtyRects;
+                var chunkDirtyRects = serverChunk.DirtyRects;
                 foreach (var chunkDirtyRect in chunkDirtyRects)
                     chunkDirtyRect.Reset();
-                chunk.Dirty = true;
+                serverChunk.Dirty = true;
+                _clientChunkMap[chunkPos]?.UpdateTexture();
             }
             _chunksToReload.Clear();
         }
@@ -127,7 +129,7 @@ namespace DebugTools
             var blockXInChunk = Helpers.Mod((int) worldX, Chunk.Size);
             var blockYInChunk = Helpers.Mod((int) worldY, Chunk.Size);
             var blockIndexInChunk = blockYInChunk * Chunk.Size + blockXInChunk;
-            var blockInfo = new Chunk.BlockInfo();
+            var blockInfo = new ChunkServer.BlockInfo();
             chunk.GetBlockInfo(blockIndexInChunk, ref blockInfo);
 
             // Draw selected
@@ -418,10 +420,10 @@ namespace DebugTools
             return chunk.GetBlockType(blockYInChunk * Chunk.Size + blockXInChunk);
         }
 
-        private Chunk GetChunkFromWorld(float worldX, float worldY)
+        private ChunkServer GetChunkFromWorld(float worldX, float worldY)
         {
             var chunkPosition = new Vector2i((int) Mathf.Floor(worldX / 64.0f), (int) Mathf.Floor(worldY / 64.0f));
-            return !_chunkMap.Contains(chunkPosition) ? null : _chunkMap[chunkPosition];
+            return !_serverChunkMap.Contains(chunkPosition) ? null : _serverChunkMap[chunkPosition];
         }
 
         private Color32 GetBlockColor()

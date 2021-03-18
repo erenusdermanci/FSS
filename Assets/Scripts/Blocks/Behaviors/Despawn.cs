@@ -22,7 +22,7 @@ namespace Blocks.Behaviors
             _despawnResultBlockType = despawnResultBlockType;
         }
 
-        public bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, Chunk.BlockInfo blockInfo, int x, int y, ref bool destroyed)
+        public bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, ChunkServer.BlockInfo blockInfo, int x, int y, ref bool destroyed)
         {
             if (blockInfo.Lifetime < _lifetime)
             {

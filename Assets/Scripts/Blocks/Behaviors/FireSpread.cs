@@ -36,13 +36,13 @@ namespace Blocks.Behaviors
             _destroyedWhenExtinguished = destroyedWhenExtinguished;
         }
 
-        public unsafe bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, Chunk.BlockInfo blockInfo, int x, int y, int* directionX,
+        public unsafe bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, ChunkServer.BlockInfo blockInfo, int x, int y, int* directionX,
             int* directionY, ref bool destroyed)
         {
             if (!blockInfo.GetState((int) BlockStates.Burning))
                 return false;
 
-            var neighborTypes = stackalloc Chunk.BlockInfo[8];
+            var neighborTypes = stackalloc ChunkServer.BlockInfo[8];
             var airNeighborsCount = 0;
             var selfNeighborsCount = 0;
 

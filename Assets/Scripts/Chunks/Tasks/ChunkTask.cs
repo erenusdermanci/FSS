@@ -8,7 +8,7 @@ namespace Chunks.Tasks
     {
         public bool Done;
 
-        public readonly Chunk Chunk;
+        public readonly ChunkServer Chunk;
 
         private bool _synchronous;
         private Task _task;
@@ -16,7 +16,7 @@ namespace Chunks.Tasks
         private readonly CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
 
-        protected ChunkTask(Chunk chunk)
+        protected ChunkTask(ChunkServer chunk)
         {
             _cancellationTokenSource = new CancellationTokenSource();
             Chunk = chunk;

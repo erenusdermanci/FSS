@@ -74,7 +74,7 @@ namespace Chunks.Tasks
             }
         }
 
-        public void QueueForSaving(Chunk chunk)
+        public void QueueForSaving(ChunkServer chunk)
         {
             _chunkTaskManagers[ChunkTaskTypes.Save].Enqueue(chunk);
         }
