@@ -5,6 +5,7 @@ using Chunks;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
+using Color = Utils.Color;
 using Random = System.Random;
 
 namespace DebugTools
@@ -195,7 +196,7 @@ namespace DebugTools
                     var yStart = _drawStartPos.Value.y / Chunk.Size - 0.5f;
                     var xEnd = blockPosition.x / Chunk.Size - 0.5f;
                     var yEnd = blockPosition.y / Chunk.Size - 0.5f;
-                    Debug.DrawLine(new Vector2(xStart, yStart), new Vector2(xEnd, yEnd), Color.white);
+                    Debug.DrawLine(new Vector2(xStart, yStart), new Vector2(xEnd, yEnd), UnityEngine.Color.white);
                 }
             }
         }
@@ -341,7 +342,7 @@ namespace DebugTools
 
         private void DrawSelectedBlock(Vector2i chunkPos, int x, int y)
         {
-            var selectColor = Color.red;
+            var selectColor = UnityEngine.Color.red;
             var xOffset = x / (float)Chunk.Size;
             var yOffset = y / (float)Chunk.Size;
             var blockSize = 1 / (float)Chunk.Size;
@@ -367,7 +368,7 @@ namespace DebugTools
                             new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
         }
 
-        private void PutBlock(int worldX, int worldY, int selectedBlock, Color32 blockColor, int states)
+        private void PutBlock(int worldX, int worldY, int selectedBlock, Color blockColor, int states)
         {
             var r = blockColor.r;
             var g = blockColor.g;
@@ -425,15 +426,15 @@ namespace DebugTools
             return !_serverChunkMap.Contains(chunkPosition) ? null : _serverChunkMap[chunkPosition];
         }
 
-        private Color32 GetBlockColor()
+        private Color GetBlockColor()
         {
             if (overrideDefaultColors)
-                return pixelColorOverride;
+                return new Color(pixelColorOverride.r, pixelColorOverride.g, pixelColorOverride.b, pixelColorOverride.a);
 
             var block = selectedDrawBlock;
             var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[block].ColorMaxShift);
             var color = BlockConstants.BlockDescriptors[block].Color;
-            return new Color32(
+            return new Color(
                 Helpers.ShiftColorComponent(color.r, shiftAmount),
                 Helpers.ShiftColorComponent(color.g, shiftAmount),
                 Helpers.ShiftColorComponent(color.b, shiftAmount),

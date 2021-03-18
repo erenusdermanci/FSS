@@ -18,7 +18,7 @@ namespace Utils
             return baseAmount * ((float) rng.NextDouble() - 0.5f) * 2.0f;
         }
 
-        public static byte ShiftColorComponent(int component, float amount)
+        public static byte ShiftColorComponent(byte component, float amount)
         {
             return (byte)Mathf.Clamp(component + component * amount, 0.0f, 255.0f);
         }

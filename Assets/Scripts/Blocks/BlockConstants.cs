@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Blocks.Behaviors;
-using UnityEngine;
+using Utils;
 using static Blocks.BlockMovementType;
 
 namespace Blocks
@@ -17,7 +17,7 @@ namespace Blocks
 
     public static class BlockConstants
     {
-        public static readonly Color32 FireColor = new Color32(240, 127, 19, 255);
+        public static readonly Color FireColor = new Color(240, 127, 19, 255);
         public const float FireColorMaxShift = 0.3f;
 
         public const int Air = 0;
@@ -40,7 +40,7 @@ namespace Blocks
                 "Air",
                 BlockTags.NonPhysical,
                 0.0f,
-                new Color32(0, 0, 0, 0),
+                new Color(0, 0, 0, 0),
                 0.0f,
                 0.0f,
                 0.0f,
@@ -51,7 +51,7 @@ namespace Blocks
                 "Cloud",
                 BlockTags.NonPhysical,
                 0.0f,
-                new Color32(193, 190, 186, 127),
+                new Color(193, 190, 186, 127),
                 0.05f,
                 0.0f,
                 0.0f,
@@ -62,7 +62,7 @@ namespace Blocks
                 "Oil",
                 BlockTags.Liquid,
                 0.1f,
-                new Color32(51, 38, 0, 255),
+                new Color(51, 38, 0, 255),
                 0.1f,
                 0.1f,
                 100.0f,
@@ -88,7 +88,7 @@ namespace Blocks
                 "Water",
                 BlockTags.Liquid,
                 0.2f,
-                new Color32(15, 94, 156, 255),
+                new Color(15, 94, 156, 255),
                 0.025f,
                 0.0f,
                 0.0f,
@@ -107,7 +107,7 @@ namespace Blocks
                 "Sand",
                 BlockTags.Solid,
                 0.5f,
-                new Color32(155, 134, 69, 255),
+                new Color(155, 134, 69, 255),
                 0.05f,
                 0.0f,
                 0.0f,
@@ -126,7 +126,7 @@ namespace Blocks
                 "Dirt",
                 BlockTags.Solid,
                 0.6f,
-                new Color32(124, 94, 66, 255),
+                new Color(124, 94, 66, 255),
                 0.1f,
                 0.0f,
                 0.0f,
@@ -145,7 +145,7 @@ namespace Blocks
                 "Stone",
                 BlockTags.Solid,
                 1.0f,
-                new Color32(149, 148, 139, 255),
+                new Color(149, 148, 139, 255),
                 0.2f,
                 0.0f,
                 0.0f,
@@ -156,7 +156,7 @@ namespace Blocks
                 "Metal",
                 BlockTags.Solid,
                 1.0f,
-                new Color32(75, 75, 75, 255),
+                new Color(75, 75, 75, 255),
                 0.01f,
                 0.0f,
                 0.0f,
@@ -167,7 +167,7 @@ namespace Blocks
                 "Border",
                 BlockTags.Solid,
                 1000.0f,
-                new Color32(255, 0, 0, 255),
+                new Color(255, 0, 0, 255),
                 0.0f,
                 0.0f,
                 0.0f,
@@ -178,7 +178,7 @@ namespace Blocks
                 "Gas",
                 BlockTags.Gas,
                 0.05f,
-                new Color32(73, 185, 96, 255),
+                new Color(73, 185, 96, 255),
                 0.1f,
                 1.0f,
                 100.0f,
@@ -205,7 +205,7 @@ namespace Blocks
                 "Smoke",
                 BlockTags.Gas,
                 0.06f,
-                new Color32(59, 68, 75, 75),
+                new Color(59, 68, 75, 75),
                 0.5f,
                 0.0f,
                 0.0f,
@@ -228,7 +228,7 @@ namespace Blocks
                 "Wood",
                 BlockTags.Solid,
                 1.0f,
-                new Color32(99, 70, 45, 255),
+                new Color(99, 70, 45, 255),
                 0.1f,
                 0.8f,
                 100.0f,
@@ -248,7 +248,7 @@ namespace Blocks
                 "Coal",
                 BlockTags.Solid,
                 1.0f,
-                new Color32(50, 50, 50, 255),
+                new Color(50, 50, 50, 255),
                 0.4f,
                 0.2f,
                 100.0f,
@@ -274,7 +274,7 @@ namespace Blocks
                 "Spark",
                 BlockTags.Gas,
                 1.0f,
-                new Color32(255, 155, 0, 255),
+                new Color(255, 155, 0, 255),
                 0.4f,
                 1.0f,
                 100.0f,

@@ -1,5 +1,5 @@
 ﻿using Blocks.Behaviors;
-using UnityEngine;
+using Utils;
 
 namespace Blocks
 {
@@ -8,7 +8,7 @@ namespace Blocks
         public readonly string Name;
         public readonly BlockTags Tag;
         public readonly float DensityPriority;
-        public readonly Color32 Color;
+        public readonly Color Color;
         public readonly float ColorMaxShift;
         public readonly float CombustionProbability;
         public readonly float BaseHealth;
@@ -18,7 +18,7 @@ namespace Blocks
         public BlockDescriptor(string name,
             BlockTags tag,
             float densityPriority,
-            Color32 color,
+            Color color,
             float colorMaxShift,
             float combustionProbability,
             float baseHealth,

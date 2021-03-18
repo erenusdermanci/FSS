@@ -7,6 +7,7 @@ using DebugTools;
 using ProceduralGeneration;
 using UnityEngine;
 using Utils;
+using Color = UnityEngine.Color;
 using Random = System.Random;
 
 namespace Chunks
