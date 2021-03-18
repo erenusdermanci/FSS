@@ -104,13 +104,19 @@ namespace Blocks.Behaviors
             for (var j = 0; j < _directions[directionIdx]; ++j)
             {
                 availableTargets[j] = 0; // default value should be set to 0, otherwise it's garbage value
-                targetBlocks[j] = chunkNeighborhood.GetBlockType(x + (j + 1) * directionX[directionIdx], y + (j + 1) * directionY[directionIdx]);
+                var targetX = x + (j + 1) * directionX[directionIdx];
+                var targetY = y + (j + 1) * directionY[directionIdx];
+                targetBlocks[j] = chunkNeighborhood.GetBlockType(targetX, targetY);
                 if (_blockedBy == BlockConstants.BlockDescriptors[targetBlocks[j]].Tag)
                     return targetsFound;
 
-                if (!(BlockConstants.BlockDescriptors[targetBlocks[j]].DensityPriority < BlockConstants.BlockDescriptors[block].DensityPriority))
+                if (!(BlockConstants.BlockDescriptors[targetBlocks[j]].DensityPriority <
+                      BlockConstants.BlockDescriptors[block].DensityPriority))
                     continue;
 
+                if (chunkNeighborhood.GetBlockUpdatedFlag(targetX, targetY) == ChunkManager.UpdatedFlag)
+                    continue;
+                    
                 availableTargets[j] = 1;
                 targetsFound = true;
             }

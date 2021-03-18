@@ -29,6 +29,9 @@ namespace Chunks
         private Vector2 _playerFlooredPosition;
         private Vector2? _oldPlayerFlooredPosition;
 
+        public static int UpdatedFlag;
+        private Random _rng;
+
         // DEBUG PROPERTIES
         private bool _userPressedSpace;
 
@@ -40,6 +43,7 @@ namespace Chunks
             initialGeneratedAreaSize = generatedAreaSize;
 
             InitializeRandom();
+            _rng = new Random(new Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next());
 
             PlayerPosition = playerTransform.position;
 
@@ -61,6 +65,8 @@ namespace Chunks
             {
                 _simulationBatchPool.Add(new ConcurrentDictionary<Vector2, SimulationTask>());
             }
+
+            UpdatedFlag = 1;
         }
 
         private void Update()
@@ -383,11 +389,16 @@ namespace Chunks
 
         private void Simulate()
         {
+            UpdatedFlag++;
+
             var enableDirty = !GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks;
             var synchronous = GlobalDebugConfig.StaticGlobalConfig.monothreadSimulate;
 
-            foreach (var batch in _simulationBatchPool)
+            var batchPoolShuffled = new KnuthShuffle(_rng.Next(), _simulationBatchPool.Count);
+            for (var i = 0; i < _simulationBatchPool.Count; ++i)
             {
+                var batchIndex = batchPoolShuffled[i];
+                var batch = _simulationBatchPool[batchIndex];
                 foreach (var task in batch.Values)
                 {
                     if (enableDirty && !task.Chunk.Dirty)
