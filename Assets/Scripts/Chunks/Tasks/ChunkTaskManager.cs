@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using DebugTools;
 using UnityEngine;
+using Utils;
 
 namespace Chunks.Tasks
 {
     public class ChunkTaskManager
     {
         private readonly int _maximumProcessing;
-        private readonly Dictionary<Vector2, ChunkTask> _tasks = new Dictionary<Vector2, ChunkTask>();
-        private readonly List<Vector2> _queued = new List<Vector2>();
-        private readonly Dictionary<Vector2, ChunkTask> _processing = new Dictionary<Vector2, ChunkTask>();
+        private readonly Dictionary<Vector2i, ChunkTask> _tasks = new Dictionary<Vector2i, ChunkTask>();
+        private readonly List<Vector2i> _queued = new List<Vector2i>();
+        private readonly Dictionary<Vector2i, ChunkTask> _processing = new Dictionary<Vector2i, ChunkTask>();
 
         private readonly List<ChunkTask> _processed = new List<ChunkTask>();
 
@@ -57,12 +58,12 @@ namespace Chunks.Tasks
             _processed.Clear();
         }
 
-        public bool Pending(Vector2 position)
+        public bool Pending(Vector2i position)
         {
             return _tasks.ContainsKey(position);
         }
 
-        public void Enqueue(Vector2 position)
+        public void Enqueue(Vector2i position)
         {
             if (_tasks.ContainsKey(position))
                 return;
@@ -95,7 +96,7 @@ namespace Chunks.Tasks
             ProcessDoneTasks();
         }
 
-        public void Cancel(Vector2 position)
+        public void Cancel(Vector2i position)
         {
             if (_processing.ContainsKey(position))
             {

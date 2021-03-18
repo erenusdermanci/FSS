@@ -24,10 +24,10 @@ namespace Chunks
         private GameObjectPool _chunkPool;
         private const int BatchNumber = 4;
         public readonly ChunkMap ChunkMap = new ChunkMap();
-        private readonly List<ConcurrentDictionary<Vector2, SimulationTask>> _simulationBatchPool = new List<ConcurrentDictionary<Vector2, SimulationTask>>(BatchNumber);
+        private readonly List<ConcurrentDictionary<Vector2i, SimulationTask>> _simulationBatchPool = new List<ConcurrentDictionary<Vector2i, SimulationTask>>(BatchNumber);
         private readonly ChunkTaskScheduler _chunkTaskScheduler = new ChunkTaskScheduler();
-        private Vector2 _playerFlooredPosition;
-        private Vector2? _oldPlayerFlooredPosition;
+        private Vector2i _playerFlooredPosition;
+        private Vector2i? _oldPlayerFlooredPosition;
 
         // DEBUG PROPERTIES
         private bool _userPressedSpace;
@@ -59,7 +59,7 @@ namespace Chunks
 
             for (var i = 0; i < BatchNumber; ++i)
             {
-                _simulationBatchPool.Add(new ConcurrentDictionary<Vector2, SimulationTask>());
+                _simulationBatchPool.Add(new ConcurrentDictionary<Vector2i, SimulationTask>());
             }
         }
 
@@ -80,7 +80,7 @@ namespace Chunks
         private void ResetGrid(bool loadFromDisk)
         {
             var position = playerTransform.position;
-            var flooredAroundPosition = new Vector2(Mathf.Floor(position.x), Mathf.Floor(position.y));
+            var flooredAroundPosition = new Vector2i((int) Mathf.Floor(position.x), (int) Mathf.Floor(position.y));
 
             _chunkTaskScheduler.CancelLoading();
             _chunkTaskScheduler.CancelGeneration();
@@ -140,13 +140,13 @@ namespace Chunks
                 var mapBorderColor = Color.white;
 
                 // draw the map borders
-                if (!ChunkMap.Contains(new Vector2(chunk.Position.x - 1, chunk.Position.y)))
+                if (!ChunkMap.Contains(new Vector2i(chunk.Position.x - 1, chunk.Position.y)))
                     Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), mapBorderColor);
-                if (!ChunkMap.Contains(new Vector2(chunk.Position.x + 1, chunk.Position.y)))
+                if (!ChunkMap.Contains(new Vector2i(chunk.Position.x + 1, chunk.Position.y)))
                     Debug.DrawLine(new Vector3(x + s, y - s), new Vector3(x + s, y + s), mapBorderColor);
-                if (!ChunkMap.Contains(new Vector2(chunk.Position.x, chunk.Position.y - 1)))
+                if (!ChunkMap.Contains(new Vector2i(chunk.Position.x, chunk.Position.y - 1)))
                     Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), mapBorderColor);
-                if (!ChunkMap.Contains(new Vector2(chunk.Position.x, chunk.Position.y + 1)))
+                if (!ChunkMap.Contains(new Vector2i(chunk.Position.x, chunk.Position.y + 1)))
                     Debug.DrawLine(new Vector3(x - s, y + s), new Vector3(x + s, y + s), mapBorderColor);
 
                 if (GlobalDebugConfig.StaticGlobalConfig.hideCleanChunkOutlines && !chunk.Dirty)
@@ -235,20 +235,20 @@ namespace Chunks
         private bool ShouldGenerate()
         {
             var position = playerTransform.position;
-            _playerFlooredPosition = new Vector2(Mathf.Floor(position.x), Mathf.Floor(position.y));
+            _playerFlooredPosition = new Vector2i((int) Mathf.Floor(position.x), (int) Mathf.Floor(position.y));
             if (_oldPlayerFlooredPosition == _playerFlooredPosition)
                 return false;
             _oldPlayerFlooredPosition = _playerFlooredPosition;
             return true;
         }
 
-        private void Generate(Vector2 aroundPosition, bool loadFromDisk)
+        private void Generate(Vector2i aroundPosition, bool loadFromDisk)
         {
             for (var x = 0; x < generatedAreaSize; ++x)
             {
                 for (var y = 0; y < generatedAreaSize; ++y)
                 {
-                    var pos = new Vector2(aroundPosition.x + (x - generatedAreaSize / 2), aroundPosition.y + (y - generatedAreaSize / 2));
+                    var pos = new Vector2i(aroundPosition.x + (x - generatedAreaSize / 2), aroundPosition.y + (y - generatedAreaSize / 2));
                     if (ChunkMap.Contains(pos))
                         continue;
                     _chunkTaskScheduler.QueueForGeneration(pos, loadFromDisk);
@@ -286,12 +286,12 @@ namespace Chunks
             UpdateSimulationPool(chunk, true);
         }
 
-        private void Clean(Vector2 aroundPosition)
+        private void Clean(Vector2i aroundPosition)
         {
             var px = aroundPosition.x - (float)generatedAreaSize / 2;
             var py = aroundPosition.y - (float)generatedAreaSize / 2;
 
-            var chunksToRemove = new List<Vector2>();
+            var chunksToRemove = new List<Vector2i>();
             foreach (var chunk in ChunkMap.Chunks())
             {
                 if (!(chunk.Position.x < px - cleanAreaSizeOffset) &&
@@ -374,7 +374,7 @@ namespace Chunks
             }
         }
 
-        private int GetChunkBatchIndex(Vector2 position)
+        private int GetChunkBatchIndex(Vector2i position)
         {
             // small bitwise trick to find the batch index and avoid an ugly forest
             return (((int) Math.Abs(position.x) % 2) << 1)

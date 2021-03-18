@@ -2,6 +2,7 @@
 using DebugTools;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Utils;
 
 namespace Chunks
 {
@@ -13,9 +14,9 @@ namespace Chunks
 
         public const string TestSceneFolder = "TestScenes";
 
-        public static string GetChunkSaveName(Vector2 position)
+        public static string GetChunkSaveName(Vector2i position)
         {
-            return $"{(int)position.x:x8}{(int)position.y:x8}";
+            return $"{position.x:x8}{position.y:x8}";
         }
 
         public static string GetSavePath()
@@ -30,19 +31,19 @@ namespace Chunks
             return $"{GetSavePath()}\\{SceneManager.GetActiveScene().name}";
         }
 
-        public static string GetChunksSaveFullPath(Vector2 position)
+        public static string GetChunksSaveFullPath(Vector2i position)
         {
             return $"{GetChunksSavePath()}\\{GetChunkSaveName(position)}";
         }
 
-        public static bool IsChunkPersisted(Vector2 position)
+        public static bool IsChunkPersisted(Vector2i position)
         {
             return File.Exists(GetChunksSaveFullPath(position));
         }
 
         public static Chunk GetNeighborChunk(ChunkMap chunkMap, Chunk origin, int xOffset, int yOffset)
         {
-            var neighborPosition = new Vector2(origin.Position.x + xOffset, origin.Position.y + yOffset);
+            var neighborPosition = new Vector2i(origin.Position.x + xOffset, origin.Position.y + yOffset);
             return chunkMap.Contains(neighborPosition) ? chunkMap[neighborPosition] : null;
         }
     }

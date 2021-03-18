@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using DebugTools;
 using UnityEngine;
+using Utils;
 using Random = System.Random;
 
 namespace Chunks.Tasks
@@ -49,7 +50,7 @@ namespace Chunks.Tasks
             }
         }
 
-        public void QueueForGeneration(Vector2 pos, bool loadFromDisk)
+        public void QueueForGeneration(Vector2i pos, bool loadFromDisk)
         {
             if (_chunkTaskManagers[ChunkTaskTypes.Generate].Pending(pos))
                 return;

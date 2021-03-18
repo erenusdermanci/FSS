@@ -2,22 +2,23 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
+using Utils;
 
 namespace Chunks
 {
     public class ChunkMap
     {
-        public readonly ConcurrentDictionary<Vector2, Chunk> Map = new ConcurrentDictionary<Vector2, Chunk>();
+        public readonly ConcurrentDictionary<Vector2i, Chunk> Map = new ConcurrentDictionary<Vector2i, Chunk>();
 
         [CanBeNull]
-        public Chunk this[Vector2 i] => Map.ContainsKey(i) ? Map[i] : null;
+        public Chunk this[Vector2i i] => Map.ContainsKey(i) ? Map[i] : null;
 
         public void Clear()
         {
             Map.Clear();
         }
 
-        public bool Contains(Vector2 position)
+        public bool Contains(Vector2i position)
         {
             return Map.ContainsKey(position);
         }
@@ -27,7 +28,7 @@ namespace Chunks
             Map.TryAdd(chunk.Position, chunk);
         }
 
-        public void Remove(Vector2 position)
+        public void Remove(Vector2i position)
         {
             Map.TryRemove(position, out _);
         }

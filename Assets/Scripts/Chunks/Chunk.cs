@@ -2,6 +2,7 @@
 using Blocks;
 using Serialized;
 using UnityEngine;
+using Utils;
 
 namespace Chunks
 {
@@ -10,7 +11,7 @@ namespace Chunks
         public const int Size = 64;
         public Texture2D Texture;
         public GameObject GameObject;
-        public Vector2 Position;
+        public Vector2i Position;
 
         public BlockData Data;
 

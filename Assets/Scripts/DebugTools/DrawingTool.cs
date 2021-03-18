@@ -46,7 +46,7 @@ namespace DebugTools
 
         private Random _rng;
 
-        private readonly HashSet<Vector2> _chunksToReload = new HashSet<Vector2>();
+        private readonly HashSet<Vector2i> _chunksToReload = new HashSet<Vector2i>();
 
         private ChunkMap _chunkMap;
 
@@ -321,7 +321,7 @@ namespace DebugTools
             }
         }
 
-        private void DrawBlockGrid(Vector2 chunkPos)
+        private void DrawBlockGrid(Vector2i chunkPos)
         {
             // hardcoded but its debug so its ok
             var gridColor = new Color32(255, 255, 255, 90);
@@ -338,7 +338,7 @@ namespace DebugTools
             }
         }
 
-        private void DrawSelectedBlock(Vector2 chunkPos, int x, int y)
+        private void DrawSelectedBlock(Vector2i chunkPos, int x, int y)
         {
             var selectColor = Color.red;
             var xOffset = x / (float)Chunk.Size;
@@ -420,7 +420,7 @@ namespace DebugTools
 
         private Chunk GetChunkFromWorld(float worldX, float worldY)
         {
-            var chunkPosition = new Vector2((int) Mathf.Floor(worldX / 64.0f), (int) Mathf.Floor(worldY / 64.0f));
+            var chunkPosition = new Vector2i((int) Mathf.Floor(worldX / 64.0f), (int) Mathf.Floor(worldY / 64.0f));
             return !_chunkMap.Contains(chunkPosition) ? null : _chunkMap[chunkPosition];
         }
 
