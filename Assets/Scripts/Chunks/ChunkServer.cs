@@ -66,14 +66,18 @@ namespace Chunks
                 case BlockConstants.Border:
                     return;
             }
-            int i;
-            if (x < Size / 2)
-                i = y < Size / 2 ? 0 : 2;
-            else
-                i = y < Size / 2 ? 1 : 3;
+
+            const int hs = Size / 2;
+            // xy
+            // 00 -> 0
+            // 01 -> 2
+            // 10 -> 1
+            // 11 -> 3
+            var i = (x / hs) | ((y / hs) << 1);
 
             x -= DirtyRectX[i];
             y -= DirtyRectY[i];
+            var d = DirtyRects[i];
             if (DirtyRects[i].X < 0.0f)
             {
                 DirtyRects[i].X = x;
