@@ -312,7 +312,7 @@ MonoBehaviour:
   disabled: 0
   chunkManager: {fileID: 4080857593054456511}
   selectedDrawBlock: 0
-  drawBrushSelection: 0
+  drawBrushSelection: 1
   selectedBrush: 1
   selectedState: 0
   colorizeOnly: 0
