@@ -25,7 +25,6 @@ namespace Chunks
             // 4 0 5
             // 1 2 3
 
-            // [-1,-1] [0, -1] [1, -1]
             _chunks = new[]
             {
                 ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, -1, -1),

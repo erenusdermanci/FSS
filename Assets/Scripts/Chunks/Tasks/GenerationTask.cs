@@ -21,11 +21,7 @@ namespace Chunks.Tasks
         {
             if (ShouldCancel()) return;
 
-            Chunk.Data.colors = new byte[Chunk.Size * Chunk.Size * 4];
-            Chunk.Data.types = new int[Chunk.Size * Chunk.Size];
-            Chunk.Data.stateBitsets = new int[Chunk.Size * Chunk.Size];
-            Chunk.Data.healths = new float[Chunk.Size * Chunk.Size];
-            Chunk.Data.lifetimes = new float[Chunk.Size * Chunk.Size];
+            Chunk.Initialize();
 
             if (ProceduralGenerator.IsEnabled)
             {
@@ -36,7 +32,7 @@ namespace Chunks.Tasks
                 GenerateProcedurally(generationModel);
             }
             else
-                GenerateEmpty();
+                Chunk.GenerateEmpty();
 
             Chunk.Dirty = true;
         }
@@ -90,22 +86,6 @@ namespace Chunks.Tasks
                     // Generate y within layer
                     GenerateBlock(model, x, y, layerIdx);
                 }
-            }
-        }
-
-        private void GenerateEmpty()
-        {
-            var airColor = BlockConstants.BlockDescriptors[BlockConstants.Air].Color;
-            for (var i = 0; i < Chunk.Size * Chunk.Size; i++)
-            {
-                Chunk.Data.colors[i * 4] = airColor.r;
-                Chunk.Data.colors[i * 4 + 1] = airColor.g;
-                Chunk.Data.colors[i * 4 + 2] = airColor.b;
-                Chunk.Data.colors[i * 4 + 3] = airColor.a;
-                Chunk.Data.types[i] = BlockConstants.Air;
-                Chunk.Data.stateBitsets[i] = 0;
-                Chunk.Data.healths[i] = BlockConstants.BlockDescriptors[BlockConstants.Air].BaseHealth;
-                Chunk.Data.lifetimes[i] = 0;
             }
         }
 

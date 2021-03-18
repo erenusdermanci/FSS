@@ -27,6 +27,15 @@ namespace Chunks
             }
         }
 
+        public void Initialize()
+        {
+            Data.colors = new byte[Size * Size * 4];
+            Data.types = new int[Size * Size];
+            Data.stateBitsets = new int[Size * Size];
+            Data.healths = new float[Size * Size];
+            Data.lifetimes = new float[Size * Size];
+        }
+
         public void UpdateTexture()
         {
             Texture.LoadRawTextureData(Data.colors);
@@ -118,6 +127,22 @@ namespace Chunks
         public int GetBlockType(int blockIndex)
         {
             return Data.types[blockIndex];
+        }
+
+        public void GenerateEmpty()
+        {
+            var airColor = BlockConstants.BlockDescriptors[BlockConstants.Air].Color;
+            for (var i = 0; i < Size * Size; i++)
+            {
+                Data.colors[i * 4] = airColor.r;
+                Data.colors[i * 4 + 1] = airColor.g;
+                Data.colors[i * 4 + 2] = airColor.b;
+                Data.colors[i * 4 + 3] = airColor.a;
+                Data.types[i] = BlockConstants.Air;
+                Data.stateBitsets[i] = 0;
+                Data.healths[i] = BlockConstants.BlockDescriptors[BlockConstants.Air].BaseHealth;
+                Data.lifetimes[i] = 0;
+            }
         }
 
         public struct BlockInfo
