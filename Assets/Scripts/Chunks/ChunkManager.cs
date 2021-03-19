@@ -426,11 +426,7 @@ namespace Chunks
             }
 
             foreach (var clientChunk in ClientChunkMap.Map.Values)
-            {
-                var serverChunk = ServerChunkMap[clientChunk.Position];
-                if (serverChunk != null && serverChunk.Dirty)
-                    clientChunk.UpdateTexture();
-            }
+                clientChunk.UpdateTexture();
         }
 
         private void OnDestroy()
