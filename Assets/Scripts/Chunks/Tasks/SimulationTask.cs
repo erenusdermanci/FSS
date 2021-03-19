@@ -102,14 +102,18 @@ namespace Chunks.Tasks
                     var shuffledIndex = shuffledDirtyRectOrder[i];
                     int startX, startY, endX, endY;
                     // First time we calculate the dirty rect, loop over all chunk
-                    if (Chunk.DirtyRects[shuffledIndex].X < 0)
+                    if (!Chunk.DirtyRects[shuffledIndex].Initialized)
                     {
                         startX = ChunkServer.DirtyRectX[shuffledIndex];
                         startY = ChunkServer.DirtyRectY[shuffledIndex];
                         endX = ChunkServer.DirtyRectX[shuffledIndex] + global::Chunks.Chunk.Size / 2 - 1;
                         endY = ChunkServer.DirtyRectY[shuffledIndex] + global::Chunks.Chunk.Size / 2 - 1;
+                        Chunk.DirtyRects[shuffledIndex].Initialized = true;
                     }
-                    // We already have a dirty rect, loop over it and reset it
+                    // rect was initialized and reset but is empty
+                    else if (Chunk.DirtyRects[shuffledIndex].X < 0)
+                        continue;
+                    // The dirty rect is initialized, loop over it and reset it
                     else
                     {
                         startX = ChunkServer.DirtyRectX[shuffledIndex] + Chunk.DirtyRects[shuffledIndex].X;

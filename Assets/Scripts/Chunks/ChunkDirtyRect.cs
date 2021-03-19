@@ -6,6 +6,7 @@
         public int Y;
         public int XMax;
         public int YMax;
+        public bool Initialized;
 
         public void Reset()
         {

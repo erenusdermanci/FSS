@@ -18,6 +18,7 @@ namespace Chunks
             for (var i = 0; i < DirtyRects.Length; ++i)
             {
                 DirtyRects[i].Reset();
+                DirtyRects[i].Initialized = false;
             }
         }
 
