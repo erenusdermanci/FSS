@@ -422,8 +422,14 @@ namespace Chunks
                     if (!task.Scheduled())
                         continue;
                     task.Join();
-                    ClientChunkMap[task.Chunk.Position]?.UpdateTexture();
                 }
+            }
+
+            foreach (var clientChunk in ClientChunkMap.Map.Values)
+            {
+                var serverChunk = ServerChunkMap[clientChunk.Position];
+                if (serverChunk != null && serverChunk.Dirty)
+                    clientChunk.UpdateTexture();
             }
         }
 
