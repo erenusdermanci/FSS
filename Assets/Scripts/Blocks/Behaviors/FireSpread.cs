@@ -68,7 +68,19 @@ namespace Blocks.Behaviors
                 {
                     return DestroyBlock(rng, chunkNeighborhood, x, y, ref destroyed);
                 }
-                chunkNeighborhood.UpdateBlock(x, y, blockInfo, true);
+
+                // update state for block:
+                chunkNeighborhood.GetCentralChunk().SetBlockStates(x, y, blockInfo.StateBitset);
+
+                // reset color of block:
+                var shiftAmount = Helpers.GetRandomShiftAmount(rng, BlockConstants.BlockDescriptors[blockInfo.Type].ColorMaxShift);
+                var color = BlockConstants.BlockDescriptors[blockInfo.Type].Color;
+                chunkNeighborhood.GetCentralChunk()
+                    .SetBlockColor(x, y,
+                        Helpers.ShiftColorComponent(color.r, shiftAmount),
+                        Helpers.ShiftColorComponent(color.g, shiftAmount),
+                        Helpers.ShiftColorComponent(color.b, shiftAmount),
+                        color.a);
             }
             else
             {
@@ -123,7 +135,7 @@ namespace Blocks.Behaviors
                     return DestroyBlock(rng, chunkNeighborhood, x, y, ref destroyed);
                 }
 
-                chunkNeighborhood.UpdateBlock(x, y, blockInfo);
+                chunkNeighborhood.GetCentralChunk().SetBlockHealth(x, y, blockInfo.Health);
             }
 
             return true;

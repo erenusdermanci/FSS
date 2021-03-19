@@ -129,6 +129,16 @@ namespace Chunks
             Dirty = true;
         }
 
+        public void SetBlockColor(int x, int y, byte r, byte g, byte b, byte a)
+        {
+            var blockIndex = y * Size + x;
+            Data.colors[blockIndex * 4] = r;
+            Data.colors[blockIndex * 4 + 1] = g;
+            Data.colors[blockIndex * 4 + 2] = b;
+            Data.colors[blockIndex * 4 + 3] = a;
+            UpdateBlockDirty(x, y);
+        }
+
         public void GetBlockInfo(int blockIndex, ref BlockInfo blockInfo)
         {
             blockInfo.Type = Data.types[blockIndex];
@@ -137,9 +147,22 @@ namespace Chunks
             blockInfo.Lifetime = Data.lifetimes[blockIndex];
         }
 
-        public void SetBlockLifetime(int blockIndex, float lifetime)
+        public void SetBlockStates(int x, int y, int states)
         {
-            Data.lifetimes[blockIndex] = lifetime;
+            Data.stateBitsets[y * Size + x] = states;
+            UpdateBlockDirty(x, y);
+        }
+
+        public void SetBlockLifetime(int x, int y, float lifetime)
+        {
+            Data.lifetimes[y * Size + x] = lifetime;
+            UpdateBlockDirty(x, y);
+        }
+
+        public void SetBlockHealth(int x, int y, float health)
+        {
+            Data.healths[y * Size + x] = health;
+            UpdateBlockDirty(x, y);
         }
 
         public int GetBlockType(int blockIndex)
