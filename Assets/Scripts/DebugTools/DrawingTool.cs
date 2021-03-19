@@ -135,6 +135,11 @@ namespace DebugTools
             // Draw selected
             DrawSelectedBlock(chunk.Position, blockXInChunk, blockYInChunk);
 
+            var r = chunk.Data.colors[blockIndexInChunk * 4];
+            var g = chunk.Data.colors[blockIndexInChunk * 4 + 1];
+            var b = chunk.Data.colors[blockIndexInChunk * 4 + 2];
+            var a = chunk.Data.colors[blockIndexInChunk * 4 + 3];
+
             // Update info text
             uiCoordText.text =
                 $"X: {blockXInChunk}, Y: {blockYInChunk}\n"
@@ -143,6 +148,7 @@ namespace DebugTools
                 + $"Health: {blockInfo.Health}\n"
                 + $"Lifetime: {blockInfo.Lifetime}\n"
                 + $"UpdatedFlag: {chunk.BlockUpdatedFlags[blockIndexInChunk]}\n"
+                + $"Color: [{r},{g},{b},{a}]\n"
                 + $"Chunk X:{chunk.Position.x}, Chunk Y: {chunk.Position.y}\n"
                 + $"Current UpdatedFlag: {ChunkManager.UpdatedFlag}";
         }
