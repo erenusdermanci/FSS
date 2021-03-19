@@ -194,10 +194,11 @@ namespace DebugTools
             {
                 if (_drawStartPos != null)
                 {
-                    var xStart = _drawStartPos.Value.x / Chunk.Size - 0.5f;
-                    var yStart = _drawStartPos.Value.y / Chunk.Size - 0.5f;
-                    var xEnd = blockPosition.x / Chunk.Size - 0.5f;
-                    var yEnd = blockPosition.y / Chunk.Size - 0.5f;
+                    const float blockSize = 1.0f / Chunk.Size / 2;
+                    var xStart = _drawStartPos.Value.x / Chunk.Size - 0.5f + blockSize;
+                    var yStart = _drawStartPos.Value.y / Chunk.Size - 0.5f + blockSize;
+                    var xEnd = blockPosition.x / Chunk.Size - 0.5f + blockSize;
+                    var yEnd = blockPosition.y / Chunk.Size - 0.5f + blockSize;
                     Debug.DrawLine(new Vector2(xStart, yStart), new Vector2(xEnd, yEnd), UnityEngine.Color.white);
                 }
             }
