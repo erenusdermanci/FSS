@@ -27,7 +27,7 @@ namespace Blocks.Behaviors
             if (blockInfo.Lifetime < _lifetime)
             {
                 blockInfo.Lifetime += 1.0f;
-                chunkNeighborhood.UpdateBlock(x, y, blockInfo);
+                chunkNeighborhood.GetCentralChunk().SetBlockLifetime(y * Chunk.Size + x, blockInfo.Lifetime);
             }
             else
             {

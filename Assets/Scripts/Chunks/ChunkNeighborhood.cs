@@ -11,6 +11,8 @@ namespace Chunks
 
         private ChunkServer[] _chunks;
 
+        private const int _centralChunkIndex = 4;
+
         public ChunkNeighborhood(ChunkMap<ChunkServer> chunkMap, ChunkServer centralChunk, Random rng)
         {
             _rng = rng;
@@ -35,6 +37,11 @@ namespace Chunks
                 ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, 0, 1),
                 ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, 1, 1)
             };
+        }
+
+        public ChunkServer GetCentralChunk()
+        {
+            return _chunks[_centralChunkIndex];
         }
 
         public bool GetBlockInfo(int x, int y, ref ChunkServer.BlockInfo blockInfo)

@@ -137,6 +137,11 @@ namespace Chunks
             blockInfo.Lifetime = Data.lifetimes[blockIndex];
         }
 
+        public void SetBlockLifetime(int blockIndex, float lifetime)
+        {
+            Data.lifetimes[blockIndex] = lifetime;
+        }
+
         public int GetBlockType(int blockIndex)
         {
             return Data.types[blockIndex];
