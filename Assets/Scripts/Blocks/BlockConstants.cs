@@ -21,7 +21,7 @@ namespace Blocks
         public const float FireColorMaxShift = 0.3f;
 
         public const int Air = 0;
-        public const int Cloud = 1;
+        public const int Flame = 1;
         public const int Oil = 2;
         public const int Water = 3;
         public const int Sand = 4;
@@ -48,15 +48,36 @@ namespace Blocks
                 new IBehavior[] {}
             ),
             new BlockDescriptor(
-                "Cloud",
-                BlockTags.NonPhysical,
-                1.0f,
-                new Color(193, 190, 186, 127),
-                0.05f,
+                "Flame",
+                BlockTags.Gas,
+                0.06f,
+                new Color(255, 110, 19, 255),
+                0.2f,
                 0.0f,
                 0.0f,
                 0,
-                new IBehavior[] {}
+                new IBehavior[]
+                {
+                    new Despawn(0.2f,
+                        10.0f,
+                        0.01f,
+                        Smoke
+                    ),
+                    new FireSpread(0.0f,
+                        Smoke,
+                        0.1f,
+                        Air,
+                        0.0f,
+                        false,
+                        false
+                    ),
+                    new Swap(
+                        new [] { 5, 5, 6, 7, 3, 4},
+                        new [] { 0, 0, 0, 1, 1, 1, 1, 1 },
+                        new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
+                        BlockTags.Solid
+                    )
+                }
             ),
             new BlockDescriptor (
                 "Oil",
@@ -214,6 +235,7 @@ namespace Blocks
                 {
                     new Despawn(0.1f,
                         100.0f,
+                        1.0f,
                         Air
                     ),
                     new Swap(
@@ -235,7 +257,7 @@ namespace Blocks
                 0,
                 new IBehavior[] {
                     new FireSpread(0.5f,
-                        Spark,
+                        Flame,
                         0.005f,
                         Coal,
                         1.0f,
@@ -255,7 +277,7 @@ namespace Blocks
                 0,
                 new IBehavior[] {
                     new FireSpread(0.01f,
-                        Smoke,
+                        Flame,
                         0.1f,
                         Smoke,
                         1.0f,

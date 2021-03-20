@@ -96,7 +96,7 @@ namespace Blocks.Behaviors
                         case BlockConstants.Air:
                             // replace Air with CombustionEmissionBlockType
                             var combustionEmissionProbability = _combustionEmissionProbability;
-                            if (combustionEmissionProbability == 0.0f)
+                            if (combustionEmissionProbability <= 0.0f)
                                 continue;
                             if (combustionEmissionProbability >= 1.0f
                                 || combustionEmissionProbability > rng.NextDouble())

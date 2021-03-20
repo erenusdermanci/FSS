@@ -11,14 +11,17 @@ namespace Blocks.Behaviors
 
         private readonly float _despawnProbability;
         private readonly float _lifetime;
+        private readonly float _despawnResultBlockProbability;
         private readonly int _despawnResultBlockType;
 
         public Despawn(float despawnProbability,
             float lifetime,
+            float despawnResultBlockProbability,
             int despawnResultBlockType)
         {
             _despawnProbability = despawnProbability;
             _lifetime = lifetime;
+            _despawnResultBlockProbability = despawnResultBlockProbability;
             _despawnResultBlockType = despawnResultBlockType;
         }
 
@@ -29,6 +32,7 @@ namespace Blocks.Behaviors
                 blockInfo.Lifetime += 1.0f;
                 chunkNeighborhood.GetCentralChunk().SetBlockLifetime(x, y, blockInfo.Lifetime);
             }
+
             else
             {
                 var despawnProbability = _despawnProbability;
@@ -36,9 +40,16 @@ namespace Blocks.Behaviors
                     || despawnProbability > rng.NextDouble())
                 {
                     // Destroy it
-                    chunkNeighborhood.ReplaceBlock(x, y, _despawnResultBlockType,
-                        BlockConstants.BlockDescriptors[_despawnResultBlockType].InitialStates,
-                        BlockConstants.BlockDescriptors[_despawnResultBlockType].BaseHealth, 0);
+                    var resultBlockType = BlockConstants.Air;
+                    if (_despawnResultBlockProbability > 0.0f
+                        && _despawnResultBlockProbability >= 0.0f
+                        || _despawnResultBlockProbability > rng.NextDouble())
+                    {
+                        resultBlockType = _despawnResultBlockType;
+                    }
+                    chunkNeighborhood.ReplaceBlock(x, y, resultBlockType,
+                        BlockConstants.BlockDescriptors[resultBlockType].InitialStates,
+                        BlockConstants.BlockDescriptors[resultBlockType].BaseHealth, 0);
                     destroyed = true;
                     return true;
                 }

@@ -45,7 +45,6 @@ namespace Chunks
             switch (type)
             {
                 case BlockConstants.Air:
-                case BlockConstants.Cloud:
                 case BlockConstants.Stone:
                 case BlockConstants.Metal:
                 case BlockConstants.Border:
@@ -73,7 +72,6 @@ namespace Chunks
             switch (type)
             {
                 case BlockConstants.Air:
-                case BlockConstants.Cloud:
                 case BlockConstants.Stone:
                 case BlockConstants.Metal:
                 case BlockConstants.Border:
@@ -90,7 +88,6 @@ namespace Chunks
             switch (Data.types[y * Size + x])
             {
                 case BlockConstants.Air:
-                case BlockConstants.Cloud:
                 case BlockConstants.Stone:
                 case BlockConstants.Metal:
                 case BlockConstants.Border:
