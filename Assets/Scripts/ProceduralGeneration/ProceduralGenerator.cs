@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ProceduralGeneration
 {
@@ -8,23 +9,23 @@ namespace ProceduralGeneration
         public bool Enabled;
         public static bool IsEnabled;
 
-        public TerrainGenerationModel GenerationModel;
+        [FormerlySerializedAs("GenerationModel")] public TerrainGenerationModel generationModel;
         public static TerrainGenerationModel StaticGenerationModel;
 
         public static event EventHandler UpdateEvent;
 
         private void Awake()
         {
-            StaticGenerationModel = new TerrainGenerationModel(GenerationModel);
+            StaticGenerationModel = new TerrainGenerationModel(generationModel);
 
             IsEnabled = Enabled;
         }
 
         private void FixedUpdate()
         {
-            if (StaticGenerationModel.Equals(GenerationModel))
+            if (StaticGenerationModel.Equals(generationModel))
                 return;
-            StaticGenerationModel = new TerrainGenerationModel(GenerationModel);
+            StaticGenerationModel = new TerrainGenerationModel(generationModel);
 
             IsEnabled = Enabled;
 

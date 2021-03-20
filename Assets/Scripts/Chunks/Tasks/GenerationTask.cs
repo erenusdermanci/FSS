@@ -41,8 +41,8 @@ namespace Chunks.Tasks
         {
             _noisesPerLayer = new Dictionary<int, ConfiguredNoisesForLayer>();
 
-            for (var i = 0; i < model.Layers.Count; i++)
-                _noisesPerLayer.Add(i, new ConfiguredNoisesForLayer(model.Layers[i]));
+            for (var i = 0; i < model.layers.Count; i++)
+                _noisesPerLayer.Add(i, new ConfiguredNoisesForLayer(model.layers[i]));
         }
 
         private void GenerateProcedurally(TerrainGenerationModel model)
@@ -51,28 +51,28 @@ namespace Chunks.Tasks
             {
                 if (ShouldCancel()) return;
                 // for each x in our world
-                var verticalIdxPerLayer = new int[model.Layers.Count];
+                var verticalIdxPerLayer = new int[model.layers.Count];
                 var totalDepth = 0;
 
-                for (var i = 0; i < model.Layers.Count; i++)
+                for (var i = 0; i < model.layers.Count; i++)
                 {
                     // for each layer
-                    var layer = model.Layers[i];
+                    var layer = model.layers[i];
                     var vertNoiseAcc = 0f;
                     var yAmpTotal = 1f;
-                    totalDepth += layer.Depth;
+                    totalDepth += layer.depth;
 
-                    for (var j = 0; j < layer.HeightNoises.Count; j++)
+                    for (var j = 0; j < layer.heightNoises.Count; j++)
                     {
                         // for each noise
-                        var xAmp = layer.HeightNoises[j].XAmplitude;
-                        var yAmp = layer.HeightNoises[j].YAmplitude;
+                        var xAmp = layer.heightNoises[j].xAmplitude;
+                        var yAmp = layer.heightNoises[j].yAmplitude;
                         var vertNoise = _noisesPerLayer[i].HeightConfiguredNoises[j].GetNoise((Chunk.Position.x * Chunks.Chunk.Size + x) / (Chunks.Chunk.Size * xAmp), 0);
                         vertNoiseAcc += vertNoise;
                         yAmpTotal *= yAmp;
                     }
 
-                    vertNoiseAcc /= layer.HeightNoises.Count;
+                    vertNoiseAcc /= layer.heightNoises.Count;
                     var vertIdx = (int)(vertNoiseAcc * Chunks.Chunk.Size * yAmpTotal - totalDepth);
 
                     verticalIdxPerLayer[i] = vertIdx;
@@ -93,14 +93,14 @@ namespace Chunks.Tasks
         {
             if (ShouldCancel()) return;
 
-            var layer = model.Layers[layerIdx];
+            var layer = model.layers[layerIdx];
 
             var noiseAcc = 0f;
-            for (var i = 0; i < layer.InLayerNoises.Count; i++)
+            for (var i = 0; i < layer.inLayerNoises.Count; i++)
             {
                 // for each noise
-                var xAmp = layer.InLayerNoises[i].XAmplitude;
-                var yAmp = layer.InLayerNoises[i].YAmplitude;
+                var xAmp = layer.inLayerNoises[i].xAmplitude;
+                var yAmp = layer.inLayerNoises[i].yAmplitude;
 
                 var noise = _noisesPerLayer[layerIdx].InLayerConfiguredNoises[i].GetNoise(
                     (Chunk.Position.x * Chunks.Chunk.Size + x) / (Chunks.Chunk.Size * xAmp),
@@ -109,7 +109,7 @@ namespace Chunks.Tasks
                 noiseAcc += noise;
             }
 
-            noiseAcc /= layer.InLayerNoises.Count;
+            noiseAcc /= layer.inLayerNoises.Count;
 
             var block = GetBlockFromNoise(layer, noiseAcc);
             var blockColor = BlockConstants.BlockDescriptors[block].Color;
@@ -129,7 +129,7 @@ namespace Chunks.Tasks
 
         private static int GetBlockFromNoise(Layer layer, float noise)
         {
-            var thresholds = layer.Thresholds;
+            var thresholds = layer.thresholds;
 
             for (var i = 0; i < thresholds.Count; ++i)
             {
