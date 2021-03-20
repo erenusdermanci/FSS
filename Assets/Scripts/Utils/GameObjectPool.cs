@@ -22,7 +22,7 @@ namespace Utils
 
         public GameObject GetObject()
         {
-            foreach (var t in _pooledObjects.Where(t => !t.activeInHierarchy))
+            foreach (var t in _pooledObjects.Where(t => t != null && !t.activeInHierarchy))
                 return t;
 
             return CreateObject();
