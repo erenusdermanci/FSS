@@ -124,15 +124,21 @@ namespace DebugTools.DrawingTool
             var blockInfo = new ChunkServer.BlockInfo();
             chunk.GetBlockInfo(blockIndexInChunk, ref blockInfo);
 
-            // Draw selected
-            DrawSelectedBlock(chunk.Position, blockXInChunk, blockYInChunk);
+            switch (selectedBrush)
+            {
+                case BrushType.Box:
+                    DrawSelectedBlock(chunk.Position, blockXInChunk, blockYInChunk);
+                    break;
+                case BrushType.Circle:
+                    DrawDebugCircle(worldX, worldY);
+                    break;
+            }
 
             var r = chunk.Data.colors[blockIndexInChunk * 4];
             var g = chunk.Data.colors[blockIndexInChunk * 4 + 1];
             var b = chunk.Data.colors[blockIndexInChunk * 4 + 2];
             var a = chunk.Data.colors[blockIndexInChunk * 4 + 3];
 
-            // Update info text
             uiCoordText.text =
                 $"X: {blockXInChunk}, Y: {blockYInChunk}\n"
                 + $"Type: {BlockConstants.BlockNames[blockInfo.Type]}\n"
@@ -361,6 +367,32 @@ namespace DebugTools.DrawingTool
             // along x axis top
             Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset + blockSize),
                             new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
+        }
+
+        private void DrawDebugCircle(float worldX, float worldY)
+        {
+            const int segments = 50;
+            var xRadius = circleRadius / (float)Chunk.Size;
+            var yRadius = circleRadius / (float)Chunk.Size;
+
+            var angle = 20f;
+            var points = new List<Vector2>();
+            for (var i = 0; i < segments + 1; i++)
+            {
+                var x = Mathf.Sin (Mathf.Deg2Rad * angle) * xRadius;
+                var y = Mathf.Cos (Mathf.Deg2Rad * angle) * yRadius;
+
+                points.Add(new Vector2(worldX / Chunk.Size - 0.5f + x,worldY / Chunk.Size - 0.5f + y));
+
+                angle += 360f / segments;
+            }
+
+            var previousPoint = points[0];
+            for (var i = 1; i < points.Count; ++i)
+            {
+                Debug.DrawLine(previousPoint, points[i], UnityEngine.Color.red);
+                previousPoint = points[i];
+            }
         }
 
         private void DrawBrush(int x, int y, bool immediate = true)
