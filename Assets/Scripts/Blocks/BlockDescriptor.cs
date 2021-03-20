@@ -7,7 +7,7 @@ namespace Blocks
     {
         public readonly string Name;
         public readonly BlockTags Tag;
-        public readonly float DensityPriority;
+        public readonly float DensityPriority; // Gases between 0 and 1, Air at 1 and others > 1
         public readonly Color Color;
         public readonly float ColorMaxShift;
         public readonly float CombustionProbability;

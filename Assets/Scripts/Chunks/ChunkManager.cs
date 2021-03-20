@@ -411,11 +411,8 @@ namespace Chunks
             var enableDirty = !GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks;
             var synchronous = GlobalDebugConfig.StaticGlobalConfig.monoThreadSimulate;
 
-            var batchPoolShuffled = new KnuthShuffle(_rng.Next(), _simulationBatchPool.Count);
-            for (var i = 0; i < _simulationBatchPool.Count; ++i)
+            foreach (var batch in _simulationBatchPool)
             {
-                var batchIndex = batchPoolShuffled[i];
-                var batch = _simulationBatchPool[batchIndex];
                 foreach (var task in batch.Values)
                 {
                     if (enableDirty && !task.Chunk.Dirty)

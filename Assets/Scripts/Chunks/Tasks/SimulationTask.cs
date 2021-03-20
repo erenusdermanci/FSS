@@ -111,32 +111,29 @@ namespace Chunks.Tasks
             }
             else
             {
-                var shuffledDirtyRectOrder = new KnuthShuffle(_rng.Next(), Chunk.DirtyRects.Length);
-                // need to randomize the dirtyrect traversal order...
                 for (var i = 0; i < Chunk.DirtyRects.Length; ++i)
                 {
-                    var shuffledIndex = shuffledDirtyRectOrder[i];
                     int startX, startY, endX, endY;
                     // First time we calculate the dirty rect, loop over all chunk
-                    if (!Chunk.DirtyRects[shuffledIndex].Initialized)
+                    if (!Chunk.DirtyRects[i].Initialized)
                     {
-                        startX = ChunkServer.DirtyRectX[shuffledIndex];
-                        startY = ChunkServer.DirtyRectY[shuffledIndex];
-                        endX = ChunkServer.DirtyRectX[shuffledIndex] + global::Chunks.Chunk.Size / 2 - 1;
-                        endY = ChunkServer.DirtyRectY[shuffledIndex] + global::Chunks.Chunk.Size / 2 - 1;
-                        Chunk.DirtyRects[shuffledIndex].Initialized = true;
+                        startX = ChunkServer.DirtyRectX[i];
+                        startY = ChunkServer.DirtyRectY[i];
+                        endX = ChunkServer.DirtyRectX[i] + global::Chunks.Chunk.Size / 2 - 1;
+                        endY = ChunkServer.DirtyRectY[i] + global::Chunks.Chunk.Size / 2 - 1;
+                        Chunk.DirtyRects[i].Initialized = true;
                     }
                     // rect was initialized and reset but is empty
-                    else if (Chunk.DirtyRects[shuffledIndex].X < 0)
+                    else if (Chunk.DirtyRects[i].X < 0)
                         continue;
                     // The dirty rect is initialized, loop over it and reset it
                     else
                     {
-                        startX = ChunkServer.DirtyRectX[shuffledIndex] + Chunk.DirtyRects[shuffledIndex].X;
-                        startY = ChunkServer.DirtyRectY[shuffledIndex] + Chunk.DirtyRects[shuffledIndex].Y;
-                        endX = ChunkServer.DirtyRectX[shuffledIndex] + Chunk.DirtyRects[shuffledIndex].XMax;
-                        endY = ChunkServer.DirtyRectY[shuffledIndex] + Chunk.DirtyRects[shuffledIndex].YMax;
-                        Chunk.DirtyRects[shuffledIndex].Reset();
+                        startX = ChunkServer.DirtyRectX[i] + Chunk.DirtyRects[i].X;
+                        startY = ChunkServer.DirtyRectY[i] + Chunk.DirtyRects[i].Y;
+                        endX = ChunkServer.DirtyRectX[i] + Chunk.DirtyRects[i].XMax;
+                        endY = ChunkServer.DirtyRectY[i] + Chunk.DirtyRects[i].YMax;
+                        Chunk.DirtyRects[i].Reset();
                     }
 
                     var knuthRngIndex = _rng.Next(0, 4);

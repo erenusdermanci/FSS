@@ -107,16 +107,45 @@ namespace Blocks.Behaviors
                 var targetX = x + (j + 1) * directionX[directionIdx];
                 var targetY = y + (j + 1) * directionY[directionIdx];
                 targetBlocks[j] = chunkNeighborhood.GetBlockType(targetX, targetY);
+
+                // collision, we cannot continue further in this direction
                 if (_blockedBy == BlockConstants.BlockDescriptors[targetBlocks[j]].Tag)
                     return targetsFound;
 
-                if (!(BlockConstants.BlockDescriptors[targetBlocks[j]].DensityPriority <
-                      BlockConstants.BlockDescriptors[block].DensityPriority))
+                // density logic check
+                // when swapping vertically, we need to make sure the blocks respect density rules
+                var densityDiff = BlockConstants.BlockDescriptors[targetBlocks[j]].DensityPriority -
+                                  BlockConstants.BlockDescriptors[block].DensityPriority;
+
+                // same density value, should not swap with same block
+                if (densityDiff == 0f)
                     continue;
 
+                // block horizontal movement if densities need to be respected: they have priority
+                var upBlock = chunkNeighborhood.GetBlockType(x, y + 1);
+                if (directionY[directionIdx] == 0 && targetBlocks[j] != BlockConstants.Air)
+                {
+                    if (densityDiff < 0.0f)
+                    {
+                        if (targetBlocks[j] != upBlock)
+                            continue;
+                    }
+                    else
+                    {
+                        if (block != upBlock)
+                            continue;
+                    }
+                }
+
+                // if moving vertically and density is different, lets check if the densities are already properly ordered
+                if (directionY[directionIdx] != 0 && directionY[directionIdx] * densityDiff <= 0.0f)
+                    continue;
+
+                // target was already updated during this simulation frame, not a valid target
                 if (chunkNeighborhood.GetBlockUpdatedFlag(targetX, targetY) == ChunkManager.UpdatedFlag)
                     continue;
-                    
+
+                // all criteria met, target is available
                 availableTargets[j] = 1;
                 targetsFound = true;
             }

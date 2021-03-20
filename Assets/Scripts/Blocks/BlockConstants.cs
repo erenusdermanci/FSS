@@ -39,7 +39,7 @@ namespace Blocks
             new BlockDescriptor(
                 "Air",
                 BlockTags.NonPhysical,
-                0.0f,
+                1.0f,
                 new Color(0, 0, 0, 0),
                 0.0f,
                 0.0f,
@@ -50,7 +50,7 @@ namespace Blocks
             new BlockDescriptor(
                 "Cloud",
                 BlockTags.NonPhysical,
-                0.0f,
+                1.0f,
                 new Color(193, 190, 186, 127),
                 0.05f,
                 0.0f,
@@ -61,7 +61,7 @@ namespace Blocks
             new BlockDescriptor (
                 "Oil",
                 BlockTags.Liquid,
-                0.1f,
+                1.1f,
                 new Color(51, 38, 0, 255),
                 0.1f,
                 0.1f,
@@ -79,7 +79,7 @@ namespace Blocks
                     new Swap(
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 2, 1, 1, 2, 2, 0, 0 ,0 },
-                        new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
+                        new[] { Randomized, Randomized, Randomized, Farthest, Farthest, Randomized, Randomized, Randomized },
                         BlockTags.Solid
                     )
                 }
@@ -87,7 +87,7 @@ namespace Blocks
             new BlockDescriptor (
                 "Water",
                 BlockTags.Liquid,
-                0.2f,
+                1.2f,
                 new Color(15, 94, 156, 255),
                 0.025f,
                 0.0f,
@@ -98,7 +98,7 @@ namespace Blocks
                     new Swap(
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 4, 1, 1, 4, 4, 0, 0, 0 },
-                        new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
+                        new[] { Randomized, Randomized, Randomized, Farthest, Farthest, Randomized, Randomized, Randomized },
                         BlockTags.Solid
                     )
                 }
@@ -106,7 +106,7 @@ namespace Blocks
             new BlockDescriptor (
                 "Sand",
                 BlockTags.Solid,
-                0.5f,
+                1.5f,
                 new Color(155, 134, 69, 255),
                 0.05f,
                 0.0f,
@@ -125,7 +125,7 @@ namespace Blocks
             new BlockDescriptor (
                 "Dirt",
                 BlockTags.Solid,
-                0.6f,
+                1.6f,
                 new Color(124, 94, 66, 255),
                 0.1f,
                 0.0f,
@@ -144,7 +144,7 @@ namespace Blocks
             new BlockDescriptor (
                 "Stone",
                 BlockTags.Solid,
-                1.0f,
+                2.0f,
                 new Color(149, 148, 139, 255),
                 0.2f,
                 0.0f,
@@ -155,7 +155,7 @@ namespace Blocks
             new BlockDescriptor (
                 "Metal",
                 BlockTags.Solid,
-                1.0f,
+                2.0f,
                 new Color(75, 75, 75, 255),
                 0.01f,
                 0.0f,
@@ -227,7 +227,7 @@ namespace Blocks
             new BlockDescriptor(
                 "Wood",
                 BlockTags.Solid,
-                1.0f,
+                2.0f,
                 new Color(99, 70, 45, 255),
                 0.1f,
                 0.8f,
@@ -247,7 +247,7 @@ namespace Blocks
             new BlockDescriptor(
                 "Coal",
                 BlockTags.Solid,
-                1.0f,
+                2.0f,
                 new Color(50, 50, 50, 255),
                 0.4f,
                 0.2f,
