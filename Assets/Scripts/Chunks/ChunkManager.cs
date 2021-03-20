@@ -234,7 +234,7 @@ namespace Chunks
             if (GlobalDebugConfig.StaticGlobalConfig.outlineChunks)
                 OutlineChunks();
 
-            if (GlobalDebugConfig.StaticGlobalConfig.drawDirtyRects)
+            if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyRects && GlobalDebugConfig.StaticGlobalConfig.drawDirtyRects)
                 DrawDirtyRects();
         }
 
