@@ -54,18 +54,18 @@ namespace Blocks
                 new Color(255, 110, 19, 255),
                 0.2f,
                 0.0f,
-                0.0f,
-                0,
+                100.0f,
+                1,
                 new IBehavior[]
                 {
                     new Despawn(0.2f,
                         10.0f,
-                        0.01f,
+                        0.2f,
                         Smoke
                     ),
                     new FireSpread(0.0f,
                         Smoke,
-                        0.1f,
+                        0.0f,
                         Air,
                         0.0f,
                         false,
@@ -91,8 +91,8 @@ namespace Blocks
                 new IBehavior[]
                 {
                     new FireSpread(0.01f,
-                        Smoke,
-                        0.01f,
+                        Flame,
+                        1.0f,
                         Smoke,
                         0.5f,
                         true,
@@ -252,15 +252,15 @@ namespace Blocks
                 2.0f,
                 new Color(99, 70, 45, 255),
                 0.1f,
-                0.8f,
+                1.0f,
                 100.0f,
                 0,
                 new IBehavior[] {
-                    new FireSpread(0.5f,
+                    new FireSpread(5.0f,
                         Flame,
-                        0.005f,
-                        Coal,
                         1.0f,
+                        Coal,
+                        0.1f,
                         true,
                         false
                     )
@@ -278,7 +278,7 @@ namespace Blocks
                 new IBehavior[] {
                     new FireSpread(0.01f,
                         Flame,
-                        0.1f,
+                        1.0f,
                         Smoke,
                         1.0f,
                         true,
