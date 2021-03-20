@@ -200,12 +200,20 @@ namespace DebugTools
             {
                 if (_drawStartPos != null)
                 {
+                    var lineColor = Input.GetMouseButton(1) ? UnityEngine.Color.red : UnityEngine.Color.white;
                     const float blockSize = 1.0f / Chunk.Size / 2;
                     var xStart = _drawStartPos.Value.x / Chunk.Size - 0.5f + blockSize;
                     var yStart = _drawStartPos.Value.y / Chunk.Size - 0.5f + blockSize;
                     var xEnd = blockPosition.x / Chunk.Size - 0.5f + blockSize;
                     var yEnd = blockPosition.y / Chunk.Size - 0.5f + blockSize;
-                    Debug.DrawLine(new Vector2(xStart, yStart), new Vector2(xEnd, yEnd), UnityEngine.Color.white);
+                    Debug.DrawLine(new Vector2(xStart, yStart), new Vector2(xEnd, yEnd), lineColor);
+
+                    if (Input.GetMouseButtonUp(1))
+                    {
+                        _userDrawingLine = false;
+                        _drawStartPos = null;
+                        _drawEndPos = null;
+                    }
                 }
             }
         }
