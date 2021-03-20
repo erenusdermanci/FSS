@@ -10,9 +10,6 @@ namespace Chunks.Tasks
     {
         private readonly Dictionary<ChunkTaskTypes, ChunkTaskManager> _chunkTaskManagers;
 
-        private readonly ThreadLocal<Random> _random = new ThreadLocal<Random>(() =>
-            new Random(new Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
-
         public ChunkTaskScheduler()
         {
             _chunkTaskManagers = new Dictionary<ChunkTaskTypes, ChunkTaskManager>
@@ -27,10 +24,7 @@ namespace Chunks.Tasks
                 },
                 {
                     ChunkTaskTypes.Generate,
-                    new ChunkTaskManager(16, chunk => new GenerationTask(chunk)
-                    {
-                        Rng = _random
-                    })
+                    new ChunkTaskManager(16, chunk => new GenerationTask(chunk))
                 }
             };
         }

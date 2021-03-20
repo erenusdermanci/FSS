@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
 using Chunks.Tasks;
 using DebugTools;
 using ProceduralGeneration;
@@ -16,7 +15,7 @@ namespace Chunks
     {
         // PROPERTIES
         public int generatedAreaSize = 10;
-        private int initialGeneratedAreaSize;
+        private int _initialGeneratedAreaSize;
         public int cleanAreaSizeOffset = 2;
         public Transform playerTransform;
 
@@ -32,20 +31,14 @@ namespace Chunks
         private Vector2i? _oldPlayerFlooredPosition;
 
         public static int UpdatedFlag;
-        private Random _rng;
 
         // DEBUG PROPERTIES
         private bool _userPressedSpace;
 
-        private ThreadLocal<Random> Random { get; set; }
-
         private void Awake()
         {
             // to be able to go back to initial size if debug value is set to 0
-            initialGeneratedAreaSize = generatedAreaSize;
-
-            InitializeRandom();
-            _rng = new Random(new Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next());
+            _initialGeneratedAreaSize = generatedAreaSize;
 
             PlayerPosition = playerTransform.position;
 
@@ -78,12 +71,6 @@ namespace Chunks
 
             if (Input.GetKeyDown(KeyCode.Space))
                 _userPressedSpace = true;
-        }
-
-        private void InitializeRandom()
-        {
-            Random = new ThreadLocal<Random>(() =>
-                new Random(new Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
         }
 
         private static void DisableDirtyRectsChangedEvent(object sender, EventArgs e)
@@ -128,10 +115,10 @@ namespace Chunks
 
             if (overrideGridSize == 0) // disable override
             {
-                if (generatedAreaSize == initialGeneratedAreaSize) // already at default value
+                if (generatedAreaSize == _initialGeneratedAreaSize) // already at default value
                     return;
 
-                generatedAreaSize = initialGeneratedAreaSize;
+                generatedAreaSize = _initialGeneratedAreaSize;
                 resetGrid = true;
             }
             else if (generatedAreaSize != overrideGridSize)
@@ -175,7 +162,7 @@ namespace Chunks
             }
         }
 
-        private unsafe void DrawDirtyRects()
+        private void DrawDirtyRects()
         {
             foreach (var chunk in ServerChunkMap.Chunks())
             {
@@ -360,8 +347,7 @@ namespace Chunks
                     return; // this chunk simulation task already exists
                 var task = new SimulationTask(chunk)
                 {
-                    Chunks = new ChunkNeighborhood(ServerChunkMap, chunk, Random.Value),
-                    Random = Random
+                    Chunks = new ChunkNeighborhood(ServerChunkMap, chunk),
                 };
                 _simulationBatchPool[batchIndex].TryAdd(chunkPos, task);
             }

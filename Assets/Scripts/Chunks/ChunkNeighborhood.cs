@@ -7,15 +7,12 @@ namespace Chunks
 {
     public class ChunkNeighborhood
     {
-        private readonly Random _rng;
-
         private ChunkServer[] _chunks;
 
         private const int _centralChunkIndex = 4;
 
-        public ChunkNeighborhood(ChunkMap<ChunkServer> chunkMap, ChunkServer centralChunk, Random rng)
+        public ChunkNeighborhood(ChunkMap<ChunkServer> chunkMap, ChunkServer centralChunk)
         {
-            _rng = rng;
             UpdateNeighbors(chunkMap, centralChunk);
         }
 
@@ -83,7 +80,7 @@ namespace Chunks
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (_chunks[chunkIndex] == null)
                 return;
-            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[type].ColorMaxShift);
+            var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.BlockDescriptors[type].ColorMaxShift);
             var color = BlockConstants.BlockDescriptors[type].Color;
             _chunks[chunkIndex].PutBlock(x, y, type,
                 Helpers.ShiftColorComponent(color.r, shiftAmount),
@@ -100,7 +97,7 @@ namespace Chunks
                 return;
             if (resetColor)
             {
-                var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[blockInfo.Type].ColorMaxShift);
+                var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.BlockDescriptors[blockInfo.Type].ColorMaxShift);
                 var color = BlockConstants.BlockDescriptors[blockInfo.Type].Color;
                 _chunks[chunkIndex].PutBlock(x, y, blockInfo.Type,
                     Helpers.ShiftColorComponent(color.r, shiftAmount),

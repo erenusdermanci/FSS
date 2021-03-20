@@ -10,8 +10,6 @@ namespace Chunks.Tasks
 {
     public class GenerationTask : ChunkTask
     {
-        public ThreadLocal<Random> Rng;
-        private Random _rng;
         private Dictionary<int, ConfiguredNoisesForLayer> _noisesPerLayer;
 
         public GenerationTask(ChunkServer chunk) : base(chunk)
@@ -26,8 +24,6 @@ namespace Chunks.Tasks
 
             if (GlobalDebugConfig.StaticGlobalConfig.enableProceduralGeneration)
             {
-                _rng = Rng.Value;
-
                 var generationModel = ProceduralGenerator.StaticGenerationModel;
                 ConfigureNoises(generationModel);
                 GenerateProcedurally(generationModel);
@@ -117,7 +113,7 @@ namespace Chunks.Tasks
 
             var idx = y * Chunks.Chunk.Size + x;
 
-            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[block].ColorMaxShift);
+            var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.BlockDescriptors[block].ColorMaxShift);
             Chunk.Data.colors[idx * 4] = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
             Chunk.Data.colors[idx * 4 + 1] = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
             Chunk.Data.colors[idx * 4 + 2] = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);

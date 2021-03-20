@@ -73,7 +73,7 @@ namespace Blocks.Behaviors
                 chunkNeighborhood.GetCentralChunk().SetBlockStates(x, y, blockInfo.StateBitset);
 
                 // reset color of block:
-                var shiftAmount = Helpers.GetRandomShiftAmount(rng, BlockConstants.BlockDescriptors[blockInfo.Type].ColorMaxShift);
+                var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.BlockDescriptors[blockInfo.Type].ColorMaxShift);
                 var color = BlockConstants.BlockDescriptors[blockInfo.Type].Color;
                 chunkNeighborhood.GetCentralChunk()
                     .SetBlockColor(x, y,
@@ -116,7 +116,7 @@ namespace Blocks.Behaviors
                             {
                                 // spreading to this block
                                 neighborTypes[i].SetState((int)BlockStates.Burning);
-                                var shiftAmount = Helpers.GetRandomShiftAmount(rng, BlockConstants.FireColorMaxShift);
+                                var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.FireColorMaxShift);
                                 var color = BlockConstants.FireColor;
                                 chunkNeighborhood.UpdateBlock(x + directionX[i], y + directionY[i], neighborTypes[i],
                                     Helpers.ShiftColorComponent(color.r, shiftAmount),

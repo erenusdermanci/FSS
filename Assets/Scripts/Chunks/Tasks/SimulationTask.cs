@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using Blocks;
 using Blocks.Behaviors;
 using DebugTools;
@@ -11,8 +10,6 @@ namespace Chunks.Tasks
     public class SimulationTask : ChunkTask
     {
         internal ChunkNeighborhood Chunks;
-
-        public ThreadLocal<Random> Random;
 
         private Random _rng;
 
@@ -93,7 +90,7 @@ namespace Chunks.Tasks
 
             #endregion
 
-            _rng = Random.Value;
+            _rng = StaticRandom.Get();
 
             var blockInfo = new ChunkServer.BlockInfo();
             var dirtied = false;

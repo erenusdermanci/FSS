@@ -380,7 +380,7 @@ namespace DebugTools.DrawingTool
             if (selectedState == 1)
             {
                 blockColor = BlockConstants.FireColor;
-                var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.FireColorMaxShift);
+                var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.FireColorMaxShift);
                 r = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
                 g = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
                 b = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
@@ -436,7 +436,7 @@ namespace DebugTools.DrawingTool
                 return new Color(pixelColorOverride.r, pixelColorOverride.g, pixelColorOverride.b, pixelColorOverride.a);
 
             var block = selectedDrawBlock;
-            var shiftAmount = Helpers.GetRandomShiftAmount(_rng, BlockConstants.BlockDescriptors[block].ColorMaxShift);
+            var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.BlockDescriptors[block].ColorMaxShift);
             var color = BlockConstants.BlockDescriptors[block].Color;
             return new Color(
                 Helpers.ShiftColorComponent(color.r, shiftAmount),
