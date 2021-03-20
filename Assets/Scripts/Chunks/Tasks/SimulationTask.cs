@@ -16,9 +16,9 @@ namespace Chunks.Tasks
 
         private Random _rng;
 
-        public static KnuthShuffle NoDirtyRectShuffle;
+        private static KnuthShuffle _noDirtyRectShuffle;
 
-        public static KnuthShuffle[,] DirtyRectShuffles;
+        private static KnuthShuffle[,] _dirtyRectShuffles;
 
         static SimulationTask()
         {
@@ -39,7 +39,7 @@ namespace Chunks.Tasks
 
         private static void InitializeNoDirtyRectShuffle()
         {
-            NoDirtyRectShuffle = new KnuthShuffle(new Random().Next(), global::Chunks.Chunk.Size * global::Chunks.Chunk.Size);
+            _noDirtyRectShuffle = new KnuthShuffle(new Random().Next(), global::Chunks.Chunk.Size * global::Chunks.Chunk.Size);
         }
 
         private static void InitializeDirtyRectShuffles()
@@ -54,12 +54,12 @@ namespace Chunks.Tasks
                 }
             }
 
-            DirtyRectShuffles = new KnuthShuffle[4, sizes.Max + 1];
+            _dirtyRectShuffles = new KnuthShuffle[4, sizes.Max + 1];
             for (var i = 0; i < 4; ++i)
             {
                 foreach (var size in sizes)
                 {
-                    DirtyRectShuffles[i, size] = new KnuthShuffle(rng.Next(), size);
+                    _dirtyRectShuffles[i, size] = new KnuthShuffle(rng.Next(), size);
                 }
             }
         }
@@ -103,8 +103,8 @@ namespace Chunks.Tasks
                 const int totalSize = global::Chunks.Chunk.Size * global::Chunks.Chunk.Size;
                 for (var i = 0; i < totalSize; ++i)
                 {
-                    var x = NoDirtyRectShuffle[i] / global::Chunks.Chunk.Size;
-                    var y = NoDirtyRectShuffle[i] % global::Chunks.Chunk.Size;
+                    var x = _noDirtyRectShuffle[i] / global::Chunks.Chunk.Size;
+                    var y = _noDirtyRectShuffle[i] % global::Chunks.Chunk.Size;
 
                     dirtied |= SimulateBlock(x, y, ref blockInfo, distances, bitCount, directionX, directionY);
                 }
@@ -143,8 +143,8 @@ namespace Chunks.Tasks
                     var totalSize = (endX - startX + 1) * (endY - startY + 1);
                     for (var j = 0; j < totalSize; ++j)
                     {
-                        var x = startX + DirtyRectShuffles[knuthRngIndex, totalSize][j] % (endX - startX + 1);
-                        var y = startY + DirtyRectShuffles[knuthRngIndex, totalSize][j] / (endX - startX + 1);
+                        var x = startX + _dirtyRectShuffles[knuthRngIndex, totalSize][j] % (endX - startX + 1);
+                        var y = startY + _dirtyRectShuffles[knuthRngIndex, totalSize][j] / (endX - startX + 1);
 
                         dirtied |= SimulateBlock(x, y, ref blockInfo, distances, bitCount, directionX, directionY);
                     }
