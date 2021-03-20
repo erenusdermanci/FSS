@@ -6,9 +6,6 @@ namespace ProceduralGeneration
 {
     public class ProceduralGenerator : MonoBehaviour
     {
-        public bool Enabled;
-        public static bool IsEnabled;
-
         [FormerlySerializedAs("GenerationModel")] public TerrainGenerationModel generationModel;
         public static TerrainGenerationModel StaticGenerationModel;
 
@@ -17,8 +14,6 @@ namespace ProceduralGeneration
         private void Awake()
         {
             StaticGenerationModel = new TerrainGenerationModel(generationModel);
-
-            IsEnabled = Enabled;
         }
 
         private void FixedUpdate()
@@ -26,8 +21,6 @@ namespace ProceduralGeneration
             if (StaticGenerationModel.Equals(generationModel))
                 return;
             StaticGenerationModel = new TerrainGenerationModel(generationModel);
-
-            IsEnabled = Enabled;
 
             UpdateEvent?.Invoke(this, null);
         }

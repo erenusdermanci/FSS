@@ -851,6 +851,7 @@ MonoBehaviour:
   globalConfig:
     disableSave: 1
     disableLoad: 1
+    enableProceduralGeneration: 1
     monothreadSimulate: 0
     overrideGridSize: 0
     pauseSimulation: 0

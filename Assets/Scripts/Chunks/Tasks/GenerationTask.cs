@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using Blocks;
+using DebugTools;
 using ProceduralGeneration;
 using Utils;
 
@@ -23,7 +24,7 @@ namespace Chunks.Tasks
 
             Chunk.Initialize();
 
-            if (ProceduralGenerator.IsEnabled)
+            if (GlobalDebugConfig.StaticGlobalConfig.enableProceduralGeneration)
             {
                 _rng = Rng.Value;
 

@@ -30,6 +30,7 @@ namespace DebugTools
         {
             public bool disableSave;
             public bool disableLoad;
+            public bool enableProceduralGeneration;
             public bool monothreadSimulate;
             public int overrideGridSize;
             public bool pauseSimulation;
@@ -56,6 +57,7 @@ namespace DebugTools
                 saveAsTestScene = other.saveAsTestScene;
                 disableSave = other.disableSave;
                 disableLoad = other.disableLoad;
+                enableProceduralGeneration = other.enableProceduralGeneration;
             }
 
             public bool Equals(GlobalConfigStruct other)
@@ -71,7 +73,8 @@ namespace DebugTools
                     || disableDirtyRects != other.disableDirtyRects
                     || saveAsTestScene != other.saveAsTestScene
                     || disableSave != other.disableSave
-                    || disableLoad != other.disableLoad)
+                    || disableLoad != other.disableLoad
+                    || enableProceduralGeneration != other.enableProceduralGeneration)
                     return false;
 
                 return true;
