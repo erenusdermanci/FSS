@@ -152,7 +152,12 @@ namespace DebugTools
 
         private void UpdateDrawPoint(Vector2i blockPosition)
         {
-            if (Input.GetMouseButton(0))
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (_lastPointDrawnForLine != null && Input.GetKey(KeyCode.LeftShift))
+                    DrawLine(_lastPointDrawnForLine.Value, blockPosition);
+            }
+            else if (Input.GetMouseButton(0))
             {
                 if (_lastPointDrawn == null)
                     PutBlock(blockPosition.x, blockPosition.y, selectedDrawBlock, GetBlockColor(), selectedState);
@@ -160,23 +165,17 @@ namespace DebugTools
                     DrawLine(_lastPointDrawn.Value, blockPosition);
                 _lastPointDrawn = new Vector2i(blockPosition.x, blockPosition.y);
             }
-            if (Input.GetKey(KeyCode.LeftShift))
+            else if (Input.GetMouseButtonUp(0))
+            {
+                _lastPointDrawnForLine = _lastPointDrawn;
+                _lastPointDrawn = null;
+            }
+            else if (Input.GetKey(KeyCode.LeftShift))
             {
                 if (_lastPointDrawnForLine != null)
                 {
                     DrawDebugLine(_lastPointDrawnForLine.Value, blockPosition, UnityEngine.Color.white);
-
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        DrawLine(_lastPointDrawnForLine.Value, blockPosition);
-                    }
                 }
-            }
-
-            if (Input.GetMouseButtonUp(0))
-            {
-                _lastPointDrawnForLine = _lastPointDrawn;
-                _lastPointDrawn = null;
             }
         }
 
