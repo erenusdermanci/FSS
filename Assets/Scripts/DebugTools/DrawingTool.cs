@@ -17,7 +17,6 @@ namespace DebugTools
         {
             Point,
             Box,
-            Line,
             Fill
         }
 
@@ -44,7 +43,8 @@ namespace DebugTools
         private Vector2i? _drawStartPos;
         private Vector2i? _drawEndPos;
 
-        private Vector2i? _lastPointDrawn = null;
+        private Vector2i? _lastPointDrawn;
+        private Vector2i? _lastPointDrawnForLine;
 
         private Random _rng;
 
@@ -88,14 +88,9 @@ namespace DebugTools
                 case DrawType.Box:
                     UpdateDrawBox(blockPosition);
                     break;
-                case DrawType.Line:
-                    UpdateDrawLine(blockPosition);
-                    break;
                 case DrawType.Fill:
                     UpdateFill(blockPosition);
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
 
             foreach (var chunkPos in _chunksToReload)
@@ -165,8 +160,22 @@ namespace DebugTools
                     DrawLine(_lastPointDrawn.Value, blockPosition);
                 _lastPointDrawn = new Vector2i(blockPosition.x, blockPosition.y);
             }
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                if (_lastPointDrawnForLine != null)
+                {
+                    DrawDebugLine(_lastPointDrawnForLine.Value, blockPosition, UnityEngine.Color.white);
+
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        DrawLine(_lastPointDrawnForLine.Value, blockPosition);
+                    }
+                }
+            }
+
             if (Input.GetMouseButtonUp(0))
             {
+                _lastPointDrawnForLine = _lastPointDrawn;
                 _lastPointDrawn = null;
             }
         }
