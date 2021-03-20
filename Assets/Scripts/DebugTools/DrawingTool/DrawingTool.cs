@@ -9,23 +9,10 @@ using Utils;
 using Color = Utils.Color;
 using Random = System.Random;
 
-namespace DebugTools
+namespace DebugTools.DrawingTool
 {
     public class DrawingTool : MonoBehaviour
     {
-        [Serializable]
-        public enum ToolType
-        {
-            Point,
-            Fill
-        }
-
-        [Serializable]
-        public enum BrushType
-        {
-            Box
-        }
-
         public bool disabled;
         public ChunkManager chunkManager;
 
@@ -208,7 +195,7 @@ namespace DebugTools
 
                     var x = pos.x;
                     var y = pos.y;
-                    PutBlock1(x, y, selectedDrawBlock, GetBlockColor(), selectedState);
+                    PutBlock(x, y, selectedDrawBlock, GetBlockColor(), selectedState);
 
                     var right = new Vector2i(x + 1, y);
                     var left = new Vector2i(x - 1, y);
@@ -258,7 +245,7 @@ namespace DebugTools
             {
                 for (var j = py; j < py + boxSize; j++)
                 {
-                    PutBlock1(i, j, selectedDrawBlock, GetBlockColor(), selectedState);
+                    PutBlock(i, j, selectedDrawBlock, GetBlockColor(), selectedState);
                 }
             }
         }
@@ -363,7 +350,7 @@ namespace DebugTools
             }
         }
 
-        private void PutBlock1(int worldX, int worldY, int selectedBlock, Color blockColor, int states)
+        private void PutBlock(int worldX, int worldY, int selectedBlock, Color blockColor, int states)
         {
             var r = blockColor.r;
             var g = blockColor.g;
