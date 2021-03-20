@@ -278,7 +278,7 @@ MonoBehaviour:
       Thresholds:
       - type: 0
         threshold: 0.5
-      - type: 1
+      - type: 0
         threshold: 1
       Depth: 0
     - HeightNoises:
