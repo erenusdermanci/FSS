@@ -5,6 +5,7 @@ namespace DebugTools.DrawingTool
     [Serializable]
     public enum BrushType
     {
-        Box
+        Box,
+        Circle
     }
 }

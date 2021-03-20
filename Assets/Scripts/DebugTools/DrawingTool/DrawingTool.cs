@@ -35,6 +35,9 @@ namespace DebugTools.DrawingTool
         [HideInInspector]
         public int boxSize;
 
+        [HideInInspector]
+        public int circleRadius;
+
         public Text uiCoordText;
 
         private Vector2i? _lastPointDrawn;
@@ -262,6 +265,18 @@ namespace DebugTools.DrawingTool
             }
         }
 
+        private void DrawCircle(int x, int y, bool immediate = true)
+        {
+            for (var i = -circleRadius; i <= circleRadius; ++i)
+            {
+                for (var j = -circleRadius; j <= circleRadius; ++j)
+                {
+                    if (j * j + i * i <= circleRadius * circleRadius)
+                        PutBlock(x + i, j + y, immediate);
+                }
+            }
+        }
+
         private void DrawLine(Vector2i flooredPosVec2Start, Vector2i flooredPosVec2End, bool immediate = true)
         {
             var x = flooredPosVec2Start.x;
@@ -354,6 +369,9 @@ namespace DebugTools.DrawingTool
             {
                 case BrushType.Box:
                     DrawBox(x, y, immediate);
+                    break;
+                case BrushType.Circle:
+                    DrawCircle(x, y, immediate);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

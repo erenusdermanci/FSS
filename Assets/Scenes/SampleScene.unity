@@ -932,6 +932,7 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4278255388
   boxSize: 8
+  circleRadius: 32
   uiCoordText: {fileID: 1127925849}
 --- !u!1 &2048673872
 GameObject:

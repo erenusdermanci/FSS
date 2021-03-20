@@ -6,22 +6,29 @@ using UnityEditor;
 
 namespace DebugTools.DrawingTool.Editor
 {
-    [CustomEditor(typeof(DebugTools.DrawingTool.DrawingTool))]
+    [CustomEditor(typeof(DrawingTool))]
     public class DrawingToolEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
-            var tool = (DebugTools.DrawingTool.DrawingTool) target;
+            var tool = (DrawingTool) target;
 
             tool.selectedDrawBlock = EditorGUILayout.Popup("Block", tool.selectedDrawBlock, BlockConstants.BlockNames);
             if (!CanBlockBurn(tool.selectedDrawBlock) && tool.selectedState == ConvertState(BlockStates.Burning))
                 tool.selectedState = 0;
             tool.selectedState = EditorGUILayout.Popup("State", tool.selectedState, CreateStates(tool.selectedDrawBlock).ToArray());
 
-            if (tool.selectedBrush == DebugTools.DrawingTool.BrushType.Box)
-                tool.boxSize = EditorGUILayout.IntSlider("Size", tool.boxSize, 0, 1024);
+            switch (tool.selectedBrush)
+            {
+                case BrushType.Box:
+                    tool.boxSize = EditorGUILayout.IntSlider("Size", tool.boxSize, 0, 1024);
+                    break;
+                case BrushType.Circle:
+                    tool.circleRadius = EditorGUILayout.IntSlider("Radius", tool.circleRadius, 0, 1024);
+                    break;
+            }
         }
 
         private static IEnumerable<string> CreateStates(int selectedDrawBlock)
