@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Blocks;
 using Chunks;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utils;
 using Color = Utils.Color;
@@ -13,11 +14,16 @@ namespace DebugTools
     public class DrawingTool : MonoBehaviour
     {
         [Serializable]
-        public enum DrawType
+        public enum ToolType
         {
             Point,
-            Box,
             Fill
+        }
+
+        [Serializable]
+        public enum BrushType
+        {
+            Box
         }
 
         public bool disabled;
@@ -25,8 +31,14 @@ namespace DebugTools
 
         [HideInInspector]
         public int selectedDrawBlock;
+
         public bool drawBrushSelection;
-        public DrawType selectedBrush;
+
+        [FormerlySerializedAs("selectedBrush")]
+        public ToolType selectedTool;
+
+        public BrushType selectedBrush;
+
         [HideInInspector]
         public int selectedState;
 
@@ -75,15 +87,12 @@ namespace DebugTools
                 DrawChunkGrid(blockPosition.x, blockPosition.y);
             }
 
-            switch (selectedBrush)
+            switch (selectedTool)
             {
-                case DrawType.Point:
-                    UpdateDrawPoint(blockPosition);
+                case ToolType.Point:
+                    UpdateDraw(blockPosition);
                     break;
-                case DrawType.Box:
-                    UpdateDrawBox(blockPosition);
-                    break;
-                case DrawType.Fill:
+                case ToolType.Fill:
                     UpdateFill(blockPosition);
                     break;
             }
@@ -145,7 +154,7 @@ namespace DebugTools
                 + $"Current UpdatedFlag: {ChunkManager.UpdatedFlag}";
         }
 
-        private void UpdateDrawPoint(Vector2i blockPosition)
+        private void UpdateDraw(Vector2i blockPosition)
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -155,7 +164,7 @@ namespace DebugTools
             else if (Input.GetMouseButton(0))
             {
                 if (_lastPointDrawn == null)
-                    PutBlock(blockPosition.x, blockPosition.y, selectedDrawBlock, GetBlockColor(), selectedState);
+                    DrawBrush(blockPosition.x, blockPosition.y);
                 else
                     DrawLine(_lastPointDrawn.Value, blockPosition);
                 _lastPointDrawn = new Vector2i(blockPosition.x, blockPosition.y);
@@ -171,14 +180,6 @@ namespace DebugTools
                 {
                     DrawDebugLine(_lastPointDrawnForLine.Value, blockPosition, UnityEngine.Color.white);
                 }
-            }
-        }
-
-        private void UpdateDrawBox(Vector2i blockPosition)
-        {
-            if (Input.GetMouseButton(0))
-            {
-                DrawBox(blockPosition);
             }
         }
 
@@ -207,7 +208,7 @@ namespace DebugTools
 
                     var x = pos.x;
                     var y = pos.y;
-                    PutBlock(x, y, selectedDrawBlock, GetBlockColor(), selectedState);
+                    PutBlock1(x, y, selectedDrawBlock, GetBlockColor(), selectedState);
 
                     var right = new Vector2i(x + 1, y);
                     var left = new Vector2i(x - 1, y);
@@ -248,18 +249,16 @@ namespace DebugTools
             return new Vector2i((int) Mathf.Floor((worldPos.x + 0.5f) * 64.0f), (int) Mathf.Floor((worldPos.y + 0.5f) * 64.0f));
         }
 
-        private void DrawBox(Vector2i blockPosition)
+        private void DrawBox(int x, int y)
         {
-            var worldX = blockPosition.x;
-            var worldY = blockPosition.y;
-            var px = worldX - boxSize / 2;
-            var py = worldY - boxSize / 2;
+            var px = x - boxSize / 2;
+            var py = y - boxSize / 2;
 
             for (var i = px; i < px + boxSize; i++)
             {
                 for (var j = py; j < py + boxSize; j++)
                 {
-                    PutBlock(i, j, selectedDrawBlock, GetBlockColor(), selectedState);
+                    PutBlock1(i, j, selectedDrawBlock, GetBlockColor(), selectedState);
                 }
             }
         }
@@ -298,7 +297,7 @@ namespace DebugTools
             var numerator = longest >> 1;
             for (var i = 0; i <= longest; i++)
             {
-                PutBlock(x, y, selectedDrawBlock, GetBlockColor(), selectedState);
+                DrawBrush(x, y);
                 numerator += shortest;
                 if (!(numerator < longest))
                 {
@@ -334,16 +333,9 @@ namespace DebugTools
         private void DrawSelectedBlock(Vector2i chunkPos, int x, int y)
         {
             var selectColor = UnityEngine.Color.red;
-            var xOffset = x / (float)Chunk.Size;
-            var yOffset = y / (float)Chunk.Size;
-            var blockSize = 1 / (float)Chunk.Size;
-
-            if (selectedBrush.Equals(DrawType.Box))
-            {
-                xOffset = (x - boxSize / 2) / (float)Chunk.Size;
-                yOffset = (y - boxSize / 2) / (float)Chunk.Size;
-                blockSize *= boxSize;
-            }
+            var xOffset = (x - boxSize / 2) / (float)Chunk.Size;
+            var yOffset = (y - boxSize / 2) / (float)Chunk.Size;
+            var blockSize = (1 / (float)Chunk.Size) * boxSize;
 
             // along x axis bottom
             Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset),
@@ -359,7 +351,19 @@ namespace DebugTools
                             new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
         }
 
-        private void PutBlock(int worldX, int worldY, int selectedBlock, Color blockColor, int states)
+        private void DrawBrush(int x, int y)
+        {
+            switch (selectedBrush)
+            {
+                case BrushType.Box:
+                    DrawBox(x, y);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void PutBlock1(int worldX, int worldY, int selectedBlock, Color blockColor, int states)
         {
             var r = blockColor.r;
             var g = blockColor.g;

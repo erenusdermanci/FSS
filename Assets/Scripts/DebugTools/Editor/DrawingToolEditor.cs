@@ -20,7 +20,7 @@ namespace DebugTools.Editor
                 tool.selectedState = 0;
             tool.selectedState = EditorGUILayout.Popup("State", tool.selectedState, CreateStates(tool.selectedDrawBlock).ToArray());
 
-            if (tool.selectedBrush == DrawingTool.DrawType.Box)
+            if (tool.selectedBrush == DrawingTool.BrushType.Box)
                 tool.boxSize = EditorGUILayout.IntSlider("Size", tool.boxSize, 0, 1024);
         }
 
