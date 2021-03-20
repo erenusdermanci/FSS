@@ -157,7 +157,7 @@ namespace Blocks
                 BlockTags.Solid,
                 2.0f,
                 new Color(75, 75, 75, 255),
-                0.01f,
+                0.02f,
                 0.0f,
                 0.0f,
                 0,

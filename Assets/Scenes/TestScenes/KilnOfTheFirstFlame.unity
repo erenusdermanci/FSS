@@ -748,6 +748,7 @@ MonoBehaviour:
   chunkManager: {fileID: 5673502513061733316}
   selectedDrawBlock: 11
   drawBrushSelection: 1
+  selectedTool: 1
   selectedBrush: 0
   selectedState: 1
   colorizeOnly: 0
@@ -756,6 +757,7 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4278255373
   boxSize: 0
+  circleRadius: 0
   uiCoordText: {fileID: 785216523}
 --- !u!4 &5673502512498563486
 Transform:
