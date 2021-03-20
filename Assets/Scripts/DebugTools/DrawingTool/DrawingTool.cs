@@ -92,8 +92,11 @@ namespace DebugTools.DrawingTool
                 if (serverChunk == null)
                     continue;
                 var chunkDirtyRects = serverChunk.DirtyRects;
-                foreach (var chunkDirtyRect in chunkDirtyRects)
-                    chunkDirtyRect.Reset();
+                for (var i = 0; i < chunkDirtyRects.Length; ++i)
+                {
+                    chunkDirtyRects[i].Reset();
+                    chunkDirtyRects[i].Initialized = false;
+                }
                 serverChunk.Dirty = true;
                 _clientChunkMap[chunkPos]?.UpdateTexture();
             }
