@@ -57,6 +57,7 @@ namespace Chunks
 
             ProceduralGenerator.UpdateEvent += ProceduralGeneratorUpdate;
             GlobalDebugConfig.UpdateEvent += GlobalConfigUpdate;
+            GlobalDebugConfig.DisableDirtyRectsChanged += DisableDirtyRectsChangedEvent;
             var restrict = GlobalDebugConfig.StaticGlobalConfig.overrideGridSize;
             if (restrict > 0)
             {
@@ -83,6 +84,11 @@ namespace Chunks
         {
             Random = new ThreadLocal<Random>(() =>
                 new Random(new Random((int) DateTimeOffset.Now.ToUnixTimeMilliseconds()).Next()));
+        }
+
+        private static void DisableDirtyRectsChangedEvent(object sender, EventArgs e)
+        {
+            SimulationTask.ResetKnuthShuffle();
         }
 
         private void ResetGrid(bool loadFromDisk)

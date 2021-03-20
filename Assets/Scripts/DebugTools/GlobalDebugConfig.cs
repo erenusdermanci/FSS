@@ -11,6 +11,8 @@ namespace DebugTools
 
         public static event EventHandler UpdateEvent;
 
+        public static event EventHandler DisableDirtyRectsChanged;
+
         private void Awake()
         {
             StaticGlobalConfig = new GlobalConfigStruct(globalConfig);
@@ -18,9 +20,14 @@ namespace DebugTools
 
         private void Update()
         {
+            var oldDisableDirtyRects = StaticGlobalConfig.disableDirtyRects;
             if (StaticGlobalConfig.Equals(globalConfig))
                 return;
             StaticGlobalConfig = new GlobalConfigStruct(globalConfig);
+            if (StaticGlobalConfig.disableDirtyRects != oldDisableDirtyRects)
+            {
+                DisableDirtyRectsChanged?.Invoke(this, null);
+            }
 
             UpdateEvent?.Invoke(this, null);
         }

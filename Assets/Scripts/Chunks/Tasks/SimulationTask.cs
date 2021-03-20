@@ -16,11 +16,33 @@ namespace Chunks.Tasks
 
         private Random _rng;
 
-        private readonly KnuthShuffle _noDirtyRectShuffle;
+        public static KnuthShuffle NoDirtyRectShuffle;
 
-        private static readonly KnuthShuffle[,] DirtyRectShuffles;
+        public static KnuthShuffle[,] DirtyRectShuffles;
 
         static SimulationTask()
+        {
+            ResetKnuthShuffle();
+        }
+
+        public SimulationTask(ChunkServer chunk) : base(chunk)
+        {
+        }
+
+        public static void ResetKnuthShuffle()
+        {
+            if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyRects)
+                InitializeDirtyRectShuffles();
+            else
+                InitializeNoDirtyRectShuffle();
+        }
+
+        private static void InitializeNoDirtyRectShuffle()
+        {
+            NoDirtyRectShuffle = new KnuthShuffle(new Random().Next(), global::Chunks.Chunk.Size * global::Chunks.Chunk.Size);
+        }
+
+        private static void InitializeDirtyRectShuffles()
         {
             var rng = new Random();
             var sizes = new SortedSet<int>();
@@ -40,12 +62,6 @@ namespace Chunks.Tasks
                     DirtyRectShuffles[i, size] = new KnuthShuffle(rng.Next(), size);
                 }
             }
-        }
-
-        public SimulationTask(ChunkServer chunk) : base(chunk)
-        {
-            var rng = new Random();
-            _noDirtyRectShuffle = new KnuthShuffle(rng.Next(), global::Chunks.Chunk.Size * global::Chunks.Chunk.Size);
         }
 
         protected override unsafe void Execute()
@@ -87,8 +103,8 @@ namespace Chunks.Tasks
                 const int totalSize = global::Chunks.Chunk.Size * global::Chunks.Chunk.Size;
                 for (var i = 0; i < totalSize; ++i)
                 {
-                    var x = _noDirtyRectShuffle[i] / global::Chunks.Chunk.Size;
-                    var y = _noDirtyRectShuffle[i] % global::Chunks.Chunk.Size;
+                    var x = NoDirtyRectShuffle[i] / global::Chunks.Chunk.Size;
+                    var y = NoDirtyRectShuffle[i] % global::Chunks.Chunk.Size;
 
                     dirtied |= SimulateBlock(x, y, ref blockInfo, distances, bitCount, directionX, directionY);
                 }
