@@ -41,8 +41,10 @@ namespace DebugTools
         public Text uiCoordText;
 
         private bool _userDrawingLine;
-        private Vector2? _drawStartPos;
-        private Vector2? _drawEndPos;
+        private Vector2i? _drawStartPos;
+        private Vector2i? _drawEndPos;
+
+        private Vector2i? _lastPointDrawn = null;
 
         private Random _rng;
 
@@ -81,7 +83,7 @@ namespace DebugTools
             switch (selectedBrush)
             {
                 case DrawType.Point:
-                    UpdateDrawPixel(blockPosition);
+                    UpdateDrawPoint(blockPosition);
                     break;
                 case DrawType.Box:
                     UpdateDrawBox(blockPosition);
@@ -153,15 +155,23 @@ namespace DebugTools
                 + $"Current UpdatedFlag: {ChunkManager.UpdatedFlag}";
         }
 
-        private void UpdateDrawPixel(Vector2 blockPosition)
+        private void UpdateDrawPoint(Vector2i blockPosition)
         {
             if (Input.GetMouseButton(0))
             {
-                PutBlock((int) blockPosition.x, (int) blockPosition.y, selectedDrawBlock, GetBlockColor(), selectedState);
+                if (_lastPointDrawn == null)
+                    PutBlock(blockPosition.x, blockPosition.y, selectedDrawBlock, GetBlockColor(), selectedState);
+                else
+                    DrawLine(_lastPointDrawn.Value, blockPosition);
+                _lastPointDrawn = new Vector2i(blockPosition.x, blockPosition.y);
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                _lastPointDrawn = null;
             }
         }
 
-        private void UpdateDrawBox(Vector2 blockPosition)
+        private void UpdateDrawBox(Vector2i blockPosition)
         {
             if (Input.GetMouseButton(0))
             {
@@ -169,7 +179,7 @@ namespace DebugTools
             }
         }
 
-        private void UpdateDrawLine(Vector2 blockPosition)
+        private void UpdateDrawLine(Vector2i blockPosition)
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -201,12 +211,7 @@ namespace DebugTools
                 if (_drawStartPos != null)
                 {
                     var lineColor = Input.GetMouseButton(1) ? UnityEngine.Color.red : UnityEngine.Color.white;
-                    const float blockSize = 1.0f / Chunk.Size / 2;
-                    var xStart = _drawStartPos.Value.x / Chunk.Size - 0.5f + blockSize;
-                    var yStart = _drawStartPos.Value.y / Chunk.Size - 0.5f + blockSize;
-                    var xEnd = blockPosition.x / Chunk.Size - 0.5f + blockSize;
-                    var yEnd = blockPosition.y / Chunk.Size - 0.5f + blockSize;
-                    Debug.DrawLine(new Vector2(xStart, yStart), new Vector2(xEnd, yEnd), lineColor);
+                    DrawDebugLine(_drawStartPos.Value, blockPosition, lineColor);
 
                     if (Input.GetMouseButtonUp(1))
                     {
@@ -218,15 +223,25 @@ namespace DebugTools
             }
         }
 
-        private void UpdateFill(Vector2 blockPosition)
+        private static void DrawDebugLine(Vector2i start, Vector2i end, Color32 color)
+        {
+            const float blockSize = 1.0f / Chunk.Size / 2;
+            var xStart = start.x / (float)Chunk.Size - 0.5f + blockSize;
+            var yStart = start.y / (float)Chunk.Size - 0.5f + blockSize;
+            var xEnd = end.x / (float)Chunk.Size - 0.5f + blockSize;
+            var yEnd = end.y / (float)Chunk.Size - 0.5f + blockSize;
+            Debug.DrawLine(new Vector2(xStart, yStart), new Vector2(xEnd, yEnd), color);
+        }
+
+        private void UpdateFill(Vector2i blockPosition)
         {
             if (Input.GetMouseButtonDown(0))
             {
-                var positionQueue = new Queue<Vector2Int>();
-                var processing = new HashSet<Vector2Int>();
-                var first = new Vector2Int((int) blockPosition.x, (int) blockPosition.y);
+                var positionQueue = new Queue<Vector2i>();
+                var processing = new HashSet<Vector2i>();
+                var first = new Vector2i(blockPosition.x, blockPosition.y);
                 positionQueue.Enqueue(first);
-                var blockUnderCursor = GetBlockType((int) blockPosition.x, (int) blockPosition.y);
+                var blockUnderCursor = GetBlockType(blockPosition.x, blockPosition.y);
                 while (positionQueue.Count != 0)
                 {
                     var pos = positionQueue.Dequeue();
@@ -235,10 +250,10 @@ namespace DebugTools
                     var y = pos.y;
                     PutBlock(x, y, selectedDrawBlock, GetBlockColor(), selectedState);
 
-                    var right = new Vector2Int(x + 1, y);
-                    var left = new Vector2Int(x - 1, y);
-                    var up = new Vector2Int(x, y + 1);
-                    var down = new Vector2Int(x, y - 1);
+                    var right = new Vector2i(x + 1, y);
+                    var left = new Vector2i(x - 1, y);
+                    var up = new Vector2i(x, y + 1);
+                    var down = new Vector2i(x, y - 1);
                     if (GetBlockType(right.x, right.y) == blockUnderCursor && !processing.Contains(right))
                     {
                         positionQueue.Enqueue(right);
@@ -263,7 +278,7 @@ namespace DebugTools
             }
         }
 
-        private static Vector2 GetWorldPositionFromMousePosition()
+        private static Vector2i GetWorldPositionFromMousePosition()
         {
             var mousePos = Input.mousePosition;
             if (Camera.main is null)
@@ -271,13 +286,13 @@ namespace DebugTools
                 throw new InvalidOperationException();
             }
             var worldPos = Camera.main.ScreenToWorldPoint(mousePos);
-            return new Vector2((int) Mathf.Floor((worldPos.x + 0.5f) * 64.0f), (int) Mathf.Floor((worldPos.y + 0.5f) * 64.0f));
+            return new Vector2i((int) Mathf.Floor((worldPos.x + 0.5f) * 64.0f), (int) Mathf.Floor((worldPos.y + 0.5f) * 64.0f));
         }
 
-        private void DrawBox(Vector2 blockPosition)
+        private void DrawBox(Vector2i blockPosition)
         {
-            var worldX = (int) blockPosition.x;
-            var worldY = (int) blockPosition.y;
+            var worldX = blockPosition.x;
+            var worldY = blockPosition.y;
             var px = worldX - boxSize / 2;
             var py = worldY - boxSize / 2;
 
@@ -290,9 +305,9 @@ namespace DebugTools
             }
         }
 
-        private void DrawLine(Vector2 flooredPosVec2Start, Vector2 flooredPosVec2End)
+        private void DrawLine(Vector2i flooredPosVec2Start, Vector2i flooredPosVec2End)
         {
-            Bresenham((int) flooredPosVec2Start.x, (int) flooredPosVec2Start.y, (int) flooredPosVec2End.x, (int) flooredPosVec2End.y);
+            Bresenham(flooredPosVec2Start.x, flooredPosVec2Start.y, flooredPosVec2End.x, flooredPosVec2End.y);
         }
 
         // Implementation of Bresenham's line algorithm
