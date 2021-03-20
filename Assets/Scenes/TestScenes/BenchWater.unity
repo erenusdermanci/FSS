@@ -779,7 +779,7 @@ MonoBehaviour:
     disableSave: 1
     disableLoad: 0
     enableProceduralGeneration: 0
-    monothreadSimulate: 0
+    monoThreadSimulate: 0
     overrideGridSize: 0
     pauseSimulation: 1
     stepByStep: 0

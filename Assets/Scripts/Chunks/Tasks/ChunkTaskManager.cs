@@ -36,7 +36,7 @@ namespace Chunks.Tasks
                     continue;
                 var task = _tasks[position];
                 _processing.Add(task.Chunk.Position, task);
-                task.Schedule(GlobalDebugConfig.StaticGlobalConfig.monothreadSimulate);
+                task.Schedule(GlobalDebugConfig.StaticGlobalConfig.monoThreadSimulate);
             }
 
             ProcessDoneTasks();
@@ -85,7 +85,7 @@ namespace Chunks.Tasks
                 _queued.RemoveAt(index);
                 var task = _tasks[position];
                 _processing.Add(task.Chunk.Position, task);
-                task.Schedule(GlobalDebugConfig.StaticGlobalConfig.monothreadSimulate);
+                task.Schedule(GlobalDebugConfig.StaticGlobalConfig.monoThreadSimulate);
             }
             foreach (var saveTask in _processing.Values)
             {

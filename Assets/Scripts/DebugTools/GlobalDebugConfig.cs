@@ -31,7 +31,7 @@ namespace DebugTools
             public bool disableSave;
             public bool disableLoad;
             public bool enableProceduralGeneration;
-            public bool monothreadSimulate;
+            [FormerlySerializedAs("monothreadSimulate")] public bool monoThreadSimulate;
             public int overrideGridSize;
             public bool pauseSimulation;
             public bool stepByStep;
@@ -45,7 +45,7 @@ namespace DebugTools
 
             public GlobalConfigStruct(GlobalConfigStruct other)
             {
-                monothreadSimulate = other.monothreadSimulate;
+                monoThreadSimulate = other.monoThreadSimulate;
                 overrideGridSize = other.overrideGridSize;
                 pauseSimulation = other.pauseSimulation;
                 stepByStep = other.stepByStep;
@@ -63,7 +63,7 @@ namespace DebugTools
             public bool Equals(GlobalConfigStruct other)
             {
                 if (overrideGridSize != other.overrideGridSize
-                    || monothreadSimulate != other.monothreadSimulate
+                    || monoThreadSimulate != other.monoThreadSimulate
                     || pauseSimulation != other.pauseSimulation
                     || stepByStep != other.stepByStep
                     || outlineChunks != other.outlineChunks
