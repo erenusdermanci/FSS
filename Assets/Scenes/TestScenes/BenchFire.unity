@@ -338,193 +338,192 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 553ecd07f81c9e441bb97ce71251b9ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Enabled: 0
-  GenerationModel:
-    Layers:
-    - HeightNoises:
-      - Type: 0
-        FractalType: 1
-        Octaves: 3
-        Gain: 6
-        Frequency: 2
-        Lacunarity: 1
-        XAmplitude: 1
-        YAmplitude: 1
-        XOffset: 0
-        YOffset: 0
-      - Type: 0
-        FractalType: 1
-        Octaves: 3
-        Gain: 2
-        Frequency: 6
-        Lacunarity: 1
-        XAmplitude: 1
-        YAmplitude: 1
-        XOffset: 2.61
-        YOffset: 0.57
-      InLayerNoises:
-      - Type: 3
-        FractalType: 1
-        Octaves: 1
-        Gain: 1
-        Frequency: 1
-        Lacunarity: 1
-        XAmplitude: 3.17
-        YAmplitude: 0.88
-        XOffset: 0
-        YOffset: 0
-      Thresholds:
+  generationModel:
+    layers:
+    - heightNoises:
+      - type: 0
+        fractalType: 1
+        octaves: 3
+        gain: 6
+        frequency: 2
+        lacunarity: 1
+        xAmplitude: 1
+        yAmplitude: 1
+        xOffset: 0
+        yOffset: 0
+      - type: 0
+        fractalType: 1
+        octaves: 3
+        gain: 2
+        frequency: 6
+        lacunarity: 1
+        xAmplitude: 1
+        yAmplitude: 1
+        xOffset: 2.61
+        yOffset: 0.57
+      inLayerNoises:
+      - type: 3
+        fractalType: 1
+        octaves: 1
+        gain: 1
+        frequency: 1
+        lacunarity: 1
+        xAmplitude: 3.17
+        yAmplitude: 0.88
+        xOffset: 0
+        yOffset: 0
+      thresholds:
       - type: 0
         threshold: 0.5
       - type: 1
         threshold: 1
-      Depth: 0
-    - HeightNoises:
-      - Type: 0
-        FractalType: 1
-        Octaves: 3
-        Gain: 6
-        Frequency: 2
-        Lacunarity: 1
-        XAmplitude: 32.41
-        YAmplitude: -4.6
-        XOffset: 0
-        YOffset: 0
-      - Type: 0
-        FractalType: 1
-        Octaves: 3
-        Gain: 2
-        Frequency: 6
-        Lacunarity: 1
-        XAmplitude: 21
-        YAmplitude: 0.2
-        XOffset: -0.08
-        YOffset: 0
-      InLayerNoises:
-      - Type: 3
-        FractalType: 1
-        Octaves: 1
-        Gain: 1
-        Frequency: 1
-        Lacunarity: 1
-        XAmplitude: 1
-        YAmplitude: 0.62
-        XOffset: -0.1
-        YOffset: 0
-      Thresholds:
+      depth: 0
+    - heightNoises:
+      - type: 0
+        fractalType: 1
+        octaves: 3
+        gain: 6
+        frequency: 2
+        lacunarity: 1
+        xAmplitude: 32.41
+        yAmplitude: -4.6
+        xOffset: 0
+        yOffset: 0
+      - type: 0
+        fractalType: 1
+        octaves: 3
+        gain: 2
+        frequency: 6
+        lacunarity: 1
+        xAmplitude: 21
+        yAmplitude: 0.2
+        xOffset: -0.08
+        yOffset: 0
+      inLayerNoises:
+      - type: 3
+        fractalType: 1
+        octaves: 1
+        gain: 1
+        frequency: 1
+        lacunarity: 1
+        xAmplitude: 1
+        yAmplitude: 0.62
+        xOffset: -0.1
+        yOffset: 0
+      thresholds:
       - type: 0
         threshold: 0.3
       - type: 3
         threshold: 1
-      Depth: 32
-    - HeightNoises:
-      - Type: 0
-        FractalType: 1
-        Octaves: 3
-        Gain: 5.89
-        Frequency: 2.81
-        Lacunarity: 1
-        XAmplitude: 36.69
-        YAmplitude: 0.3
-        XOffset: -15.7
-        YOffset: 0
-      - Type: 0
-        FractalType: 1
-        Octaves: 3
-        Gain: 2
-        Frequency: 6
-        Lacunarity: 1
-        XAmplitude: 66.52
-        YAmplitude: 2.3
-        XOffset: 4.31
-        YOffset: 0.08
-      InLayerNoises:
-      - Type: 3
-        FractalType: 1
-        Octaves: 1
-        Gain: 1
-        Frequency: 1
-        Lacunarity: 1
-        XAmplitude: 1
-        YAmplitude: 1
-        XOffset: 0
-        YOffset: 0
-      Thresholds:
+      depth: 32
+    - heightNoises:
+      - type: 0
+        fractalType: 1
+        octaves: 3
+        gain: 5.89
+        frequency: 2.81
+        lacunarity: 1
+        xAmplitude: 36.69
+        yAmplitude: 0.3
+        xOffset: -15.7
+        yOffset: 0
+      - type: 0
+        fractalType: 1
+        octaves: 3
+        gain: 2
+        frequency: 6
+        lacunarity: 1
+        xAmplitude: 66.52
+        yAmplitude: 2.3
+        xOffset: 4.31
+        yOffset: 0.08
+      inLayerNoises:
+      - type: 3
+        fractalType: 1
+        octaves: 1
+        gain: 1
+        frequency: 1
+        lacunarity: 1
+        xAmplitude: 1
+        yAmplitude: 1
+        xOffset: 0
+        yOffset: 0
+      thresholds:
       - type: 4
         threshold: 1
-      Depth: 64
-    - HeightNoises:
-      - Type: 0
-        FractalType: 1
-        Octaves: 3
-        Gain: 6.19
-        Frequency: 2
-        Lacunarity: 1
-        XAmplitude: 103.48
-        YAmplitude: 0.4
-        XOffset: -1.76
-        YOffset: 0
-      - Type: 0
-        FractalType: 1
-        Octaves: 3
-        Gain: 2
-        Frequency: 6
-        Lacunarity: 1
-        XAmplitude: 46.07
-        YAmplitude: 6.83
-        XOffset: 1.29
-        YOffset: 2.9
-      InLayerNoises:
-      - Type: 3
-        FractalType: 1
-        Octaves: 1
-        Gain: 1
-        Frequency: 1
-        Lacunarity: 1
-        XAmplitude: 1
-        YAmplitude: 1
-        XOffset: 0
-        YOffset: 0
-      Thresholds:
+      depth: 64
+    - heightNoises:
+      - type: 0
+        fractalType: 1
+        octaves: 3
+        gain: 6.19
+        frequency: 2
+        lacunarity: 1
+        xAmplitude: 103.48
+        yAmplitude: 0.4
+        xOffset: -1.76
+        yOffset: 0
+      - type: 0
+        fractalType: 1
+        octaves: 3
+        gain: 2
+        frequency: 6
+        lacunarity: 1
+        xAmplitude: 46.07
+        yAmplitude: 6.83
+        xOffset: 1.29
+        yOffset: 2.9
+      inLayerNoises:
+      - type: 3
+        fractalType: 1
+        octaves: 1
+        gain: 1
+        frequency: 1
+        lacunarity: 1
+        xAmplitude: 1
+        yAmplitude: 1
+        xOffset: 0
+        yOffset: 0
+      thresholds:
       - type: 5
         threshold: 1
-      Depth: 128
-    - HeightNoises:
-      - Type: 0
-        FractalType: 1
-        Octaves: 3
-        Gain: 6
-        Frequency: 2
-        Lacunarity: 1
-        XAmplitude: 36
-        YAmplitude: 1.15
-        XOffset: 0
-        YOffset: 0
-      - Type: 0
-        FractalType: 1
-        Octaves: 3
-        Gain: 2
-        Frequency: 6
-        Lacunarity: 1
-        XAmplitude: 41.44
-        YAmplitude: 2.5
-        XOffset: 0
-        YOffset: 0
-      InLayerNoises:
-      - Type: 3
-        FractalType: 1
-        Octaves: 1
-        Gain: 1
-        Frequency: 1
-        Lacunarity: 1
-        XAmplitude: 1
-        YAmplitude: 1
-        XOffset: 0
-        YOffset: 0
-      Thresholds:
+      depth: 128
+    - heightNoises:
+      - type: 0
+        fractalType: 1
+        octaves: 3
+        gain: 6
+        frequency: 2
+        lacunarity: 1
+        xAmplitude: 36
+        yAmplitude: 1.15
+        xOffset: 0
+        yOffset: 0
+      - type: 0
+        fractalType: 1
+        octaves: 3
+        gain: 2
+        frequency: 6
+        lacunarity: 1
+        xAmplitude: 41.44
+        yAmplitude: 2.5
+        xOffset: 0
+        yOffset: 0
+      inLayerNoises:
+      - type: 3
+        fractalType: 1
+        octaves: 1
+        gain: 1
+        frequency: 1
+        lacunarity: 1
+        xAmplitude: 1
+        yAmplitude: 1
+        xOffset: 0
+        yOffset: 0
+      thresholds:
       - type: 6
         threshold: 1
-      Depth: 256
+      depth: 256
 --- !u!1 &6731823201954768282
 GameObject:
   m_ObjectHideFlags: 0
@@ -808,6 +807,7 @@ MonoBehaviour:
   globalConfig:
     disableSave: 1
     disableLoad: 0
+    enableProceduralGeneration: 0
     monothreadSimulate: 0
     overrideGridSize: 0
     pauseSimulation: 0
