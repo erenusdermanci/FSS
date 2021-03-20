@@ -90,6 +90,12 @@ namespace Chunks
             {
                 clientChunk.Dispose();
             }
+            ClientChunkMap.Clear();
+
+            foreach (var serverChunk in ServerChunkMap.Map.Values)
+            {
+                serverChunk.Dispose();
+            }
             ServerChunkMap.Clear();
 
             foreach (var batch in _simulationBatchPool)
