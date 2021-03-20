@@ -762,7 +762,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5622f3aa0bab67e4f8985a03fde9de4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  generatedAreaSize: 10
+  generatedAreaSize: 20
   cleanAreaSizeOffset: 2
   playerTransform: {fileID: 982608168}
 --- !u!4 &1436826252
