@@ -43,21 +43,28 @@ namespace Blocks.Behaviors
             if (!blockInfo.GetState((int) BlockStates.Burning))
                 return false;
 
-            var neighborTypes = stackalloc ChunkServer.BlockInfo[8];
+            var neighborBlocks = stackalloc ChunkServer.BlockInfo[8];
             var airNeighborsCount = 0;
             var selfNeighborsCount = 0;
 
             // We need to go through the neighbours of this fire block
             for (var i = 0; i < 8; ++i)
             {
-                var neighborFound = chunkNeighborhood.GetBlockInfo(x + directionX[i], y + directionY[i], ref neighborTypes[i]);
+                var neighborFound = chunkNeighborhood.GetBlockInfo(x + directionX[i], y + directionY[i], ref neighborBlocks[i]);
 
                 if (!neighborFound)
                     continue;
 
-                if (neighborTypes[i].Type == BlockConstants.Air)
-                    airNeighborsCount++;
-                else if (neighborTypes[i].Type == blockInfo.Type)
+                switch (neighborBlocks[i].Type)
+                {
+                    case BlockConstants.Air:
+                        airNeighborsCount++;
+                        break;
+                    case BlockConstants.Flame:
+                        break;
+                }
+
+                if (neighborBlocks[i].Type == blockInfo.Type)
                     selfNeighborsCount++;
             }
 
@@ -89,7 +96,7 @@ namespace Blocks.Behaviors
                 // now we try to spread
                 for (var i = 0; i < 8; i++)
                 {
-                    switch (neighborTypes[i].Type)
+                    switch (neighborBlocks[i].Type)
                     {
                         case -1: // there is no neighbour here (chunk doesn't exist)
                             break;
@@ -107,10 +114,10 @@ namespace Blocks.Behaviors
                             }
                             break;
                         default:
-                            if (neighborTypes[i].GetState((int)BlockStates.Burning))
+                            if (neighborBlocks[i].GetState((int)BlockStates.Burning))
                                 continue;
                             var combustionProbability =
-                                BlockConstants.BlockDescriptors[neighborTypes[i].Type].CombustionProbability
+                                BlockConstants.BlockDescriptors[neighborBlocks[i].Type].CombustionProbability
                                 * BurningRateMultipliers[i];
                             if (combustionProbability == 0.0f)
                                 continue;
@@ -118,10 +125,10 @@ namespace Blocks.Behaviors
                                 || combustionProbability > rng.NextDouble())
                             {
                                 // spreading to this block
-                                neighborTypes[i].SetState((int)BlockStates.Burning);
+                                neighborBlocks[i].SetState((int)BlockStates.Burning);
                                 var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.FireColorMaxShift);
                                 var color = BlockConstants.FireColor;
-                                chunkNeighborhood.UpdateBlock(x + directionX[i], y + directionY[i], neighborTypes[i],
+                                chunkNeighborhood.UpdateBlock(x + directionX[i], y + directionY[i], neighborBlocks[i],
                                     Helpers.ShiftColorComponent(color.r, shiftAmount),
                                     Helpers.ShiftColorComponent(color.g, shiftAmount),
                                     Helpers.ShiftColorComponent(color.b, shiftAmount),
