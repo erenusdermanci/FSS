@@ -7,7 +7,6 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utils;
 using Color = Utils.Color;
-using Random = System.Random;
 
 namespace DebugTools.DrawingTool
 {
@@ -41,8 +40,6 @@ namespace DebugTools.DrawingTool
         private Vector2i? _lastPointDrawn;
         private Vector2i? _lastPointDrawnForLine;
 
-        private Random _rng;
-
         private readonly UniqueQueue<Vector2i> _blockQueue = new UniqueQueue<Vector2i>();
 
         private readonly HashSet<Vector2i> _chunksToReload = new HashSet<Vector2i>();
@@ -53,7 +50,6 @@ namespace DebugTools.DrawingTool
         // Start is called before the first frame update
         private void Awake()
         {
-            _rng = new Random();
             _serverChunkMap = chunkManager.ServerChunkMap;
             _clientChunkMap = chunkManager.ClientChunkMap;
         }
