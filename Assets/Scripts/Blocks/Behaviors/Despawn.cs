@@ -42,7 +42,7 @@ namespace Blocks.Behaviors
                     // Destroy it
                     var resultBlockType = BlockConstants.Air;
                     if (_despawnResultBlockProbability > 0.0f
-                        && _despawnResultBlockProbability >= 0.0f
+                        && _despawnResultBlockProbability >= 1.0f
                         || _despawnResultBlockProbability > rng.NextDouble())
                     {
                         resultBlockType = _despawnResultBlockType;
