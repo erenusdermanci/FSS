@@ -185,7 +185,7 @@ namespace Blocks
                 0,
                 new IBehavior[]
                 {
-                    new FireSpread(100.0f,
+                    new FireSpread(10.0f,
                         Smoke,
                         0.0f,
                         Smoke,

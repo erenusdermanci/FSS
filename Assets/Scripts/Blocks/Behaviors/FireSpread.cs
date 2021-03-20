@@ -18,6 +18,8 @@ namespace Blocks.Behaviors
         private readonly bool _selfExtinguishing;
         private readonly bool _destroyedWhenExtinguished;
 
+        private static readonly float[] BurningRateMultipliers = {1f, 0.2f, 0.2f, 1f, 1f, 1f, 0.2f, 0.2f};
+
         public FireSpread(float burningRate,
             int combustionEmissionBlockType,
             float combustionEmissionProbability,
@@ -108,7 +110,8 @@ namespace Blocks.Behaviors
                             if (neighborTypes[i].GetState((int)BlockStates.Burning))
                                 continue;
                             var combustionProbability =
-                                BlockConstants.BlockDescriptors[neighborTypes[i].Type].CombustionProbability;
+                                BlockConstants.BlockDescriptors[neighborTypes[i].Type].CombustionProbability
+                                * BurningRateMultipliers[i];
                             if (combustionProbability == 0.0f)
                                 continue;
                             if (combustionProbability >= 1.0f
