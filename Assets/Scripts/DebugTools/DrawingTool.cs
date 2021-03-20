@@ -39,10 +39,6 @@ namespace DebugTools
 
         public Text uiCoordText;
 
-        private bool _userDrawingLine;
-        private Vector2i? _drawStartPos;
-        private Vector2i? _drawEndPos;
-
         private Vector2i? _lastPointDrawn;
         private Vector2i? _lastPointDrawnForLine;
 
@@ -56,7 +52,6 @@ namespace DebugTools
         // Start is called before the first frame update
         private void Awake()
         {
-            _userDrawingLine = false;
             _rng = new Random();
             _serverChunkMap = chunkManager.ServerChunkMap;
             _clientChunkMap = chunkManager.ClientChunkMap;
@@ -184,50 +179,6 @@ namespace DebugTools
             if (Input.GetMouseButton(0))
             {
                 DrawBox(blockPosition);
-            }
-        }
-
-        private void UpdateDrawLine(Vector2i blockPosition)
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                if (!_userDrawingLine)
-                {
-                    _userDrawingLine = true;
-                    _drawStartPos = blockPosition;
-                }
-            }
-            else if (Input.GetMouseButtonUp(0))
-            {
-                if (_userDrawingLine)
-                {
-                    _drawEndPos = blockPosition;
-
-                    if (_drawStartPos?.x != null)
-                    {
-                        DrawLine(_drawStartPos.Value, _drawEndPos.Value);
-                    }
-
-                    _userDrawingLine = false;
-                    _drawStartPos = null;
-                    _drawEndPos = null;
-                }
-            }
-
-            if (_userDrawingLine)
-            {
-                if (_drawStartPos != null)
-                {
-                    var lineColor = Input.GetMouseButton(1) ? UnityEngine.Color.red : UnityEngine.Color.white;
-                    DrawDebugLine(_drawStartPos.Value, blockPosition, lineColor);
-
-                    if (Input.GetMouseButtonUp(1))
-                    {
-                        _userDrawingLine = false;
-                        _drawStartPos = null;
-                        _drawEndPos = null;
-                    }
-                }
             }
         }
 
