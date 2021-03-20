@@ -2,10 +2,10 @@
 
 namespace Utils
 {
-    public struct Vector2i
+    public readonly struct Vector2i
     {
-        public int x;
-        public int y;
+        public readonly int x;
+        public readonly int y;
 
         public Vector2i(int x, int y)
         {
