@@ -923,14 +923,15 @@ MonoBehaviour:
   chunkManager: {fileID: 1436826251}
   selectedDrawBlock: 3
   drawBrushSelection: 1
-  selectedBrush: 1
+  selectedTool: 0
+  selectedBrush: 0
   selectedState: 0
   colorizeOnly: 0
   overrideDefaultColors: 0
   pixelColorOverride:
     serializedVersion: 2
     rgba: 4278255388
-  boxSize: 64
+  boxSize: 8
   uiCoordText: {fileID: 1127925849}
 --- !u!1 &2048673872
 GameObject:
