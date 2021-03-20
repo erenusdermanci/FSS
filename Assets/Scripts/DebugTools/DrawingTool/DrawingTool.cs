@@ -43,6 +43,8 @@ namespace DebugTools.DrawingTool
 
         private Random _rng;
 
+        private readonly UniqueQueue<Vector2i> _blockQueue = new UniqueQueue<Vector2i>();
+
         private readonly HashSet<Vector2i> _chunksToReload = new HashSet<Vector2i>();
 
         private ChunkMap<ChunkServer> _serverChunkMap;
@@ -146,14 +148,14 @@ namespace DebugTools.DrawingTool
             if (Input.GetMouseButtonDown(0))
             {
                 if (_lastPointDrawnForLine != null && Input.GetKey(KeyCode.LeftShift))
-                    DrawLine(_lastPointDrawnForLine.Value, blockPosition);
+                    DrawLine(_lastPointDrawnForLine.Value, blockPosition, false);
             }
             else if (Input.GetMouseButton(0))
             {
                 if (_lastPointDrawn == null)
                     DrawBrush(blockPosition.x, blockPosition.y);
                 else
-                    DrawLine(_lastPointDrawn.Value, blockPosition);
+                    DrawLine(_lastPointDrawn.Value, blockPosition, false);
                 _lastPointDrawn = new Vector2i(blockPosition.x, blockPosition.y);
             }
             else if (Input.GetMouseButtonUp(0))
@@ -167,6 +169,17 @@ namespace DebugTools.DrawingTool
                 {
                     DrawDebugLine(_lastPointDrawnForLine.Value, blockPosition, UnityEngine.Color.white);
                 }
+            }
+
+            Flush();
+        }
+
+        private void Flush()
+        {
+            while (_blockQueue.Count != 0)
+            {
+                var p = _blockQueue.Dequeue();
+                PutBlock(p.x, p.y);
             }
         }
 
@@ -195,7 +208,7 @@ namespace DebugTools.DrawingTool
 
                     var x = pos.x;
                     var y = pos.y;
-                    PutBlock(x, y, selectedDrawBlock, GetBlockColor(), selectedState);
+                    PutBlock(x, y);
 
                     var right = new Vector2i(x + 1, y);
                     var left = new Vector2i(x - 1, y);
@@ -236,7 +249,7 @@ namespace DebugTools.DrawingTool
             return new Vector2i((int) Mathf.Floor((worldPos.x + 0.5f) * 64.0f), (int) Mathf.Floor((worldPos.y + 0.5f) * 64.0f));
         }
 
-        private void DrawBox(int x, int y)
+        private void DrawBox(int x, int y, bool immediate = true)
         {
             var px = x - boxSize / 2;
             var py = y - boxSize / 2;
@@ -245,19 +258,17 @@ namespace DebugTools.DrawingTool
             {
                 for (var j = py; j < py + boxSize; j++)
                 {
-                    PutBlock(i, j, selectedDrawBlock, GetBlockColor(), selectedState);
+                    PutBlock(i, j, immediate);
                 }
             }
         }
 
-        private void DrawLine(Vector2i flooredPosVec2Start, Vector2i flooredPosVec2End)
+        private void DrawLine(Vector2i flooredPosVec2Start, Vector2i flooredPosVec2End, bool immediate = true)
         {
-            Bresenham(flooredPosVec2Start.x, flooredPosVec2Start.y, flooredPosVec2End.x, flooredPosVec2End.y);
-        }
-
-        // Implementation of Bresenham's line algorithm
-        private void Bresenham(int x, int y, int x2, int y2)
-        {
+            var x = flooredPosVec2Start.x;
+            var y = flooredPosVec2Start.y;
+            var x2 = flooredPosVec2End.x;
+            var y2 = flooredPosVec2End.y;
             var w = x2 - x;
             var h = y2 - y;
             var dx1 = 0;
@@ -284,7 +295,7 @@ namespace DebugTools.DrawingTool
             var numerator = longest >> 1;
             for (var i = 0; i <= longest; i++)
             {
-                DrawBrush(x, y);
+                DrawBrush(x, y, immediate);
                 numerator += shortest;
                 if (!(numerator < longest))
                 {
@@ -338,20 +349,28 @@ namespace DebugTools.DrawingTool
                             new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
         }
 
-        private void DrawBrush(int x, int y)
+        private void DrawBrush(int x, int y, bool immediate = true)
         {
             switch (selectedBrush)
             {
                 case BrushType.Box:
-                    DrawBox(x, y);
+                    DrawBox(x, y, immediate);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private void PutBlock(int worldX, int worldY, int selectedBlock, Color blockColor, int states)
+        private void PutBlock(int worldX, int worldY, bool immediate = true)
         {
+            if (!immediate)
+            {
+                _blockQueue.Enqueue(new Vector2i(worldX, worldY));
+                return;
+            }
+
+            var blockColor = GetBlockColor();
+
             var r = blockColor.r;
             var g = blockColor.g;
             var b = blockColor.b;
@@ -381,10 +400,10 @@ namespace DebugTools.DrawingTool
             }
             else
             {
-                if (BlockConstants.BlockDescriptors[selectedBlock].InitialStates != 0 && selectedState == 0)
-                    selectedState = BlockConstants.BlockDescriptors[selectedBlock].InitialStates;
-                chunk.PutBlock(blockXInChunk, blockYInChunk, selectedBlock, r, g, b, blockColor.a,
-                    states, BlockConstants.BlockDescriptors[selectedBlock].BaseHealth, 0);
+                if (BlockConstants.BlockDescriptors[selectedDrawBlock].InitialStates != 0 && selectedState == 0)
+                    selectedState = BlockConstants.BlockDescriptors[selectedDrawBlock].InitialStates;
+                chunk.PutBlock(blockXInChunk, blockYInChunk, selectedDrawBlock, r, g, b, blockColor.a,
+                    selectedState, BlockConstants.BlockDescriptors[selectedDrawBlock].BaseHealth, 0);
             }
 
             _chunksToReload.Add(chunk.Position);
