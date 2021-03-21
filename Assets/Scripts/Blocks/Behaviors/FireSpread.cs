@@ -6,10 +6,6 @@ namespace Blocks.Behaviors
 {
     public class FireSpread : IBehavior
     {
-        private const int Id = 1;
-
-        public int GetId => Id;
-
         public readonly float CombustionProbability;
         public readonly Color FireColor;
 

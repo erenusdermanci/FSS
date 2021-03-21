@@ -5,10 +5,6 @@ namespace Blocks.Behaviors
 {
     public class Swap : IBehavior
     {
-        private const int Id = 0;
-
-        public int GetId => Id;
-
         private readonly int[] _priorities;
         private readonly int[] _directions;
         private readonly BlockMovementType[] _movementTypes;

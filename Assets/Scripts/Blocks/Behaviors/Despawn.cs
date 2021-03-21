@@ -5,10 +5,6 @@ namespace Blocks.Behaviors
 {
     public class Despawn : IBehavior
     {
-        private const int Id = 2;
-
-        public int GetId => Id;
-
         private readonly float _despawnProbability;
         private readonly float _lifetime;
         private readonly float _despawnResultBlockProbability;
