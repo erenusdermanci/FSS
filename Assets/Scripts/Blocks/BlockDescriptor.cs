@@ -15,10 +15,10 @@ namespace Blocks
 
         #region Specific fields for behaviour lookup, to be filled in the constructor
         // not pretty, but we need fast access time, and a lookup table would require a cast in the end
-        public readonly Consume Consume;
-        public readonly FireSpread FireSpread;
-        public readonly Despawn Despawn;
-        public readonly Swap Swap;
+        public readonly Consumer Consumer;
+        public readonly FireSpreader FireSpreader;
+        public readonly Despawner Despawner;
+        public readonly Swapper Swapper;
         #endregion
 
         public BlockDescriptor(string name,
@@ -36,26 +36,26 @@ namespace Blocks
             BaseHealth = baseHealth;
             InitialStates = initialStates;
 
-            Consume = null;
-            FireSpread = null;
-            Despawn = null;
-            Swap = null;
+            Consumer = null;
+            FireSpreader = null;
+            Despawner = null;
+            Swapper = null;
 
             foreach (var behavior in behaviors)
             {
                 switch (behavior)
                 {
-                    case Consume consume:
-                        Consume = consume;
+                    case Consumer consume:
+                        Consumer = consume;
                         break;
-                    case FireSpread fireSpread:
-                        FireSpread = fireSpread;
+                    case FireSpreader fireSpread:
+                        FireSpreader = fireSpread;
                         break;
-                    case Despawn despawn:
-                        Despawn = despawn;
+                    case Despawner despawn:
+                        Despawner = despawn;
                         break;
-                    case Swap swap:
-                        Swap = swap;
+                    case Swapper swap:
+                        Swapper = swap;
                         break;
                 }
             }

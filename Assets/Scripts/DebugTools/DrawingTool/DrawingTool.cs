@@ -425,7 +425,7 @@ namespace DebugTools.DrawingTool
             var b = blockColor.b;
             if (selectedState == 1)
             {
-                var fireSpread = BlockConstants.BlockDescriptors[selectedDrawBlock].FireSpread;
+                var fireSpread = BlockConstants.BlockDescriptors[selectedDrawBlock].FireSpreader;
                 if (fireSpread != null && fireSpread.CombustionProbability > 0.0f)
                 {
                     blockColor = fireSpread.FireColor;

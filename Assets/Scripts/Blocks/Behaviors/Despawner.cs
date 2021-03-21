@@ -3,13 +3,13 @@ using Chunks;
 
 namespace Blocks.Behaviors
 {
-    public class Despawn : IBehavior
+    public class Despawner : IBehavior
     {
         private readonly float _despawnProbability;
         private readonly float _lifetime;
         private readonly BlockPotential _resultPotentialBlocks;
 
-        public Despawn(float despawnProbability,
+        public Despawner(float despawnProbability,
             float lifetime,
             BlockPotential resultPotentialBlocks)
         {

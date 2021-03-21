@@ -56,11 +56,11 @@ namespace Blocks
                 1,
                 new IBehavior[]
                 {
-                    new Despawn(0.2f,
+                    new Despawner(0.2f,
                         10.0f,
                         new BlockPotential(Smoke, 0.2f)
                     ),
-                    new FireSpread(0.0f,
+                    new FireSpreader(0.0f,
                         FireColor,
                         0.0f,
                         new BlockPotential[] {},
@@ -68,7 +68,7 @@ namespace Blocks
                         false,
                         false
                     ),
-                    new Swap(
+                    new Swapper(
                         new [] { 5, 5, 6, 7, 3, 4},
                         new [] { 0, 0, 0, 1, 1, 1, 1, 1 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
@@ -85,14 +85,14 @@ namespace Blocks
                 0,
                 new IBehavior[]
                 {
-                    new FireSpread(0.1f,
+                    new FireSpreader(0.1f,
                         FireColor,
                         0.01f,
                         new [] { new BlockPotential(Flame, 1.0f) },
                         new BlockPotential(Smoke, 0.5f),
                         true,
                         false),
-                    new Swap(
+                    new Swapper(
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 2, 1, 1, 2, 2, 0, 0 ,0 },
                         new[] { Randomized, Randomized, Randomized, Farthest, Farthest, Randomized, Randomized, Randomized },
@@ -109,7 +109,7 @@ namespace Blocks
                 0,
                 new IBehavior[]
                 {
-                    new Swap(
+                    new Swapper(
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 4, 1, 1, 4, 4, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Farthest, Farthest, Randomized, Randomized, Randomized },
@@ -126,7 +126,7 @@ namespace Blocks
                 0,
                 new IBehavior[]
                 {
-                    new Swap(
+                    new Swapper(
                         new [] { 0, 0, 1, 2 },
                         new [] { 2, 1, 1, 0, 0, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
@@ -143,7 +143,7 @@ namespace Blocks
                 0,
                 new IBehavior[]
                 {
-                    new Swap(
+                    new Swapper(
                         new [] { 0, 0 },
                         new [] { 2, 0, 0, 0, 0, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
@@ -187,7 +187,7 @@ namespace Blocks
                 0,
                 new IBehavior[]
                 {
-                    new FireSpread(1.0f,
+                    new FireSpreader(1.0f,
                         FireColor,
                         10.0f,
                         new BlockPotential [] {},
@@ -195,7 +195,7 @@ namespace Blocks
                         false,
                         false
                     ),
-                    new Swap(
+                    new Swapper(
                         new [] { 5, 5, 6, 7, 3, 4},
                         new [] { 0, 0, 0, 2, 2, 2, 1, 1 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
@@ -212,11 +212,11 @@ namespace Blocks
                 0,
                 new IBehavior[]
                 {
-                    new Despawn(0.1f,
+                    new Despawner(0.1f,
                         100.0f,
                         new BlockPotential(Air, 1.0f)
                     ),
-                    new Swap(
+                    new Swapper(
                         new [] { 5, 5, 6, 7, 3, 4},
                         new [] { 0, 0, 0, 2, 2, 2, 1, 1 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
@@ -232,7 +232,7 @@ namespace Blocks
                 100.0f,
                 0,
                 new IBehavior[] {
-                    new FireSpread(1.0f,
+                    new FireSpreader(1.0f,
                         FireColor,
                         5.0f,
                         new [] {
@@ -253,7 +253,7 @@ namespace Blocks
                 100.0f,
                 0,
                 new IBehavior[] {
-                    new FireSpread(0.2f,
+                    new FireSpreader(0.2f,
                         FireColor,
                         0.01f,
                         new [] { new BlockPotential(Flame, 1.0f) },
@@ -261,7 +261,7 @@ namespace Blocks
                         true,
                         false
                     ),
-                    new Swap(
+                    new Swapper(
                         new [] { 0, 0, 1, 2 },
                         new [] { 2, 1, 1, 0, 0, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
@@ -277,7 +277,7 @@ namespace Blocks
                 100.0f,
                 1,
                 new IBehavior[] {
-                    new FireSpread(1.0f,
+                    new FireSpreader(1.0f,
                         FireColor,
                         9.0f,
                         new [] {
@@ -288,7 +288,7 @@ namespace Blocks
                         false,
                         true
                     ),
-                    new Swap(
+                    new Swapper(
                         new [] { 5, 0, 3, 4, 1, 7, 2, 6 },
                         new [] { 4, 2, 4, 4, 4, 4, 4, 4 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
@@ -305,20 +305,20 @@ namespace Blocks
                 1,
                 new IBehavior[]
                 {
-                    new Consume(
+                    new Consumer(
                         new [] { Water },
                         HardenedLava,
                         Smoke,
                         0.1f
                     ),
-                    new FireSpread(0.0f,
+                    new FireSpreader(0.0f,
                         FireColor,
                         0.0f,
                         new [] { new BlockPotential(Smoke, 0.0001f) },
                         new BlockPotential(Air, 1.0f),
                         true,
                         false),
-                    new Swap(
+                    new Swapper(
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 2, 1, 1, 4, 4, 0, 0 ,0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
@@ -335,7 +335,7 @@ namespace Blocks
                 0,
                 new IBehavior[]
                 {
-                    new Swap(
+                    new Swapper(
                         new [] { 0, 0 },
                         new [] { 2, 0, 0, 0, 0, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },

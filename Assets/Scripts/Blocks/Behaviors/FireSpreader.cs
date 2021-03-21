@@ -4,7 +4,7 @@ using Utils;
 
 namespace Blocks.Behaviors
 {
-    public class FireSpread : IBehavior
+    public class FireSpreader : IBehavior
     {
         public readonly float CombustionProbability;
         public readonly Color FireColor;
@@ -17,7 +17,7 @@ namespace Blocks.Behaviors
 
         private static readonly float[] BurningRateMultipliers = {1f, 0.2f, 0.2f, 1f, 1f, 1f, 0.2f, 0.2f};
 
-        public FireSpread(float combustionProbability,
+        public FireSpreader(float combustionProbability,
             Color fireColor,
             float burningRate,
             BlockPotential[] emissionPotentialBlocks,
@@ -136,7 +136,7 @@ namespace Blocks.Behaviors
                         default:
                             if (neighborBlocks[i].GetState((int)BlockStates.Burning))
                                 continue;
-                            var fireSpread = BlockConstants.BlockDescriptors[neighborBlocks[i].Type].FireSpread;
+                            var fireSpread = BlockConstants.BlockDescriptors[neighborBlocks[i].Type].FireSpreader;
                             if (fireSpread == null)
                                 continue;
                             var combustionProbability = fireSpread.CombustionProbability;

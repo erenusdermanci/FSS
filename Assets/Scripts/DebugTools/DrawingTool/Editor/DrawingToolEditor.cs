@@ -68,8 +68,8 @@ namespace DebugTools.DrawingTool.Editor
 
         private static bool CanBlockBurn(int block)
         {
-            return BlockConstants.BlockDescriptors[block].FireSpread != null
-                && BlockConstants.BlockDescriptors[block].FireSpread.CombustionProbability > 0.0f;
+            return BlockConstants.BlockDescriptors[block].FireSpreader != null
+                && BlockConstants.BlockDescriptors[block].FireSpreader.CombustionProbability > 0.0f;
         }
 
         private static int ConvertState(BlockStates state)

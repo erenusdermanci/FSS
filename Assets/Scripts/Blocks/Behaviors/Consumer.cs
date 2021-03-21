@@ -4,14 +4,14 @@ using Chunks;
 
 namespace Blocks.Behaviors
 {
-    public class Consume : IBehavior
+    public class Consumer : IBehavior
     {
         private readonly bool[] _isBlockConsumed;
         private readonly int _replaceConsumedBy;
         private readonly int _replacedInto;
         private readonly float _transformProbability;
 
-        public Consume(IEnumerable<int> consumed,
+        public Consumer(IEnumerable<int> consumed,
             int replacedInto,
             int replaceConsumedBy,
             float transformProbability)

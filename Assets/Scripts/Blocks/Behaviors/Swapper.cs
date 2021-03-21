@@ -3,14 +3,14 @@ using Chunks;
 
 namespace Blocks.Behaviors
 {
-    public class Swap : IBehavior
+    public class Swapper : IBehavior
     {
         private readonly int[] _priorities;
         private readonly int[] _directions;
         private readonly BlockMovementType[] _movementTypes;
         private readonly BlockTags _blockedBy;
 
-        public Swap(int[] priorities, int[] directions, BlockMovementType[] movementTypes, BlockTags blockedBy)
+        public Swapper(int[] priorities, int[] directions, BlockMovementType[] movementTypes, BlockTags blockedBy)
         {
             _priorities = priorities;
             _directions = directions;
