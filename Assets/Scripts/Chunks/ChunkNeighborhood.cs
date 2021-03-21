@@ -79,12 +79,9 @@ namespace Chunks
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (_chunks[chunkIndex] == null)
                 return;
-            var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.BlockDescriptors[type].ColorMaxShift);
             var color = BlockConstants.BlockDescriptors[type].Color;
-            _chunks[chunkIndex].PutBlock(x, y, type,
-                Helpers.ShiftColorComponent(color.r, shiftAmount),
-                Helpers.ShiftColorComponent(color.g, shiftAmount),
-                Helpers.ShiftColorComponent(color.b, shiftAmount),
+            color.Shift(out var r, out var g, out var b);
+            _chunks[chunkIndex].PutBlock(x, y, type, r, g, b,
                 color.a, stateBitset, health, lifetime);
             UpdateAdjacentBlockDirty(x, y);
         }
@@ -96,12 +93,9 @@ namespace Chunks
                 return;
             if (resetColor)
             {
-                var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.BlockDescriptors[blockInfo.Type].ColorMaxShift);
                 var color = BlockConstants.BlockDescriptors[blockInfo.Type].Color;
-                _chunks[chunkIndex].PutBlock(x, y, blockInfo.Type,
-                    Helpers.ShiftColorComponent(color.r, shiftAmount),
-                    Helpers.ShiftColorComponent(color.g, shiftAmount),
-                    Helpers.ShiftColorComponent(color.b, shiftAmount),
+                color.Shift(out var r, out var g, out var b);
+                _chunks[chunkIndex].PutBlock(x, y, blockInfo.Type, r, g, b,
                     color.a, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
             }
             else

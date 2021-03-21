@@ -429,10 +429,7 @@ namespace DebugTools.DrawingTool
                 if (fireSpread != null)
                 {
                     blockColor = fireSpread.FireColor;
-                    var shiftAmount = Helpers.GetRandomShiftAmount(fireSpread.FireColorMaxShift);
-                    r = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
-                    g = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
-                    b = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
+                    blockColor.Shift(out r, out g, out b);
                 }
             }
 
@@ -486,13 +483,9 @@ namespace DebugTools.DrawingTool
                 return new Color(pixelColorOverride.r, pixelColorOverride.g, pixelColorOverride.b, pixelColorOverride.a);
 
             var block = selectedDrawBlock;
-            var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.BlockDescriptors[block].ColorMaxShift);
             var color = BlockConstants.BlockDescriptors[block].Color;
-            return new Color(
-                Helpers.ShiftColorComponent(color.r, shiftAmount),
-                Helpers.ShiftColorComponent(color.g, shiftAmount),
-                Helpers.ShiftColorComponent(color.b, shiftAmount),
-                color.a);
+            color.Shift(out var r, out var g, out var b);
+            return new Color(r, g, b, color.a);
         }
     }
 }

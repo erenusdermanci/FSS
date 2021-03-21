@@ -108,13 +108,13 @@ namespace Chunks.Tasks
 
             var block = GetBlockFromNoise(layer, noiseAcc);
             var blockColor = BlockConstants.BlockDescriptors[block].Color;
+            blockColor.Shift(out var r, out var g, out var b);
 
             var idx = y * Chunks.Chunk.Size + x;
 
-            var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.BlockDescriptors[block].ColorMaxShift);
-            Chunk.Data.colors[idx * 4] = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
-            Chunk.Data.colors[idx * 4 + 1] = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
-            Chunk.Data.colors[idx * 4 + 2] = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
+            Chunk.Data.colors[idx * 4] = r;
+            Chunk.Data.colors[idx * 4 + 1] = g;
+            Chunk.Data.colors[idx * 4 + 2] = b;
             Chunk.Data.colors[idx * 4 + 3] = blockColor.a;
             Chunk.Data.types[idx] = block;
             Chunk.Data.stateBitsets[idx] = 0;

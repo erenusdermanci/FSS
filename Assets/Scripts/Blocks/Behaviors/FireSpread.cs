@@ -12,7 +12,6 @@ namespace Blocks.Behaviors
 
         public readonly float CombustionProbability;
         public readonly Color FireColor;
-        public readonly float FireColorMaxShift;
 
         private readonly float _burningRate;
         private readonly int[] _combustionEmissionBlockTypes;
@@ -26,7 +25,6 @@ namespace Blocks.Behaviors
 
         public FireSpread(float combustionProbability,
             Color fireColor,
-            float fireColorMaxShift,
             float burningRate,
             int[] combustionEmissionBlockTypes,
             float[] combustionEmissionProbabilities,
@@ -37,7 +35,6 @@ namespace Blocks.Behaviors
         {
             CombustionProbability = combustionProbability;
             FireColor = fireColor;
-            FireColorMaxShift = fireColorMaxShift;
             _burningRate = burningRate;
             _combustionEmissionBlockTypes = combustionEmissionBlockTypes;
             _combustionEmissionProbabilities = combustionEmissionProbabilities;
@@ -92,14 +89,10 @@ namespace Blocks.Behaviors
                 chunkNeighborhood.GetCentralChunk().SetBlockStates(x, y, blockInfo.StateBitset);
 
                 // reset color of block
-                var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.BlockDescriptors[blockInfo.Type].ColorMaxShift);
                 var color = BlockConstants.BlockDescriptors[blockInfo.Type].Color;
+                color.Shift(out var r, out var g, out var b);
                 chunkNeighborhood.GetCentralChunk()
-                    .SetBlockColor(x, y,
-                        Helpers.ShiftColorComponent(color.r, shiftAmount),
-                        Helpers.ShiftColorComponent(color.g, shiftAmount),
-                        Helpers.ShiftColorComponent(color.b, shiftAmount),
-                        color.a);
+                    .SetBlockColor(x, y, r, g, b, color.a);
             }
             else
             {
@@ -158,13 +151,9 @@ namespace Blocks.Behaviors
                             {
                                 // spreading to this block
                                 neighborBlocks[i].SetState((int)BlockStates.Burning);
-                                var shiftAmount = Helpers.GetRandomShiftAmount(fireSpread.FireColorMaxShift);
                                 var color = fireSpread.FireColor;
-                                chunkNeighborhood.UpdateBlock(x + directionX[i], y + directionY[i], neighborBlocks[i],
-                                    Helpers.ShiftColorComponent(color.r, shiftAmount),
-                                    Helpers.ShiftColorComponent(color.g, shiftAmount),
-                                    Helpers.ShiftColorComponent(color.b, shiftAmount),
-                                    color.a);
+                                color.Shift(out var r, out var g, out var b);
+                                chunkNeighborhood.UpdateBlock(x + directionX[i], y + directionY[i], neighborBlocks[i], r, g, b, color.a);
                             }
                             break;
                     }

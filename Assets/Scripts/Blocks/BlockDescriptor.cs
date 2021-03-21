@@ -10,7 +10,6 @@ namespace Blocks
         public readonly BlockTags Tag;
         public readonly float DensityPriority; // Gases between 0 and 1, Air at 1 and others > 1
         public readonly Color Color;
-        public readonly float ColorMaxShift;
         public readonly float BaseHealth;
         public readonly int InitialStates;
 
@@ -25,7 +24,6 @@ namespace Blocks
             BlockTags tag,
             float densityPriority,
             Color color,
-            float colorMaxShift,
             float baseHealth,
             int initialStates,
             IEnumerable<IBehavior> behaviors)
@@ -34,7 +32,6 @@ namespace Blocks
             Tag = tag;
             DensityPriority = densityPriority;
             Color = color;
-            ColorMaxShift = colorMaxShift;
             BaseHealth = baseHealth;
             InitialStates = initialStates;
 

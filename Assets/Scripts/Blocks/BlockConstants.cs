@@ -17,8 +17,7 @@ namespace Blocks
 
     public static class BlockConstants
     {
-        private static readonly Color FireColor = new Color(240, 127, 19, 255);
-        private const float FireColorMaxShift = 0.3f;
+        private static readonly Color FireColor = new Color(240, 127, 19, 255, 0.3f);
 
         public const int Air = 0;
         public const int Flame = 1;
@@ -42,7 +41,6 @@ namespace Blocks
                 1.0f,
                 new Color(0, 0, 0, 0),
                 0.0f,
-                0.0f,
                 0,
                 new IBehavior[] {}
             ),
@@ -50,8 +48,7 @@ namespace Blocks
                 "Flame",
                 BlockTags.Gas,
                 0.06f,
-                new Color(255, 110, 19, 255),
-                0.2f,
+                new Color(255, 110, 19, 255, 0.2f),
                 100.0f,
                 1,
                 new IBehavior[]
@@ -63,7 +60,6 @@ namespace Blocks
                     ),
                     new FireSpread(0.0f,
                         FireColor,
-                        FireColorMaxShift,
                         0.0f,
                         new int[] {},
                         new float[] {},
@@ -84,15 +80,13 @@ namespace Blocks
                 "Oil",
                 BlockTags.Liquid,
                 1.1f,
-                new Color(51, 38, 0, 255),
-                0.1f,
+                new Color(51, 38, 0, 255, 0.1f),
                 100.0f,
                 0,
                 new IBehavior[]
                 {
                     new FireSpread(0.1f,
                         FireColor,
-                        FireColorMaxShift,
                         0.01f,
                         new [] { Flame },
                         new [] { 1.0f },
@@ -112,8 +106,7 @@ namespace Blocks
                 "Water",
                 BlockTags.Liquid,
                 1.2f,
-                new Color(15, 94, 156, 255),
-                0.025f,
+                new Color(15, 94, 156, 255, 0.025f),
                 0.0f,
                 0,
                 new IBehavior[]
@@ -130,8 +123,7 @@ namespace Blocks
                 "Sand",
                 BlockTags.Solid,
                 1.5f,
-                new Color(155, 134, 69, 255),
-                0.05f,
+                new Color(155, 134, 69, 255, 0.05f),
                 0.0f,
                 0,
                 new IBehavior[]
@@ -148,8 +140,7 @@ namespace Blocks
                 "Dirt",
                 BlockTags.Solid,
                 1.6f,
-                new Color(124, 94, 66, 255),
-                0.1f,
+                new Color(124, 94, 66, 255, 0.1f),
                 0.0f,
                 0,
                 new IBehavior[]
@@ -166,8 +157,7 @@ namespace Blocks
                 "Stone",
                 BlockTags.Solid,
                 2.0f,
-                new Color(149, 148, 139, 255),
-                0.2f,
+                new Color(149, 148, 139, 255, 0.2f),
                 0.0f,
                 0,
                 new IBehavior[] {}
@@ -176,8 +166,7 @@ namespace Blocks
                 "Metal",
                 BlockTags.Solid,
                 2.0f,
-                new Color(75, 75, 75, 255),
-                0.02f,
+                new Color(75, 75, 75, 255, 0.02f),
                 0.0f,
                 0,
                 new IBehavior[] {}
@@ -186,8 +175,7 @@ namespace Blocks
                 "Border",
                 BlockTags.Solid,
                 1000.0f,
-                new Color(255, 0, 0, 255),
-                0.0f,
+                new Color(255, 0, 0, 255, 0.0f),
                 0.0f,
                 0,
                 new IBehavior[] {}
@@ -196,15 +184,13 @@ namespace Blocks
                 "Gas",
                 BlockTags.Gas,
                 0.05f,
-                new Color(73, 185, 96, 255),
-                0.1f,
+                new Color(73, 185, 96, 255, 0.1f),
                 100.0f,
                 0,
                 new IBehavior[]
                 {
                     new FireSpread(1.0f,
                         FireColor,
-                        FireColorMaxShift,
                         10.0f,
                         new [] { Smoke },
                             new [] { 0.0f },
@@ -225,8 +211,7 @@ namespace Blocks
                 "Smoke",
                 BlockTags.Gas,
                 0.06f,
-                new Color(59, 68, 75, 75),
-                0.5f,
+                new Color(59, 68, 75, 75, 0.5f),
                 0.0f,
                 0,
                 new IBehavior[]
@@ -248,14 +233,12 @@ namespace Blocks
                 "Wood",
                 BlockTags.Solid,
                 2.0f,
-                new Color(99, 70, 45, 255),
-                0.1f,
+                new Color(99, 70, 45, 255, 0.1f),
                 100.0f,
                 0,
                 new IBehavior[] {
                     new FireSpread(1.0f,
                         FireColor,
-                        FireColorMaxShift,
                         5.0f,
                         new [] { Spark, Flame },
                             new [] { 0.12f, 1.0f },
@@ -270,14 +253,12 @@ namespace Blocks
                 "Coal",
                 BlockTags.Solid,
                 2.0f,
-                new Color(50, 50, 50, 255),
-                0.4f,
+                new Color(50, 50, 50, 255, 0.4f),
                 100.0f,
                 0,
                 new IBehavior[] {
                     new FireSpread(0.2f,
                         FireColor,
-                        FireColorMaxShift,
                         0.01f,
                         new [] { Flame },
                             new [] { 1.0f },
@@ -298,14 +279,12 @@ namespace Blocks
                 "Spark",
                 BlockTags.Gas,
                 1.0f,
-                new Color(255, 155, 0, 255),
-                0.4f,
+                new Color(255, 155, 0, 255, 0.4f),
                 100.0f,
                 1,
                 new IBehavior[] {
                     new FireSpread(1.0f,
                         FireColor,
-                        FireColorMaxShift,
                         9.0f,
                         new [] { Spark, Smoke },
                         new [] { 0.08f, 0.4f },
