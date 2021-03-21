@@ -69,7 +69,7 @@ namespace Blocks.Behaviors
             }
 
             // We have our neighbor's types and our air count
-            if (airNeighborsCount + (_selfExtinguishing ? 0 : selfNeighborsCount) == 0)
+            if (_burningRate > 0.0f && airNeighborsCount + (_selfExtinguishing ? 0 : selfNeighborsCount) == 0)
             {
                 // fire dies out
                 blockInfo.ClearState((int)BlockStates.Burning);
