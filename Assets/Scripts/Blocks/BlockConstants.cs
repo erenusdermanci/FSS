@@ -34,6 +34,7 @@ namespace Blocks
         public const int Coal = 12;
         public const int Spark = 13;
         public const int Lava = 14;
+        public const int HardenedLava = 15;
 
         public static readonly BlockDescriptor[] BlockDescriptors = {
             new BlockDescriptor(
@@ -317,6 +318,15 @@ namespace Blocks
                         BlockTags.Solid
                     )
                 }
+            ),
+            new BlockDescriptor (
+                "HardenedLava",
+                BlockTags.Solid,
+                2.0f,
+                new Color(40, 40, 40, 255, 0.2f),
+                0.0f,
+                0,
+                new IBehavior[] {}
             )
         };
 
