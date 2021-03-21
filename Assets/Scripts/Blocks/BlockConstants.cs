@@ -314,7 +314,7 @@ namespace Blocks
                     new FireSpread(0.0f,
                         FireColor,
                         0.0f,
-                        new [] { new BlockPotential(Smoke, 0.01f) },
+                        new [] { new BlockPotential(Smoke, 0.0001f) },
                         new BlockPotential(Air, 1.0f),
                         true,
                         false),
