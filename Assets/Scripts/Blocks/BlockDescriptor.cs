@@ -1,4 +1,8 @@
-﻿using Blocks.Behaviors;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Blocks.Behaviors;
+using JetBrains.Annotations;
 using Utils;
 
 namespace Blocks
@@ -13,7 +17,13 @@ namespace Blocks
         public readonly float CombustionProbability;
         public readonly float BaseHealth;
         public readonly int InitialStates;
-        public readonly IBehavior[] Behaviors;
+
+        #region Specific fields for behaviour lookup, to be filled in the constructor
+        // not pretty, but we need fast access time, and a lookup table would require a cast in the end
+        public readonly FireSpread FireSpread;
+        public readonly Despawn Despawn;
+        public readonly Swap Swap;
+        #endregion
 
         public BlockDescriptor(string name,
             BlockTags tag,
@@ -23,7 +33,7 @@ namespace Blocks
             float combustionProbability,
             float baseHealth,
             int initialStates,
-            IBehavior[] behaviors)
+            IEnumerable<IBehavior> behaviors)
         {
             Name = name;
             Tag = tag;
@@ -33,7 +43,26 @@ namespace Blocks
             CombustionProbability = combustionProbability;
             BaseHealth = baseHealth;
             InitialStates = initialStates;
-            Behaviors = behaviors;
+
+            FireSpread = null;
+            Despawn = null;
+            Swap = null;
+
+            foreach (var behavior in behaviors)
+            {
+                switch (behavior)
+                {
+                    case FireSpread fireSpread:
+                        FireSpread = fireSpread;
+                        break;
+                    case Despawn despawn:
+                        Despawn = despawn;
+                        break;
+                    case Swap swap:
+                        Swap = swap;
+                        break;
+                }
+            }
         }
     }
 }

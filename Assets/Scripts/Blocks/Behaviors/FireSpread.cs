@@ -4,9 +4,9 @@ using Utils;
 
 namespace Blocks.Behaviors
 {
-    public readonly struct FireSpread : IBehavior
+    public class FireSpread : IBehavior
     {
-        public const int Id = 1;
+        private const int Id = 1;
 
         public int GetId => Id;
 

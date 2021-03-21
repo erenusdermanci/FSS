@@ -3,9 +3,9 @@ using Chunks;
 
 namespace Blocks.Behaviors
 {
-    public readonly struct Swap : IBehavior
+    public class Swap : IBehavior
     {
-        public const int Id = 0;
+        private const int Id = 0;
 
         public int GetId => Id;
 

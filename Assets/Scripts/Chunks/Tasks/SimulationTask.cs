@@ -163,23 +163,12 @@ namespace Chunks.Tasks
 
             var destroyed = false;
             var dirtied = false;
-            foreach (var behavior in blockLogic.Behaviors)
-            {
-                if (destroyed)
-                    break;
-                switch (behavior.GetId)
-                {
-                    case Swap.Id:
-                        dirtied |= ((Swap) behavior).Execute(_rng, Chunks, blockInfo.Type, x, y, directionX, directionY, distances, bitCount);
-                        break;
-                    case FireSpread.Id:
-                        dirtied |= ((FireSpread) behavior).Execute(_rng, Chunks, blockInfo, x, y, directionX, directionY, ref destroyed);
-                        break;
-                    case Despawn.Id:
-                        dirtied |= ((Despawn) behavior).Execute(_rng, Chunks, blockInfo, x, y, ref destroyed);
-                        break;
-                }
-            }
+            if (blockLogic.FireSpread != null)
+                dirtied |= blockLogic.FireSpread.Execute(_rng, Chunks, blockInfo, x, y, directionX, directionY, ref destroyed);
+            if (!destroyed && blockLogic.Despawn != null)
+                dirtied |= blockLogic.Despawn.Execute(_rng, Chunks, blockInfo, x, y, ref destroyed);
+            if (!destroyed && blockLogic.Swap != null)
+                dirtied |= blockLogic.Swap.Execute(_rng, Chunks, blockInfo.Type, x, y, directionX, directionY, distances, bitCount);
 
             return dirtied;
         }

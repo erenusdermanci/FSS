@@ -5,7 +5,7 @@ namespace Blocks.Behaviors
 {
     public class Despawn : IBehavior
     {
-        public const int Id = 2;
+        private const int Id = 2;
 
         public int GetId => Id;
 
