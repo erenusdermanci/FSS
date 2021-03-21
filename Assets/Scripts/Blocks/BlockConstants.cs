@@ -17,8 +17,8 @@ namespace Blocks
 
     public static class BlockConstants
     {
-        public static readonly Color FireColor = new Color(240, 127, 19, 255);
-        public const float FireColorMaxShift = 0.3f;
+        private static readonly Color FireColor = new Color(240, 127, 19, 255);
+        private const float FireColorMaxShift = 0.3f;
 
         public const int Air = 0;
         public const int Flame = 1;
@@ -62,6 +62,8 @@ namespace Blocks
                         Smoke
                     ),
                     new FireSpread(0.0f,
+                        FireColor,
+                        FireColorMaxShift,
                         0.0f,
                         new int[] {},
                         new float[] {},
@@ -89,6 +91,8 @@ namespace Blocks
                 new IBehavior[]
                 {
                     new FireSpread(0.1f,
+                        FireColor,
+                        FireColorMaxShift,
                         0.01f,
                         new [] { Flame },
                         new [] { 1.0f },
@@ -199,6 +203,8 @@ namespace Blocks
                 new IBehavior[]
                 {
                     new FireSpread(1.0f,
+                        FireColor,
+                        FireColorMaxShift,
                         10.0f,
                         new [] { Smoke },
                             new [] { 0.0f },
@@ -248,6 +254,8 @@ namespace Blocks
                 0,
                 new IBehavior[] {
                     new FireSpread(1.0f,
+                        FireColor,
+                        FireColorMaxShift,
                         5.0f,
                         new [] { Spark, Flame },
                             new [] { 0.12f, 1.0f },
@@ -268,6 +276,8 @@ namespace Blocks
                 0,
                 new IBehavior[] {
                     new FireSpread(0.2f,
+                        FireColor,
+                        FireColorMaxShift,
                         0.01f,
                         new [] { Flame },
                             new [] { 1.0f },
@@ -294,6 +304,8 @@ namespace Blocks
                 1,
                 new IBehavior[] {
                     new FireSpread(1.0f,
+                        FireColor,
+                        FireColorMaxShift,
                         9.0f,
                         new [] { Spark, Smoke },
                         new [] { 0.08f, 0.4f },

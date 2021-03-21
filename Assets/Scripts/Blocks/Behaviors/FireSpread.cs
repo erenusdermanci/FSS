@@ -11,6 +11,8 @@ namespace Blocks.Behaviors
         public int GetId => Id;
 
         public readonly float CombustionProbability;
+        public readonly Color FireColor;
+        public readonly float FireColorMaxShift;
 
         private readonly float _burningRate;
         private readonly int[] _combustionEmissionBlockTypes;
@@ -23,6 +25,8 @@ namespace Blocks.Behaviors
         private static readonly float[] BurningRateMultipliers = {1f, 0.2f, 0.2f, 1f, 1f, 1f, 0.2f, 0.2f};
 
         public FireSpread(float combustionProbability,
+            Color fireColor,
+            float fireColorMaxShift,
             float burningRate,
             int[] combustionEmissionBlockTypes,
             float[] combustionEmissionProbabilities,
@@ -32,6 +36,8 @@ namespace Blocks.Behaviors
             bool destroyedWhenExtinguished)
         {
             CombustionProbability = combustionProbability;
+            FireColor = fireColor;
+            FireColorMaxShift = fireColorMaxShift;
             _burningRate = burningRate;
             _combustionEmissionBlockTypes = combustionEmissionBlockTypes;
             _combustionEmissionProbabilities = combustionEmissionProbabilities;
@@ -152,8 +158,8 @@ namespace Blocks.Behaviors
                             {
                                 // spreading to this block
                                 neighborBlocks[i].SetState((int)BlockStates.Burning);
-                                var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.FireColorMaxShift);
-                                var color = BlockConstants.FireColor;
+                                var shiftAmount = Helpers.GetRandomShiftAmount(fireSpread.FireColorMaxShift);
+                                var color = fireSpread.FireColor;
                                 chunkNeighborhood.UpdateBlock(x + directionX[i], y + directionY[i], neighborBlocks[i],
                                     Helpers.ShiftColorComponent(color.r, shiftAmount),
                                     Helpers.ShiftColorComponent(color.g, shiftAmount),

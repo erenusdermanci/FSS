@@ -425,11 +425,15 @@ namespace DebugTools.DrawingTool
             var b = blockColor.b;
             if (selectedState == 1)
             {
-                blockColor = BlockConstants.FireColor;
-                var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.FireColorMaxShift);
-                r = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
-                g = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
-                b = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
+                var fireSpread = BlockConstants.BlockDescriptors[selectedDrawBlock].FireSpread;
+                if (fireSpread != null)
+                {
+                    blockColor = fireSpread.FireColor;
+                    var shiftAmount = Helpers.GetRandomShiftAmount(fireSpread.FireColorMaxShift);
+                    r = Helpers.ShiftColorComponent(blockColor.r, shiftAmount);
+                    g = Helpers.ShiftColorComponent(blockColor.g, shiftAmount);
+                    b = Helpers.ShiftColorComponent(blockColor.b, shiftAmount);
+                }
             }
 
             var chunk = GetChunkFromWorld(worldX, worldY);
