@@ -15,6 +15,7 @@ namespace Blocks
 
         #region Specific fields for behaviour lookup, to be filled in the constructor
         // not pretty, but we need fast access time, and a lookup table would require a cast in the end
+        public readonly Consume Consume;
         public readonly FireSpread FireSpread;
         public readonly Despawn Despawn;
         public readonly Swap Swap;
@@ -35,6 +36,7 @@ namespace Blocks
             BaseHealth = baseHealth;
             InitialStates = initialStates;
 
+            Consume = null;
             FireSpread = null;
             Despawn = null;
             Swap = null;
@@ -43,6 +45,9 @@ namespace Blocks
             {
                 switch (behavior)
                 {
+                    case Consume consume:
+                        Consume = consume;
+                        break;
                     case FireSpread fireSpread:
                         FireSpread = fireSpread;
                         break;

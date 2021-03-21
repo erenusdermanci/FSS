@@ -162,12 +162,24 @@ namespace Chunks.Tasks
 
             var destroyed = false;
             var dirtied = false;
-            if (blockLogic.FireSpread != null)
-                dirtied |= blockLogic.FireSpread.Execute(_rng, Chunks, blockInfo, x, y, directionX, directionY, ref destroyed);
+            if (blockLogic.Consume != null)
+            {
+                dirtied |= blockLogic.Consume.Execute(Chunks, x, y, directionX, directionY, ref destroyed);
+            }
+            if (!destroyed && blockLogic.FireSpread != null)
+            {
+                dirtied |= blockLogic.FireSpread.Execute(_rng, Chunks, blockInfo, x, y, directionX, directionY,
+                    ref destroyed);
+            }
             if (!destroyed && blockLogic.Despawn != null)
+            {
                 dirtied |= blockLogic.Despawn.Execute(_rng, Chunks, blockInfo, x, y, ref destroyed);
+            }
             if (!destroyed && blockLogic.Swap != null)
-                dirtied |= blockLogic.Swap.Execute(_rng, Chunks, blockInfo.Type, x, y, directionX, directionY, distances, bitCount);
+            {
+                dirtied |= blockLogic.Swap.Execute(_rng, Chunks, blockInfo.Type, x, y, directionX, directionY,
+                    distances, bitCount);
+            }
 
             return dirtied;
         }

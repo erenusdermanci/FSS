@@ -35,6 +35,7 @@ namespace Blocks
         public const int Spark = 13;
         public const int Lava = 14;
         public const int HardenedLava = 15;
+        public const int NumberOfBlocks = 16;
 
         public static readonly BlockDescriptor[] BlockDescriptors = {
             new BlockDescriptor(
@@ -304,6 +305,10 @@ namespace Blocks
                 1,
                 new IBehavior[]
                 {
+                    new Consume(
+                        new [] { Water },
+                        HardenedLava
+                    ),
                     new FireSpread(0.0f,
                         FireColor,
                         0.0f,
