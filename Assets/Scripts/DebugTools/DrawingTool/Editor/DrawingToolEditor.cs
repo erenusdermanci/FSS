@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Blocks;
 using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
 
 namespace DebugTools.DrawingTool.Editor
 {
@@ -28,6 +30,12 @@ namespace DebugTools.DrawingTool.Editor
                 case BrushType.Circle:
                     tool.circleRadius = EditorGUILayout.IntSlider("Radius", tool.circleRadius, 0, 1024);
                     break;
+            }
+
+            if (GUI.changed)
+            {
+                EditorUtility.SetDirty(tool);
+                EditorSceneManager.MarkSceneDirty(tool.gameObject.scene);
             }
         }
 
