@@ -53,6 +53,7 @@ namespace Blocks.Behaviors
             var neighborBlocks = stackalloc ChunkServer.BlockInfo[8];
             var airNeighborsCount = 0;
             var selfNeighborsCount = 0;
+            var lavaNeighborsCount = 0;
 
             // We need to go through the neighbours of this fire block
             for (var i = 0; i < 8; ++i)
@@ -69,6 +70,9 @@ namespace Blocks.Behaviors
                         break;
                     case BlockConstants.Flame:
                         break;
+                    case BlockConstants.Lava:
+                        lavaNeighborsCount++;
+                        break;
                 }
 
                 if (neighborBlocks[i].Type == blockInfo.Type)
@@ -76,7 +80,9 @@ namespace Blocks.Behaviors
             }
 
             // We have our neighbor's types and our air count
-            if (_burningRate > 0.0f && airNeighborsCount + (_selfExtinguishing ? 0 : selfNeighborsCount) == 0)
+            if (_burningRate > 0.0f
+                && lavaNeighborsCount == 0
+                && airNeighborsCount + (_selfExtinguishing ? 0 : selfNeighborsCount) == 0)
             {
                 // fire dies out
                 blockInfo.ClearState((int)BlockStates.Burning);
@@ -159,7 +165,7 @@ namespace Blocks.Behaviors
                     }
                 }
 
-                blockInfo.Health -= _burningRate * (1 + airNeighborsCount);
+                blockInfo.Health -= _burningRate * (1 + airNeighborsCount + lavaNeighborsCount * 30);
                 if (blockInfo.Health <= 0.0f)
                 {
                     // Block is consumed by fire, destroy it
