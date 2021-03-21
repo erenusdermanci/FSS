@@ -64,8 +64,8 @@ namespace Blocks
                         Smoke
                     ),
                     new FireSpread(0.0f,
-                        Smoke,
-                        0.0f,
+                        new int[] {},
+                        new float[] {},
                         Air,
                         0.0f,
                         false,
@@ -91,8 +91,8 @@ namespace Blocks
                 new IBehavior[]
                 {
                     new FireSpread(0.01f,
-                        Flame,
-                        1.0f,
+                        new [] { Flame },
+                        new [] { 1.0f },
                         Smoke,
                         0.5f,
                         true,
@@ -207,8 +207,8 @@ namespace Blocks
                 new IBehavior[]
                 {
                     new FireSpread(10.0f,
-                        Smoke,
-                        0.0f,
+                        new [] { Smoke },
+                            new [] { 0.0f },
                         Smoke,
                         0.25f,
                         false,
@@ -257,8 +257,8 @@ namespace Blocks
                 0,
                 new IBehavior[] {
                     new FireSpread(5.0f,
-                        Flame,
-                        1.0f,
+                        new [] { Spark, Flame },
+                            new [] { 0.12f, 1.0f },
                         Coal,
                         0.1f,
                         true,
@@ -277,8 +277,8 @@ namespace Blocks
                 0,
                 new IBehavior[] {
                     new FireSpread(0.01f,
-                        Flame,
-                        1.0f,
+                        new [] { Flame },
+                            new [] { 1.0f },
                         Smoke,
                         1.0f,
                         true,
@@ -302,9 +302,9 @@ namespace Blocks
                 100.0f,
                 1,
                 new IBehavior[] {
-                    new FireSpread(10.0f,
-                        Spark,
-                        0.0f,
+                    new FireSpread(9.0f,
+                        new [] { Spark, Smoke },
+                        new [] { 0.08f, 0.4f },
                         Smoke,
                         0.1f,
                         false,
@@ -312,7 +312,7 @@ namespace Blocks
                     ),
                     new Swap(
                         new [] { 5, 0, 3, 4, 1, 7, 2, 6 },
-                        new [] { 4, 4, 4, 4, 4, 4, 4, 4 },
+                        new [] { 4, 2, 4, 4, 4, 4, 4, 4 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
                         BlockTags.Solid
                     )

@@ -11,8 +11,8 @@ namespace Blocks.Behaviors
         public int GetId => Id;
 
         private readonly float _burningRate;
-        private readonly int _combustionEmissionBlockType;
-        private readonly float _combustionEmissionProbability;
+        private readonly int[] _combustionEmissionBlockTypes;
+        private readonly float[] _combustionEmissionProbabilities;
         private readonly int _combustionResultBlockType;
         private readonly float _combustionResultProbability;
         private readonly bool _selfExtinguishing;
@@ -21,16 +21,16 @@ namespace Blocks.Behaviors
         private static readonly float[] BurningRateMultipliers = {1f, 0.2f, 0.2f, 1f, 1f, 1f, 0.2f, 0.2f};
 
         public FireSpread(float burningRate,
-            int combustionEmissionBlockType,
-            float combustionEmissionProbability,
+            int[] combustionEmissionBlockTypes,
+            float[] combustionEmissionProbabilities,
             int combustionResultBlockType,
             float combustionResultProbability,
             bool selfExtinguishing,
             bool destroyedWhenExtinguished)
         {
             _burningRate = burningRate;
-            _combustionEmissionBlockType = combustionEmissionBlockType;
-            _combustionEmissionProbability = combustionEmissionProbability;
+            _combustionEmissionBlockTypes = combustionEmissionBlockTypes;
+            _combustionEmissionProbabilities = combustionEmissionProbabilities;
             _combustionResultBlockType = combustionResultBlockType;
             _combustionResultProbability = combustionResultProbability;
             _selfExtinguishing = selfExtinguishing;
@@ -102,16 +102,36 @@ namespace Blocks.Behaviors
                             break;
                         case BlockConstants.Air:
                             // replace Air with CombustionEmissionBlockType
-                            var combustionEmissionProbability = _combustionEmissionProbability;
-                            if (combustionEmissionProbability <= 0.0f)
+                            if (_combustionEmissionProbabilities.Length == 0)
                                 continue;
-                            if (combustionEmissionProbability >= 1.0f
-                                || combustionEmissionProbability > rng.NextDouble())
+                            var roll = -1.0;
+                            var blockToEmit = BlockConstants.Air;
+                            for (var j = 0; j < _combustionEmissionProbabilities.Length; ++j)
                             {
-                                chunkNeighborhood.ReplaceBlock(x + directionX[i], y + directionY[i], _combustionEmissionBlockType,
-                                    BlockConstants.BlockDescriptors[_combustionEmissionBlockType].InitialStates,
-                                    BlockConstants.BlockDescriptors[_combustionEmissionBlockType].BaseHealth, 0);
+                                // block probability is 0%, skip it
+                                if (_combustionEmissionProbabilities[j] <= 0.0f)
+                                    continue;
+
+                                // block probability is 100%, so choose it
+                                if (_combustionEmissionProbabilities[j] >= 1.0f)
+                                {
+                                    blockToEmit = _combustionEmissionBlockTypes[j];
+                                    break;
+                                }
+
+                                // one roll to rule them all
+                                if (roll < 0.0f)
+                                    roll = rng.NextDouble();
+
+                                if (_combustionEmissionProbabilities[j] >= roll)
+                                {
+                                    blockToEmit = _combustionEmissionBlockTypes[j];
+                                    break;
+                                }
                             }
+                            chunkNeighborhood.ReplaceBlock(x + directionX[i], y + directionY[i], blockToEmit,
+                                BlockConstants.BlockDescriptors[blockToEmit].InitialStates,
+                                BlockConstants.BlockDescriptors[blockToEmit].BaseHealth, 0);
                             break;
                         default:
                             if (neighborBlocks[i].GetState((int)BlockStates.Burning))
