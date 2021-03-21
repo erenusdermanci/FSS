@@ -40,6 +40,8 @@ namespace Blocks.Behaviors
             if (!blockInfo.GetState((int) BlockStates.Burning))
                 return false;
 
+            var dirty = true;
+
             var neighborBlocks = stackalloc ChunkServer.BlockInfo[8];
             var airNeighborsCount = 0;
             var selfNeighborsCount = 0;
@@ -87,8 +89,7 @@ namespace Blocks.Behaviors
                 // reset color of block
                 var color = BlockConstants.BlockDescriptors[blockInfo.Type].Color;
                 color.Shift(out var r, out var g, out var b);
-                chunkNeighborhood.GetCentralChunk()
-                    .SetBlockColor(x, y, r, g, b, color.a);
+                chunkNeighborhood.GetCentralChunk().SetBlockColor(x, y, r, g, b, color.a);
             }
             else
             {
@@ -155,17 +156,23 @@ namespace Blocks.Behaviors
                     }
                 }
 
-                blockInfo.Health -= _burningRate * (1 + airNeighborsCount + lavaNeighborsCount * 30);
-                if (blockInfo.Health <= 0.0f)
+                var healthDecrement = _burningRate * (1 + airNeighborsCount + lavaNeighborsCount * 30);
+                if (healthDecrement > 0.0f)
                 {
-                    // Block is consumed by fire, destroy it
-                    return DestroyBlock(rng, chunkNeighborhood, x, y, ref destroyed);
+                    blockInfo.Health -= healthDecrement;
+                    if (blockInfo.Health <= 0.0f)
+                    {
+                        // Block is consumed by fire, destroy it
+                        return DestroyBlock(rng, chunkNeighborhood, x, y, ref destroyed);
+                    }
+
+                    chunkNeighborhood.GetCentralChunk().SetBlockHealth(x, y, blockInfo.Health);
                 }
 
-                chunkNeighborhood.GetCentralChunk().SetBlockHealth(x, y, blockInfo.Health);
+                dirty = healthDecrement > 0.0f;
             }
 
-            return true;
+            return dirty;
         }
 
         private bool DestroyBlock(Random rng, ChunkNeighborhood chunkNeighborhood, int x, int y, ref bool destroyed)
