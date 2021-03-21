@@ -164,7 +164,7 @@ namespace Chunks.Tasks
             var dirtied = false;
             if (blockLogic.Consume != null)
             {
-                dirtied |= blockLogic.Consume.Execute(Chunks, x, y, directionX, directionY, ref destroyed);
+                dirtied |= blockLogic.Consume.Execute(_rng, Chunks, x, y, directionX, directionY, ref destroyed);
             }
             if (!destroyed && blockLogic.FireSpread != null)
             {

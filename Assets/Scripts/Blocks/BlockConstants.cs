@@ -307,7 +307,9 @@ namespace Blocks
                 {
                     new Consume(
                         new [] { Water },
-                        HardenedLava
+                        HardenedLava,
+                        Smoke,
+                        0.1f
                     ),
                     new FireSpread(0.0f,
                         FireColor,
