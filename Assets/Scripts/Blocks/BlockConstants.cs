@@ -320,7 +320,7 @@ namespace Blocks
                         false),
                     new Swap(
                         new [] { 0, 0, 1, 2, 3, 4 },
-                        new [] { 2, 1, 1, 1, 1, 0, 0 ,0 },
+                        new [] { 2, 1, 1, 4, 4, 0, 0 ,0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
                         BlockTags.Solid
                     )
