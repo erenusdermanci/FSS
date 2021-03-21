@@ -43,7 +43,6 @@ namespace Blocks
                 new Color(0, 0, 0, 0),
                 0.0f,
                 0.0f,
-                0.0f,
                 0,
                 new IBehavior[] {}
             ),
@@ -53,7 +52,6 @@ namespace Blocks
                 0.06f,
                 new Color(255, 110, 19, 255),
                 0.2f,
-                0.0f,
                 100.0f,
                 1,
                 new IBehavior[]
@@ -64,6 +62,7 @@ namespace Blocks
                         Smoke
                     ),
                     new FireSpread(0.0f,
+                        0.0f,
                         new int[] {},
                         new float[] {},
                         Air,
@@ -85,12 +84,12 @@ namespace Blocks
                 1.1f,
                 new Color(51, 38, 0, 255),
                 0.1f,
-                0.1f,
                 100.0f,
                 0,
                 new IBehavior[]
                 {
-                    new FireSpread(0.01f,
+                    new FireSpread(0.1f,
+                        0.01f,
                         new [] { Flame },
                         new [] { 1.0f },
                         Smoke,
@@ -112,7 +111,6 @@ namespace Blocks
                 new Color(15, 94, 156, 255),
                 0.025f,
                 0.0f,
-                0.0f,
                 0,
                 new IBehavior[]
                 {
@@ -130,7 +128,6 @@ namespace Blocks
                 1.5f,
                 new Color(155, 134, 69, 255),
                 0.05f,
-                0.0f,
                 0.0f,
                 0,
                 new IBehavior[]
@@ -150,7 +147,6 @@ namespace Blocks
                 new Color(124, 94, 66, 255),
                 0.1f,
                 0.0f,
-                0.0f,
                 0,
                 new IBehavior[]
                 {
@@ -169,7 +165,6 @@ namespace Blocks
                 new Color(149, 148, 139, 255),
                 0.2f,
                 0.0f,
-                0.0f,
                 0,
                 new IBehavior[] {}
             ),
@@ -179,7 +174,6 @@ namespace Blocks
                 2.0f,
                 new Color(75, 75, 75, 255),
                 0.02f,
-                0.0f,
                 0.0f,
                 0,
                 new IBehavior[] {}
@@ -191,7 +185,6 @@ namespace Blocks
                 new Color(255, 0, 0, 255),
                 0.0f,
                 0.0f,
-                0.0f,
                 0,
                 new IBehavior[] {}
             ),
@@ -201,12 +194,12 @@ namespace Blocks
                 0.05f,
                 new Color(73, 185, 96, 255),
                 0.1f,
-                1.0f,
                 100.0f,
                 0,
                 new IBehavior[]
                 {
-                    new FireSpread(10.0f,
+                    new FireSpread(1.0f,
+                        10.0f,
                         new [] { Smoke },
                             new [] { 0.0f },
                         Smoke,
@@ -228,7 +221,6 @@ namespace Blocks
                 0.06f,
                 new Color(59, 68, 75, 75),
                 0.5f,
-                0.0f,
                 0.0f,
                 0,
                 new IBehavior[]
@@ -252,11 +244,11 @@ namespace Blocks
                 2.0f,
                 new Color(99, 70, 45, 255),
                 0.1f,
-                1.0f,
                 100.0f,
                 0,
                 new IBehavior[] {
-                    new FireSpread(5.0f,
+                    new FireSpread(1.0f,
+                        5.0f,
                         new [] { Spark, Flame },
                             new [] { 0.12f, 1.0f },
                         Coal,
@@ -272,11 +264,11 @@ namespace Blocks
                 2.0f,
                 new Color(50, 50, 50, 255),
                 0.4f,
-                0.2f,
                 100.0f,
                 0,
                 new IBehavior[] {
-                    new FireSpread(0.01f,
+                    new FireSpread(0.2f,
+                        0.01f,
                         new [] { Flame },
                             new [] { 1.0f },
                         Smoke,
@@ -298,11 +290,11 @@ namespace Blocks
                 1.0f,
                 new Color(255, 155, 0, 255),
                 0.4f,
-                1.0f,
                 100.0f,
                 1,
                 new IBehavior[] {
-                    new FireSpread(9.0f,
+                    new FireSpread(1.0f,
+                        9.0f,
                         new [] { Spark, Smoke },
                         new [] { 0.08f, 0.4f },
                         Smoke,

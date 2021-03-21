@@ -10,6 +10,8 @@ namespace Blocks.Behaviors
 
         public int GetId => Id;
 
+        public readonly float CombustionProbability;
+
         private readonly float _burningRate;
         private readonly int[] _combustionEmissionBlockTypes;
         private readonly float[] _combustionEmissionProbabilities;
@@ -20,7 +22,8 @@ namespace Blocks.Behaviors
 
         private static readonly float[] BurningRateMultipliers = {1f, 0.2f, 0.2f, 1f, 1f, 1f, 0.2f, 0.2f};
 
-        public FireSpread(float burningRate,
+        public FireSpread(float combustionProbability,
+            float burningRate,
             int[] combustionEmissionBlockTypes,
             float[] combustionEmissionProbabilities,
             int combustionResultBlockType,
@@ -28,6 +31,7 @@ namespace Blocks.Behaviors
             bool selfExtinguishing,
             bool destroyedWhenExtinguished)
         {
+            CombustionProbability = combustionProbability;
             _burningRate = burningRate;
             _combustionEmissionBlockTypes = combustionEmissionBlockTypes;
             _combustionEmissionProbabilities = combustionEmissionProbabilities;
@@ -78,10 +82,10 @@ namespace Blocks.Behaviors
                     return DestroyBlock(rng, chunkNeighborhood, x, y, ref destroyed);
                 }
 
-                // update state for block:
+                // update state for block
                 chunkNeighborhood.GetCentralChunk().SetBlockStates(x, y, blockInfo.StateBitset);
 
-                // reset color of block:
+                // reset color of block
                 var shiftAmount = Helpers.GetRandomShiftAmount(BlockConstants.BlockDescriptors[blockInfo.Type].ColorMaxShift);
                 var color = BlockConstants.BlockDescriptors[blockInfo.Type].Color;
                 chunkNeighborhood.GetCentralChunk()
@@ -136,9 +140,11 @@ namespace Blocks.Behaviors
                         default:
                             if (neighborBlocks[i].GetState((int)BlockStates.Burning))
                                 continue;
-                            var combustionProbability =
-                                BlockConstants.BlockDescriptors[neighborBlocks[i].Type].CombustionProbability
-                                * BurningRateMultipliers[i];
+                            var fireSpread = BlockConstants.BlockDescriptors[neighborBlocks[i].Type].FireSpread;
+                            if (fireSpread == null)
+                                continue;
+                            var combustionProbability = fireSpread.CombustionProbability;
+                            combustionProbability *= BurningRateMultipliers[i];
                             if (combustionProbability == 0.0f)
                                 continue;
                             if (combustionProbability >= 1.0f

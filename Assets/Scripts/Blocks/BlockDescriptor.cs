@@ -11,7 +11,6 @@ namespace Blocks
         public readonly float DensityPriority; // Gases between 0 and 1, Air at 1 and others > 1
         public readonly Color Color;
         public readonly float ColorMaxShift;
-        public readonly float CombustionProbability;
         public readonly float BaseHealth;
         public readonly int InitialStates;
 
@@ -27,7 +26,6 @@ namespace Blocks
             float densityPriority,
             Color color,
             float colorMaxShift,
-            float combustionProbability,
             float baseHealth,
             int initialStates,
             IEnumerable<IBehavior> behaviors)
@@ -37,7 +35,6 @@ namespace Blocks
             DensityPriority = densityPriority;
             Color = color;
             ColorMaxShift = colorMaxShift;
-            CombustionProbability = combustionProbability;
             BaseHealth = baseHealth;
             InitialStates = initialStates;
 
