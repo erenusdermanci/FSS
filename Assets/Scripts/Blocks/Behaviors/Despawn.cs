@@ -7,18 +7,15 @@ namespace Blocks.Behaviors
     {
         private readonly float _despawnProbability;
         private readonly float _lifetime;
-        private readonly float _despawnResultBlockProbability;
-        private readonly int _despawnResultBlockType;
+        private readonly BlockPotential _resultPotentialBlocks;
 
         public Despawn(float despawnProbability,
             float lifetime,
-            float despawnResultBlockProbability,
-            int despawnResultBlockType)
+            BlockPotential resultPotentialBlocks)
         {
             _despawnProbability = despawnProbability;
             _lifetime = lifetime;
-            _despawnResultBlockProbability = despawnResultBlockProbability;
-            _despawnResultBlockType = despawnResultBlockType;
+            _resultPotentialBlocks = resultPotentialBlocks;
         }
 
         public bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, ChunkServer.BlockInfo blockInfo, int x, int y, ref bool destroyed)
@@ -37,11 +34,11 @@ namespace Blocks.Behaviors
                 {
                     // Destroy it
                     var resultBlockType = BlockConstants.Air;
-                    if (_despawnResultBlockProbability > 0.0f
-                        && _despawnResultBlockProbability >= 1.0f
-                        || _despawnResultBlockProbability > rng.NextDouble())
+                    if (_resultPotentialBlocks.Probability > 0.0f
+                        && _resultPotentialBlocks.Probability >= 1.0f
+                        || _resultPotentialBlocks.Probability > rng.NextDouble())
                     {
-                        resultBlockType = _despawnResultBlockType;
+                        resultBlockType = _resultPotentialBlocks.Type;
                     }
                     chunkNeighborhood.ReplaceBlock(x, y, resultBlockType,
                         BlockConstants.BlockDescriptors[resultBlockType].InitialStates,

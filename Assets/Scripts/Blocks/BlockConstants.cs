@@ -56,16 +56,13 @@ namespace Blocks
                 {
                     new Despawn(0.2f,
                         10.0f,
-                        0.2f,
-                        Smoke
+                        new BlockPotential(Smoke, 0.2f)
                     ),
                     new FireSpread(0.0f,
                         FireColor,
                         0.0f,
-                        new int[] {},
-                        new float[] {},
-                        Air,
-                        0.0f,
+                        new BlockPotential[] {},
+                        null,
                         false,
                         false
                     ),
@@ -89,10 +86,8 @@ namespace Blocks
                     new FireSpread(0.1f,
                         FireColor,
                         0.01f,
-                        new [] { Flame },
-                        new [] { 1.0f },
-                        Smoke,
-                        0.5f,
+                        new [] { new BlockPotential(Flame, 1.0f) },
+                        new BlockPotential(Smoke, 0.5f),
                         true,
                         false),
                     new Swap(
@@ -193,10 +188,8 @@ namespace Blocks
                     new FireSpread(1.0f,
                         FireColor,
                         10.0f,
-                        new [] { Smoke },
-                            new [] { 0.0f },
-                        Smoke,
-                        0.25f,
+                        new BlockPotential [] {},
+                        new BlockPotential(Smoke, 0.25f),
                         false,
                         false
                     ),
@@ -219,8 +212,7 @@ namespace Blocks
                 {
                     new Despawn(0.1f,
                         100.0f,
-                        1.0f,
-                        Air
+                        new BlockPotential(Air, 1.0f)
                     ),
                     new Swap(
                         new [] { 5, 5, 6, 7, 3, 4},
@@ -241,10 +233,11 @@ namespace Blocks
                     new FireSpread(1.0f,
                         FireColor,
                         5.0f,
-                        new [] { Spark, Flame },
-                            new [] { 0.12f, 1.0f },
-                        Coal,
-                        0.1f,
+                        new [] {
+                            new BlockPotential(Spark, 0.12f),
+                            new BlockPotential(Flame, 1.0f)
+                        },
+                        new BlockPotential(Coal, 0.1f),
                         true,
                         false
                     )
@@ -261,10 +254,8 @@ namespace Blocks
                     new FireSpread(0.2f,
                         FireColor,
                         0.01f,
-                        new [] { Flame },
-                            new [] { 1.0f },
-                        Smoke,
-                        1.0f,
+                        new [] { new BlockPotential(Flame, 1.0f) },
+                        new BlockPotential(Smoke, 1.0f),
                         true,
                         false
                     ),
@@ -287,10 +278,11 @@ namespace Blocks
                     new FireSpread(1.0f,
                         FireColor,
                         9.0f,
-                        new [] { Spark, Smoke },
-                        new [] { 0.08f, 0.4f },
-                        Smoke,
-                        0.1f,
+                        new [] {
+                            new BlockPotential(Spark, 0.08f),
+                            new BlockPotential(Smoke, 0.4f),
+                        },
+                        new BlockPotential(Smoke, 0.1f),
                         false,
                         true
                     ),
@@ -314,10 +306,8 @@ namespace Blocks
                     new FireSpread(0.0f,
                         FireColor,
                         0.0f,
-                        new[] { Smoke },
-                        new[] { 0.01f },
-                        Air,
-                        1.0f,
+                        new [] { new BlockPotential(Smoke, 0.01f) },
+                        new BlockPotential(Air, 1.0f),
                         true,
                         false),
                     new Swap(

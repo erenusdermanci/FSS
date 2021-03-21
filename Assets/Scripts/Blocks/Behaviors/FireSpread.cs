@@ -10,10 +10,8 @@ namespace Blocks.Behaviors
         public readonly Color FireColor;
 
         private readonly float _burningRate;
-        private readonly int[] _combustionEmissionBlockTypes;
-        private readonly float[] _combustionEmissionProbabilities;
-        private readonly int _combustionResultBlockType;
-        private readonly float _combustionResultProbability;
+        private readonly BlockPotential[] _emissionPotentialBlocks;
+        private readonly BlockPotential _combustionPotentialBlock;
         private readonly bool _selfExtinguishing;
         private readonly bool _destroyedWhenExtinguished;
 
@@ -22,20 +20,16 @@ namespace Blocks.Behaviors
         public FireSpread(float combustionProbability,
             Color fireColor,
             float burningRate,
-            int[] combustionEmissionBlockTypes,
-            float[] combustionEmissionProbabilities,
-            int combustionResultBlockType,
-            float combustionResultProbability,
+            BlockPotential[] emissionPotentialBlocks,
+            BlockPotential combustionPotentialBlock,
             bool selfExtinguishing,
             bool destroyedWhenExtinguished)
         {
             CombustionProbability = combustionProbability;
             FireColor = fireColor;
             _burningRate = burningRate;
-            _combustionEmissionBlockTypes = combustionEmissionBlockTypes;
-            _combustionEmissionProbabilities = combustionEmissionProbabilities;
-            _combustionResultBlockType = combustionResultBlockType;
-            _combustionResultProbability = combustionResultProbability;
+            _emissionPotentialBlocks = emissionPotentialBlocks;
+            _combustionPotentialBlock = combustionPotentialBlock;
             _selfExtinguishing = selfExtinguishing;
             _destroyedWhenExtinguished = destroyedWhenExtinguished;
         }
@@ -107,20 +101,20 @@ namespace Blocks.Behaviors
                             break;
                         case BlockConstants.Air:
                             // replace Air with CombustionEmissionBlockType
-                            if (_combustionEmissionProbabilities.Length == 0)
+                            if (_emissionPotentialBlocks.Length == 0)
                                 continue;
                             var roll = -1.0;
                             var blockToEmit = BlockConstants.Air;
-                            for (var j = 0; j < _combustionEmissionProbabilities.Length; ++j)
+                            foreach (var blockPotential in _emissionPotentialBlocks)
                             {
                                 // block probability is 0%, skip it
-                                if (_combustionEmissionProbabilities[j] <= 0.0f)
+                                if (blockPotential.Probability <= 0.0f)
                                     continue;
 
                                 // block probability is 100%, so choose it
-                                if (_combustionEmissionProbabilities[j] >= 1.0f)
+                                if (blockPotential.Probability >= 1.0f)
                                 {
-                                    blockToEmit = _combustionEmissionBlockTypes[j];
+                                    blockToEmit = blockPotential.Type;
                                     break;
                                 }
 
@@ -128,9 +122,9 @@ namespace Blocks.Behaviors
                                 if (roll < 0.0f)
                                     roll = rng.NextDouble();
 
-                                if (_combustionEmissionProbabilities[j] >= roll)
+                                if (blockPotential.Probability >= roll)
                                 {
-                                    blockToEmit = _combustionEmissionBlockTypes[j];
+                                    blockToEmit = blockPotential.Type;
                                     break;
                                 }
                             }
@@ -176,12 +170,14 @@ namespace Blocks.Behaviors
 
         private bool DestroyBlock(Random rng, ChunkNeighborhood chunkNeighborhood, int x, int y, ref bool destroyed)
         {
-            var combustionResultProbability = _combustionResultProbability;
             var resultBlockType = BlockConstants.Air;
-
-            if (combustionResultProbability >= 1.0f
-                || combustionResultProbability > rng.NextDouble())
-                resultBlockType = _combustionResultBlockType;
+            if (_combustionPotentialBlock != null)
+            {
+                var combustionResultProbability = _combustionPotentialBlock.Probability;
+                if (combustionResultProbability >= 1.0f
+                    || combustionResultProbability > rng.NextDouble())
+                    resultBlockType = _combustionPotentialBlock.Type;
+            }
 
             chunkNeighborhood.ReplaceBlock(x, y, resultBlockType,
                 BlockConstants.BlockDescriptors[resultBlockType].InitialStates,
