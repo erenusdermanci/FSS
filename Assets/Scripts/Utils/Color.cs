@@ -3,7 +3,7 @@
     public struct Color
     {
         public byte r, g, b, a;
-        private float _maxShift;
+        private readonly float _maxShift;
 
         public Color(byte r, byte g, byte b, byte a, float maxShift = 0.0f)
         {
