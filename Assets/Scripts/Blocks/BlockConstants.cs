@@ -329,11 +329,19 @@ namespace Blocks
             new BlockDescriptor (
                 "HardenedLava",
                 BlockTags.Solid,
-                2.0f,
+                1.39f,
                 new Color(40, 40, 40, 255, 0.2f),
                 0.0f,
                 0,
-                new IBehavior[] {}
+                new IBehavior[]
+                {
+                    new Swap(
+                        new [] { 0, 0 },
+                        new [] { 2, 0, 0, 0, 0, 0, 0, 0 },
+                        new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
+                        BlockTags.Solid
+                    )
+                }
             )
         };
 
