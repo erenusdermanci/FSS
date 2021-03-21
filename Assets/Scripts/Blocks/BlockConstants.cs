@@ -297,7 +297,7 @@ namespace Blocks
             new BlockDescriptor(
                 "Lava",
                 BlockTags.Liquid,
-                2.0f,
+                1.4f,
                 new Color(255, 80, 0, 255, 0.05f),
                 100.0f,
                 1,
