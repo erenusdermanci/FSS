@@ -32,10 +32,19 @@ namespace DebugTools.DrawingTool.Editor
                     break;
             }
 
-            if (GUI.changed)
+            try
             {
-                EditorUtility.SetDirty(tool);
-                EditorSceneManager.MarkSceneDirty(tool.gameObject.scene);
+                if (GUI.changed)
+                {
+                    EditorUtility.SetDirty(tool);
+                    EditorSceneManager.MarkSceneDirty(tool.gameObject.scene);
+                }
+            }
+            catch (Exception)
+            {
+                // When the scene is playing an exception is thrown because we cannot save the fields
+                // I didn't find a way to check if the scene is playing
+                // so silently catch it
             }
         }
 
