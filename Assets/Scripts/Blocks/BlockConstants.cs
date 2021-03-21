@@ -33,6 +33,7 @@ namespace Blocks
         public const int Wood = 11;
         public const int Coal = 12;
         public const int Spark = 13;
+        public const int Lava = 14;
 
         public static readonly BlockDescriptor[] BlockDescriptors = {
             new BlockDescriptor(
@@ -296,6 +297,32 @@ namespace Blocks
                     new Swap(
                         new [] { 5, 0, 3, 4, 1, 7, 2, 6 },
                         new [] { 4, 2, 4, 4, 4, 4, 4, 4 },
+                        new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
+                        BlockTags.Solid
+                    )
+                }
+            ),
+            new BlockDescriptor(
+                "Lava",
+                BlockTags.Liquid,
+                2.0f,
+                new Color(255, 80, 0, 255, 0.05f),
+                100.0f,
+                1,
+                new IBehavior[]
+                {
+                    new FireSpread(0.0f,
+                        FireColor,
+                        0.0f,
+                        new[] { Smoke },
+                        new[] { 0.01f },
+                        Air,
+                        1.0f,
+                        true,
+                        false),
+                    new Swap(
+                        new [] { 0, 0, 1, 2, 3, 4 },
+                        new [] { 2, 1, 1, 1, 1, 0, 0 ,0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
                         BlockTags.Solid
                     )
