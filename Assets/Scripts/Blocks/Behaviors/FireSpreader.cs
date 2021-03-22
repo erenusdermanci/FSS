@@ -34,15 +34,15 @@ namespace Blocks.Behaviors
             _destroyedWhenExtinguished = destroyedWhenExtinguished;
         }
 
-        public unsafe bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, ChunkServer.BlockInfo blockInfo, int x, int y, int* directionX,
+        public unsafe bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, Block block, int x, int y, int* directionX,
             int* directionY, ref bool destroyed)
         {
-            if (!blockInfo.GetState((int) BlockStates.Burning))
+            if (!block.GetState((int) BlockStates.Burning))
                 return false;
 
             var dirty = true;
 
-            var neighborBlocks = stackalloc ChunkServer.BlockInfo[8];
+            var neighborBlocks = stackalloc Block[8];
             var airNeighborsCount = 0;
             var selfNeighborsCount = 0;
             var lavaNeighborsCount = 0;
@@ -67,7 +67,7 @@ namespace Blocks.Behaviors
                         break;
                 }
 
-                if (neighborBlocks[i].Type == blockInfo.Type)
+                if (neighborBlocks[i].Type == block.Type)
                     selfNeighborsCount++;
             }
 
@@ -77,17 +77,17 @@ namespace Blocks.Behaviors
                 && airNeighborsCount + (_selfExtinguishing ? 0 : selfNeighborsCount) == 0)
             {
                 // fire dies out
-                blockInfo.ClearState((int)BlockStates.Burning);
+                block.ClearState((int)BlockStates.Burning);
                 if (_destroyedWhenExtinguished)
                 {
                     return DestroyBlock(rng, chunkNeighborhood, x, y, ref destroyed);
                 }
 
                 // update state for block
-                chunkNeighborhood.GetCentralChunk().SetBlockStates(x, y, blockInfo.StateBitset);
+                chunkNeighborhood.GetCentralChunk().SetBlockStates(x, y, block.StateBitset);
 
                 // reset color of block
-                var color = BlockConstants.BlockDescriptors[blockInfo.Type].Color;
+                var color = BlockConstants.BlockDescriptors[block.Type].Color;
                 color.Shift(out var r, out var g, out var b);
                 chunkNeighborhood.GetCentralChunk().SetBlockColor(x, y, r, g, b, color.a);
             }
@@ -159,14 +159,14 @@ namespace Blocks.Behaviors
                 var healthDecrement = _burningRate * (1 + airNeighborsCount + lavaNeighborsCount * 30);
                 if (healthDecrement > 0.0f)
                 {
-                    blockInfo.Health -= healthDecrement;
-                    if (blockInfo.Health <= 0.0f)
+                    block.Health -= healthDecrement;
+                    if (block.Health <= 0.0f)
                     {
                         // Block is consumed by fire, destroy it
                         return DestroyBlock(rng, chunkNeighborhood, x, y, ref destroyed);
                     }
 
-                    chunkNeighborhood.GetCentralChunk().SetBlockHealth(x, y, blockInfo.Health);
+                    chunkNeighborhood.GetCentralChunk().SetBlockHealth(x, y, block.Health);
                 }
 
                 dirty = healthDecrement > 0.0f;

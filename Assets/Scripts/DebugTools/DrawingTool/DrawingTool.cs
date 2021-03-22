@@ -121,7 +121,7 @@ namespace DebugTools.DrawingTool
             var blockXInChunk = Helpers.Mod((int) worldX, Chunk.Size);
             var blockYInChunk = Helpers.Mod((int) worldY, Chunk.Size);
             var blockIndexInChunk = blockYInChunk * Chunk.Size + blockXInChunk;
-            var blockInfo = new ChunkServer.BlockInfo();
+            var blockInfo = new Block();
             chunk.GetBlockInfo(blockIndexInChunk, ref blockInfo);
 
             switch (selectedBrush)

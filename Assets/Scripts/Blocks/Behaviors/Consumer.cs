@@ -30,7 +30,7 @@ namespace Blocks.Behaviors
         {
             for (var i = 0; i < 8; ++i)
             {
-                ChunkServer.BlockInfo neighborBlock = default;
+                Block neighborBlock = default;
                 var neighborFound = chunkNeighborhood.GetBlockInfo(x + directionX[i], y + directionY[i], ref neighborBlock);
                 if (!neighborFound)
                     continue;

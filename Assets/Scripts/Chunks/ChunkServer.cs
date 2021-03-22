@@ -136,12 +136,12 @@ namespace Chunks
             UpdateBlockDirty(x, y);
         }
 
-        public void GetBlockInfo(int blockIndex, ref BlockInfo blockInfo)
+        public void GetBlockInfo(int blockIndex, ref Block block)
         {
-            blockInfo.Type = Data.types[blockIndex];
-            blockInfo.StateBitset = Data.stateBitsets[blockIndex];
-            blockInfo.Health = Data.healths[blockIndex];
-            blockInfo.Lifetime = Data.lifetimes[blockIndex];
+            block.Type = Data.types[blockIndex];
+            block.StateBitset = Data.stateBitsets[blockIndex];
+            block.Health = Data.healths[blockIndex];
+            block.Lifetime = Data.lifetimes[blockIndex];
         }
 
         public void SetBlockStates(int x, int y, int states)
@@ -180,29 +180,6 @@ namespace Chunks
                 Data.stateBitsets[i] = 0;
                 Data.healths[i] = BlockConstants.BlockDescriptors[BlockConstants.Air].BaseHealth;
                 Data.lifetimes[i] = 0;
-            }
-        }
-
-        public struct BlockInfo
-        {
-            public int Type;
-            public int StateBitset;
-            public float Health;
-            public float Lifetime;
-
-            public bool GetState(int stateToCheck)
-            {
-                return ((StateBitset >> stateToCheck) & 1) == 1;
-            }
-
-            public void SetState(int stateToSet)
-            {
-                StateBitset |= 1 << stateToSet;
-            }
-
-            public void ClearState(int stateToClear)
-            {
-                StateBitset &= ~(1 << stateToClear);
             }
         }
 

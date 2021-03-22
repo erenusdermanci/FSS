@@ -91,7 +91,7 @@ namespace Chunks.Tasks
 
             _rng = StaticRandom.Get();
 
-            var blockInfo = new ChunkServer.BlockInfo();
+            var blockInfo = new Block();
             var dirtied = false;
 
             if (GlobalDebugConfig.StaticGlobalConfig.disableDirtyRects)
@@ -147,7 +147,7 @@ namespace Chunks.Tasks
             Chunk.Dirty = dirtied;
         }
 
-        private unsafe bool SimulateBlock(int x, int y, ref ChunkServer.BlockInfo blockInfo,
+        private unsafe bool SimulateBlock(int x, int y, ref Block block,
             int* distances, int* bitCount, int* directionX, int* directionY)
         {
             if (Chunk.BlockUpdatedFlags[y * global::Chunks.Chunk.Size + x] == ChunkManager.UpdatedFlag)
@@ -156,9 +156,9 @@ namespace Chunks.Tasks
                 return true;
             }
 
-            Chunks.GetBlockInfo(x, y, ref blockInfo);
+            Chunks.GetBlockInfo(x, y, ref block);
 
-            var blockLogic = BlockConstants.BlockDescriptors[blockInfo.Type];
+            var blockLogic = BlockConstants.BlockDescriptors[block.Type];
 
             var destroyed = false;
             var dirtied = false;
@@ -168,16 +168,16 @@ namespace Chunks.Tasks
             }
             if (!destroyed && blockLogic.FireSpreader != null)
             {
-                dirtied |= blockLogic.FireSpreader.Execute(_rng, Chunks, blockInfo, x, y, directionX, directionY,
+                dirtied |= blockLogic.FireSpreader.Execute(_rng, Chunks, block, x, y, directionX, directionY,
                     ref destroyed);
             }
             if (!destroyed && blockLogic.Despawner != null)
             {
-                dirtied |= blockLogic.Despawner.Execute(_rng, Chunks, blockInfo, x, y, ref destroyed);
+                dirtied |= blockLogic.Despawner.Execute(_rng, Chunks, block, x, y, ref destroyed);
             }
             if (!destroyed && blockLogic.Swapper != null)
             {
-                dirtied |= blockLogic.Swapper.Execute(_rng, Chunks, blockInfo.Type, x, y, directionX, directionY,
+                dirtied |= blockLogic.Swapper.Execute(_rng, Chunks, block.Type, x, y, directionX, directionY,
                     distances, bitCount);
             }
 

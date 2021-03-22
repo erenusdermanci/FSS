@@ -39,17 +39,17 @@ namespace Chunks
             return _chunks[_centralChunkIndex];
         }
 
-        public bool GetBlockInfo(int x, int y, ref ChunkServer.BlockInfo blockInfo)
+        public bool GetBlockInfo(int x, int y, ref Block block)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
 
             if (_chunks[chunkIndex] == null)
             {
-                blockInfo.Type = -1;
+                block.Type = -1;
                 return false;
             }
 
-            _chunks[chunkIndex].GetBlockInfo(y * Chunk.Size + x, ref blockInfo);
+            _chunks[chunkIndex].GetBlockInfo(y * Chunk.Size + x, ref block);
             return true;
         }
 
@@ -85,31 +85,31 @@ namespace Chunks
             UpdateAdjacentBlockDirty(x, y);
         }
 
-        public void UpdateBlock(int x, int y, ChunkServer.BlockInfo blockInfo, bool resetColor = false)
+        public void UpdateBlock(int x, int y, Block block, bool resetColor = false)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (_chunks[chunkIndex] == null)
                 return;
             if (resetColor)
             {
-                var color = BlockConstants.BlockDescriptors[blockInfo.Type].Color;
+                var color = BlockConstants.BlockDescriptors[block.Type].Color;
                 color.Shift(out var r, out var g, out var b);
-                _chunks[chunkIndex].PutBlock(x, y, blockInfo.Type, r, g, b,
-                    color.a, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
+                _chunks[chunkIndex].PutBlock(x, y, block.Type, r, g, b,
+                    color.a, block.StateBitset, block.Health, block.Lifetime);
             }
             else
             {
-                _chunks[chunkIndex].PutBlock(x, y, blockInfo.Type, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
+                _chunks[chunkIndex].PutBlock(x, y, block.Type, block.StateBitset, block.Health, block.Lifetime);
             }
             UpdateAdjacentBlockDirty(x, y);
         }
 
-        public void UpdateBlock(int x, int y, ChunkServer.BlockInfo blockInfo, byte r, byte g, byte b, byte a)
+        public void UpdateBlock(int x, int y, Block block, byte r, byte g, byte b, byte a)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (_chunks[chunkIndex] == null)
                 return;
-            _chunks[chunkIndex].PutBlock(x, y, blockInfo.Type, r, g, b, a, blockInfo.StateBitset, blockInfo.Health, blockInfo.Lifetime);
+            _chunks[chunkIndex].PutBlock(x, y, block.Type, r, g, b, a, block.StateBitset, block.Health, block.Lifetime);
             UpdateAdjacentBlockDirty(x, y);
         }
 

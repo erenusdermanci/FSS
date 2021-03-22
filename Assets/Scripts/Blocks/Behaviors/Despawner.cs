@@ -18,12 +18,12 @@ namespace Blocks.Behaviors
             _resultPotentialBlocks = resultPotentialBlocks;
         }
 
-        public bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, ChunkServer.BlockInfo blockInfo, int x, int y, ref bool destroyed)
+        public bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, Block block, int x, int y, ref bool destroyed)
         {
-            if (blockInfo.Lifetime < _lifetime)
+            if (block.Lifetime < _lifetime)
             {
-                blockInfo.Lifetime += 1.0f;
-                chunkNeighborhood.GetCentralChunk().SetBlockLifetime(x, y, blockInfo.Lifetime);
+                block.Lifetime += 1.0f;
+                chunkNeighborhood.GetCentralChunk().SetBlockLifetime(x, y, block.Lifetime);
             }
 
             else
