@@ -257,7 +257,7 @@ namespace Chunks
 
                 foreach (var coll in collisionData)
                 {
-                    var vec2s = new Vector2[coll.Count];
+                    var vec2s = new Vector2[coll.Count + 1];
                     for (var i = 0; i < coll.Count; ++i)
                     {
                         var x = (float)(coll[i].x) / (float)(Chunk.Size);
@@ -266,6 +266,8 @@ namespace Chunks
                         y -= 0.5f;
                         vec2s[i] = new Vector2(x, y);
                     }
+
+                    vec2s[coll.Count] = vec2s[0];
 
                     var attachedCollider = chunk.Value.GameObject.AddComponent<EdgeCollider2D>();
                     attachedCollider.points = vec2s;

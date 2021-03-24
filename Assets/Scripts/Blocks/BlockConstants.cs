@@ -104,7 +104,7 @@ namespace Blocks
                 "Water",
                 BlockTags.Liquid,
                 1.2f,
-                new Color(15, 94, 156, 255, 0.025f),
+                new Color(15, 94, 156, 125, 0.025f),
                 0.0f,
                 0,
                 new IBehavior[]

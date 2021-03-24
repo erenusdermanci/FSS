@@ -613,7 +613,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -1
   m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.45490196, g: 0.8, b: 0.95686275, a: 1}
+  m_Color: {r: 0.745283, g: 0.116011046, b: 0.24812217, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -671,7 +671,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 0
+  m_GravityScale: 1
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
@@ -892,9 +892,9 @@ MonoBehaviour:
     disableLoad: 1
     enableProceduralGeneration: 1
     monoThreadSimulate: 0
-    overrideGridSize: 0
-    pauseSimulation: 1
-    stepByStep: 1
+    overrideGridSize: 5
+    pauseSimulation: 0
+    stepByStep: 0
     outlineChunks: 0
     hideCleanChunkOutlines: 0
     drawDirtyRects: 0
