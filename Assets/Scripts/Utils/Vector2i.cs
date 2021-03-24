@@ -41,6 +41,11 @@ namespace Utils
             }
         }
 
+        public override string ToString()
+        {
+            return $"{x}, {y}";
+        }
+
         public static float Distance(Vector2i a, float bx, float by)
         {
             var num1 = a.x - bx;

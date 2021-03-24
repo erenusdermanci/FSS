@@ -30,7 +30,7 @@ namespace Tests
                 chunk.Data.lifetimes[i] = 0;
             }
 
-            _chunkNeighborhood = new ChunkNeighborhood(_chunkMap, chunk, new Random());
+            _chunkNeighborhood = new ChunkNeighborhood(_chunkMap, chunk);
         }
 
         [Test]

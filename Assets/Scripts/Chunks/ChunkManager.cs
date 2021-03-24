@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Chunks.Tasks;
+using Collision;
 using DebugTools;
 using ProceduralGeneration;
 using UnityEngine;
@@ -234,6 +235,42 @@ namespace Chunks
 
             if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyRects && GlobalDebugConfig.StaticGlobalConfig.drawDirtyRects)
                 DrawDirtyRects();
+
+
+            if (GlobalDebugConfig.StaticGlobalConfig.enableCollisions)
+                GenerateCollisions();
+
+        }
+
+        private void GenerateCollisions()
+        {
+            foreach (var chunk in ClientChunkMap.Map)
+            {
+                foreach (var previousPoly in chunk.Value.GameObject.GetComponents<EdgeCollider2D>())
+                {
+                    Destroy(previousPoly);
+                }
+
+                var grid = ChunkCollision.ComputeChunkColliders(ServerChunkMap[chunk.Key]);
+                ChunkCollision.GenerateLines(grid, out var horizontalLines, out var verticalLines);
+                // var collisionData = ChunkCollision.GenerateColliders(horizontalLines, verticalLines);
+                //
+                // foreach (var coll in collisionData)
+                // {
+                //     var vec2s = new Vector2[coll.Count];
+                //     for (var i = 0; i < coll.Count; ++i)
+                //     {
+                //         var x = (float)(coll[i].x) / (float)(Chunk.Size);
+                //         var y = (float) (coll[i].y) / (float)(Chunk.Size);
+                //         x -= 0.5f;
+                //         y -= 0.5f;
+                //         vec2s[i] = new Vector2(x, y);
+                //     }
+                //
+                //     var attachedCollider = chunk.Value.GameObject.AddComponent<EdgeCollider2D>();
+                //     attachedCollider.points = vec2s;
+                // }
+            }
         }
 
         private bool PlayerHasMoved()
