@@ -130,7 +130,7 @@ namespace Collision
                 {
                     horizontalLines.Add(horizontalLine.Key, horizontalLine.Value);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Debug.Log("TONTON");
                     Debug.DrawLine(new Vector2(horizontalLine.Value.x, horizontalLine.Value.y),
@@ -144,7 +144,7 @@ namespace Collision
                 {
                     horizontalLines.Add(horizontalLine.Value, horizontalLine.Key);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Debug.Log("TONTON");
                     Debug.DrawLine(new Vector2(horizontalLine.Key.x, horizontalLine.Key.y),
@@ -163,7 +163,7 @@ namespace Collision
                 {
                     verticalLines.Add(verticalLine.Key, verticalLine.Value);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Debug.Log("TONTON");
                     Debug.DrawLine(new Vector2(verticalLine.Value.x, verticalLine.Value.y),
@@ -178,7 +178,7 @@ namespace Collision
                 {
                     verticalLines.Add(verticalLine.Value, verticalLine.Key);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Debug.Log("TONTON");
                     Debug.DrawLine(new Vector2(verticalLine.Key.x, verticalLine.Key.y),
@@ -201,6 +201,10 @@ namespace Collision
 
             if (reversedLines.ContainsKey(start))
             {
+                var previousStart = reversedLines[start];
+                lines.Remove(start);
+                lines[previousStart] = end;
+
                 reversedLines.Add(end, reversedLines[start]);
                 reversedLines.Remove(start);
 
@@ -210,7 +214,9 @@ namespace Collision
                     // adjust its start
                     // if my end is the key to a start line,
                     // i want to modify my
-                    reversedLines[lines[end]] = start; // on dirait que je ne prends pas tout le bout
+                    reversedLines[lines[end]] = previousStart; // on dirait que je ne prends pas tout le bout
+                    lines[previousStart] = lines[end];
+                    lines.Remove(end);
                 }
             }
             else
@@ -223,13 +229,19 @@ namespace Collision
                     // if my end is the key to a start line,
                     // i want to modify my
                     reversedLines[lines[end]] = start;
+
+                    lines[start] = lines[end];
+                    lines.Remove(end);
                 }
                 else
                     reversedLines.Add(end, start);
             }
 
-            if (reversedLines.ContainsKey(end) && lines.ContainsKey(reversedLines[end]))
-                lines[reversedLines[end]] = end;
+            // the current bug is that we get more horizontal lines than we should have, which gets
+            // > verticalLines so we run out of vertLine to use while traversing
+
+            // if (reversedLines.ContainsKey(end) && lines.ContainsKey(reversedLines[end]))
+            //     lines[reversedLines[end]] = end;
 
         }
 
@@ -252,13 +264,13 @@ namespace Collision
                 var redPoint = line.Value;
                 colliderPoints.Add(redPoint);
                 lines[idx].Remove(bluePoint);
-                lines[idx].Remove(redPoint);
+                lines[idx].Remove(redPoint); // ?
 
                 while (bluePoint != redPoint)
                 {
                     idx = (idx + 1) % 2;
                     var greenPoint = redPoint;
-                    redPoint = lines[idx][greenPoint];
+                    redPoint = lines[idx][greenPoint]; // we cannot find our next redpoint if the shape is _-_
                     lines[idx].Remove(greenPoint);
                     lines[idx].Remove(redPoint);
                     colliderPoints.Add(redPoint);

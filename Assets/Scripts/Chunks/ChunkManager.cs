@@ -253,23 +253,23 @@ namespace Chunks
 
                 var grid = ChunkCollision.ComputeChunkColliders(ServerChunkMap[chunk.Key]);
                 ChunkCollision.GenerateLines(grid, out var horizontalLines, out var verticalLines);
-                // var collisionData = ChunkCollision.GenerateColliders(horizontalLines, verticalLines);
-                //
-                // foreach (var coll in collisionData)
-                // {
-                //     var vec2s = new Vector2[coll.Count];
-                //     for (var i = 0; i < coll.Count; ++i)
-                //     {
-                //         var x = (float)(coll[i].x) / (float)(Chunk.Size);
-                //         var y = (float) (coll[i].y) / (float)(Chunk.Size);
-                //         x -= 0.5f;
-                //         y -= 0.5f;
-                //         vec2s[i] = new Vector2(x, y);
-                //     }
-                //
-                //     var attachedCollider = chunk.Value.GameObject.AddComponent<EdgeCollider2D>();
-                //     attachedCollider.points = vec2s;
-                // }
+                var collisionData = ChunkCollision.GenerateColliders(horizontalLines, verticalLines);
+
+                foreach (var coll in collisionData)
+                {
+                    var vec2s = new Vector2[coll.Count];
+                    for (var i = 0; i < coll.Count; ++i)
+                    {
+                        var x = (float)(coll[i].x) / (float)(Chunk.Size);
+                        var y = (float) (coll[i].y) / (float)(Chunk.Size);
+                        x -= 0.5f;
+                        y -= 0.5f;
+                        vec2s[i] = new Vector2(x, y);
+                    }
+
+                    var attachedCollider = chunk.Value.GameObject.AddComponent<EdgeCollider2D>();
+                    attachedCollider.points = vec2s;
+                }
             }
         }
 
