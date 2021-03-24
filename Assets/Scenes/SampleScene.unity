@@ -649,7 +649,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53bca9476c0bd8a4aa82d5e913de57fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerSpeed: 2
+  PlayerSpeed: 1
   PlayerCamera: {fileID: 519420031}
   FloatingCamera: 0
   MinZoom: 0.25
