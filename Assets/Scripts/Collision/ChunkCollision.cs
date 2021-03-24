@@ -132,7 +132,7 @@ namespace Collision
                 }
                 catch (Exception)
                 {
-                    Debug.Log("TONTON");
+                    Debug.Log("TONTONH1");
                     Debug.DrawLine(new Vector2(horizontalLine.Value.x, horizontalLine.Value.y),
                         new Vector2(horizontalLine.Key.x, horizontalLine.Key.y), Color.red);
                     Debug.DrawLine(
@@ -146,7 +146,7 @@ namespace Collision
                 }
                 catch (Exception)
                 {
-                    Debug.Log("TONTON");
+                    Debug.Log($"key is: {horizontalLine.Key} and val is: {horizontalLine.Value}");
                     Debug.DrawLine(new Vector2(horizontalLine.Key.x, horizontalLine.Key.y),
                         new Vector2(horizontalLine.Value.x, horizontalLine.Value.y), Color.red);
                     Debug.DrawLine(
@@ -165,7 +165,7 @@ namespace Collision
                 }
                 catch (Exception)
                 {
-                    Debug.Log("TONTON");
+                    Debug.Log("TONTONV1");
                     Debug.DrawLine(new Vector2(verticalLine.Value.x, verticalLine.Value.y),
                         new Vector2(verticalLine.Key.x, verticalLine.Key.y), Color.red);
                     Debug.DrawLine(
@@ -180,7 +180,7 @@ namespace Collision
                 }
                 catch (Exception)
                 {
-                    Debug.Log("TONTON");
+                    Debug.Log("TONTONV2");
                     Debug.DrawLine(new Vector2(verticalLine.Key.x, verticalLine.Key.y),
                         new Vector2(verticalLine.Value.x, verticalLine.Value.y), Color.red);
                     Debug.DrawLine(
@@ -215,6 +215,7 @@ namespace Collision
                     // if my end is the key to a start line,
                     // i want to modify my
                     reversedLines[lines[end]] = previousStart; // on dirait que je ne prends pas tout le bout
+                    reversedLines.Remove(end);
                     lines[previousStart] = lines[end];
                     lines.Remove(end);
                 }
