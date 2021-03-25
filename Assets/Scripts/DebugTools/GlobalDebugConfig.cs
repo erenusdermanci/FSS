@@ -48,7 +48,7 @@ namespace DebugTools
             [FormerlySerializedAs("disableDirtySystem")]
             public bool disableDirtyChunks;
             public bool disableDirtyRects;
-            public bool enableCollisions;
+            public bool disableCollisions;
             public bool saveAsTestScene;
 
             public GlobalConfigStruct(GlobalConfigStruct other)
@@ -66,7 +66,7 @@ namespace DebugTools
                 disableSave = other.disableSave;
                 disableLoad = other.disableLoad;
                 enableProceduralGeneration = other.enableProceduralGeneration;
-                enableCollisions = other.enableCollisions;
+                disableCollisions = other.disableCollisions;
             }
 
             public bool Equals(GlobalConfigStruct other)
@@ -84,7 +84,7 @@ namespace DebugTools
                     || disableSave != other.disableSave
                     || disableLoad != other.disableLoad
                     || enableProceduralGeneration != other.enableProceduralGeneration
-                    || enableCollisions != other.enableCollisions)
+                    || disableCollisions != other.disableCollisions)
                     return false;
 
                 return true;

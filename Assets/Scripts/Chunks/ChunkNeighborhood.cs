@@ -1,5 +1,5 @@
-using System.Runtime.CompilerServices;
-using Blocks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Chunks
 {
@@ -37,6 +37,11 @@ namespace Chunks
         public T GetCentralChunk()
         {
             return _chunks[CentralChunkIndex];
+        }
+
+        public List<T> GetChunks()
+        {
+            return _chunks.ToList();
         }
     }
 }

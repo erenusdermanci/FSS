@@ -29,6 +29,8 @@ namespace Chunks
         private readonly ChunkTaskScheduler _chunkTaskScheduler = new ChunkTaskScheduler();
         private Vector2i _playerFlooredPosition;
         private Vector2i? _oldPlayerFlooredPosition;
+        private bool _playerHasMoved;
+        private ChunkNeighborhood<ChunkClient> _playerChunkNeighborhood;
 
         public static int UpdatedFlag;
 
@@ -215,7 +217,9 @@ namespace Chunks
 
         private void FixedUpdate()
         {
-            if (PlayerHasMoved())
+            _playerHasMoved = PlayerHasMoved();
+
+            if (_playerHasMoved)
             {
                 PlayerPosition = playerTransform.position;
                 Generate(_playerFlooredPosition, true);
@@ -237,40 +241,9 @@ namespace Chunks
                 DrawDirtyRects();
 
 
-            if (GlobalDebugConfig.StaticGlobalConfig.enableCollisions)
+            if (!GlobalDebugConfig.StaticGlobalConfig.disableCollisions)
                 GenerateCollisions();
 
-        }
-
-        private void GenerateCollisions()
-        {
-            foreach (var chunk in ClientChunkMap.Map)
-            {
-                foreach (var previousPoly in chunk.Value.GameObject.GetComponents<EdgeCollider2D>())
-                {
-                    Destroy(previousPoly);
-                }
-
-                var collisionData = ChunkCollision.ComputeChunkColliders(chunk.Value);
-
-                foreach (var coll in collisionData)
-                {
-                    var vec2s = new Vector2[coll.Count + 1];
-                    for (var i = 0; i < coll.Count; ++i)
-                    {
-                        var x = (float)(coll[i].x) / (float)(Chunk.Size);
-                        var y = (float) (coll[i].y) / (float)(Chunk.Size);
-                        x -= 0.5f;
-                        y -= 0.5f;
-                        vec2s[i] = new Vector2(x, y);
-                    }
-
-                    vec2s[coll.Count] = vec2s[0];
-
-                    var attachedCollider = chunk.Value.GameObject.AddComponent<EdgeCollider2D>();
-                    attachedCollider.points = vec2s;
-                }
-            }
         }
 
         private bool PlayerHasMoved()
@@ -458,7 +431,49 @@ namespace Chunks
             }
 
             foreach (var clientChunk in ClientChunkMap.Map.Values)
+            {
+                clientChunk.Dirty = ServerChunkMap[clientChunk.Position].Dirty;
                 clientChunk.UpdateTexture();
+            }
+        }
+
+        private void GenerateCollisions()
+        {
+            if (_playerChunkNeighborhood == null || _playerHasMoved)
+            {
+                _playerChunkNeighborhood = new ChunkNeighborhood<ChunkClient>(ClientChunkMap, ClientChunkMap[_playerFlooredPosition]);
+            }
+
+            foreach (var chunk in _playerChunkNeighborhood.GetChunks())
+            {
+                if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks && !chunk.Dirty)
+                    continue;
+
+                foreach (var previousPoly in chunk.GameObject.GetComponents<EdgeCollider2D>())
+                {
+                    Destroy(previousPoly);
+                }
+
+                var collisionData = ChunkCollision.ComputeChunkColliders(chunk);
+
+                foreach (var coll in collisionData)
+                {
+                    var vec2s = new Vector2[coll.Count + 1];
+                    for (var i = 0; i < coll.Count; ++i)
+                    {
+                        var x = (float)(coll[i].x) / (float)(Chunk.Size);
+                        var y = (float) (coll[i].y) / (float)(Chunk.Size);
+                        x -= 0.5f;
+                        y -= 0.5f;
+                        vec2s[i] = new Vector2(x, y);
+                    }
+
+                    vec2s[coll.Count] = vec2s[0];
+
+                    var attachedCollider = chunk.GameObject.AddComponent<EdgeCollider2D>();
+                    attachedCollider.points = vec2s;
+                }
+            }
         }
 
         private void OnDestroy()
