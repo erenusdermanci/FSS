@@ -7,7 +7,7 @@ namespace Chunks
     {
         private ChunkServer[] _chunks;
 
-        private const int _centralChunkIndex = 4;
+        private const int CentralChunkIndex = 4;
 
         public ChunkNeighborhood(ChunkMap<ChunkServer> chunkMap, ChunkServer centralChunk)
         {
@@ -36,7 +36,7 @@ namespace Chunks
 
         public ChunkServer GetCentralChunk()
         {
-            return _chunks[_centralChunkIndex];
+            return _chunks[CentralChunkIndex];
         }
 
         public bool GetBlockInfo(int x, int y, ref Block block)
@@ -139,16 +139,16 @@ namespace Chunks
             var destLifetime = _chunks[newChunkIndex].Data.lifetimes[dstIndex];
 
             _chunks[newChunkIndex].PutBlock(ux, uy, srcBlock,
-                _chunks[4].Data.colors[srcIndex * 4],
-                _chunks[4].Data.colors[srcIndex * 4 + 1],
-                _chunks[4].Data.colors[srcIndex * 4 + 2],
-                _chunks[4].Data.colors[srcIndex * 4 + 3],
-                _chunks[4].Data.stateBitsets[srcIndex],
-                _chunks[4].Data.healths[srcIndex],
-                _chunks[4].Data.lifetimes[srcIndex]);
+                _chunks[CentralChunkIndex].Data.colors[srcIndex * 4],
+                _chunks[CentralChunkIndex].Data.colors[srcIndex * 4 + 1],
+                _chunks[CentralChunkIndex].Data.colors[srcIndex * 4 + 2],
+                _chunks[CentralChunkIndex].Data.colors[srcIndex * 4 + 3],
+                _chunks[CentralChunkIndex].Data.stateBitsets[srcIndex],
+                _chunks[CentralChunkIndex].Data.healths[srcIndex],
+                _chunks[CentralChunkIndex].Data.lifetimes[srcIndex]);
 
             // put the old destination block at the source position (swap)
-            _chunks[4].PutBlock(x, y, destBlock,
+            _chunks[CentralChunkIndex].PutBlock(x, y, destBlock,
                 destColorBuffer[0],
                 destColorBuffer[1],
                 destColorBuffer[2],
