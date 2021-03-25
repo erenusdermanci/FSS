@@ -445,7 +445,8 @@ namespace Chunks
 
             foreach (var chunk in _playerChunkNeighborhood.GetChunks())
             {
-                if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks && !chunk.Dirty)
+                if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks && !chunk.Dirty
+                && (chunk.GameObject.GetComponent<EdgeCollider2D>() != null))
                     continue;
 
                 foreach (var previousPoly in chunk.GameObject.GetComponents<EdgeCollider2D>())
