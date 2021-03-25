@@ -8,7 +8,7 @@ namespace Chunks.Tasks
 {
     public class SimulationTask : ChunkTask
     {
-        internal ChunkNeighborhood Chunks;
+        internal ChunkServerNeighborhood Chunks;
 
         private Random _rng;
 

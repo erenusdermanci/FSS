@@ -34,7 +34,7 @@ namespace Blocks.Behaviors
             _destroyedWhenExtinguished = destroyedWhenExtinguished;
         }
 
-        public unsafe bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, Block block, int x, int y, int* directionX,
+        public unsafe bool Execute(Random rng, ChunkServerNeighborhood chunkNeighborhood, Block block, int x, int y, int* directionX,
             int* directionY, ref bool destroyed)
         {
             if (!block.GetState((int) BlockStates.Burning))
@@ -175,7 +175,7 @@ namespace Blocks.Behaviors
             return dirty;
         }
 
-        private bool DestroyBlock(Random rng, ChunkNeighborhood chunkNeighborhood, int x, int y, ref bool destroyed)
+        private bool DestroyBlock(Random rng, ChunkServerNeighborhood chunkNeighborhood, int x, int y, ref bool destroyed)
         {
             var resultBlockType = BlockConstants.Air;
             if (_combustionPotentialBlock != null)

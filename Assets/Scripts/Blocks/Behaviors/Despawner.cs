@@ -18,7 +18,7 @@ namespace Blocks.Behaviors
             _resultPotentialBlocks = resultPotentialBlocks;
         }
 
-        public bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, Block block, int x, int y, ref bool destroyed)
+        public bool Execute(Random rng, ChunkServerNeighborhood chunkNeighborhood, Block block, int x, int y, ref bool destroyed)
         {
             if (block.Lifetime < _lifetime)
             {

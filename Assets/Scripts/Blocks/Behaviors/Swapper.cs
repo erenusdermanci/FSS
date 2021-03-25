@@ -18,7 +18,7 @@ namespace Blocks.Behaviors
             _blockedBy = blockedBy;
         }
 
-        public unsafe bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, int block, int x, int y,
+        public unsafe bool Execute(Random rng, ChunkServerNeighborhood chunkNeighborhood, int block, int x, int y,
             int* directionX, int* directionY, int* distances, int* bitCount)
         {
             var availableTargets = stackalloc int[4];
@@ -93,7 +93,7 @@ namespace Blocks.Behaviors
             return false;
         }
 
-        private unsafe bool FillAvailableTargets(ChunkNeighborhood chunkNeighborhood, int x, int y, int block, int directionIdx,
+        private unsafe bool FillAvailableTargets(ChunkServerNeighborhood chunkNeighborhood, int x, int y, int block, int directionIdx,
             int* directionX, int* directionY, int* availableTargets, int* targetBlocks)
         {
             var targetsFound = false;

@@ -26,7 +26,7 @@ namespace Blocks.Behaviors
                 _isBlockConsumed[block] = true;
         }
 
-        public unsafe bool Execute(Random rng, ChunkNeighborhood chunkNeighborhood, int x, int y, int* directionX, int* directionY, ref bool destroyed)
+        public unsafe bool Execute(Random rng, ChunkServerNeighborhood chunkNeighborhood, int x, int y, int* directionX, int* directionY, ref bool destroyed)
         {
             for (var i = 0; i < 8; ++i)
             {
