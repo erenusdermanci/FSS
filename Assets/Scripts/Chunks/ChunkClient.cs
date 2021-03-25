@@ -7,6 +7,7 @@ namespace Chunks
         public Texture2D Texture;
         public GameObject GameObject;
         public byte[] Colors;
+        public int[] Types;
 
         public void UpdateTexture()
         {

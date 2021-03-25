@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Utils;
 
@@ -17,6 +18,8 @@ namespace Player
 
         private float playerCurrentSpeed;
         private Transform playerTransform;
+        private float horizontalMovement;
+        private float verticalMovement;
 
         private Vector3 dragStart;
         private Vector3 dragDiff;
@@ -47,7 +50,13 @@ namespace Player
                 FloatingCamera = !FloatingCamera;
                 dragging = false;
             }
-            HandleMovement();
+            HandleMovementInput();
+        }
+
+        private void FixedUpdate()
+        {
+            if (!FloatingCamera)
+                MovePlayer();
         }
 
         private void LateUpdate()
@@ -56,7 +65,7 @@ namespace Player
             HandleCameraZoom();
         }
 
-        private void HandleMovement()
+        private void HandleMovementInput()
         {
             if (!FloatingCamera)
             {
@@ -70,26 +79,30 @@ namespace Player
                 }
 
                 // Input management
-                var horizontalMov = Input.GetAxisRaw("Horizontal");
-                if (horizontalMov != 0)
-                {
-                    playerTransform.transform.position = new Vector3(
-                        playerTransform.transform.position.x + horizontalMov * playerCurrentSpeed * Time.deltaTime,
-                        playerTransform.transform.position.y,
-                        playerTransform.transform.position.z);
-                }
-
-                var verticalMov = Input.GetAxisRaw("Vertical");
-                if (verticalMov != 0)
-                {
-                    playerTransform.transform.position = new Vector3(
-                    playerTransform.transform.position.x,
-                    playerTransform.transform.position.y + verticalMov * playerCurrentSpeed * Time.deltaTime,
-                    playerTransform.transform.position.z);
-                }
-
-                Camera.main.transform.position = new Vector3(playerTransform.position.x, playerTransform.position.y, -10);
+                horizontalMovement = Input.GetAxisRaw("Horizontal");
+                verticalMovement = Input.GetAxisRaw("Vertical");
             }
+        }
+
+        private void MovePlayer()
+        {
+            if (horizontalMovement != 0)
+            {
+                playerTransform.transform.position = new Vector3(
+                    playerTransform.transform.position.x + horizontalMovement * playerCurrentSpeed * Time.deltaTime,
+                    playerTransform.transform.position.y,
+                    playerTransform.transform.position.z);
+            }
+
+            if (verticalMovement != 0)
+            {
+                playerTransform.transform.position = new Vector3(
+                    playerTransform.transform.position.x,
+                    playerTransform.transform.position.y + verticalMovement * playerCurrentSpeed * Time.deltaTime,
+                    playerTransform.transform.position.z);
+            }
+
+            Camera.main.transform.position = new Vector3(playerTransform.position.x, playerTransform.position.y, -10);
         }
 
         private void HandleFloatingCamera()

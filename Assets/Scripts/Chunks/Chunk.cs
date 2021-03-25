@@ -9,6 +9,8 @@ namespace Chunks
 
         public Vector2i Position;
 
+        public bool Dirty;
+
         public abstract void Dispose();
     }
 }

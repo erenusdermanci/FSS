@@ -11,7 +11,6 @@ namespace Chunks
         public readonly ChunkDirtyRect[] DirtyRects = new ChunkDirtyRect[4];
         public static readonly int[] DirtyRectX = { 0, Size / 2, 0, Size / 2 }; // 2 3
         public static readonly int[] DirtyRectY = { 0, 0, Size / 2, Size / 2 }; // 0 1
-        public bool Dirty;
 
         public ChunkServer()
         {
