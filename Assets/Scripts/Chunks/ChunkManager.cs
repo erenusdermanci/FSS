@@ -214,7 +214,7 @@ namespace Chunks
 
         private void FixedUpdate()
         {
-            if (ShouldGenerate())
+            if (PlayerHasMoved())
             {
                 PlayerPosition = playerTransform.position;
                 Generate(_playerFlooredPosition, true);
@@ -236,7 +236,7 @@ namespace Chunks
                 DrawDirtyRects();
         }
 
-        private bool ShouldGenerate()
+        private bool PlayerHasMoved()
         {
             var position = playerTransform.position;
             _playerFlooredPosition = new Vector2i((int) Mathf.Floor(position.x), (int) Mathf.Floor(position.y));
