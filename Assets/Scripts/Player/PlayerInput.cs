@@ -55,7 +55,8 @@ namespace Player
 
         private void FixedUpdate()
         {
-            MovePlayer();
+            if (!FloatingCamera)
+                MovePlayer();
         }
 
         private void LateUpdate()

@@ -251,9 +251,7 @@ namespace Chunks
                     Destroy(previousPoly);
                 }
 
-                var grid = ChunkCollision.ComputeChunkColliders(ServerChunkMap[chunk.Key]);
-                ChunkCollision.GenerateLines(grid, out var horizontalLines, out var verticalLines);
-                var collisionData = ChunkCollision.GenerateColliders(horizontalLines, verticalLines);
+                var collisionData = ChunkCollision.ComputeChunkColliders(chunk.Value);
 
                 foreach (var coll in collisionData)
                 {
@@ -328,7 +326,8 @@ namespace Chunks
             var clientChunk = new ChunkClient
             {
                 Position = chunk.Position,
-                Colors = chunk.Data.colors, // pointer on ChunkServer colors
+                Colors = chunk.Data.colors, // pointer on ChunkServer colors,
+                Types = chunk.Data.types, // pointer on ChunkServer types,
                 GameObject = chunkGameObject,
                 Texture = chunkGameObject.GetComponent<SpriteRenderer>().sprite.texture
             };
