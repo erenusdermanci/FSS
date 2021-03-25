@@ -438,15 +438,20 @@ namespace Chunks
 
         private void GenerateCollisions()
         {
+            if (ClientChunkMap[_playerFlooredPosition] == null)
+                return;
+
             if (_playerChunkNeighborhood == null || _playerHasMoved)
             {
-                _playerChunkNeighborhood = new ChunkNeighborhood<ChunkClient>(ClientChunkMap, ClientChunkMap[_playerFlooredPosition]);
+                _playerChunkNeighborhood = new ChunkNeighborhood<ChunkClient>(ClientChunkMap,
+                    ClientChunkMap[_playerFlooredPosition]);
             }
 
             foreach (var chunk in _playerChunkNeighborhood.GetChunks())
             {
-                if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks && !chunk.Dirty
-                && (chunk.GameObject.GetComponent<EdgeCollider2D>() != null))
+                if (chunk == null
+                    || !GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks && !chunk.Dirty
+                    && (chunk.GameObject.GetComponent<EdgeCollider2D>() != null))
                     continue;
 
                 foreach (var previousPoly in chunk.GameObject.GetComponents<EdgeCollider2D>())
