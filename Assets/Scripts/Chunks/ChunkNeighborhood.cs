@@ -85,25 +85,6 @@ namespace Chunks
             UpdateAdjacentBlockDirty(x, y);
         }
 
-        public void UpdateBlock(int x, int y, Block block, bool resetColor = false)
-        {
-            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
-            if (_chunks[chunkIndex] == null)
-                return;
-            if (resetColor)
-            {
-                var color = BlockConstants.BlockDescriptors[block.Type].Color;
-                color.Shift(out var r, out var g, out var b);
-                _chunks[chunkIndex].PutBlock(x, y, block.Type, r, g, b,
-                    color.a, block.StateBitset, block.Health, block.Lifetime);
-            }
-            else
-            {
-                _chunks[chunkIndex].PutBlock(x, y, block.Type, block.StateBitset, block.Health, block.Lifetime);
-            }
-            UpdateAdjacentBlockDirty(x, y);
-        }
-
         public void UpdateBlock(int x, int y, Block block, byte r, byte g, byte b, byte a)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
