@@ -254,7 +254,7 @@ namespace DebugTools.DrawingTool
                 throw new InvalidOperationException();
             }
             var worldPos = Camera.main.ScreenToWorldPoint(mousePos);
-            return new Vector2i((int) Mathf.Floor((worldPos.x + 0.5f) * 64.0f), (int) Mathf.Floor((worldPos.y + 0.5f) * 64.0f));
+            return new Vector2i((int) Mathf.Floor((worldPos.x + 0.5f) * Chunk.Size), (int) Mathf.Floor((worldPos.y + 0.5f) * 64.0f));
         }
 
         private void DrawBox(int x, int y, bool immediate = true)
@@ -473,7 +473,7 @@ namespace DebugTools.DrawingTool
 
         private ChunkServer GetChunkFromWorld(float worldX, float worldY)
         {
-            var chunkPosition = new Vector2i((int) Mathf.Floor(worldX / 64.0f), (int) Mathf.Floor(worldY / 64.0f));
+            var chunkPosition = new Vector2i((int) Mathf.Floor(worldX / Chunk.Size), (int) Mathf.Floor(worldY / Chunk.Size));
             return !_serverChunkMap.Contains(chunkPosition) ? null : _serverChunkMap[chunkPosition];
         }
 
