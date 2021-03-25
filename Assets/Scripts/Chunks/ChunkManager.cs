@@ -27,7 +27,7 @@ namespace Chunks
         private readonly List<ConcurrentDictionary<Vector2i, SimulationTask>> _simulationBatchPool = new List<ConcurrentDictionary<Vector2i, SimulationTask>>(BatchNumber);
         private readonly ChunkTaskScheduler _chunkTaskScheduler = new ChunkTaskScheduler();
         private Vector2i _playerFlooredPosition;
-        private Vector2i _oldPlayerFlooredPosition;
+        private Vector2i? _oldPlayerFlooredPosition;
 
         public static int UpdatedFlag;
 

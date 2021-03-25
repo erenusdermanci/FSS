@@ -40,8 +40,8 @@ namespace DebugTools.DrawingTool
 
         public Text uiCoordText;
 
-        private Vector2i _lastPointDrawn;
-        private Vector2i _lastPointDrawnForLine;
+        private Vector2i? _lastPointDrawn;
+        private Vector2i? _lastPointDrawnForLine;
 
         private readonly UniqueQueue<Vector2i> _blockQueue = new UniqueQueue<Vector2i>();
 
@@ -156,14 +156,14 @@ namespace DebugTools.DrawingTool
             if (Input.GetMouseButtonDown(0))
             {
                 if (_lastPointDrawnForLine != null && Input.GetKey(KeyCode.LeftShift))
-                    DrawLine(_lastPointDrawnForLine, blockPosition, false);
+                    DrawLine(_lastPointDrawnForLine.Value, blockPosition, false);
             }
             else if (Input.GetMouseButton(0))
             {
                 if (_lastPointDrawn == null)
                     DrawBrush(blockPosition.x, blockPosition.y);
                 else
-                    DrawLine(_lastPointDrawn, blockPosition, false);
+                    DrawLine(_lastPointDrawn.Value, blockPosition, false);
                 _lastPointDrawn = new Vector2i(blockPosition.x, blockPosition.y);
             }
             else if (Input.GetMouseButtonUp(0))
@@ -175,7 +175,7 @@ namespace DebugTools.DrawingTool
             {
                 if (_lastPointDrawnForLine != null)
                 {
-                    DrawDebugLine(_lastPointDrawnForLine, blockPosition, UnityEngine.Color.white);
+                    DrawDebugLine(_lastPointDrawnForLine.Value, blockPosition, UnityEngine.Color.white);
                 }
             }
 
