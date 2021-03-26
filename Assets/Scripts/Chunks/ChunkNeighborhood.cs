@@ -39,9 +39,9 @@ namespace Chunks
             return _chunks[CentralChunkIndex];
         }
 
-        public List<T> GetChunks()
+        public T[] GetChunks()
         {
-            return _chunks.ToList();
+            return _chunks;
         }
     }
 }
