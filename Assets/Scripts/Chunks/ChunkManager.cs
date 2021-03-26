@@ -293,13 +293,20 @@ namespace Chunks
         {
             ServerChunkMap.Add(chunk);
 
+            CreateClientChunk(chunk);
+
+            UpdateSimulationPool(chunk, true);
+        }
+
+        public void CreateClientChunk(ChunkServer serverChunk)
+        {
             var chunkGameObject = _chunkPool.GetObject();
-            chunkGameObject.transform.position = new Vector3(chunk.Position.x, chunk.Position.y, 0);
+            chunkGameObject.transform.position = new Vector3(serverChunk.Position.x, serverChunk.Position.y, 0);
             var clientChunk = new ChunkClient
             {
-                Position = chunk.Position,
-                Colors = chunk.Data.colors, // pointer on ChunkServer colors,
-                Types = chunk.Data.types, // pointer on ChunkServer types,
+                Position = serverChunk.Position,
+                Colors = serverChunk.Data.colors, // pointer on ChunkServer colors,
+                Types = serverChunk.Data.types, // pointer on ChunkServer types,
                 GameObject = chunkGameObject,
                 Collider = chunkGameObject.GetComponent<PolygonCollider2D>(),
                 Texture = chunkGameObject.GetComponent<SpriteRenderer>().sprite.texture
@@ -307,13 +314,6 @@ namespace Chunks
             chunkGameObject.SetActive(true);
             ClientChunkMap.Add(clientChunk);
             clientChunk.UpdateTexture();
-
-            UpdateSimulationPool(chunk, true);
-        }
-
-        public void CreateClientChunk(ChunkServer serverChunk)
-        {
-
         }
 
         private void Clean(Vector2i aroundPosition)
