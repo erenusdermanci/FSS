@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Blocks;
-using Chunks;
 using Utils;
 
-namespace Collision
+namespace Chunks.Collision
 {
     public static class ChunkCollision
     {

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Chunks.Collision;
 using Chunks.Tasks;
-using Collision;
 using DebugTools;
 using ProceduralGeneration;
 using UnityEngine;
