@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Chunks.Tasks;
 using Serialized;
 using UnityEngine;
 
-namespace Chunks.Tasks
+namespace Chunks.Server
 {
-    public class LoadTask : ChunkTask
+    public class LoadTask : ChunkTask<ChunkServer>
     {
         private readonly string _chunkSaveFullPath;
 

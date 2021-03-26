@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Chunks;
+using Chunks.Server;
 
 namespace Blocks.Behaviors
 {

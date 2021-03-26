@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Blocks;
 
-namespace Chunks
+namespace Chunks.Server
 {
     public class ChunkServerNeighborhood : ChunkNeighborhood<ChunkServer>
     {

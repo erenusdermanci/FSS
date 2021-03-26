@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Chunks
+namespace Chunks.Client
 {
     public class ChunkClient : Chunk
     {

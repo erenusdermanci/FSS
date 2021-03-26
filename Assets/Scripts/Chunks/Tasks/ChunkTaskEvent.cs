@@ -2,11 +2,11 @@
 
 namespace Chunks.Tasks
 {
-    public class ChunkTaskEvent : EventArgs
+    public class ChunkTaskEvent<T> : EventArgs where T : Chunk
     {
-        public ChunkServer Chunk { get; }
+        public T Chunk { get; }
 
-        public ChunkTaskEvent(ChunkServer chunk)
+        public ChunkTaskEvent(T chunk)
         {
             Chunk = chunk;
         }

@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Chunks
 {
     public class ChunkNeighborhood<T> where T : Chunk

@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using Blocks;
+using Chunks.Tasks;
 using DebugTools;
 using ProceduralGeneration;
 
-namespace Chunks.Tasks
+namespace Chunks.Server
 {
-    public class GenerationTask : ChunkTask
+    public class GenerationTask : ChunkTask<ChunkServer>
     {
         private Dictionary<int, ConfiguredNoisesForLayer> _noisesPerLayer;
 

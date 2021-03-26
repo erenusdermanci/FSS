@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Chunks.Client;
 using Chunks.Collision;
+using Chunks.Server;
 using Chunks.Tasks;
 using DebugTools;
 using ProceduralGeneration;
@@ -26,7 +28,7 @@ namespace Chunks
         public readonly ChunkMap<ChunkServer> ServerChunkMap = new ChunkMap<ChunkServer>();
         public readonly ChunkMap<ChunkClient> ClientChunkMap = new ChunkMap<ChunkClient>();
         private readonly List<ConcurrentDictionary<Vector2i, SimulationTask>> _simulationBatchPool = new List<ConcurrentDictionary<Vector2i, SimulationTask>>(BatchNumber);
-        private readonly ChunkTaskScheduler _chunkTaskScheduler = new ChunkTaskScheduler();
+        private readonly ChunkServerTaskScheduler _chunkTaskScheduler = new ChunkServerTaskScheduler();
         private Vector2i _playerFlooredPosition;
         private Vector2i? _oldPlayerFlooredPosition;
         private bool _playerHasMoved;
@@ -271,7 +273,7 @@ namespace Chunks
 
         private void OnChunkSaved(object sender, EventArgs e)
         {
-            var chunk = ((ChunkTaskEvent) e).Chunk;
+            var chunk = ((ChunkTaskEvent<ChunkServer>) e).Chunk;
             ServerChunkMap[chunk.Position]?.Dispose();
             ServerChunkMap.Remove(chunk.Position);
             ClientChunkMap[chunk.Position]?.Dispose();
@@ -281,12 +283,12 @@ namespace Chunks
 
         private void OnChunkLoaded(object sender, EventArgs e)
         {
-            FinalizeChunkCreation(((ChunkTaskEvent) e).Chunk);
+            FinalizeChunkCreation(((ChunkTaskEvent<ChunkServer>) e).Chunk);
         }
 
         private void OnChunkGenerated(object sender, EventArgs e)
         {
-            FinalizeChunkCreation(((ChunkTaskEvent) e).Chunk);
+            FinalizeChunkCreation(((ChunkTaskEvent<ChunkServer>) e).Chunk);
         }
 
         private void FinalizeChunkCreation(ChunkServer chunk)

@@ -5,20 +5,20 @@ using Utils;
 
 namespace Chunks.Tasks
 {
-    public class ChunkTaskManager
+    public class ChunkTaskManager<T> where T : Chunk, new()
     {
         private readonly int _maximumProcessing;
-        private readonly Dictionary<Vector2i, ChunkTask> _tasks = new Dictionary<Vector2i, ChunkTask>();
+        private readonly Dictionary<Vector2i, ChunkTask<T>> _tasks = new Dictionary<Vector2i, ChunkTask<T>>();
         private readonly List<Vector2i> _queued = new List<Vector2i>();
-        private readonly Dictionary<Vector2i, ChunkTask> _processing = new Dictionary<Vector2i, ChunkTask>();
+        private readonly Dictionary<Vector2i, ChunkTask<T>> _processing = new Dictionary<Vector2i, ChunkTask<T>>();
 
-        private readonly List<ChunkTask> _processed = new List<ChunkTask>();
+        private readonly List<ChunkTask<T>> _processed = new List<ChunkTask<T>>();
 
         public event EventHandler Processed;
 
-        private readonly Func<ChunkServer, ChunkTask> _taskCreator;
+        private readonly Func<T, ChunkTask<T>> _taskCreator;
 
-        public ChunkTaskManager(int maximumProcessing, Func<ChunkServer, ChunkTask> taskCreator)
+        public ChunkTaskManager(int maximumProcessing, Func<T, ChunkTask<T>> taskCreator)
         {
             _maximumProcessing = maximumProcessing;
             _taskCreator = taskCreator;
@@ -66,10 +66,10 @@ namespace Chunks.Tasks
         {
             if (_tasks.ContainsKey(position))
                 return;
-            Enqueue(new ChunkServer { Position = position });
+            Enqueue(new T { Position = position });
         }
 
-        public void Enqueue(ChunkServer chunk)
+        public void Enqueue(T chunk)
         {
             var task = _taskCreator(chunk);
             _queued.Add(chunk.Position);
@@ -128,12 +128,12 @@ namespace Chunks.Tasks
             _tasks.Clear();
         }
 
-        private void OnProcessed(ChunkTask task)
+        private void OnProcessed(ChunkTask<T> task)
         {
             _tasks.Remove(task.Chunk.Position);
             _processing.Remove(task.Chunk.Position);
             task.Dispose();
-            Processed?.Invoke(this, new ChunkTaskEvent(task.Chunk));
+            Processed?.Invoke(this, new ChunkTaskEvent<T>(task.Chunk));
         }
     }
 }

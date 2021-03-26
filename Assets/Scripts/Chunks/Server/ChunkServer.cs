@@ -1,7 +1,7 @@
 ﻿using Blocks;
 using Serialized;
 
-namespace Chunks
+namespace Chunks.Server
 {
     public class ChunkServer : Chunk
     {

@@ -1,33 +1,34 @@
 ﻿using System.Collections.Generic;
+using Chunks.Tasks;
 using DebugTools;
 using Utils;
 
-namespace Chunks.Tasks
+namespace Chunks.Server
 {
-    public sealed class ChunkTaskScheduler
+    public sealed class ChunkServerTaskScheduler
     {
-        private readonly Dictionary<ChunkTaskTypes, ChunkTaskManager> _chunkTaskManagers;
+        private readonly Dictionary<ChunkTaskTypes, ChunkTaskManager<ChunkServer>> _chunkTaskManagers;
 
-        public ChunkTaskScheduler()
+        public ChunkServerTaskScheduler()
         {
-            _chunkTaskManagers = new Dictionary<ChunkTaskTypes, ChunkTaskManager>
+            _chunkTaskManagers = new Dictionary<ChunkTaskTypes, ChunkTaskManager<ChunkServer>>
             {
                 {
                     ChunkTaskTypes.Save,
-                    new ChunkTaskManager(16, chunk => new SaveTask(chunk))
+                    new ChunkTaskManager<ChunkServer>(16, chunk => new SaveTask(chunk))
                 },
                 {
                     ChunkTaskTypes.Load,
-                    new ChunkTaskManager(16, chunk => new LoadTask(chunk))
+                    new ChunkTaskManager<ChunkServer>(16, chunk => new LoadTask(chunk))
                 },
                 {
                     ChunkTaskTypes.Generate,
-                    new ChunkTaskManager(16, chunk => new GenerationTask(chunk))
+                    new ChunkTaskManager<ChunkServer>(16, chunk => new GenerationTask(chunk))
                 }
             };
         }
 
-        public ChunkTaskManager GetTaskManager(ChunkTaskTypes chunkTaskType)
+        public ChunkTaskManager<ChunkServer> GetTaskManager(ChunkTaskTypes chunkTaskType)
         {
             return _chunkTaskManagers[chunkTaskType];
         }

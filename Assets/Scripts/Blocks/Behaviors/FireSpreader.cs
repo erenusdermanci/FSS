@@ -1,5 +1,5 @@
 ﻿using System;
-using Chunks;
+using Chunks.Server;
 using Utils;
 
 namespace Blocks.Behaviors

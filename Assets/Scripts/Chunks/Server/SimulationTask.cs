@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Blocks;
+using Chunks.Tasks;
 using DebugTools;
 using Utils;
 
-namespace Chunks.Tasks
+namespace Chunks.Server
 {
-    public class SimulationTask : ChunkTask
+    public class SimulationTask : ChunkTask<ChunkServer>
     {
         internal ChunkServerNeighborhood Chunks;
 

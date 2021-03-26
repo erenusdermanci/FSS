@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace Chunks.Tasks
 {
-    public abstract class ChunkTask : IDisposable
+    public abstract class ChunkTask<T> : IDisposable  where T : Chunk
     {
         public bool Done;
 
-        public readonly ChunkServer Chunk;
+        public readonly T Chunk;
 
         private bool _synchronous;
         private Task _task;
@@ -16,7 +16,7 @@ namespace Chunks.Tasks
         private readonly CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
 
-        protected ChunkTask(ChunkServer chunk)
+        protected ChunkTask(T chunk)
         {
             _cancellationTokenSource = new CancellationTokenSource();
             Chunk = chunk;
