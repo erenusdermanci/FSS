@@ -27,12 +27,15 @@ namespace Chunks
         private const int BatchNumber = 4;
         public readonly ChunkMap<ChunkServer> ServerChunkMap = new ChunkMap<ChunkServer>();
         public readonly ChunkMap<ChunkClient> ClientChunkMap = new ChunkMap<ChunkClient>();
-        private readonly List<ConcurrentDictionary<Vector2i, SimulationTask>> _simulationBatchPool = new List<ConcurrentDictionary<Vector2i, SimulationTask>>(BatchNumber);
-        private readonly ChunkServerTaskScheduler _chunkTaskScheduler = new ChunkServerTaskScheduler();
+        private readonly List<ConcurrentDictionary<Vector2i, SimulationTask>> _simulationBatchPool =
+            new List<ConcurrentDictionary<Vector2i, SimulationTask>>(BatchNumber);
+        private readonly ChunkServerTaskScheduler _chunkServerTaskScheduler = new ChunkServerTaskScheduler();
         private Vector2i _playerFlooredPosition;
         private Vector2i? _oldPlayerFlooredPosition;
         private bool _playerHasMoved;
         private ChunkNeighborhood<ChunkClient> _playerChunkNeighborhood;
+        private readonly ConcurrentDictionary<Vector2i, ClientCollisionTask> _clientCollisionTasks =
+            new ConcurrentDictionary<Vector2i, ClientCollisionTask>();
 
         public static int UpdatedFlag;
 
@@ -46,9 +49,9 @@ namespace Chunks
 
             PlayerPosition = playerTransform.position;
 
-            _chunkTaskScheduler.GetTaskManager(ChunkTaskTypes.Save).Processed += OnChunkSaved;
-            _chunkTaskScheduler.GetTaskManager(ChunkTaskTypes.Load).Processed += OnChunkLoaded;
-            _chunkTaskScheduler.GetTaskManager(ChunkTaskTypes.Generate).Processed += OnChunkGenerated;
+            _chunkServerTaskScheduler.GetTaskManager(ChunkTaskTypes.Save).Processed += OnChunkSaved;
+            _chunkServerTaskScheduler.GetTaskManager(ChunkTaskTypes.Load).Processed += OnChunkLoaded;
+            _chunkServerTaskScheduler.GetTaskManager(ChunkTaskTypes.Generate).Processed += OnChunkGenerated;
 
             _chunkPool = new GameObjectPool(generatedAreaSize * generatedAreaSize);
 
@@ -71,7 +74,7 @@ namespace Chunks
 
         private void Update()
         {
-            _chunkTaskScheduler.Update();
+            _chunkServerTaskScheduler.Update();
 
             if (Input.GetKeyDown(KeyCode.Space))
                 _userPressedSpace = true;
@@ -87,8 +90,8 @@ namespace Chunks
             var position = playerTransform.position;
             var flooredAroundPosition = new Vector2i((int) Mathf.Floor(position.x), (int) Mathf.Floor(position.y));
 
-            _chunkTaskScheduler.CancelLoading();
-            _chunkTaskScheduler.CancelGeneration();
+            _chunkServerTaskScheduler.CancelLoading();
+            _chunkServerTaskScheduler.CancelGeneration();
 
             foreach (var clientChunk in ClientChunkMap.Map.Values)
             {
@@ -266,7 +269,7 @@ namespace Chunks
                     var pos = new Vector2i(aroundPosition.x + (x - generatedAreaSize / 2), aroundPosition.y + (y - generatedAreaSize / 2));
                     if (ServerChunkMap.Contains(pos))
                         continue;
-                    _chunkTaskScheduler.QueueForGeneration(pos, loadFromDisk);
+                    _chunkServerTaskScheduler.QueueForGeneration(pos, loadFromDisk);
                 }
             }
         }
@@ -352,7 +355,7 @@ namespace Chunks
                 UpdateSimulationPool(chunk, false);
                 return;
             }
-            _chunkTaskScheduler.QueueForSaving(chunk);
+            _chunkServerTaskScheduler.QueueForSaving(chunk);
         }
 
         private void UpdateSimulationPool(ChunkServer chunk, bool add)
@@ -453,6 +456,8 @@ namespace Chunks
                     ClientChunkMap[_playerFlooredPosition]);
             }
 
+            _clientCollisionTasks.Clear();
+
             foreach (var chunk in _playerChunkNeighborhood.GetChunks())
             {
                 if (chunk == null
@@ -460,46 +465,60 @@ namespace Chunks
                     && (chunk.Collider.enabled)))
                     continue;
 
-                var polygonCollider2d = chunk.Collider;
+                var task = new ClientCollisionTask(chunk);
+                _clientCollisionTasks.TryAdd(chunk.Position, task);
+            }
 
-                var collisionData = ChunkCollision.ComputeChunkColliders(chunk);
+            foreach (var task in _clientCollisionTasks.Values)
+            {
+                task.Schedule();
+            }
 
-                polygonCollider2d.enabled = false;
-                polygonCollider2d.pathCount = collisionData.Count;
+            foreach (var task in _clientCollisionTasks.Values)
+            {
+                if (!task.Scheduled())
+                    continue;
+                task.Join();
+            }
 
-                for (var i = 0; i < collisionData.Count; ++i)
+            foreach (var task in _clientCollisionTasks.Values)
+            {
+                var chunkCollider = task.Chunk.Collider;
+
+                chunkCollider.enabled = false;
+                chunkCollider.pathCount = task.CollisionData.Count;
+
+                for (var i = 0; i < task.CollisionData.Count; ++i)
                 {
-                    var coll = collisionData[i];
+                    var coll = task.CollisionData[i];
                     var vec2S = new Vector2[coll.Count];
                     for (var j = 0; j < coll.Count; ++j)
                     {
-                        var x = coll[j].x / (float)(Chunk.Size);
-                        var y = coll[j].y / (float)(Chunk.Size);
+                        var x = coll[j].x / (float)(Chunks.Chunk.Size);
+                        var y = coll[j].y / (float)(Chunks.Chunk.Size);
                         x -= 0.5f;
                         y -= 0.5f;
                         vec2S[j] = new Vector2(x, y);
                     }
 
-                    //vec2s[coll.Count] = vec2s[0];
-
-                    polygonCollider2d.SetPath(i, vec2S);
+                    chunkCollider.SetPath(i, vec2S);
                 }
 
-                polygonCollider2d.enabled = true;
+                chunkCollider.enabled = true;
             }
         }
 
         private void OnDestroy()
         {
-            _chunkTaskScheduler.CancelLoading();
-            _chunkTaskScheduler.CancelGeneration();
+            _chunkServerTaskScheduler.CancelLoading();
+            _chunkServerTaskScheduler.CancelGeneration();
 
             foreach (var chunk in ServerChunkMap.Chunks())
             {
                 DisposeAndSaveChunk(chunk);
             }
 
-            _chunkTaskScheduler.ForceSaving();
+            _chunkServerTaskScheduler.ForceSaving();
 
             ServerChunkMap.Clear();
         }
