@@ -43,6 +43,8 @@ namespace Utils
                 Chunk.Size,
                 0,
                 SpriteMeshType.FullRect);
+            var collider = obj.AddComponent<PolygonCollider2D>();
+            collider.enabled = false;
             _pooledObjects.Add(obj);
             return obj;
         }

@@ -301,6 +301,7 @@ namespace Chunks
                 Colors = chunk.Data.colors, // pointer on ChunkServer colors,
                 Types = chunk.Data.types, // pointer on ChunkServer types,
                 GameObject = chunkGameObject,
+                Collider = chunkGameObject.GetComponent<PolygonCollider2D>(),
                 Texture = chunkGameObject.GetComponent<SpriteRenderer>().sprite.texture
             };
             chunkGameObject.SetActive(true);
@@ -450,34 +451,36 @@ namespace Chunks
             foreach (var chunk in _playerChunkNeighborhood.GetChunks())
             {
                 if (chunk == null
-                    || !GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks && !chunk.Dirty
-                    && (chunk.GameObject.GetComponent<EdgeCollider2D>() != null))
+                    || (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks && !chunk.Dirty
+                    && (chunk.Collider.enabled)))
                     continue;
 
-                foreach (var previousPoly in chunk.GameObject.GetComponents<EdgeCollider2D>())
-                {
-                    Destroy(previousPoly);
-                }
+                var polygonCollider2d = chunk.Collider;
 
                 var collisionData = ChunkCollision.ComputeChunkColliders(chunk);
 
-                foreach (var coll in collisionData)
+                polygonCollider2d.enabled = false;
+                polygonCollider2d.pathCount = collisionData.Count;
+
+                for (var i = 0; i < collisionData.Count; ++i)
                 {
-                    var vec2s = new Vector2[coll.Count + 1];
-                    for (var i = 0; i < coll.Count; ++i)
+                    var coll = collisionData[i];
+                    var vec2s = new Vector2[coll.Count];
+                    for (var j = 0; j < coll.Count; ++j)
                     {
-                        var x = (float)(coll[i].x) / (float)(Chunk.Size);
-                        var y = (float) (coll[i].y) / (float)(Chunk.Size);
+                        var x = (float)(coll[j].x) / (float)(Chunk.Size);
+                        var y = (float) (coll[j].y) / (float)(Chunk.Size);
                         x -= 0.5f;
                         y -= 0.5f;
-                        vec2s[i] = new Vector2(x, y);
+                        vec2s[j] = new Vector2(x, y);
                     }
 
-                    vec2s[coll.Count] = vec2s[0];
+                    //vec2s[coll.Count] = vec2s[0];
 
-                    var attachedCollider = chunk.GameObject.AddComponent<EdgeCollider2D>();
-                    attachedCollider.points = vec2s;
+                    polygonCollider2d.SetPath(i, vec2s);
                 }
+
+                polygonCollider2d.enabled = true;
             }
         }
 
