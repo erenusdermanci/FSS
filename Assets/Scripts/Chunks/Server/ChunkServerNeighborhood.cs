@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Blocks;
+using Serialized;
 
 namespace Chunks.Server
 {
@@ -43,6 +44,13 @@ namespace Chunks.Server
                 return ChunkManager.UpdatedFlag;
 
             return Chunks[chunkIndex].BlockUpdatedFlags[y * Chunk.Size + x];
+        }
+
+        public ref PlantBlockData GetPlantBlockData(int x, int y, int type)
+        {
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+
+            return ref Chunks[chunkIndex].GetPlantBlockData(x, y, type);
         }
 
         public void ReplaceBlock(int x, int y, int type, int stateBitset, float health, float lifetime)

@@ -183,6 +183,11 @@ namespace Chunks.Server
                     distances, bitCount);
             }
 
+            if (!destroyed && blockLogic.PlantGrower != null)
+            {
+                dirtied |= blockLogic.PlantGrower.Execute(_rng, ChunkNeighborhood, block, x, y);
+            }
+
             return dirtied;
         }
     }

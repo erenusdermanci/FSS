@@ -35,7 +35,23 @@ namespace Blocks
         public const int Spark = 13;
         public const int Lava = 14;
         public const int HardenedLava = 15;
-        public const int NumberOfBlocks = 16;
+        public const int Plant = 16;
+        public const int PlantRoot = 17;
+        public const int Grass = 18;
+        public const int NumberOfBlocks = 19;
+
+        private static readonly FireSpreader PlantFireSpreader = new FireSpreader(
+            1.0f,
+            FireColor,
+            5.0f,
+            new[]
+            {
+                new BlockPotential(Flame, 1.0f)
+            },
+            new BlockPotential(Smoke, 1.0f),
+            true,
+            false
+        );
 
         public static readonly BlockDescriptor[] BlockDescriptors = {
             new BlockDescriptor(
@@ -72,7 +88,7 @@ namespace Blocks
                         new [] { 5, 5, 6, 7, 3, 4},
                         new [] { 0, 0, 0, 1, 1, 1, 1, 1 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockTags.Solid
+                        new[] { BlockTags.Solid, BlockTags.Vegetation }
                     )
                 }
             ),
@@ -96,7 +112,7 @@ namespace Blocks
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 2, 1, 1, 2, 2, 0, 0 ,0 },
                         new[] { Randomized, Randomized, Randomized, Farthest, Farthest, Randomized, Randomized, Randomized },
-                        BlockTags.Solid
+                        new[] { BlockTags.Solid, BlockTags.Vegetation }
                     )
                 }
             ),
@@ -113,7 +129,7 @@ namespace Blocks
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 4, 1, 1, 4, 4, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Farthest, Farthest, Randomized, Randomized, Randomized },
-                        BlockTags.Solid
+                        new[] { BlockTags.Solid, BlockTags.Vegetation }
                     )
                 }
             ),
@@ -130,7 +146,7 @@ namespace Blocks
                         new [] { 0, 0, 1, 2 },
                         new [] { 2, 1, 1, 0, 0, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockTags.Solid
+                        new[] { BlockTags.Solid, BlockTags.Vegetation }
                     )
                 }
             ),
@@ -147,7 +163,7 @@ namespace Blocks
                         new [] { 0, 0 },
                         new [] { 2, 0, 0, 0, 0, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockTags.Solid
+                        new[] { BlockTags.Solid, BlockTags.Vegetation }
                     )
                 }
             ),
@@ -199,7 +215,7 @@ namespace Blocks
                         new [] { 5, 5, 6, 7, 3, 4},
                         new [] { 0, 0, 0, 2, 2, 2, 1, 1 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockTags.Solid
+                        new[] { BlockTags.Solid, BlockTags.Vegetation }
                     )
                 }
             ),
@@ -220,7 +236,7 @@ namespace Blocks
                         new [] { 5, 5, 6, 7, 3, 4},
                         new [] { 0, 0, 0, 2, 2, 2, 1, 1 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockTags.Solid
+                        new[] { BlockTags.Solid, BlockTags.Vegetation }
                     )
                 }
             ),
@@ -232,9 +248,9 @@ namespace Blocks
                 100.0f,
                 0,
                 new IBehavior[] {
-                    new FireSpreader(1.0f,
+                    new FireSpreader(0.8f,
                         FireColor,
-                        5.0f,
+                        3.0f,
                         new [] {
                             new BlockPotential(Spark, 0.12f),
                             new BlockPotential(Flame, 1.0f)
@@ -265,7 +281,7 @@ namespace Blocks
                         new [] { 0, 0, 1, 2 },
                         new [] { 2, 1, 1, 0, 0, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockTags.Solid
+                        new[] { BlockTags.Solid, BlockTags.Vegetation }
                     )
                 }
             ),
@@ -292,7 +308,7 @@ namespace Blocks
                         new [] { 5, 0, 3, 4, 1, 7, 2, 6 },
                         new [] { 4, 2, 4, 4, 4, 4, 4, 4 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockTags.Solid
+                        new[] { BlockTags.Solid, BlockTags.Vegetation }
                     )
                 }
             ),
@@ -322,7 +338,7 @@ namespace Blocks
                         new [] { 0, 0, 1, 2, 3, 4 },
                         new [] { 2, 1, 1, 4, 4, 0, 0 ,0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockTags.Solid
+                        new[] { BlockTags.Solid, BlockTags.Vegetation }
                     )
                 }
             ),
@@ -339,8 +355,77 @@ namespace Blocks
                         new [] { 0, 0 },
                         new [] { 2, 0, 0, 0, 0, 0, 0, 0 },
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        BlockTags.Solid
+                        new[] { BlockTags.Solid, BlockTags.Vegetation }
                     )
+                }
+            ),
+            new BlockDescriptor(
+                "Plant",
+                BlockTags.Vegetation,
+                3.0f,
+                new Color(80, 160, 80, 255, 0.4f),
+                100.0f,
+                0,
+                new IBehavior[]
+                {
+                    new PlantGrower(0.0f,
+                        1.0f,
+                        2,
+                        0.5f,
+                        new[] { 0.1f, 0.1f },
+                        new [] { 32, 8 },
+                        new [] { 64, 16 },
+                        1,
+                        16,
+                        new [] { Air },
+                        PlantRoot),
+                    PlantFireSpreader
+                }
+            ),
+            new BlockDescriptor(
+                "PlantRoot",
+                BlockTags.Vegetation,
+                3.0f,
+                new Color(210, 180, 140, 255, 0.2f),
+                100.0f,
+                0,
+                new IBehavior[]
+                {
+                    new PlantGrower(0.0f,
+                        -1.0f,
+                        3,
+                        0.4f,
+                        new[] { 0.2f, 0.2f, 0.2f },
+                        new [] { 32, 16, 8 },
+                        new [] { 48, 32, 16 },
+                        1,
+                        16,
+                        new [] { Dirt, Sand },
+                        Plant),
+                    PlantFireSpreader
+                }
+            ),
+            new BlockDescriptor(
+                "Grass",
+                BlockTags.Vegetation,
+                3.0f,
+                new Color(42, 76, 0, 255, 0.2f),
+                100.0f,
+                0,
+                new IBehavior[]
+                {
+                    new PlantGrower(0.0f,
+                        1.0f,
+                        1,
+                        0.0f,
+                        new[] { 0.1f, 0.1f, 0.1f, 0.1f },
+                        new [] { 1 },
+                        new [] { 5 },
+                        1,
+                        16,
+                        new [] { Air },
+                        Border),
+                    PlantFireSpreader
                 }
             )
         };

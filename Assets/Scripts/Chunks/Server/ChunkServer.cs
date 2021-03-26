@@ -1,4 +1,6 @@
 ﻿using Blocks;
+using Blocks.Behaviors;
+using Metadata;
 using Serialized;
 
 namespace Chunks.Server
@@ -9,6 +11,7 @@ namespace Chunks.Server
         public readonly int[] BlockUpdatedFlags = new int[Size * Size];
 
         public readonly ChunkDirtyRect[] DirtyRects = new ChunkDirtyRect[4];
+        public readonly MetadataManager[] MetadataManagers = new MetadataManager[4];
         public static readonly int[] DirtyRectX = { 0, Size / 2, 0, Size / 2 }; // 2 3
         public static readonly int[] DirtyRectY = { 0, 0, Size / 2, Size / 2 }; // 0 1
 
@@ -16,6 +19,7 @@ namespace Chunks.Server
         {
             for (var i = 0; i < DirtyRects.Length; ++i)
             {
+                MetadataManagers[i] = new MetadataManager();
                 DirtyRects[i].Reset();
                 DirtyRects[i].Initialized = false;
             }
@@ -78,6 +82,22 @@ namespace Chunks.Server
             }
 
             BlockUpdatedFlags[i] = ChunkManager.UpdatedFlag;
+        }
+
+        public ref PlantBlockData GetPlantBlockData(int x, int y, int type)
+        {
+            const int hs = Size / 2;
+            var i = (x / hs) | ((y / hs) << 1);
+            if (MetadataManagers[i].PlantMetadata == null)
+                MetadataManagers[i].PlantMetadata = new PlantBlockData[hs * hs];
+
+            ref var blockData = ref MetadataManagers[i].PlantMetadata[y % hs * hs + x % hs];
+            var plantGrower = BlockConstants.BlockDescriptors[type].PlantGrower;
+            if (blockData.growthCount < 1 && blockData.depthLevel < plantGrower.MaximumDepthLevels)
+                UpdateBlockDirty(x, y);
+            if (blockData.id != 0)
+                return ref blockData;
+            return ref blockData;
         }
 
         // TODO optimize this, highly critical

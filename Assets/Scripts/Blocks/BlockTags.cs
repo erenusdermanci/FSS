@@ -4,6 +4,7 @@
     {
         Liquid,
         Solid,
+        Vegetation,
         Gas,
         Conductive,
         NonPhysical

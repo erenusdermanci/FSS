@@ -455,10 +455,17 @@ namespace DebugTools.DrawingTool
             }
             else
             {
-                if (BlockConstants.BlockDescriptors[selectedDrawBlock].InitialStates != 0 && selectedState == 0)
+                var descriptor = BlockConstants.BlockDescriptors[selectedDrawBlock];
+                if (descriptor.InitialStates != 0 && selectedState == 0)
                     selectedState = BlockConstants.BlockDescriptors[selectedDrawBlock].InitialStates;
                 chunk.PutBlock(blockXInChunk, blockYInChunk, selectedDrawBlock, r, g, b, blockColor.a,
                     selectedState, BlockConstants.BlockDescriptors[selectedDrawBlock].BaseHealth, 0);
+                if (descriptor.PlantGrower != null)
+                {
+                    ref var plantBlockData = ref chunk.GetPlantBlockData(blockXInChunk, blockYInChunk, selectedDrawBlock);
+                    if (plantBlockData.id != 0)
+                        plantBlockData.Reset(selectedDrawBlock, BlockIdGenerator.Next());
+                }
             }
 
             _chunksToReload.Add(chunk.Position);

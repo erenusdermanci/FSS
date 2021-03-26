@@ -9,14 +9,23 @@ namespace Blocks.Behaviors
         private readonly int[] _priorities;
         private readonly int[] _directions;
         private readonly BlockMovementType[] _movementTypes;
-        private readonly BlockTags _blockedBy;
+        private readonly bool[] _blockedBy;
 
-        public Swapper(int[] priorities, int[] directions, BlockMovementType[] movementTypes, BlockTags blockedBy)
+        public Swapper(int[] priorities, int[] directions, BlockMovementType[] movementTypes, BlockTags[] blockedBy)
         {
             _priorities = priorities;
             _directions = directions;
             _movementTypes = movementTypes;
-            _blockedBy = blockedBy;
+            _blockedBy = new bool[Enum.GetValues(typeof(BlockTags)).Length];
+            foreach (var blockTag in blockedBy)
+            {
+                _blockedBy[(int) blockTag] = true;
+            }
+        }
+
+        private bool isBlockedBy(BlockTags tag)
+        {
+            return _blockedBy[(int) tag];
         }
 
         public unsafe bool Execute(Random rng, ChunkServerNeighborhood chunkNeighborhood, int block, int x, int y,
@@ -106,7 +115,7 @@ namespace Blocks.Behaviors
                 targetBlocks[j] = chunkNeighborhood.GetBlockType(targetX, targetY);
 
                 // collision, we cannot continue further in this direction
-                if (_blockedBy == BlockConstants.BlockDescriptors[targetBlocks[j]].Tag)
+                if (isBlockedBy(BlockConstants.BlockDescriptors[targetBlocks[j]].Tag))
                     return targetsFound;
 
                 // density logic check
