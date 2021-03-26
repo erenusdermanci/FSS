@@ -35,6 +35,8 @@ namespace Chunks
         private readonly ConcurrentDictionary<Vector2i, ClientCollisionTask> _clientCollisionTasks =
             new ConcurrentDictionary<Vector2i, ClientCollisionTask>();
 
+        private readonly List<ChunkClient> _chunksToRender = new List<ChunkClient>();
+
         public static int UpdatedFlag;
 
         private bool _userPressedSpace;
@@ -236,6 +238,8 @@ namespace Chunks
             else if (!GlobalDebugConfig.StaticGlobalConfig.pauseSimulation)
                 Simulate();
 
+            RenderChunks();
+
             if (GlobalDebugConfig.StaticGlobalConfig.outlineChunks)
                 OutlineChunks();
 
@@ -244,7 +248,15 @@ namespace Chunks
 
             if (!GlobalDebugConfig.StaticGlobalConfig.disableCollisions)
                 GenerateCollisions();
+        }
 
+        private void RenderChunks()
+        {
+            foreach (var chunkClient in _chunksToRender)
+            {
+                chunkClient.UpdateTexture();
+            }
+            _chunksToRender.Clear();
         }
 
         private bool PlayerHasMoved()
@@ -429,16 +441,12 @@ namespace Chunks
                     if (!task.Scheduled())
                         continue;
                     task.Join();
+                    var clientChunk = ClientChunkMap[task.Chunk.Position];
+                    if (clientChunk == null)
+                        continue;
+                    clientChunk.Dirty = task.Chunk.Dirty;
+                    _chunksToRender.Add(clientChunk);
                 }
-            }
-
-            foreach (var clientChunk in ClientChunkMap.Map.Values)
-            {
-                var serverChunk = ServerChunkMap[clientChunk.Position];
-                if (serverChunk == null)
-                    continue;
-                clientChunk.Dirty = serverChunk.Dirty;
-                clientChunk.UpdateTexture();
             }
         }
 
