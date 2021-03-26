@@ -6,7 +6,7 @@ namespace ProceduralGeneration
 {
     public class ProceduralGenerator : MonoBehaviour
     {
-        [FormerlySerializedAs("GenerationModel")] public TerrainGenerationModel generationModel;
+        public TerrainGenerationModel generationModel;
         public static TerrainGenerationModel StaticGenerationModel;
 
         public static event EventHandler UpdateEvent;

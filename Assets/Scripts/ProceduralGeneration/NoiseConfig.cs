@@ -7,16 +7,16 @@ namespace ProceduralGeneration
     [Serializable]
     public struct NoiseConfig
     {
-        [FormerlySerializedAs("Type")] public FastNoiseLite.NoiseType type;
-        [FormerlySerializedAs("FractalType")] public FastNoiseLite.FractalType fractalType;
-        [FormerlySerializedAs("Octaves")] public int octaves;
-        [FormerlySerializedAs("Gain")] public float gain;
-        [FormerlySerializedAs("Frequency")] public float frequency;
-        [FormerlySerializedAs("Lacunarity")] public float lacunarity;
-        [FormerlySerializedAs("XAmplitude")] public float xAmplitude;
-        [FormerlySerializedAs("YAmplitude")] public float yAmplitude;
-        [FormerlySerializedAs("XOffset")] public float xOffset;
-        [FormerlySerializedAs("YOffset")] public float yOffset;
+        public FastNoiseLite.NoiseType type;
+        public FastNoiseLite.FractalType fractalType;
+        public int octaves;
+        public float gain;
+        public float frequency;
+        public float lacunarity;
+        public float xAmplitude;
+        public float yAmplitude;
+        public float xOffset;
+        public float yOffset;
 
         public NoiseConfig(NoiseConfig other)
         {

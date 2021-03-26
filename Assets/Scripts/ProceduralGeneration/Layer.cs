@@ -7,10 +7,10 @@ namespace ProceduralGeneration
     [Serializable]
     public class Layer
     {
-        [FormerlySerializedAs("HeightNoises")] public List<NoiseConfig> heightNoises;
-        [FormerlySerializedAs("InLayerNoises")] public List<NoiseConfig> inLayerNoises;
-        [FormerlySerializedAs("Thresholds")] public List<BlockThreshold> thresholds;
-        [FormerlySerializedAs("Depth")] public int depth;
+        public List<NoiseConfig> heightNoises;
+        public List<NoiseConfig> inLayerNoises;
+        public List<BlockThreshold> thresholds;
+        public int depth;
 
         public Layer(Layer other)
         {

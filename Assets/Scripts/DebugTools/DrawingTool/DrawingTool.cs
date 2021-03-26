@@ -22,7 +22,6 @@ namespace DebugTools.DrawingTool
 
         public bool drawBrushSelection;
 
-        [FormerlySerializedAs("selectedBrush")]
         public ToolType selectedTool;
 
         public BrushType selectedBrush;

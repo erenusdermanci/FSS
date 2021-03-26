@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Chunks.Client;
-using Chunks.Collision;
 using Chunks.Server;
 using Chunks.Tasks;
 using DebugTools;
@@ -15,7 +14,6 @@ namespace Chunks
 {
     public class ChunkManager : MonoBehaviour
     {
-        // PROPERTIES
         public int generatedAreaSize = 10;
         private int _initialGeneratedAreaSize;
         public int cleanAreaSizeOffset = 2;
@@ -39,7 +37,6 @@ namespace Chunks
 
         public static int UpdatedFlag;
 
-        // DEBUG PROPERTIES
         private bool _userPressedSpace;
 
         private void Awake()
@@ -494,8 +491,8 @@ namespace Chunks
                     var vec2S = new Vector2[coll.Count];
                     for (var j = 0; j < coll.Count; ++j)
                     {
-                        var x = coll[j].x / (float)(Chunks.Chunk.Size);
-                        var y = coll[j].y / (float)(Chunks.Chunk.Size);
+                        var x = coll[j].x / (float)Chunk.Size;
+                        var y = coll[j].y / (float)Chunk.Size;
                         x -= 0.5f;
                         y -= 0.5f;
                         vec2S[j] = new Vector2(x, y);

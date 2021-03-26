@@ -38,14 +38,13 @@ namespace DebugTools
             public bool disableSave;
             public bool disableLoad;
             public bool enableProceduralGeneration;
-            [FormerlySerializedAs("monothreadSimulate")] public bool monoThreadSimulate;
+            public bool monoThreadSimulate;
             public int overrideGridSize;
             public bool pauseSimulation;
             public bool stepByStep;
             public bool outlineChunks;
             public bool hideCleanChunkOutlines;
             public bool drawDirtyRects;
-            [FormerlySerializedAs("disableDirtySystem")]
             public bool disableDirtyChunks;
             public bool disableDirtyRects;
             public bool disableCollisions;

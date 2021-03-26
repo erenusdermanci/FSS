@@ -7,7 +7,7 @@ namespace ProceduralGeneration
     [Serializable]
     public class TerrainGenerationModel
     {
-        [FormerlySerializedAs("Layers")] public List<Layer> layers;
+        public List<Layer> layers;
 
         public TerrainGenerationModel(TerrainGenerationModel other)
         {
