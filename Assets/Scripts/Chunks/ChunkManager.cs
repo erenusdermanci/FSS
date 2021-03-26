@@ -432,7 +432,10 @@ namespace Chunks
 
             foreach (var clientChunk in ClientChunkMap.Map.Values)
             {
-                clientChunk.Dirty = ServerChunkMap[clientChunk.Position].Dirty;
+                var serverChunk = ServerChunkMap[clientChunk.Position];
+                if (serverChunk == null)
+                    continue;
+                clientChunk.Dirty = serverChunk.Dirty;
                 clientChunk.UpdateTexture();
             }
         }
@@ -465,19 +468,19 @@ namespace Chunks
                 for (var i = 0; i < collisionData.Count; ++i)
                 {
                     var coll = collisionData[i];
-                    var vec2s = new Vector2[coll.Count];
+                    var vec2S = new Vector2[coll.Count];
                     for (var j = 0; j < coll.Count; ++j)
                     {
-                        var x = (float)(coll[j].x) / (float)(Chunk.Size);
-                        var y = (float) (coll[j].y) / (float)(Chunk.Size);
+                        var x = coll[j].x / (float)(Chunk.Size);
+                        var y = coll[j].y / (float)(Chunk.Size);
                         x -= 0.5f;
                         y -= 0.5f;
-                        vec2s[j] = new Vector2(x, y);
+                        vec2S[j] = new Vector2(x, y);
                     }
 
                     //vec2s[coll.Count] = vec2s[0];
 
-                    polygonCollider2d.SetPath(i, vec2s);
+                    polygonCollider2d.SetPath(i, vec2S);
                 }
 
                 polygonCollider2d.enabled = true;
