@@ -174,6 +174,29 @@ namespace Chunks
             }
         }
 
+        private void OutlineChunkColliders()
+        {
+            foreach (var chunkClient in ClientChunkMap.Chunks())
+            {
+                var chunkClientCollider = chunkClient.Collider;
+                if (chunkClientCollider == null || chunkClientCollider.points.Length == 0)
+                    continue;
+
+                var points = chunkClientCollider.points;
+                for (var i = 0; i < points.Length; ++i)
+                {
+                    if (i == 0)
+                        continue;
+                    var p1 = points[i - 1];
+                    var p2 = points[i];
+                    Debug.DrawLine(
+                        new Vector2(chunkClient.Position.x + p1.x, chunkClient.Position.y + p1.y),
+                        new Vector2(chunkClient.Position.x + p2.x, chunkClient.Position.y + p2.y),
+                        Color.green);
+                }
+            }
+        }
+
         private void DrawDirtyRects()
         {
             foreach (var chunk in ServerChunkMap.Chunks())
@@ -242,6 +265,9 @@ namespace Chunks
 
             if (GlobalDebugConfig.StaticGlobalConfig.outlineChunks)
                 OutlineChunks();
+
+            if (GlobalDebugConfig.StaticGlobalConfig.outlineChunkColliders)
+                OutlineChunkColliders();
 
             if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyRects && GlobalDebugConfig.StaticGlobalConfig.drawDirtyRects)
                 DrawDirtyRects();
@@ -466,8 +492,8 @@ namespace Chunks
             foreach (var chunk in _playerChunkNeighborhood.GetChunks())
             {
                 if (chunk == null
-                    || (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks && !chunk.Dirty
-                    && (chunk.Collider.enabled)))
+                    || !GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks && !chunk.Dirty
+                    && chunk.Collider.enabled)
                     continue;
 
                 var task = new ClientCollisionTask(chunk);
@@ -504,6 +530,15 @@ namespace Chunks
                         x -= 0.5f;
                         y -= 0.5f;
                         vec2S[j] = new Vector2(x, y);
+                        if (GlobalDebugConfig.StaticGlobalConfig.outlineChunkColliders
+                        && j > 0)
+                        {
+                            Debug.DrawLine(
+                                new Vector2(task.Chunk.Position.x + vec2S[j - 1].x,
+                                    task.Chunk.Position.y + vec2S[j - 1].y),
+                                new Vector2(task.Chunk.Position.x + vec2S[j].x, task.Chunk.Position.y + vec2S[j].y),
+                                Color.red);
+                        }
                     }
 
                     chunkCollider.SetPath(i, vec2S);
