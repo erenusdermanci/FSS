@@ -15,30 +15,30 @@ namespace Player
         public float ZoomAmount;
         public float ZoomSpeed;
 
-        private float playerCurrentSpeed;
-        private Transform playerTransform;
-        private float horizontalMovement;
-        private float verticalMovement;
+        private float _playerCurrentSpeed;
+        private Transform _playerTransform;
+        private float _horizontalMovement;
+        private float _verticalMovement;
 
-        private Vector3 dragStart;
-        private Vector3 dragDiff;
-        private bool dragging;
+        private Vector3 _dragStart;
+        private Vector3 _dragDiff;
+        private bool _dragging;
 
-        private float targetZoom;
-        private bool zooming;
+        private float _targetZoom;
+        private bool _zooming;
 
         // Start is called before the first frame update
         private void Start()
         {
-            playerTransform = GetComponent<Transform>();
-            playerCurrentSpeed = PlayerSpeed;
+            _playerTransform = GetComponent<Transform>();
+            _playerCurrentSpeed = PlayerSpeed;
 
-            dragStart = Vector3.zero;
-            dragDiff = Vector3.zero;
-            dragging = false;
+            _dragStart = Vector3.zero;
+            _dragDiff = Vector3.zero;
+            _dragging = false;
 
-            zooming = false;
-            targetZoom = PlayerCamera.orthographicSize;
+            _zooming = false;
+            _targetZoom = PlayerCamera.orthographicSize;
         }
 
         // Update is called once per frame
@@ -47,7 +47,7 @@ namespace Player
             if (Input.GetMouseButtonDown(2))
             {
                 FloatingCamera = !FloatingCamera;
-                dragging = false;
+                _dragging = false;
             }
             HandleMovementInput();
         }
@@ -70,38 +70,38 @@ namespace Player
             {
                 if (Input.GetButton("Sprint"))
                 {
-                    playerCurrentSpeed = PlayerSpeed * 2;
+                    _playerCurrentSpeed = PlayerSpeed * 2;
                 }
                 else
                 {
-                    playerCurrentSpeed = PlayerSpeed;
+                    _playerCurrentSpeed = PlayerSpeed;
                 }
 
                 // Input management
-                horizontalMovement = Input.GetAxisRaw("Horizontal");
-                verticalMovement = Input.GetAxisRaw("Vertical");
+                _horizontalMovement = Input.GetAxisRaw("Horizontal");
+                _verticalMovement = Input.GetAxisRaw("Vertical");
             }
         }
 
         private void MovePlayer()
         {
-            if (horizontalMovement != 0)
+            if (_horizontalMovement != 0)
             {
-                playerTransform.transform.position = new Vector3(
-                    playerTransform.transform.position.x + horizontalMovement * playerCurrentSpeed * Time.deltaTime,
-                    playerTransform.transform.position.y,
-                    playerTransform.transform.position.z);
+                _playerTransform.transform.position = new Vector3(
+                    _playerTransform.transform.position.x + _horizontalMovement * _playerCurrentSpeed * Time.deltaTime,
+                    _playerTransform.transform.position.y,
+                    _playerTransform.transform.position.z);
             }
 
-            if (verticalMovement != 0)
+            if (_verticalMovement != 0)
             {
-                playerTransform.transform.position = new Vector3(
-                    playerTransform.transform.position.x,
-                    playerTransform.transform.position.y + verticalMovement * playerCurrentSpeed * Time.deltaTime,
-                    playerTransform.transform.position.z);
+                _playerTransform.transform.position = new Vector3(
+                    _playerTransform.transform.position.x,
+                    _playerTransform.transform.position.y + _verticalMovement * _playerCurrentSpeed * Time.deltaTime,
+                    _playerTransform.transform.position.z);
             }
 
-            Camera.main.transform.position = new Vector3(playerTransform.position.x, playerTransform.position.y, -10);
+            Camera.main.transform.position = new Vector3(_playerTransform.position.x, _playerTransform.position.y, -10);
         }
 
         private void HandleFloatingCamera()
@@ -110,26 +110,26 @@ namespace Player
             {
                 if (Input.GetMouseButtonDown(1))
                 {
-                    if (!dragging)
+                    if (!_dragging)
                     {
-                        dragging = true;
-                        dragStart = PlayerCamera.ScreenToWorldPoint(Input.mousePosition);
+                        _dragging = true;
+                        _dragStart = PlayerCamera.ScreenToWorldPoint(Input.mousePosition);
                     }
                 }
                 else if (Input.GetMouseButtonUp(1))
                 {
-                    if (dragging)
+                    if (_dragging)
                     {
-                        dragging = false;
-                        dragStart = Vector3.zero;
+                        _dragging = false;
+                        _dragStart = Vector3.zero;
                     }
                 }
                 else if (Input.GetMouseButton(1))
                 {
-                    if (dragging)
+                    if (_dragging)
                     {
-                        dragDiff = (PlayerCamera.ScreenToWorldPoint(Input.mousePosition)) - PlayerCamera.transform.position;
-                        PlayerCamera.transform.position = dragStart - dragDiff;
+                        _dragDiff = (PlayerCamera.ScreenToWorldPoint(Input.mousePosition)) - PlayerCamera.transform.position;
+                        PlayerCamera.transform.position = _dragStart - _dragDiff;
                     }
                 }
             }
@@ -141,25 +141,25 @@ namespace Player
             var scrollDelta = Input.mouseScrollDelta.y;
             if (scrollDelta != 0)
             {
-                zooming = true;
-                targetZoom += scrollDelta < 0 ? ZoomAmount : -ZoomAmount;
+                _zooming = true;
+                _targetZoom += scrollDelta < 0 ? ZoomAmount : -ZoomAmount;
 
-                if (targetZoom > MaxZoom)
-                    targetZoom = MaxZoom;
-                else if (targetZoom < MinZoom)
-                    targetZoom = MinZoom;
+                if (_targetZoom > MaxZoom)
+                    _targetZoom = MaxZoom;
+                else if (_targetZoom < MinZoom)
+                    _targetZoom = MinZoom;
             }
 
             // Handle zoom execution
-            if (zooming)
+            if (_zooming)
             {
-                if (!Helpers.EqualsEpsilon(PlayerCamera.orthographicSize, targetZoom, 0.005f))
+                if (!Helpers.EqualsEpsilon(PlayerCamera.orthographicSize, _targetZoom, 0.005f))
                 {
-                    PlayerCamera.orthographicSize = Mathf.Lerp(PlayerCamera.orthographicSize, targetZoom, Time.deltaTime * ZoomSpeed);
+                    PlayerCamera.orthographicSize = Mathf.Lerp(PlayerCamera.orthographicSize, _targetZoom, Time.deltaTime * ZoomSpeed);
                 }
                 else
                 {
-                    zooming = false;
+                    _zooming = false;
                 }
             }
         }
