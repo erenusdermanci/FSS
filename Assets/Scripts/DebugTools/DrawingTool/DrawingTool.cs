@@ -104,7 +104,7 @@ namespace DebugTools.DrawingTool
                 var clientChunk = _clientChunkMap[chunkPos];
                 if (clientChunk != null)
                 {
-                    chunkManager.QueueChunkCollisionGeneration(clientChunk);
+                    chunkManager.ClientCollisionManager.QueueChunkCollisionGeneration(clientChunk);
                     clientChunk.UpdateTexture();
                 }
             }
