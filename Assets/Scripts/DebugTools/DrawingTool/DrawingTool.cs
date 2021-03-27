@@ -89,16 +89,24 @@ namespace DebugTools.DrawingTool
             foreach (var chunkPos in _chunksToReload)
             {
                 var serverChunk = _serverChunkMap[chunkPos];
-                if (serverChunk == null)
-                    continue;
-                var chunkDirtyRects = serverChunk.DirtyRects;
-                for (var i = 0; i < chunkDirtyRects.Length; ++i)
+                if (serverChunk != null)
                 {
-                    chunkDirtyRects[i].Reset();
-                    chunkDirtyRects[i].Initialized = false;
+                    var chunkDirtyRects = serverChunk.DirtyRects;
+                    for (var i = 0; i < chunkDirtyRects.Length; ++i)
+                    {
+                        chunkDirtyRects[i].Reset();
+                        chunkDirtyRects[i].Initialized = false;
+                    }
+
+                    serverChunk.Dirty = true;
                 }
-                serverChunk.Dirty = true;
-                _clientChunkMap[chunkPos]?.UpdateTexture();
+
+                var clientChunk = _clientChunkMap[chunkPos];
+                if (clientChunk != null)
+                {
+                    chunkManager.QueueChunkCollisionGeneration(clientChunk);
+                    clientChunk.UpdateTexture();
+                }
             }
             _chunksToReload.Clear();
         }

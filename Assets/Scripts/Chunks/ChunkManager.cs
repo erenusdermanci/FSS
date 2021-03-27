@@ -179,16 +179,11 @@ namespace Chunks
             foreach (var chunkClient in ClientChunkMap.Chunks())
             {
                 var chunkClientCollider = chunkClient.Collider;
-                if (chunkClientCollider == null || chunkClientCollider.points.Length == 0)
-                    continue;
-
                 var points = chunkClientCollider.points;
                 for (var i = 0; i < points.Length; ++i)
                 {
-                    if (i == 0)
-                        continue;
-                    var p1 = points[i - 1];
-                    var p2 = points[i];
+                    var p1 = points[i];
+                    var p2 = points[(i + 1) % points.Length];
                     Debug.DrawLine(
                         new Vector2(chunkClient.Position.x + p1.x, chunkClient.Position.y + p1.y),
                         new Vector2(chunkClient.Position.x + p2.x, chunkClient.Position.y + p2.y),
@@ -338,7 +333,7 @@ namespace Chunks
             UpdateSimulationPool(chunk, true);
         }
 
-        public void CreateClientChunk(ChunkServer serverChunk)
+        private void CreateClientChunk(ChunkServer serverChunk)
         {
             var chunkGameObject = _chunkPool.GetObject();
             chunkGameObject.transform.position = new Vector3(serverChunk.Position.x, serverChunk.Position.y, 0);
@@ -487,8 +482,6 @@ namespace Chunks
                     ClientChunkMap[_playerFlooredPosition]);
             }
 
-            _clientCollisionTasks.Clear();
-
             foreach (var chunk in _playerChunkNeighborhood.GetChunks())
             {
                 if (chunk == null
@@ -510,10 +503,7 @@ namespace Chunks
                 if (!task.Scheduled())
                     continue;
                 task.Join();
-            }
 
-            foreach (var task in _clientCollisionTasks.Values)
-            {
                 var chunkCollider = task.Chunk.Collider;
 
                 chunkCollider.enabled = false;
@@ -530,13 +520,15 @@ namespace Chunks
                         x -= 0.5f;
                         y -= 0.5f;
                         vec2S[j] = new Vector2(x, y);
-                        if (GlobalDebugConfig.StaticGlobalConfig.outlineChunkColliders
-                        && j > 0)
+                        if (GlobalDebugConfig.StaticGlobalConfig.outlineChunkColliders)
                         {
+                            if (j == 0)
+                                continue;
+                            var p1 = vec2S[j - 1];
+                            var p2 = vec2S[j];
                             Debug.DrawLine(
-                                new Vector2(task.Chunk.Position.x + vec2S[j - 1].x,
-                                    task.Chunk.Position.y + vec2S[j - 1].y),
-                                new Vector2(task.Chunk.Position.x + vec2S[j].x, task.Chunk.Position.y + vec2S[j].y),
+                                new Vector2(task.Chunk.Position.x + p1.x, task.Chunk.Position.y + p1.y),
+                                new Vector2(task.Chunk.Position.x + p2.x, task.Chunk.Position.y + p2.y),
                                 Color.red);
                         }
                     }
@@ -546,6 +538,16 @@ namespace Chunks
 
                 chunkCollider.enabled = true;
             }
+
+            _clientCollisionTasks.Clear();
+        }
+
+        public void QueueChunkCollisionGeneration(ChunkClient chunkClient)
+        {
+            if (_clientCollisionTasks.ContainsKey(chunkClient.Position))
+                return;
+            var task = new ClientCollisionTask(chunkClient);
+            _clientCollisionTasks.TryAdd(chunkClient.Position, task);
         }
 
         private void OnDestroy()
