@@ -2,9 +2,9 @@ namespace Chunks
 {
     public class ChunkNeighborhood<T> where T : Chunk
     {
-        protected T[] _chunks;
+        protected T[] Chunks;
 
-        protected const int CentralChunkIndex = 4;
+        private const int CentralChunkIndex = 4;
 
         public ChunkNeighborhood(ChunkMap<T> chunkMap, T centralChunk)
         {
@@ -17,7 +17,7 @@ namespace Chunks
             // 4 0 5
             // 1 2 3
 
-            _chunks = new[]
+            Chunks = new[]
             {
                 ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, -1, -1),
                 ChunkHelpers.GetNeighborChunk(chunkMap, centralChunk, 0, -1),
@@ -33,12 +33,12 @@ namespace Chunks
 
         public T GetCentralChunk()
         {
-            return _chunks[CentralChunkIndex];
+            return Chunks[CentralChunkIndex];
         }
 
         public T[] GetChunks()
         {
-            return _chunks;
+            return Chunks;
         }
     }
 }
