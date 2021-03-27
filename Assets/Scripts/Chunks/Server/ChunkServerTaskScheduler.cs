@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Chunks.Tasks;
 using DebugTools;
+using DebugTools.ProfilingTool;
 using Utils;
 
 namespace Chunks.Server
@@ -35,9 +37,37 @@ namespace Chunks.Server
 
         public void Update()
         {
-            foreach (var chunkTaskManager in _chunkTaskManagers.Values)
+            foreach (var chunkTaskManager in _chunkTaskManagers)
             {
-                chunkTaskManager.Update();
+                UpdateProfilingCounters(chunkTaskManager.Key, chunkTaskManager.Value);
+                chunkTaskManager.Value.Update();
+            }
+        }
+
+        private void UpdateProfilingCounters(ChunkTaskTypes type, ChunkTaskManager<ChunkServer> taskManager)
+        {
+            switch (type)
+            {
+                case ChunkTaskTypes.Save:
+                {
+                    ProfilingTool.SetCounter(ProfilingCounterTypes.ProcessingSaveTasks, taskManager.Processing());
+                    ProfilingTool.SetCounter(ProfilingCounterTypes.QueuedSaveTasks, taskManager.Queued());
+                    break;
+                }
+                case ChunkTaskTypes.Load:
+                {
+                    ProfilingTool.SetCounter(ProfilingCounterTypes.ProcessingLoadTasks, taskManager.Processing());
+                    ProfilingTool.SetCounter(ProfilingCounterTypes.QueuedLoadTasks, taskManager.Queued());
+                    break;
+                }
+                case ChunkTaskTypes.Generate:
+                {
+                    ProfilingTool.SetCounter(ProfilingCounterTypes.ProcessingGenerationTasks, taskManager.Processing());
+                    ProfilingTool.SetCounter(ProfilingCounterTypes.QueuedGenerationTasks, taskManager.Queued());
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }
 

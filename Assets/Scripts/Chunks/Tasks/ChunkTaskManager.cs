@@ -11,8 +11,10 @@ namespace Chunks.Tasks
         private readonly Dictionary<Vector2i, ChunkTask<T>> _tasks = new Dictionary<Vector2i, ChunkTask<T>>();
         private readonly List<Vector2i> _queued = new List<Vector2i>();
         private readonly Dictionary<Vector2i, ChunkTask<T>> _processing = new Dictionary<Vector2i, ChunkTask<T>>();
-
         private readonly List<ChunkTask<T>> _processed = new List<ChunkTask<T>>();
+
+        public int Processing() => _processing.Count;
+        public int Queued() => _queued.Count;
 
         public event EventHandler Processed;
 
