@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Chunks.Tasks;
 using UnityEngine;
+using static Chunks.ChunkLayer;
 
 namespace Chunks.Server
 {
@@ -11,10 +12,10 @@ namespace Chunks.Server
         private readonly string _chunkSavePath;
         private readonly string _chunkSaveFullPath;
 
-        public SaveTask(ChunkServer chunk) : base(chunk)
+        public SaveTask(ChunkServer chunk, ChunkLayerType layerType) : base(chunk, layerType)
         {
             _chunkSavePath = ChunkHelpers.GetChunksSavePath();
-            _chunkSaveFullPath = ChunkHelpers.GetChunksSaveFullPath(Chunk.Position);
+            _chunkSaveFullPath = ChunkHelpers.GetChunksSaveFullPath(LayerType, Chunk.Position);
         }
 
         protected override void Execute()

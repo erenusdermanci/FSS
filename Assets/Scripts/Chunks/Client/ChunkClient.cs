@@ -6,7 +6,7 @@ namespace Chunks.Client
     {
         public Texture2D Texture;
         public GameObject GameObject;
-        public PolygonCollider2D Collider;
+        public PolygonCollider2D Collider = null;
         public byte[] Colors;
         public int[] Types;
 
@@ -20,7 +20,8 @@ namespace Chunks.Client
         {
             if (GameObject != null && GameObject.activeSelf && GameObject.activeInHierarchy)
             {
-                Collider.enabled = false;
+                if (Collider != null)
+                    Collider.enabled = false;
                 GameObject.SetActive(false);
             }
         }

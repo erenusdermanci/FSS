@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using static Chunks.ChunkLayer;
 
 namespace Chunks.Tasks
 {
@@ -8,6 +9,7 @@ namespace Chunks.Tasks
     {
         public bool Done;
 
+        protected readonly ChunkLayerType LayerType;
         public readonly T Chunk;
 
         private bool _synchronous;
@@ -16,8 +18,9 @@ namespace Chunks.Tasks
         private readonly CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
 
-        protected ChunkTask(T chunk)
+        protected ChunkTask(T chunk, ChunkLayerType layerType)
         {
+            LayerType = layerType;
             _cancellationTokenSource = new CancellationTokenSource();
             Chunk = chunk;
         }

@@ -2,6 +2,7 @@
 using Chunks.Collision;
 using Chunks.Tasks;
 using Utils;
+using static Chunks.ChunkLayer;
 
 namespace Chunks.Client
 {
@@ -9,7 +10,7 @@ namespace Chunks.Client
     {
         public List<List<Vector2i>> CollisionData;
 
-        public ClientCollisionTask(ChunkClient chunk) : base(chunk)
+        public ClientCollisionTask(ChunkClient chunk, ChunkLayerType layerType) : base(chunk, layerType)
         {
         }
 

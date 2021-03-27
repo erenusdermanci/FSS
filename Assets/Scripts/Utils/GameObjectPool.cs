@@ -9,9 +9,11 @@ namespace Utils
     {
         private readonly List<GameObject> _pooledObjects;
         private readonly GameObject _objectToPool;
+        private readonly ChunkLayer _chunkLayer;
 
-        public GameObjectPool(int amountToPool)
+        public GameObjectPool(ChunkLayer chunkLayer, int amountToPool)
         {
+            _chunkLayer = chunkLayer;
             _objectToPool = (GameObject) Resources.Load("ChunkObject1");
             _pooledObjects = new List<GameObject>();
             for (var i = 0; i < amountToPool; i++)
@@ -30,19 +32,21 @@ namespace Utils
 
         private GameObject CreateObject()
         {
-            var obj = Object.Instantiate(_objectToPool);
+            var obj = Object.Instantiate(_objectToPool, _chunkLayer.transform, true);
             obj.SetActive(false);
             var texture = new Texture2D(Chunk.Size, Chunk.Size, TextureFormat.RGBA32, false)
             {
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Point
             };
-            obj.GetComponent<SpriteRenderer>().sprite = Sprite.Create(
+            var spriteRenderer = obj.GetComponent<SpriteRenderer>();
+            spriteRenderer.sprite = Sprite.Create(
                 texture,
                 new Rect(new Vector2(0, 0), new Vector2(Chunk.Size, Chunk.Size)), new Vector2(0.5f, 0.5f),
                 Chunk.Size,
                 0,
                 SpriteMeshType.FullRect);
+            spriteRenderer.sortingLayerName = _chunkLayer.type.ToString();
             var collider = obj.AddComponent<PolygonCollider2D>();
             collider.enabled = false;
             _pooledObjects.Add(obj);

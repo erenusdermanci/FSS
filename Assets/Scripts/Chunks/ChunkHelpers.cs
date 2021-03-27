@@ -3,6 +3,7 @@ using DebugTools;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Utils;
+using static Chunks.ChunkLayer;
 
 namespace Chunks
 {
@@ -31,14 +32,14 @@ namespace Chunks
             return $"{GetSavePath()}\\{SceneManager.GetActiveScene().name}";
         }
 
-        public static string GetChunksSaveFullPath(Vector2i position)
+        public static string GetChunksSaveFullPath(ChunkLayerType layerType, Vector2i position)
         {
-            return $"{GetChunksSavePath()}\\{GetChunkSaveName(position)}";
+            return $"{GetChunksSavePath()}\\{layerType.ToString()}\\{GetChunkSaveName(position)}";
         }
 
-        public static bool IsChunkPersisted(Vector2i position)
+        public static bool IsChunkPersisted(ChunkLayerType chunkLayerType, Vector2i position)
         {
-            return File.Exists(GetChunksSaveFullPath(position));
+            return File.Exists(GetChunksSaveFullPath(chunkLayerType, position));
         }
 
         public static T GetNeighborChunk<T>(ChunkMap<T> chunkMap, T origin, int xOffset, int yOffset) where T : Chunk

@@ -13,17 +13,23 @@ namespace Chunks.Client
 
         private ChunkNeighborhood<ChunkClient> _playerChunkNeighborhood;
 
-        public void GenerateCollisions(ChunkMap<ChunkClient> clientChunkMap,
-            Vector2i playerFlooredPosition,
+        private readonly ChunkLayer _chunkLayer;
+
+        public ClientCollisionManager(ChunkLayer chunkLayer)
+        {
+            _chunkLayer = chunkLayer;
+        }
+
+        public void GenerateCollisions(Vector2i playerFlooredPosition,
             bool playerHasMoved)
         {
-            if (clientChunkMap[playerFlooredPosition] == null)
+            if (_chunkLayer.ClientChunkMap[playerFlooredPosition] == null)
                 return;
 
             if (_playerChunkNeighborhood == null || playerHasMoved)
             {
-                _playerChunkNeighborhood = new ChunkNeighborhood<ChunkClient>(clientChunkMap,
-                    clientChunkMap[playerFlooredPosition]);
+                _playerChunkNeighborhood = new ChunkNeighborhood<ChunkClient>(_chunkLayer.ClientChunkMap,
+                    _chunkLayer.ClientChunkMap[playerFlooredPosition]);
             }
 
             foreach (var chunk in _playerChunkNeighborhood.GetChunks())
@@ -33,7 +39,7 @@ namespace Chunks.Client
                     && chunk.Collider.enabled)
                     continue;
 
-                var task = new ClientCollisionTask(chunk);
+                var task = new ClientCollisionTask(chunk, _chunkLayer.type);
                 _clientCollisionTasks.TryAdd(chunk.Position, task);
             }
 
@@ -64,19 +70,6 @@ namespace Chunks.Client
                         x -= 0.5f;
                         y -= 0.5f;
                         vec2S[j] = new Vector2(x, y);
-
-                        if (GlobalDebugConfig.StaticGlobalConfig.outlineChunkColliders)
-                        {
-                            if (j == 0)
-                                continue;
-                            var p1 = vec2S[j - 1];
-                            var p2 = vec2S[j];
-                            Debug.DrawLine(
-                                new Vector2(task.Chunk.Position.x + p1.x, task.Chunk.Position.y + p1.y),
-                                new Vector2(task.Chunk.Position.x + p2.x, task.Chunk.Position.y + p2.y),
-                                Color.red);
-                        }
-
                     }
 
                     chunkCollider.SetPath(i, vec2S);
@@ -92,7 +85,7 @@ namespace Chunks.Client
         {
             if (_clientCollisionTasks.ContainsKey(chunkClient.Position))
                 return;
-            var task = new ClientCollisionTask(chunkClient);
+            var task = new ClientCollisionTask(chunkClient, _chunkLayer.type);
             _clientCollisionTasks.TryAdd(chunkClient.Position, task);
         }
     }

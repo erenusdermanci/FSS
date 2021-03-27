@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace DebugTools
 {
@@ -8,8 +7,6 @@ namespace DebugTools
     {
         public GlobalConfigStruct globalConfig;
         public static GlobalConfigStruct StaticGlobalConfig;
-
-        public static event EventHandler UpdateEvent;
 
         public static event EventHandler DisableDirtyRectsChanged;
 
@@ -28,8 +25,6 @@ namespace DebugTools
             {
                 DisableDirtyRectsChanged?.Invoke(this, null);
             }
-
-            UpdateEvent?.Invoke(this, null);
         }
 
         [Serializable]
@@ -39,11 +34,9 @@ namespace DebugTools
             public bool disableLoad;
             public bool enableProceduralGeneration;
             public bool monoThreadSimulate;
-            public int overrideGridSize;
             public bool pauseSimulation;
             public bool stepByStep;
             public bool outlineChunks;
-            public bool outlineChunkColliders;
             public bool hideCleanChunkOutlines;
             public bool drawDirtyRects;
             public bool disableDirtyChunks;
@@ -54,11 +47,9 @@ namespace DebugTools
             public GlobalConfigStruct(GlobalConfigStruct other)
             {
                 monoThreadSimulate = other.monoThreadSimulate;
-                overrideGridSize = other.overrideGridSize;
                 pauseSimulation = other.pauseSimulation;
                 stepByStep = other.stepByStep;
                 outlineChunks = other.outlineChunks;
-                outlineChunkColliders = other.outlineChunkColliders;
                 hideCleanChunkOutlines = other.hideCleanChunkOutlines;
                 drawDirtyRects = other.drawDirtyRects;
                 disableDirtyChunks = other.disableDirtyChunks;
@@ -72,12 +63,10 @@ namespace DebugTools
 
             public bool Equals(GlobalConfigStruct other)
             {
-                if (overrideGridSize != other.overrideGridSize
-                    || monoThreadSimulate != other.monoThreadSimulate
+                if (monoThreadSimulate != other.monoThreadSimulate
                     || pauseSimulation != other.pauseSimulation
                     || stepByStep != other.stepByStep
                     || outlineChunks != other.outlineChunks
-                    || outlineChunkColliders != other.outlineChunkColliders
                     || hideCleanChunkOutlines != other.hideCleanChunkOutlines
                     || drawDirtyRects != other.drawDirtyRects
                     || disableDirtyChunks != other.disableDirtyChunks

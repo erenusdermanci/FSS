@@ -4,28 +4,31 @@ using Chunks.Tasks;
 using DebugTools;
 using DebugTools.ProfilingTool;
 using Utils;
+using static Chunks.ChunkLayer;
 
 namespace Chunks.Server
 {
     public sealed class ChunkServerTaskScheduler
     {
+        private readonly ChunkLayerType _chunkLayerType;
         private readonly Dictionary<ChunkTaskTypes, ChunkTaskManager<ChunkServer>> _chunkTaskManagers;
 
-        public ChunkServerTaskScheduler()
+        public ChunkServerTaskScheduler(ChunkLayerType chunkLayerType)
         {
+            _chunkLayerType = chunkLayerType;
             _chunkTaskManagers = new Dictionary<ChunkTaskTypes, ChunkTaskManager<ChunkServer>>
             {
                 {
                     ChunkTaskTypes.Save,
-                    new ChunkTaskManager<ChunkServer>(16, chunk => new SaveTask(chunk))
+                    new ChunkTaskManager<ChunkServer>(16, chunk => new SaveTask(chunk, chunkLayerType))
                 },
                 {
                     ChunkTaskTypes.Load,
-                    new ChunkTaskManager<ChunkServer>(16, chunk => new LoadTask(chunk))
+                    new ChunkTaskManager<ChunkServer>(16, chunk => new LoadTask(chunk, chunkLayerType))
                 },
                 {
                     ChunkTaskTypes.Generate,
-                    new ChunkTaskManager<ChunkServer>(16, chunk => new GenerationTask(chunk))
+                    new ChunkTaskManager<ChunkServer>(16, chunk => new GenerationTask(chunk, chunkLayerType))
                 }
             };
         }
@@ -85,7 +88,7 @@ namespace Chunks.Server
 
             if (!GlobalDebugConfig.StaticGlobalConfig.disableLoad
                 && loadFromDisk
-                && ChunkHelpers.IsChunkPersisted(pos))
+                && ChunkHelpers.IsChunkPersisted(_chunkLayerType, pos))
             {
                 _chunkTaskManagers[ChunkTaskTypes.Load].Enqueue(pos);
             }

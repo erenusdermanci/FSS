@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Blocks;
 using Chunks.Tasks;
 using DebugTools;
 using ProceduralGeneration;
+using static Chunks.ChunkLayer;
 
 namespace Chunks.Server
 {
@@ -10,7 +12,7 @@ namespace Chunks.Server
     {
         private Dictionary<int, ConfiguredNoisesForLayer> _noisesPerLayer;
 
-        public GenerationTask(ChunkServer chunk) : base(chunk)
+        public GenerationTask(ChunkServer chunk, ChunkLayerType layerType) : base(chunk, layerType)
         {
         }
 
@@ -75,7 +77,7 @@ namespace Chunks.Server
 
                 for (var y = 0; y < Chunks.Chunk.Size; y++)
                 {
-                    var separator = (int)(Chunk.Position.y * Chunks.Chunk.Size) + y; // what layer does this Y belong to for this X?
+                    var separator = Chunk.Position.y * Chunks.Chunk.Size + y; // what layer does this Y belong to for this X?
                     var layerIdx = GetLayerForY(verticalIdxPerLayer, separator);
 
                     // Generate y within layer
@@ -112,9 +114,9 @@ namespace Chunks.Server
 
             var idx = y * Chunks.Chunk.Size + x;
 
-            Chunk.Data.colors[idx * 4] = r;
-            Chunk.Data.colors[idx * 4 + 1] = g;
-            Chunk.Data.colors[idx * 4 + 2] = b;
+            Chunk.Data.colors[idx * 4] = (byte) (r / ((int)LayerType + 1.0f));
+            Chunk.Data.colors[idx * 4 + 1] = (byte) (g / ((int)LayerType + 1.0f));
+            Chunk.Data.colors[idx * 4 + 2] = (byte) (b / ((int)LayerType + 1.0f));
             Chunk.Data.colors[idx * 4 + 3] = blockColor.a;
             Chunk.Data.types[idx] = block;
             Chunk.Data.stateBitsets[idx] = 0;
@@ -122,14 +124,28 @@ namespace Chunks.Server
             Chunk.Data.lifetimes[idx] = 0;
         }
 
-        private static int GetBlockFromNoise(Layer layer, float noise)
+        private int GetBlockFromNoise(Layer layer, float noise)
         {
             var thresholds = layer.thresholds;
 
             for (var i = 0; i < thresholds.Count; ++i)
             {
-                if (noise <= thresholds[i].threshold)
-                    return thresholds[i].type;
+                if (!(noise <= thresholds[i].threshold))
+                    continue;
+                var block = thresholds[i].type;
+                var descriptor = BlockConstants.BlockDescriptors[block];
+                switch (LayerType)
+                {
+                    case ChunkLayerType.Foreground:
+                        break;
+                    case ChunkLayerType.Background:
+                    {
+                        if (descriptor.Tag != BlockTags.Solid)
+                            block = BlockConstants.Air;
+                        break;
+                    }
+                }
+                return block;
             }
 
             return BlockConstants.Border;
@@ -139,7 +155,7 @@ namespace Chunks.Server
         {
             if (y > vertIdxPerLayer[0])
                 return 0;
-            else if (y < vertIdxPerLayer[vertIdxPerLayer.Length - 1])
+            if (y < vertIdxPerLayer[vertIdxPerLayer.Length - 1])
                 return vertIdxPerLayer.Length - 1;
 
             var layer = 0;

@@ -4,12 +4,13 @@ using Blocks;
 using Chunks.Tasks;
 using DebugTools;
 using Utils;
+using static Chunks.ChunkLayer;
 
 namespace Chunks.Server
 {
     public class SimulationTask : ChunkTask<ChunkServer>
     {
-        internal ChunkServerNeighborhood Chunks;
+        internal ChunkServerNeighborhood ChunkNeighborhood;
 
         private Random _rng;
 
@@ -22,7 +23,7 @@ namespace Chunks.Server
             ResetKnuthShuffle();
         }
 
-        public SimulationTask(ChunkServer chunk) : base(chunk)
+        public SimulationTask(ChunkServer chunk, ChunkLayerType layerType) : base(chunk, layerType)
         {
         }
 
@@ -36,7 +37,7 @@ namespace Chunks.Server
 
         private static void InitializeNoDirtyRectShuffle()
         {
-            _noDirtyRectShuffle = new KnuthShuffle(new Random().Next(), global::Chunks.Chunk.Size * global::Chunks.Chunk.Size);
+            _noDirtyRectShuffle = new KnuthShuffle(new Random().Next(), Chunks.Chunk.Size * Chunks.Chunk.Size);
         }
 
         private static void InitializeDirtyRectShuffles()
@@ -97,11 +98,11 @@ namespace Chunks.Server
 
             if (GlobalDebugConfig.StaticGlobalConfig.disableDirtyRects)
             {
-                const int totalSize = global::Chunks.Chunk.Size * global::Chunks.Chunk.Size;
+                const int totalSize = Chunks.Chunk.Size * Chunks.Chunk.Size;
                 for (var i = 0; i < totalSize; ++i)
                 {
-                    var x = _noDirtyRectShuffle[i] / global::Chunks.Chunk.Size;
-                    var y = _noDirtyRectShuffle[i] % global::Chunks.Chunk.Size;
+                    var x = _noDirtyRectShuffle[i] / Chunks.Chunk.Size;
+                    var y = _noDirtyRectShuffle[i] % Chunks.Chunk.Size;
 
                     dirtied |= SimulateBlock(x, y, ref blockInfo, distances, bitCount, directionX, directionY);
                 }
@@ -116,8 +117,8 @@ namespace Chunks.Server
                     {
                         startX = ChunkServer.DirtyRectX[i];
                         startY = ChunkServer.DirtyRectY[i];
-                        endX = ChunkServer.DirtyRectX[i] + global::Chunks.Chunk.Size / 2 - 1;
-                        endY = ChunkServer.DirtyRectY[i] + global::Chunks.Chunk.Size / 2 - 1;
+                        endX = ChunkServer.DirtyRectX[i] + Chunks.Chunk.Size / 2 - 1;
+                        endY = ChunkServer.DirtyRectY[i] + Chunks.Chunk.Size / 2 - 1;
                         Chunk.DirtyRects[i].Initialized = true;
                     }
                     // rect was initialized and reset but is empty
@@ -151,13 +152,13 @@ namespace Chunks.Server
         private unsafe bool SimulateBlock(int x, int y, ref Block block,
             int* distances, int* bitCount, int* directionX, int* directionY)
         {
-            if (Chunk.BlockUpdatedFlags[y * global::Chunks.Chunk.Size + x] == ChunkManager.UpdatedFlag)
+            if (Chunk.BlockUpdatedFlags[y * Chunks.Chunk.Size + x] == ChunkManager.UpdatedFlag)
             {
                 Chunk.UpdateBlockDirty(x, y);
                 return true;
             }
 
-            Chunks.GetBlockInfo(x, y, ref block);
+            ChunkNeighborhood.GetBlockInfo(x, y, ref block);
 
             var blockLogic = BlockConstants.BlockDescriptors[block.Type];
 
@@ -165,20 +166,20 @@ namespace Chunks.Server
             var dirtied = false;
             if (blockLogic.Consumer != null)
             {
-                dirtied |= blockLogic.Consumer.Execute(_rng, Chunks, x, y, directionX, directionY, ref destroyed);
+                dirtied |= blockLogic.Consumer.Execute(_rng, ChunkNeighborhood, x, y, directionX, directionY, ref destroyed);
             }
             if (!destroyed && blockLogic.FireSpreader != null)
             {
-                dirtied |= blockLogic.FireSpreader.Execute(_rng, Chunks, block, x, y, directionX, directionY,
+                dirtied |= blockLogic.FireSpreader.Execute(_rng, ChunkNeighborhood, block, x, y, directionX, directionY,
                     ref destroyed);
             }
             if (!destroyed && blockLogic.Despawner != null)
             {
-                dirtied |= blockLogic.Despawner.Execute(_rng, Chunks, block, x, y, ref destroyed);
+                dirtied |= blockLogic.Despawner.Execute(_rng, ChunkNeighborhood, block, x, y, ref destroyed);
             }
             if (!destroyed && blockLogic.Swapper != null)
             {
-                dirtied |= blockLogic.Swapper.Execute(_rng, Chunks, block.Type, x, y, directionX, directionY,
+                dirtied |= blockLogic.Swapper.Execute(_rng, ChunkNeighborhood, block.Type, x, y, directionX, directionY,
                     distances, bitCount);
             }
 

@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using Blocks;
 using Chunks;
-using Chunks.Client;
 using Chunks.Server;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utils;
+using static Chunks.ChunkLayer;
 using Color = Utils.Color;
 
 namespace DebugTools.DrawingTool
@@ -15,7 +14,7 @@ namespace DebugTools.DrawingTool
     public class DrawingTool : MonoBehaviour
     {
         public bool disabled;
-        public ChunkManager chunkManager;
+        public ChunkLayer[] chunkLayers;
 
         [HideInInspector]
         public int selectedDrawBlock;
@@ -48,15 +47,7 @@ namespace DebugTools.DrawingTool
 
         private readonly HashSet<Vector2i> _chunksToReload = new HashSet<Vector2i>();
 
-        private ChunkMap<ChunkServer> _serverChunkMap;
-        private ChunkMap<ChunkClient> _clientChunkMap;
-
-        // Start is called before the first frame update
-        private void Awake()
-        {
-            _serverChunkMap = chunkManager.ServerChunkMap;
-            _clientChunkMap = chunkManager.ClientChunkMap;
-        }
+        private ChunkLayerType _currentLayer = ChunkLayerType.Foreground;
 
         // Update is called once per frame
         private void Update()
@@ -65,6 +56,11 @@ namespace DebugTools.DrawingTool
                 return;
 
             var blockPosition = GetWorldPositionFromMousePosition();
+
+            if (Input.GetKey(KeyCode.LeftControl))
+                _currentLayer = ChunkLayerType.Background;
+            else
+                _currentLayer = ChunkLayerType.Foreground;
 
             if (drawBrushSelection)
             {
@@ -88,7 +84,7 @@ namespace DebugTools.DrawingTool
 
             foreach (var chunkPos in _chunksToReload)
             {
-                var serverChunk = _serverChunkMap[chunkPos];
+                var serverChunk = chunkLayers[(int)_currentLayer].ServerChunkMap[chunkPos];
                 if (serverChunk != null)
                 {
                     var chunkDirtyRects = serverChunk.DirtyRects;
@@ -101,10 +97,10 @@ namespace DebugTools.DrawingTool
                     serverChunk.Dirty = true;
                 }
 
-                var clientChunk = _clientChunkMap[chunkPos];
+                var clientChunk = chunkLayers[(int)_currentLayer].ClientChunkMap[chunkPos];
                 if (clientChunk != null)
                 {
-                    chunkManager.ClientCollisionManager.QueueChunkCollisionGeneration(clientChunk);
+                    chunkLayers[(int)_currentLayer].ClientCollisionManager?.QueueChunkCollisionGeneration(clientChunk);
                     clientChunk.UpdateTexture();
                 }
             }
@@ -429,9 +425,9 @@ namespace DebugTools.DrawingTool
 
             var blockColor = GetBlockColor();
 
-            var r = blockColor.r;
-            var g = blockColor.g;
-            var b = blockColor.b;
+            var r = (byte)(blockColor.r / ((int) _currentLayer + 1.0f));
+            var g = (byte)(blockColor.g / ((int)_currentLayer + 1.0f));
+            var b = (byte)(blockColor.b / ((int)_currentLayer + 1.0f));
             if (selectedState == 1)
             {
                 var fireSpread = BlockConstants.BlockDescriptors[selectedDrawBlock].FireSpreader;
@@ -452,9 +448,9 @@ namespace DebugTools.DrawingTool
             if (colorizeOnly)
             {
                 var i = blockYInChunk * Chunk.Size + blockXInChunk;
-                chunk.Data.colors[i * 4] = pixelColorOverride.r;
-                chunk.Data.colors[i * 4 + 1] = pixelColorOverride.g;
-                chunk.Data.colors[i * 4 + 2] = pixelColorOverride.b;
+                chunk.Data.colors[i * 4] = (byte)(pixelColorOverride.r / ((int) _currentLayer + 1.0f));
+                chunk.Data.colors[i * 4 + 1] = (byte)(pixelColorOverride.g / ((int) _currentLayer + 1.0f));
+                chunk.Data.colors[i * 4 + 2] = (byte)(pixelColorOverride.b / ((int) _currentLayer + 1.0f));
                 chunk.Data.colors[i * 4 + 3] = pixelColorOverride.a;
             }
             else
@@ -482,8 +478,11 @@ namespace DebugTools.DrawingTool
 
         private ChunkServer GetChunkFromWorld(float worldX, float worldY)
         {
-            var chunkPosition = new Vector2i((int) Mathf.Floor(worldX / Chunk.Size), (int) Mathf.Floor(worldY / Chunk.Size));
-            return !_serverChunkMap.Contains(chunkPosition) ? null : _serverChunkMap[chunkPosition];
+            var chunkPosition = new Vector2i((int) Mathf.Floor(worldX / Chunk.Size),
+                (int) Mathf.Floor(worldY / Chunk.Size));
+            return chunkLayers[(int) _currentLayer].ServerChunkMap.Contains(chunkPosition)
+                ? chunkLayers[(int) _currentLayer].ServerChunkMap[chunkPosition]
+                : null;
         }
 
         private Color GetBlockColor()
