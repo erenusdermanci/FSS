@@ -283,7 +283,7 @@ namespace Chunks
         private bool PlayerHasMoved()
         {
             var position = playerTransform.position;
-            _playerFlooredPosition = new Vector2i((int) Mathf.Floor(position.x), (int) Mathf.Floor(position.y));
+            _playerFlooredPosition = new Vector2i((int) Mathf.Floor(position.x + 0.5f), (int) Mathf.Floor(position.y + 0.5f));
             if (_oldPlayerFlooredPosition == _playerFlooredPosition)
                 return false;
             _oldPlayerFlooredPosition = _playerFlooredPosition;
