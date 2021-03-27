@@ -596,7 +596,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8458a218728b46ebb131c4dfd4254e18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Canvas: {fileID: 2048673872}
+  canvas: {fileID: 2048673872}
 --- !u!1 &982608166
 GameObject:
   m_ObjectHideFlags: 0
@@ -610,6 +610,7 @@ GameObject:
   - component: {fileID: 982608169}
   - component: {fileID: 982608171}
   - component: {fileID: 982608170}
+  - component: {fileID: 982608172}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -737,6 +738,25 @@ CapsuleCollider2D:
   m_Offset: {x: -0.02, y: -0.07}
   m_Size: {x: 0.15, y: 0.37}
   m_Direction: 0
+--- !u!95 &982608172
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 982608166}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 0dc62fa1aec739849956e97f0b9f89f4, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1127925848
 GameObject:
   m_ObjectHideFlags: 0

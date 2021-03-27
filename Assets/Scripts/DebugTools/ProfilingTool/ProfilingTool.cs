@@ -10,9 +10,9 @@ namespace DebugTools.ProfilingTool
 
         public static readonly int[] Counters = new int[NumberOfCounters];
 
-        public GameObject Canvas;
+        public GameObject canvas;
 
-        private readonly Text[] CounterTextBoxes = new Text[NumberOfCounters];
+        private readonly Text[] _counterTextBoxes = new Text[NumberOfCounters];
 
         public static void SetCounter(ProfilingCounterTypes counterType, int value)
         {
@@ -26,9 +26,9 @@ namespace DebugTools.ProfilingTool
             var i = 0;
             foreach (var counter in Counters)
             {
-                var text = Instantiate(textBoxObject, Canvas.transform).GetComponent<Text>();
+                var text = Instantiate(textBoxObject, canvas.transform).GetComponent<Text>();
                 text.text = $"{((ProfilingCounterTypes) i).ToString()}: {counter}";
-                CounterTextBoxes[i] = text;
+                _counterTextBoxes[i] = text;
                 i++;
             }
         }
@@ -39,7 +39,7 @@ namespace DebugTools.ProfilingTool
             var height = -5.0f;
             foreach (var counter in Counters)
             {
-                var text = CounterTextBoxes[(int) profilingCounterType];
+                var text = _counterTextBoxes[(int) profilingCounterType];
                 text.text = $"{profilingCounterType.ToString()}: {counter}";
                 var textTransform = (RectTransform) text.transform;
                 height -= textTransform.rect.height;
