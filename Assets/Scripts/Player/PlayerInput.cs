@@ -15,10 +15,12 @@ namespace Player
         public float ZoomAmount;
         public float ZoomSpeed;
 
+        public Animator animator;
+
         private float _playerCurrentSpeed;
+        private SpriteRenderer _playerSprite;
         private Transform _playerTransform;
-        private float _horizontalMovement;
-        private float _verticalMovement;
+        private Vector3 _movement;
 
         private Vector3 _dragStart;
         private Vector3 _dragDiff;
@@ -26,10 +28,13 @@ namespace Player
 
         private float _targetZoom;
         private bool _zooming;
+        private static readonly int Move = Animator.StringToHash("Move");
+        private static readonly int Run = Animator.StringToHash("Run");
 
         // Start is called before the first frame update
         private void Start()
         {
+            _playerSprite = GetComponent<SpriteRenderer>();
             _playerTransform = GetComponent<Transform>();
             _playerCurrentSpeed = PlayerSpeed;
 
@@ -68,38 +73,24 @@ namespace Player
         {
             if (!FloatingCamera)
             {
-                if (Input.GetButton("Sprint"))
-                {
-                    _playerCurrentSpeed = PlayerSpeed * 2;
-                }
-                else
-                {
-                    _playerCurrentSpeed = PlayerSpeed;
-                }
+                var sprint = Input.GetButton("Sprint");
+                var horizontal = Input.GetAxisRaw("Horizontal");
+                animator.SetBool(Move, horizontal != 0.0f);
+                animator.SetBool(Run, sprint);
+                _playerCurrentSpeed = sprint ? PlayerSpeed * 2 : PlayerSpeed;
+                _movement = new Vector3(horizontal,  0.0f, 0.0f);
 
-                // Input management
-                _horizontalMovement = Input.GetAxisRaw("Horizontal");
-                _verticalMovement = Input.GetAxisRaw("Vertical");
+                if (horizontal != 0.0f)
+                {
+                    _playerSprite.flipX = horizontal < 0.0f;
+                }
             }
         }
 
         private void MovePlayer()
         {
-            if (_horizontalMovement != 0)
-            {
-                _playerTransform.transform.position = new Vector3(
-                    _playerTransform.transform.position.x + _horizontalMovement * _playerCurrentSpeed * Time.deltaTime,
-                    _playerTransform.transform.position.y,
-                    _playerTransform.transform.position.z);
-            }
-
-            if (_verticalMovement != 0)
-            {
-                _playerTransform.transform.position = new Vector3(
-                    _playerTransform.transform.position.x,
-                    _playerTransform.transform.position.y + _verticalMovement * _playerCurrentSpeed * Time.deltaTime,
-                    _playerTransform.transform.position.z);
-            }
+            var playerTransform = _playerTransform.transform;
+            playerTransform.position += _movement * (_playerCurrentSpeed * Time.deltaTime);
 
             Camera.main.transform.position = new Vector3(_playerTransform.position.x, _playerTransform.position.y, -10);
         }
