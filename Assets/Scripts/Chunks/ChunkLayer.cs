@@ -178,7 +178,7 @@ namespace Chunks
 
         private void FixedUpdate()
         {
-            if (chunkManager.playerHasMoved)
+            if (chunkManager.PlayerHasMoved)
             {
                 Generate(chunkManager.PlayerFlooredPosition, true);
                 Clean(chunkManager.PlayerFlooredPosition);
@@ -201,7 +201,7 @@ namespace Chunks
                 DrawDirtyRects();
 
             if (!GlobalDebugConfig.StaticGlobalConfig.disableCollisions)
-                ClientCollisionManager?.GenerateCollisions(chunkManager.PlayerFlooredPosition, chunkManager.playerHasMoved);
+                ClientCollisionManager?.GenerateCollisions(chunkManager.PlayerFlooredPosition, chunkManager.PlayerHasMoved);
         }
 
         private void Clean(Vector2i aroundPosition)

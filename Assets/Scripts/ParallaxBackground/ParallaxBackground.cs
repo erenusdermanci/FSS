@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace ParallaxBackground
 {
@@ -23,6 +22,7 @@ namespace ParallaxBackground
             textureUnitSizesX = new float[backgrounds.Length];
             textureUnitSizesY = new float[backgrounds.Length];
 
+            // ReSharper disable once PossibleNullReferenceException
             cameraTransform = Camera.main.transform;
             lastCameraPosition = cameraTransform.position;
 

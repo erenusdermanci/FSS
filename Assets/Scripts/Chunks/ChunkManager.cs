@@ -13,11 +13,11 @@ namespace Chunks
 
         public int cleanAreaSizeOffset = 2;
         public Transform playerTransform;
-        public bool playerHasMoved;
 
         public static Vector2 PlayerPosition;
 
         public Vector2i PlayerFlooredPosition;
+        [NonSerialized] public bool PlayerHasMoved;
         private Vector2i? _oldPlayerFlooredPosition;
 
         public static int UpdatedFlag;
@@ -48,9 +48,9 @@ namespace Chunks
         {
             UpdatedFlag++;
 
-            playerHasMoved = PlayerHasMoved();
+            PlayerHasMoved = UpdatePlayerHasMoved();
 
-            if (playerHasMoved)
+            if (PlayerHasMoved)
             {
                 PlayerPosition = playerTransform.position;
             }
@@ -61,7 +61,7 @@ namespace Chunks
             SimulationTask.ResetKnuthShuffle();
         }
 
-        private bool PlayerHasMoved()
+        private bool UpdatePlayerHasMoved()
         {
             var position = playerTransform.position;
             PlayerFlooredPosition = new Vector2i((int) Mathf.Floor(position.x + 0.5f), (int) Mathf.Floor(position.y + 0.5f));
