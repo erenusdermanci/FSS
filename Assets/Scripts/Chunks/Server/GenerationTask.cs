@@ -140,7 +140,7 @@ namespace Chunks.Server
                     case ChunkLayerType.Background:
                     {
                         if (descriptor.Tag != BlockTags.Solid)
-                            block = BlockConstants.Stone;
+                            block = BlockConstants.Air;
                         break;
                     }
                 }
