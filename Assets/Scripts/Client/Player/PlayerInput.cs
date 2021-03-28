@@ -1,20 +1,21 @@
 using DebugTools;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Utils;
 
-namespace Player
+namespace Client.Player
 {
     public class PlayerInput : MonoBehaviour
     {
-        public float PlayerSpeed;
+        [FormerlySerializedAs("PlayerSpeed")] public float playerSpeed;
 
-        public Camera PlayerCamera;
-        public bool FloatingCamera;
+        [FormerlySerializedAs("PlayerCamera")] public Camera playerCamera;
+        [FormerlySerializedAs("FloatingCamera")] public bool floatingCamera;
 
-        public float MinZoom;
-        public float MaxZoom;
-        public float ZoomAmount;
-        public float ZoomSpeed;
+        [FormerlySerializedAs("MinZoom")] public float minZoom;
+        [FormerlySerializedAs("MaxZoom")] public float maxZoom;
+        [FormerlySerializedAs("ZoomAmount")] public float zoomAmount;
+        [FormerlySerializedAs("ZoomSpeed")] public float zoomSpeed;
 
         public Animator animator;
 
@@ -37,23 +38,23 @@ namespace Player
         {
             _playerSprite = GetComponent<SpriteRenderer>();
             _playerTransform = GetComponent<Transform>();
-            _playerCurrentSpeed = PlayerSpeed;
+            _playerCurrentSpeed = playerSpeed;
 
             _dragStart = Vector3.zero;
             _dragDiff = Vector3.zero;
             _dragging = false;
 
             _zooming = false;
-            _targetZoom = PlayerCamera.orthographicSize;
+            _targetZoom = playerCamera.orthographicSize;
         }
 
         // Update is called once per frame
         private void Update()
         {
-            GlobalDebugConfig.StaticGlobalConfig.disableDrawingTool = !FloatingCamera;
+            GlobalDebugConfig.StaticGlobalConfig.disableDrawingTool = !floatingCamera;
             if (Input.GetMouseButtonDown(2))
             {
-                FloatingCamera = !FloatingCamera;
+                floatingCamera = !floatingCamera;
                 _dragging = false;
             }
             HandleMovementInput();
@@ -61,7 +62,7 @@ namespace Player
 
         private void FixedUpdate()
         {
-            if (!FloatingCamera)
+            if (!floatingCamera)
                 MovePlayer();
         }
 
@@ -73,13 +74,13 @@ namespace Player
 
         private void HandleMovementInput()
         {
-            if (!FloatingCamera)
+            if (!floatingCamera)
             {
                 var sprint = Input.GetButton("Sprint");
                 var horizontal = Input.GetAxisRaw("Horizontal");
                 animator.SetBool(Move, horizontal != 0.0f);
                 animator.SetBool(Run, sprint);
-                _playerCurrentSpeed = sprint ? PlayerSpeed * 2 : PlayerSpeed;
+                _playerCurrentSpeed = sprint ? playerSpeed * 2 : playerSpeed;
                 _movement = new Vector3(horizontal,  0.0f, 0.0f);
 
                 if (horizontal != 0.0f)
@@ -99,14 +100,14 @@ namespace Player
 
         private void HandleFloatingCamera()
         {
-            if (FloatingCamera)
+            if (floatingCamera)
             {
                 if (Input.GetMouseButtonDown(1))
                 {
                     if (!_dragging)
                     {
                         _dragging = true;
-                        _dragStart = PlayerCamera.ScreenToWorldPoint(Input.mousePosition);
+                        _dragStart = playerCamera.ScreenToWorldPoint(Input.mousePosition);
                     }
                 }
                 else if (Input.GetMouseButtonUp(1))
@@ -121,8 +122,8 @@ namespace Player
                 {
                     if (_dragging)
                     {
-                        _dragDiff = (PlayerCamera.ScreenToWorldPoint(Input.mousePosition)) - PlayerCamera.transform.position;
-                        PlayerCamera.transform.position = _dragStart - _dragDiff;
+                        _dragDiff = (playerCamera.ScreenToWorldPoint(Input.mousePosition)) - playerCamera.transform.position;
+                        playerCamera.transform.position = _dragStart - _dragDiff;
                     }
                 }
             }
@@ -135,20 +136,20 @@ namespace Player
             if (scrollDelta != 0)
             {
                 _zooming = true;
-                _targetZoom += scrollDelta < 0 ? ZoomAmount : -ZoomAmount;
+                _targetZoom += scrollDelta < 0 ? zoomAmount : -zoomAmount;
 
-                if (_targetZoom > MaxZoom)
-                    _targetZoom = MaxZoom;
-                else if (_targetZoom < MinZoom)
-                    _targetZoom = MinZoom;
+                if (_targetZoom > maxZoom)
+                    _targetZoom = maxZoom;
+                else if (_targetZoom < minZoom)
+                    _targetZoom = minZoom;
             }
 
             // Handle zoom execution
             if (_zooming)
             {
-                if (!Helpers.EqualsEpsilon(PlayerCamera.orthographicSize, _targetZoom, 0.005f))
+                if (!Helpers.EqualsEpsilon(playerCamera.orthographicSize, _targetZoom, 0.005f))
                 {
-                    PlayerCamera.orthographicSize = Mathf.Lerp(PlayerCamera.orthographicSize, _targetZoom, Time.deltaTime * ZoomSpeed);
+                    playerCamera.orthographicSize = Mathf.Lerp(playerCamera.orthographicSize, _targetZoom, Time.deltaTime * zoomSpeed);
                 }
                 else
                 {
