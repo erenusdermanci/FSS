@@ -1,3 +1,4 @@
+using DebugTools;
 using UnityEngine;
 using Utils;
 
@@ -49,6 +50,7 @@ namespace Player
         // Update is called once per frame
         private void Update()
         {
+            GlobalDebugConfig.StaticGlobalConfig.disableDrawingTool = !FloatingCamera;
             if (Input.GetMouseButtonDown(2))
             {
                 FloatingCamera = !FloatingCamera;
