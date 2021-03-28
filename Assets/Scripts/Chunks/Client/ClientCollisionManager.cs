@@ -11,6 +11,7 @@ namespace Chunks.Client
             = new ConcurrentDictionary<Vector2i, ClientCollisionTask>();
 
         private ChunkNeighborhood<ChunkClient> _playerChunkNeighborhood;
+        private bool[] _playerChunkNeighborhoodCleanFlags;
 
         private readonly ChunkLayer _chunkLayer;
 
@@ -29,14 +30,22 @@ namespace Chunks.Client
             {
                 _playerChunkNeighborhood = new ChunkNeighborhood<ChunkClient>(_chunkLayer.ClientChunkMap,
                     _chunkLayer.ClientChunkMap[playerFlooredPosition]);
+                _playerChunkNeighborhoodCleanFlags = new bool[9];
             }
 
-            foreach (var chunk in _playerChunkNeighborhood.GetChunks())
+            var chunks = _playerChunkNeighborhood.GetChunks();
+            for (var chunkIdx = 0; chunkIdx < chunks.Length; ++chunkIdx)
             {
+                var chunk = chunks[chunkIdx];
+
                 if (chunk == null
-                    || !GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks && !chunk.Dirty
-                    && chunk.Collider.enabled)
+                    || (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks
+                        && !chunk.Dirty
+                        && _playerChunkNeighborhoodCleanFlags[chunkIdx])
+                    && chunk.Collider.enabled) // what is the use of this?)
                     continue;
+
+                _playerChunkNeighborhoodCleanFlags[chunkIdx] = true;
 
                 var task = new ClientCollisionTask(chunk, _chunkLayer.type);
                 _clientCollisionTasks.TryAdd(chunk.Position, task);
