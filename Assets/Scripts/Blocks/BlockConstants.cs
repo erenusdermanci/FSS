@@ -157,15 +157,7 @@ namespace Blocks
                 new Color(124, 94, 66, 255, 0.1f),
                 0.0f,
                 0,
-                new IBehavior[]
-                {
-                    new Swapper(
-                        new [] { 0, 0 },
-                        new [] { 2, 0, 0, 0, 0, 0, 0, 0 },
-                        new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
-                        new[] { BlockTags.Solid, BlockTags.Vegetation }
-                    )
-                }
+                new IBehavior[] {}
             ),
             new BlockDescriptor (
                 "Stone",
