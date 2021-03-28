@@ -7,11 +7,10 @@ namespace ParallaxBackground
         public Transform[] backgrounds;
         private float[] parallaxScales;
         private float[] textureUnitSizesX;
-        // private float[] textureUnitSizesY;
-        // public float smoothing;
+        private float[] textureUnitSizesY;
 
         [SerializeField] private bool infiniteHorizontal;
-        // [SerializeField] private bool infiniteVertical;
+        [SerializeField] private bool infiniteVertical;
 
         private Transform cameraTransform;
         private Vector3 lastCameraPosition;
@@ -21,7 +20,7 @@ namespace ParallaxBackground
         {
             parallaxScales = new float[backgrounds.Length];
             textureUnitSizesX = new float[backgrounds.Length];
-            // textureUnitSizesY = new float[backgrounds.Length];
+            textureUnitSizesY = new float[backgrounds.Length];
 
             cameraTransform = Camera.main.transform;
             lastCameraPosition = cameraTransform.position;
@@ -31,7 +30,7 @@ namespace ParallaxBackground
                 var sprite = backgrounds[i].GetComponent<SpriteRenderer>().sprite;
                 var texture = sprite.texture;
                 textureUnitSizesX[i] = texture.width / sprite.pixelsPerUnit;
-                // textureUnitSizesY[i] = texture.height / sprite.pixelsPerUnit;
+                textureUnitSizesY[i] = texture.height / sprite.pixelsPerUnit;
 
                 parallaxScales[i] = backgrounds[i].position.z * -1;
             }
@@ -41,19 +40,16 @@ namespace ParallaxBackground
         private void LateUpdate()
         {
             var cameraPos = cameraTransform.position;
-            var deltaMovement = cameraPos - lastCameraPosition;
+            var deltaCameraPos = lastCameraPosition - cameraPos;
 
             for (var i = 0; i < backgrounds.Length; ++i)
             {
-                var parallax = (lastCameraPosition.x - cameraPos.x) * parallaxScales[i];
-                // var parallaxed = new Vector3(deltaMovement.x * parallaxScales[i],
-                //     deltaMovement.y * parallaxScales[i],
-                //     deltaMovement.z);
+                var parallaxX = deltaCameraPos.x * parallaxScales[i];
+                var parallaxY = deltaCameraPos.y * parallaxScales[i];
 
-                //var lerped = Vector3.Lerp(backgrounds[i].position, parallaxed, smoothing * Time.deltaTime);
                 backgrounds[i].position = new Vector3(
-                    backgrounds[i].position.x + parallax,
-                    backgrounds[i].position.y,
+                    backgrounds[i].position.x + parallaxX,
+                    backgrounds[i].position.y + parallaxY,
                     backgrounds[i].position.z);
 
                 if (infiniteHorizontal)
@@ -67,16 +63,16 @@ namespace ParallaxBackground
                     }
                 }
 
-                // if (infiniteVertical)
-                // {
-                //     if (Mathf.Abs(cameraPos.y - backgrounds[i].position.y) >= textureUnitSizesY[i])
-                //     {
-                //         var offsetPositionY = (cameraPos.y - backgrounds[i].position.y) % textureUnitSizesY[i];
-                //         backgrounds[i].position = new Vector3(backgrounds[i].position.x,
-                //             cameraPos.y + offsetPositionY,
-                //             backgrounds[i].position.z);
-                //     }
-                // }
+                if (infiniteVertical)
+                {
+                    if (Mathf.Abs(cameraPos.y - backgrounds[i].position.y) >= textureUnitSizesY[i])
+                    {
+                        var offsetPositionY = (cameraPos.y - backgrounds[i].position.y) % textureUnitSizesY[i];
+                        backgrounds[i].position = new Vector3(backgrounds[i].position.x,
+                            cameraPos.y + offsetPositionY,
+                            backgrounds[i].position.z);
+                    }
+                }
             }
 
             lastCameraPosition = cameraPos;
