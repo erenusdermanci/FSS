@@ -17,7 +17,7 @@ namespace Chunks
 
         public static Vector2 PlayerPosition;
 
-        public Vector2i playerFlooredPosition;
+        public Vector2i PlayerFlooredPosition;
         private Vector2i? _oldPlayerFlooredPosition;
 
         public static int UpdatedFlag;
@@ -64,10 +64,10 @@ namespace Chunks
         private bool PlayerHasMoved()
         {
             var position = playerTransform.position;
-            playerFlooredPosition = new Vector2i((int) Mathf.Floor(position.x + 0.5f), (int) Mathf.Floor(position.y + 0.5f));
-            if (_oldPlayerFlooredPosition == playerFlooredPosition)
+            PlayerFlooredPosition = new Vector2i((int) Mathf.Floor(position.x + 0.5f), (int) Mathf.Floor(position.y + 0.5f));
+            if (_oldPlayerFlooredPosition == PlayerFlooredPosition)
                 return false;
-            _oldPlayerFlooredPosition = playerFlooredPosition;
+            _oldPlayerFlooredPosition = PlayerFlooredPosition;
             return true;
         }
     }

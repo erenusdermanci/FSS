@@ -1,16 +1,17 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ParallaxBackground
 {
     public class ParallaxBackground : MonoBehaviour
     {
         public Transform[] backgrounds;
+        public bool infiniteHorizontal;
+        public bool infiniteVertical;
+
         private float[] parallaxScales;
         private float[] textureUnitSizesX;
         private float[] textureUnitSizesY;
-
-        [SerializeField] private bool infiniteHorizontal;
-        [SerializeField] private bool infiniteVertical;
 
         private Transform cameraTransform;
         private Vector3 lastCameraPosition;

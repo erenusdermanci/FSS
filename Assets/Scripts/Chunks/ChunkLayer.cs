@@ -180,8 +180,8 @@ namespace Chunks
         {
             if (chunkManager.playerHasMoved)
             {
-                Generate(chunkManager.playerFlooredPosition, true);
-                Clean(chunkManager.playerFlooredPosition);
+                Generate(chunkManager.PlayerFlooredPosition, true);
+                Clean(chunkManager.PlayerFlooredPosition);
             }
 
             if (GlobalDebugConfig.StaticGlobalConfig.stepByStep && _userPressedSpace)
@@ -201,7 +201,7 @@ namespace Chunks
                 DrawDirtyRects();
 
             if (!GlobalDebugConfig.StaticGlobalConfig.disableCollisions)
-                ClientCollisionManager?.GenerateCollisions(chunkManager.playerFlooredPosition, chunkManager.playerHasMoved);
+                ClientCollisionManager?.GenerateCollisions(chunkManager.PlayerFlooredPosition, chunkManager.playerHasMoved);
         }
 
         private void Clean(Vector2i aroundPosition)
