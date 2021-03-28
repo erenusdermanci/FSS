@@ -142,10 +142,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44e9177fcfb0f3046af7bd498dbfb659, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  disabled: 0
-  chunkManager: {fileID: 16882965256809117}
+  chunkLayers: []
   selectedDrawBlock: 3
   drawBrushSelection: 1
+  selectedTool: 0
   selectedBrush: 0
   selectedState: 0
   colorizeOnly: 0
@@ -154,6 +154,7 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4278255388
   boxSize: 64
+  circleRadius: 0
   uiCoordText: {fileID: 7736813576527486610}
 --- !u!1 &16882964919492026
 GameObject:
@@ -203,7 +204,6 @@ MonoBehaviour:
     disableLoad: 1
     enableProceduralGeneration: 0
     monoThreadSimulate: 0
-    overrideGridSize: 0
     pauseSimulation: 0
     stepByStep: 0
     outlineChunks: 0
@@ -211,7 +211,9 @@ MonoBehaviour:
     drawDirtyRects: 0
     disableDirtyChunks: 0
     disableDirtyRects: 0
+    disableCollisions: 0
     saveAsTestScene: 1
+    disableDrawingTool: 0
 --- !u!1 &16882965043877397
 GameObject:
   m_ObjectHideFlags: 0
@@ -299,6 +301,7 @@ MonoBehaviour:
   generatedAreaSize: 10
   cleanAreaSizeOffset: 2
   playerTransform: {fileID: 16882965708962110}
+  playerHasMoved: 0
 --- !u!1 &16882965708962096
 GameObject:
   m_ObjectHideFlags: 0
@@ -349,7 +352,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -400,6 +403,7 @@ MonoBehaviour:
   MaxZoom: 20
   ZoomAmount: 0.25
   ZoomSpeed: 2
+  animator: {fileID: 0}
 --- !u!1 &16882965951282920
 GameObject:
   m_ObjectHideFlags: 0
