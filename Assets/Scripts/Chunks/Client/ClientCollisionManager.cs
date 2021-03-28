@@ -2,7 +2,6 @@
 using DebugTools;
 using UnityEngine;
 using Utils;
-using Color = UnityEngine.Color;
 
 namespace Chunks.Client
 {
