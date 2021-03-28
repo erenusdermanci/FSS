@@ -45,7 +45,7 @@ namespace Blocks.Behaviors
 
         public bool Execute(Random rng, ChunkServerNeighborhood chunkNeighborhood, Block block, int x, int y)
         {
-            ref var self = ref chunkNeighborhood.GetPlantBlockData(x, y, block.Type);
+            ref var self = ref chunkNeighborhood.GetCentralChunk().GetPlantBlockData(x, y, block.Type);
             if (self.id == 0)
                 self.Reset(block.Type, BlockIdGenerator.Next());
 
