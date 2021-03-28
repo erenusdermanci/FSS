@@ -13,7 +13,6 @@ namespace DebugTools.DrawingTool
 {
     public class DrawingTool : MonoBehaviour
     {
-        public bool disabled;
         public ChunkLayer[] chunkLayers;
 
         [HideInInspector]
@@ -52,7 +51,7 @@ namespace DebugTools.DrawingTool
         // Update is called once per frame
         private void Update()
         {
-            if (disabled)
+            if (GlobalDebugConfig.StaticGlobalConfig.disableDrawingTool)
                 return;
 
             var blockPosition = GetWorldPositionFromMousePosition();

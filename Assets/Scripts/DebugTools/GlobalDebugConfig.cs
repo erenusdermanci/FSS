@@ -43,6 +43,7 @@ namespace DebugTools
             public bool disableDirtyRects;
             public bool disableCollisions;
             public bool saveAsTestScene;
+            public bool disableDrawingTool;
 
             public GlobalConfigStruct(GlobalConfigStruct other)
             {
@@ -59,6 +60,7 @@ namespace DebugTools
                 disableLoad = other.disableLoad;
                 enableProceduralGeneration = other.enableProceduralGeneration;
                 disableCollisions = other.disableCollisions;
+                disableDrawingTool = other.disableDrawingTool;
             }
 
             public bool Equals(GlobalConfigStruct other)
@@ -75,7 +77,8 @@ namespace DebugTools
                     || disableSave != other.disableSave
                     || disableLoad != other.disableLoad
                     || enableProceduralGeneration != other.enableProceduralGeneration
-                    || disableCollisions != other.disableCollisions)
+                    || disableCollisions != other.disableCollisions
+                    || disableDrawingTool != other.disableDrawingTool)
                     return false;
 
                 return true;
