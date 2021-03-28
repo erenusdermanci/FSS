@@ -15,40 +15,56 @@ namespace Chunks.Client
 
         private readonly ChunkLayer _chunkLayer;
 
+        private const float PlayerBoxSizeMultiplier = 0.5f;
+
+        private readonly CapsuleCollider2D playerCapsuleCollider;
+
         public ClientCollisionManager(ChunkLayer chunkLayer)
         {
             _chunkLayer = chunkLayer;
+
+            playerCapsuleCollider = GameObject.Find("Player").GetComponent<CapsuleCollider2D>();
         }
 
-        public void GenerateCollisions(Vector2i playerFlooredPosition,
-            bool playerHasMoved)
+        public void GenerateCollisions(Vector2i playerFlooredPosition, bool playerHasMovedChunks)
         {
             if (_chunkLayer.ClientChunkMap[playerFlooredPosition] == null)
                 return;
 
-            if (_playerChunkNeighborhood == null || playerHasMoved)
+            if (_playerChunkNeighborhood == null || playerHasMovedChunks)
             {
                 _playerChunkNeighborhood = new ChunkNeighborhood<ChunkClient>(_chunkLayer.ClientChunkMap,
                     _chunkLayer.ClientChunkMap[playerFlooredPosition]);
                 _playerChunkNeighborhoodCleanFlags = new bool[9];
             }
 
+            var capsuleBounds = playerCapsuleCollider.bounds;
+            // box around player
+            var playerX1 = capsuleBounds.min.x - (PlayerBoxSizeMultiplier * capsuleBounds.size.x);
+            var playerX2 = capsuleBounds.max.x + (PlayerBoxSizeMultiplier * capsuleBounds.size.x);
+            var playerY1 = capsuleBounds.min.y - (PlayerBoxSizeMultiplier * capsuleBounds.size.y);
+            var playerY2 = capsuleBounds.max.y + (PlayerBoxSizeMultiplier * capsuleBounds.size.y);
+
             var chunks = _playerChunkNeighborhood.GetChunks();
             for (var chunkIdx = 0; chunkIdx < chunks.Length; ++chunkIdx)
             {
                 var chunk = chunks[chunkIdx];
 
-                if (chunk == null
-                    || (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks
-                        && !chunk.Dirty
-                        && _playerChunkNeighborhoodCleanFlags[chunkIdx])
-                    && chunk.Collider.enabled) // what is the use of this?)
+                if (chunk == null)
                     continue;
 
-                _playerChunkNeighborhoodCleanFlags[chunkIdx] = true;
+                if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks
+                    && !chunk.Dirty
+                    && _playerChunkNeighborhoodCleanFlags[chunkIdx]
+                    && chunk.Collider.enabled)
+                    continue;
+
+                if (!PlayerOverlapsInChunk(chunk.Position, playerX1, playerX2, playerY1, playerY2))
+                    continue;
 
                 var task = new ClientCollisionTask(chunk, _chunkLayer.type);
                 _clientCollisionTasks.TryAdd(chunk.Position, task);
+                _playerChunkNeighborhoodCleanFlags[chunkIdx] = true;
             }
 
             foreach (var task in _clientCollisionTasks.Values)
@@ -87,6 +103,18 @@ namespace Chunks.Client
             }
 
             _clientCollisionTasks.Clear();
+        }
+
+        private static bool PlayerOverlapsInChunk(Vector2i chunkPos,
+            float playerX1, float playerX2,
+            float playerY1, float playerY2)
+        {
+            var chunkX1 = chunkPos.x - 0.5f;
+            var chunkX2 = chunkX1 + 1.0f;
+            var chunkY1 = chunkPos.y - 0.5f;
+            var chunkY2 = chunkY1 + 1.0f;
+
+            return playerX2 >= chunkX1 && chunkX2 >= playerX1 && playerY2 >= chunkY1 && chunkY2 >= playerY1;
         }
 
         public void QueueChunkCollisionGeneration(ChunkClient chunkClient)
