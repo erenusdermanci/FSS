@@ -7,15 +7,15 @@ namespace Client.Player
 {
     public class PlayerInput : MonoBehaviour
     {
-        [FormerlySerializedAs("PlayerSpeed")] public float playerSpeed;
+        public float playerSpeed;
 
-        [FormerlySerializedAs("PlayerCamera")] public Camera playerCamera;
-        [FormerlySerializedAs("FloatingCamera")] public bool floatingCamera;
+        public Camera playerCamera;
+        public bool floatingCamera;
 
-        [FormerlySerializedAs("MinZoom")] public float minZoom;
-        [FormerlySerializedAs("MaxZoom")] public float maxZoom;
-        [FormerlySerializedAs("ZoomAmount")] public float zoomAmount;
-        [FormerlySerializedAs("ZoomSpeed")] public float zoomSpeed;
+        public float minZoom;
+        public float maxZoom;
+        public float zoomAmount;
+        public float zoomSpeed;
 
         public LayerMask groundLayer;
 
