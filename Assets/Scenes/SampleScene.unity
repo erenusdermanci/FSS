@@ -149,7 +149,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &157987759
 GameObject:
@@ -413,7 +413,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &386375727
 GameObject:
@@ -800,7 +800,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
@@ -1008,7 +1008,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &729951048
 MonoBehaviour:
@@ -1053,7 +1053,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 12
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &781844751
 MonoBehaviour:
@@ -1172,7 +1172,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   jumpVelocity: 3
-  animator: {fileID: 982608172}
 --- !u!50 &982608170
 Rigidbody2D:
   serializedVersion: 4
@@ -1471,7 +1470,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   generatedAreaSize: 20
   cleanAreaSizeOffset: 2
-  playerTransform: {fileID: 982608168}
 --- !u!4 &1436826252
 Transform:
   m_ObjectHideFlags: 0
@@ -1486,6 +1484,53 @@ Transform:
   m_Father: {fileID: 1635059204}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1581361254
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1581361255}
+  - component: {fileID: 1581361256}
+  m_Layer: 0
+  m_Name: CollisionManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1581361255
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1581361254}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.07288737, y: -0.04404851, z: -0.18496916}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1635059204}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1581361256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1581361254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 149c09eed8144d0ba199d27145a684d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GameObjectsToUpdate:
+  - GameObject: {fileID: 982608166}
+    GameObjectCollider: {fileID: 982608171}
+  chunkLayer: {fileID: 1956363111}
 --- !u!1 &1596405429
 GameObject:
   m_ObjectHideFlags: 0
@@ -1664,6 +1709,7 @@ Transform:
   - {fileID: 982608168}
   - {fileID: 429156183}
   - {fileID: 1436826252}
+  - {fileID: 1581361255}
   - {fileID: 1956363110}
   - {fileID: 729951047}
   - {fileID: 518032211}
@@ -1813,7 +1859,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1956363109
 GameObject:
@@ -1844,7 +1890,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1956363111
 MonoBehaviour:
@@ -1919,7 +1965,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1999880402
 MonoBehaviour:
@@ -1936,6 +1982,7 @@ MonoBehaviour:
   chunkLayers:
   - {fileID: 1956363111}
   - {fileID: 729951048}
+  clientCollisionManager: {fileID: 1581361256}
   selectedDrawBlock: 0
   drawBrushSelection: 1
   selectedTool: 0
@@ -1981,7 +2028,7 @@ RectTransform:
   m_Children:
   - {fileID: 1127925851}
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}

@@ -24,8 +24,6 @@ namespace Chunks
 
         public ChunkLayerType type;
 
-        public ClientCollisionManager ClientCollisionManager;
-
         public readonly ChunkMap<ChunkServer> ServerChunkMap = new ChunkMap<ChunkServer>();
         public readonly ChunkMap<ChunkClient> ClientChunkMap = new ChunkMap<ChunkClient>();
         private readonly List<ChunkClient> _chunksToRender = new List<ChunkClient>();
@@ -39,16 +37,6 @@ namespace Chunks
         {
             _chunkServerTaskScheduler = new ChunkServerTaskScheduler(type);
             _chunkSimulator = new ChunkLayerSimulator(this);
-
-            switch (type)
-            {
-                case ChunkLayerType.Foreground:
-                    ClientCollisionManager = new ClientCollisionManager(this);
-                    break;
-                case ChunkLayerType.Background:
-                    // no collisions on the background
-                    break;
-            }
 
             ProceduralGenerator.UpdateEvent += ProceduralGeneratorUpdate;
         }
@@ -100,7 +88,7 @@ namespace Chunks
 
         private void ResetGrid(bool loadFromDisk)
         {
-            var position = chunkManager.playerTransform.position;
+            var position = ChunkManager.MainCameraPosition;
             var flooredAroundPosition = new Vector2i((int) Mathf.Floor(position.x), (int) Mathf.Floor(position.y));
 
             _chunkServerTaskScheduler.CancelLoading();
@@ -178,10 +166,10 @@ namespace Chunks
 
         private void FixedUpdate()
         {
-            if (chunkManager.PlayerHasMoved)
+            if (chunkManager.CameraHasMoved)
             {
-                Generate(chunkManager.PlayerFlooredPosition, true);
-                Clean(chunkManager.PlayerFlooredPosition);
+                Generate(chunkManager.CameraFlooredPosition, true);
+                Clean(chunkManager.CameraFlooredPosition);
             }
 
             if (GlobalDebugConfig.StaticGlobalConfig.stepByStep && _userPressedSpace)
@@ -199,9 +187,6 @@ namespace Chunks
 
             if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyRects && GlobalDebugConfig.StaticGlobalConfig.drawDirtyRects)
                 DrawDirtyRects();
-
-            if (!GlobalDebugConfig.StaticGlobalConfig.disableCollisions)
-                ClientCollisionManager?.GenerateCollisions(chunkManager.PlayerFlooredPosition, chunkManager.PlayerHasMoved);
         }
 
         private void Clean(Vector2i aroundPosition)

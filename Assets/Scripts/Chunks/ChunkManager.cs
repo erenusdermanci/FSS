@@ -12,13 +12,13 @@ namespace Chunks
         private int _previousGeneratedAreaSize;
 
         public int cleanAreaSizeOffset = 2;
-        public Transform playerTransform;
 
-        public static Vector2 PlayerPosition;
+        private Camera _mainCamera;
+        public static Vector3 MainCameraPosition = Vector3.zero;
 
-        public Vector2i PlayerFlooredPosition;
-        [NonSerialized] public bool PlayerHasMoved;
-        private Vector2i? _oldPlayerFlooredPosition;
+        public Vector2i CameraFlooredPosition;
+        [NonSerialized] public bool CameraHasMoved;
+        private Vector2i? _oldCameraFlooredPosition;
 
         public static int UpdatedFlag;
 
@@ -28,7 +28,11 @@ namespace Chunks
         {
             _previousGeneratedAreaSize = generatedAreaSize;
 
-            PlayerPosition = playerTransform.position;
+            if (Camera.main != null)
+            {
+                _mainCamera = Camera.main;
+                MainCameraPosition = _mainCamera.transform.position;
+            }
 
             GlobalDebugConfig.DisableDirtyRectsChanged += DisableDirtyRectsChangedEvent;
 
@@ -48,11 +52,11 @@ namespace Chunks
         {
             UpdatedFlag++;
 
-            PlayerHasMoved = UpdatePlayerHasMoved();
+            CameraHasMoved = UpdateCameraHasMoved();
 
-            if (PlayerHasMoved)
+            if (CameraHasMoved && _mainCamera != null)
             {
-                PlayerPosition = playerTransform.position;
+                MainCameraPosition = _mainCamera.transform.position;
             }
         }
 
@@ -61,13 +65,15 @@ namespace Chunks
             SimulationTask.ResetKnuthShuffle();
         }
 
-        private bool UpdatePlayerHasMoved()
+        private bool UpdateCameraHasMoved()
         {
-            var position = playerTransform.position;
-            PlayerFlooredPosition = new Vector2i((int) Mathf.Floor(position.x + 0.5f), (int) Mathf.Floor(position.y + 0.5f));
-            if (_oldPlayerFlooredPosition == PlayerFlooredPosition)
+            if (_mainCamera == null)
                 return false;
-            _oldPlayerFlooredPosition = PlayerFlooredPosition;
+            var position = _mainCamera.transform.position;
+            CameraFlooredPosition = new Vector2i((int) Mathf.Floor(position.x + 0.5f), (int) Mathf.Floor(position.y + 0.5f));
+            if (_oldCameraFlooredPosition == CameraFlooredPosition)
+                return false;
+            _oldCameraFlooredPosition = CameraFlooredPosition;
             return true;
         }
     }

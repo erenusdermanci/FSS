@@ -7,7 +7,7 @@ namespace Chunks.Tasks
     {
         public int Compare(Vector2i x, Vector2i y)
         {
-            var playerPosition = ChunkManager.PlayerPosition;
+            var playerPosition = ChunkManager.MainCameraPosition;
             return -Vector2i.Distance(x, playerPosition.x, playerPosition.y)
                 .CompareTo(Vector2i.Distance(y, playerPosition.x, playerPosition.y));
         }

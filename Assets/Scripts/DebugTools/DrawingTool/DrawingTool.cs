@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Blocks;
 using Chunks;
+using Chunks.Client;
 using Chunks.Server;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +15,8 @@ namespace DebugTools.DrawingTool
     public class DrawingTool : MonoBehaviour
     {
         public ChunkLayer[] chunkLayers;
+
+        public ClientCollisionManager clientCollisionManager;
 
         [HideInInspector]
         public int selectedDrawBlock;
@@ -99,7 +102,7 @@ namespace DebugTools.DrawingTool
                 var clientChunk = chunkLayers[(int)_currentLayer].ClientChunkMap[chunkPos];
                 if (clientChunk != null)
                 {
-                    chunkLayers[(int)_currentLayer].ClientCollisionManager?.QueueChunkCollisionGeneration(clientChunk);
+                    clientCollisionManager.QueueChunkCollisionGeneration(clientChunk);
                     clientChunk.UpdateTexture();
                 }
             }
