@@ -23,7 +23,7 @@ namespace Client.ParallaxBackground
             textureUnitSizesY = new float[backgrounds.Length];
 
             // ReSharper disable once PossibleNullReferenceException
-            cameraTransform = Camera.main.transform;
+            cameraTransform = UnityEngine.Camera.main.transform;
             lastCameraPosition = cameraTransform.position;
 
             for (var i = 0; i < backgrounds.Length; ++i)
