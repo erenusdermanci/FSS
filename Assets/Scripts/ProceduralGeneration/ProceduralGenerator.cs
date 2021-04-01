@@ -1,4 +1,5 @@
 ﻿using System;
+using Serialized;
 using UnityEngine;
 
 namespace ProceduralGeneration
@@ -13,6 +14,20 @@ namespace ProceduralGeneration
         private void Awake()
         {
             StaticGenerationModel = new TerrainGenerationModel(generationModel);
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.F5))
+            {
+                // Save
+                TerrainGenerationModelSerializer.SaveModel(StaticGenerationModel);
+            }
+            else if (Input.GetKeyDown(KeyCode.F6))
+            {
+                // Load
+                generationModel = new TerrainGenerationModel(TerrainGenerationModelSerializer.LoadModel());
+            }
         }
 
         private void FixedUpdate()

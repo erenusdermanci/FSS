@@ -1,7 +1,7 @@
 ﻿using System;
 using Utils;
 
-namespace ProceduralGeneration
+namespace Serialized
 {
     [Serializable]
     public struct NoiseConfig

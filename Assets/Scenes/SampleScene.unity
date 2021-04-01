@@ -1059,13 +1059,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53bca9476c0bd8a4aa82d5e913de57fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerSpeed: 0.5
-  PlayerCamera: {fileID: 519420031}
-  FloatingCamera: 0
-  MinZoom: 0.25
-  MaxZoom: 20
-  ZoomAmount: 0.25
-  ZoomSpeed: 2
+  playerSpeed: 0.5
+  playerCamera: {fileID: 519420031}
+  floatingCamera: 0
+  minZoom: 0.25
+  maxZoom: 20
+  zoomAmount: 0.25
+  zoomSpeed: 2
   animator: {fileID: 982608172}
 --- !u!50 &982608170
 Rigidbody2D:
@@ -1087,7 +1087,7 @@ Rigidbody2D:
   m_Interpolate: 2
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 4
+  m_Constraints: 6
 --- !u!70 &982608171
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -1285,7 +1285,6 @@ MonoBehaviour:
   generatedAreaSize: 20
   cleanAreaSizeOffset: 2
   playerTransform: {fileID: 982608168}
-  playerHasMoved: 0
 --- !u!4 &1436826252
 Transform:
   m_ObjectHideFlags: 0
@@ -1459,7 +1458,7 @@ MonoBehaviour:
     disableLoad: 1
     enableProceduralGeneration: 1
     monoThreadSimulate: 0
-    pauseSimulation: 0
+    pauseSimulation: 1
     stepByStep: 0
     outlineChunks: 0
     hideCleanChunkOutlines: 0

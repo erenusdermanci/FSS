@@ -1,4 +1,6 @@
-﻿namespace ProceduralGeneration
+﻿using Serialized;
+
+namespace ProceduralGeneration
 {
     public class ConfiguredNoise
     {

@@ -1,15 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Blocks;
 using Chunks.Tasks;
 using DebugTools;
 using ProceduralGeneration;
+using Serialized;
+using UnityEngine;
+using Utils;
 using static Chunks.ChunkLayer;
+using Random = System.Random;
 
 namespace Chunks.Server
 {
     public class GenerationTask : ChunkTask<ChunkServer>
     {
         private Dictionary<int, ConfiguredNoisesForLayer> _noisesPerLayer;
+
+        private Random _rng;
+
+        private const int SmoothTransitionDepthThreshold = 25;
 
         public GenerationTask(ChunkServer chunk, ChunkLayerType layerType) : base(chunk, layerType)
         {
@@ -23,6 +32,7 @@ namespace Chunks.Server
 
             if (GlobalDebugConfig.StaticGlobalConfig.enableProceduralGeneration)
             {
+                _rng = StaticRandom.Get();
                 var generationModel = ProceduralGenerator.StaticGenerationModel;
                 ConfigureNoises(generationModel);
                 GenerateProcedurally(generationModel);
@@ -77,6 +87,9 @@ namespace Chunks.Server
                 for (var y = 0; y < Chunks.Chunk.Size; y++)
                 {
                     var separator = Chunk.Position.y * Chunks.Chunk.Size + y; // what layer does this Y belong to for this X?
+
+
+                    // Smooth transition:
                     var layerIdx = GetLayerForY(verticalIdxPerLayer, separator);
 
                     // Generate y within layer
@@ -150,10 +163,18 @@ namespace Chunks.Server
             return BlockConstants.Border;
         }
 
-        private static int GetLayerForY(int[] vertIdxPerLayer, int y)
+        private int GetLayerForY(int[] vertIdxPerLayer, int y)
         {
             if (y > vertIdxPerLayer[0])
-                return 0;
+            {
+                return GetLayerFromDistance(y,
+                    0,
+                    0,
+                    vertIdxPerLayer[1],
+                    0,
+                    1);
+            }
+
             if (y < vertIdxPerLayer[vertIdxPerLayer.Length - 1])
                 return vertIdxPerLayer.Length - 1;
 
@@ -162,7 +183,72 @@ namespace Chunks.Server
             while (vertIdxPerLayer[layer] > y)
                 layer++;
 
+            try
+            {
+                if (layer > 0 && layer < vertIdxPerLayer.Length - 1)
+                {
+                    // Check the distance of this y to the layer it's closest to
+                    // And use it to smooth out the transition
+                    // ie. have a chance of spawning a block of the closest other layer depending on distance
+                    return GetLayerFromDistance(y,
+                        layer,
+                        vertIdxPerLayer[layer - 1],
+                        vertIdxPerLayer[layer],
+                        layer - 1,
+                        layer + 1);
+                }
+                else
+                {
+                    return layer;
+                }
+            }
+            catch (Exception)
+            {
+                Debug.Log($"layer:{layer}, upper:{layer - 1}, lower:{layer + 1}");
+                Debug.Log(vertIdxPerLayer);
+                throw;
+            }
+
+
             return layer;
+        }
+
+        private int GetLayerFromDistance(int y,
+            int deducedLayer,
+            int upperLayerThreshold,
+            int lowerLayerThreshold,
+            int upperLayer,
+            int lowerLayer)
+        {
+            var upperDistance = upperLayerThreshold - y;
+            var lowerDistance = y - lowerLayerThreshold;
+            if (deducedLayer != 0 && upperDistance < SmoothTransitionDepthThreshold)
+            {
+                if ((float)(SmoothTransitionDepthThreshold - upperDistance) / SmoothTransitionDepthThreshold > _rng.NextDouble())
+                {
+                    // smooth transition
+                    return upperLayer;
+                }
+                else
+                {
+                    // normal block
+                    return deducedLayer;
+                }
+            }
+            else if (lowerDistance < SmoothTransitionDepthThreshold)
+            {
+                if ((float) (SmoothTransitionDepthThreshold - lowerDistance) / SmoothTransitionDepthThreshold >
+                    _rng.NextDouble())
+                {
+                    return lowerLayer;
+                }
+                else
+                {
+                    return deducedLayer;
+                }
+            }
+
+            return deducedLayer;
         }
     }
 }

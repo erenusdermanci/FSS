@@ -1,0 +1,127 @@
+{
+    "layers": [
+        {
+            "heightNoises": [
+                {
+                    "type": 0,
+                    "fractalType": 1,
+                    "octaves": 1,
+                    "gain": 6.0,
+                    "frequency": 2.0,
+                    "lacunarity": 1.0,
+                    "xAmplitude": 110.0,
+                    "yAmplitude": 220.0,
+                    "xOffset": 0.0,
+                    "yOffset": 0.0
+                }
+            ],
+            "inLayerNoises": [
+                {
+                    "type": 3,
+                    "fractalType": 1,
+                    "octaves": 1,
+                    "gain": 1.0,
+                    "frequency": 1.0,
+                    "lacunarity": 1.0,
+                    "xAmplitude": 3.1700000762939455,
+                    "yAmplitude": -6.920000076293945,
+                    "xOffset": 0.0,
+                    "yOffset": 0.0
+                }
+            ],
+            "thresholds": [
+                {
+                    "type": 4,
+                    "threshold": 0.0
+                },
+                {
+                    "type": 0,
+                    "threshold": 1.0
+                }
+            ],
+            "depth": 50
+        },
+        {
+            "heightNoises": [
+                {
+                    "type": 0,
+                    "fractalType": 1,
+                    "octaves": 3,
+                    "gain": 6.0,
+                    "frequency": 2.0,
+                    "lacunarity": 1.0,
+                    "xAmplitude": 1.0,
+                    "yAmplitude": 1.0,
+                    "xOffset": 0.0,
+                    "yOffset": 0.0
+                }
+            ],
+            "inLayerNoises": [
+                {
+                    "type": 3,
+                    "fractalType": 1,
+                    "octaves": 1,
+                    "gain": 1.0,
+                    "frequency": 1.0,
+                    "lacunarity": 1.0,
+                    "xAmplitude": 3.1700000762939455,
+                    "yAmplitude": 0.8799999952316284,
+                    "xOffset": 0.0,
+                    "yOffset": 0.0
+                }
+            ],
+            "thresholds": [
+                {
+                    "type": 5,
+                    "threshold": 0.0
+                },
+                {
+                    "type": 0,
+                    "threshold": 1.0
+                }
+            ],
+            "depth": 50
+        },
+        {
+            "heightNoises": [
+                {
+                    "type": 0,
+                    "fractalType": 1,
+                    "octaves": 3,
+                    "gain": 6.0,
+                    "frequency": 2.0,
+                    "lacunarity": 1.0,
+                    "xAmplitude": 1.0,
+                    "yAmplitude": 1.0,
+                    "xOffset": 0.0,
+                    "yOffset": 0.0
+                }
+            ],
+            "inLayerNoises": [
+                {
+                    "type": 3,
+                    "fractalType": 1,
+                    "octaves": 1,
+                    "gain": 1.0,
+                    "frequency": 1.0,
+                    "lacunarity": 1.0,
+                    "xAmplitude": 3.1700000762939455,
+                    "yAmplitude": 0.8799999952316284,
+                    "xOffset": 0.0,
+                    "yOffset": 0.0
+                }
+            ],
+            "thresholds": [
+                {
+                    "type": 5,
+                    "threshold": 0.0
+                },
+                {
+                    "type": 0,
+                    "threshold": 1.0
+                }
+            ],
+            "depth": 50
+        }
+    ]
+}

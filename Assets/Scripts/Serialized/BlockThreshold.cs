@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ProceduralGeneration
+namespace Serialized
 {
     [Serializable]
     public struct BlockThreshold
