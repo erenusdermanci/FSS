@@ -1,5 +1,4 @@
-﻿using DebugTools;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Client.Camera
 {
