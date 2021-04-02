@@ -14,7 +14,7 @@ namespace Chunks.Server
 
         public SaveTask(ChunkServer chunk, ChunkLayerType layerType) : base(chunk, layerType)
         {
-            _chunkSavePath = ChunkHelpers.GetChunksSavePath();
+            _chunkSavePath = ChunkHelpers.GetChunksSavePath(layerType);
             _chunkSaveFullPath = ChunkHelpers.GetChunksSaveFullPath(LayerType, Chunk.Position);
         }
 

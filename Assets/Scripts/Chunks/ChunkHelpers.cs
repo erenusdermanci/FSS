@@ -27,14 +27,14 @@ namespace Chunks
                 : $"{Application.persistentDataPath}";
         }
 
-        public static string GetChunksSavePath()
+        public static string GetChunksSavePath(ChunkLayerType layerType)
         {
-            return $"{GetSavePath()}\\{SceneManager.GetActiveScene().name}";
+            return $"{GetSavePath()}\\{SceneManager.GetActiveScene().name}\\{layerType.ToString()}";
         }
 
         public static string GetChunksSaveFullPath(ChunkLayerType layerType, Vector2i position)
         {
-            return $"{GetChunksSavePath()}\\{layerType.ToString()}\\{GetChunkSaveName(position)}";
+            return $"{GetChunksSavePath(layerType)}\\{GetChunkSaveName(position)}";
         }
 
         public static bool IsChunkPersisted(ChunkLayerType chunkLayerType, Vector2i position)
