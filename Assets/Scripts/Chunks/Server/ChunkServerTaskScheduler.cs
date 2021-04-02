@@ -20,7 +20,7 @@ namespace Chunks.Server
             {
                 {
                     ChunkTaskTypes.Save,
-                    new ChunkTaskManager<ChunkServer>(1, chunk => new SaveTask(chunk, chunkLayerType))
+                    new ChunkTaskManager<ChunkServer>(16, chunk => new SaveTask(chunk, chunkLayerType))
                 },
                 {
                     ChunkTaskTypes.Load,
