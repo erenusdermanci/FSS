@@ -235,7 +235,6 @@ Transform:
   - {fileID: 381632663}
   - {fileID: 809289194}
   - {fileID: 1735884927}
-  - {fileID: 846227337}
   - {fileID: 507331237}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -458,7 +457,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 66955328}
-  m_RootOrder: 13
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &507331238
 MonoBehaviour:
@@ -519,50 +518,6 @@ Transform:
   m_Father: {fileID: 66955328}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &846227336
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 846227337}
-  - component: {fileID: 846227338}
-  m_Layer: 0
-  m_Name: ProfilingTool
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &846227337
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 846227336}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.75601673, y: 0.28828433, z: -1.2417086}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 66955328}
-  m_RootOrder: 12
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &846227338
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 846227336}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8458a218728b46ebb131c4dfd4254e18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvas: {fileID: 381632659}
 --- !u!1 &1060516104
 GameObject:
   m_ObjectHideFlags: 0
@@ -696,10 +651,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   globalConfig:
-    disableSave: 0
-    disableLoad: 0
-    enableProceduralGeneration: 0
-    monoThreadSimulate: 0
     pauseSimulation: 0
     stepByStep: 0
     outlineChunks: 1
@@ -708,7 +659,6 @@ MonoBehaviour:
     disableDirtyChunks: 0
     disableDirtyRects: 0
     disableCollisions: 0
-    saveAsTestScene: 0
     disableDrawingTool: 0
 --- !u!1 &1742872785
 GameObject:
