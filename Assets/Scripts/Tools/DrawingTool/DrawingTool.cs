@@ -163,14 +163,15 @@ namespace Tools.DrawingTool
             if (Input.GetMouseButtonDown(0))
             {
                 if (_lastPointDrawnForLine != null && Input.GetKey(KeyCode.LeftShift))
-                    DrawLine(_lastPointDrawnForLine.Value, blockPosition, false);
+                    Draw.Line(_lastPointDrawnForLine.Value.x, _lastPointDrawnForLine.Value.y,
+                        blockPosition.x, blockPosition.y, (x, y) => DrawBrush(x, y, false));
             }
             else if (Input.GetMouseButton(0))
             {
                 if (_lastPointDrawn == null)
                     DrawBrush(blockPosition.x, blockPosition.y);
                 else
-                    DrawLine(_lastPointDrawn.Value, blockPosition, false);
+                    Draw.Line(_lastPointDrawn.Value.x, _lastPointDrawn.Value.y, blockPosition.x, blockPosition.y, (x, y) => DrawBrush(x, y, false));
                 _lastPointDrawn = new Vector2i(blockPosition.x, blockPosition.y);
             }
             else if (Input.GetMouseButtonUp(0))
@@ -264,80 +265,6 @@ namespace Tools.DrawingTool
             return new Vector2i((int) Mathf.Floor((worldPos.x + 0.5f) * Chunk.Size), (int) Mathf.Floor((worldPos.y + 0.5f) * 64.0f));
         }
 
-        private void DrawBox(int x, int y, bool immediate = true)
-        {
-            var px = x - boxSize / 2;
-            var py = y - boxSize / 2;
-
-            for (var i = px; i < px + boxSize; i++)
-            {
-                for (var j = py; j < py + boxSize; j++)
-                {
-                    PutBlock(i, j, immediate);
-                }
-            }
-        }
-
-        private void DrawCircle(int x, int y, bool immediate = true)
-        {
-            for (var i = -circleRadius; i <= circleRadius; ++i)
-            {
-                for (var j = -circleRadius; j <= circleRadius; ++j)
-                {
-                    if (j * j + i * i <= circleRadius * circleRadius)
-                        PutBlock(x + i, j + y, immediate);
-                }
-            }
-        }
-
-        private void DrawLine(Vector2i flooredPosVec2Start, Vector2i flooredPosVec2End, bool immediate = true)
-        {
-            var x = flooredPosVec2Start.x;
-            var y = flooredPosVec2Start.y;
-            var x2 = flooredPosVec2End.x;
-            var y2 = flooredPosVec2End.y;
-            var w = x2 - x;
-            var h = y2 - y;
-            var dx1 = 0;
-            var dy1 = 0;
-            var dx2 = 0;
-            var dy2 = 0;
-            if (w < 0) dx1 = -1;
-            else if (w > 0) dx1 = 1;
-            if (h < 0) dy1 = -1;
-            else if (h > 0) dy1 = 1;
-            if (w < 0) dx2 = -1;
-            else if (w > 0) dx2 = 1;
-            var longest = Math.Abs(w);
-            var shortest = Math.Abs(h);
-            if (!(longest > shortest))
-            {
-                longest = Math.Abs(h);
-                shortest = Math.Abs(w);
-                if (h < 0) dy2 = -1;
-                else if (h > 0) dy2 = 1;
-                dx2 = 0;
-            }
-
-            var numerator = longest >> 1;
-            for (var i = 0; i <= longest; i++)
-            {
-                DrawBrush(x, y, immediate);
-                numerator += shortest;
-                if (!(numerator < longest))
-                {
-                    numerator -= longest;
-                    x += dx1;
-                    y += dy1;
-                }
-                else
-                {
-                    x += dx2;
-                    y += dy2;
-                }
-            }
-        }
-
         private void DrawBlockGrid(Vector2i chunkPos)
         {
             // hardcoded but its debug so its ok
@@ -386,8 +313,8 @@ namespace Tools.DrawingTool
             var points = new List<Vector2>();
             for (var i = 0; i < segments + 1; i++)
             {
-                var x = Mathf.Sin (Mathf.Deg2Rad * angle) * xRadius;
-                var y = Mathf.Cos (Mathf.Deg2Rad * angle) * yRadius;
+                var x = Mathf.Sin(Mathf.Deg2Rad * angle) * xRadius;
+                var y = Mathf.Cos(Mathf.Deg2Rad * angle) * yRadius;
 
                 points.Add(new Vector2(worldX / Chunk.Size - 0.5f + x,worldY / Chunk.Size - 0.5f + y));
 
@@ -407,10 +334,10 @@ namespace Tools.DrawingTool
             switch (selectedBrush)
             {
                 case BrushType.Box:
-                    DrawBox(x, y, immediate);
+                    Draw.Rectangle(x, y, boxSize, boxSize, (i, j) => PutBlock(i, j, immediate));
                     break;
                 case BrushType.Circle:
-                    DrawCircle(x, y, immediate);
+                    Draw.Circle(x, y, circleRadius, (i, j) => PutBlock(i, j, immediate));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

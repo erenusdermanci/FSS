@@ -1,0 +1,79 @@
+﻿using System;
+
+namespace Utils
+{
+    public static class Draw
+    {
+        public static void Rectangle(int x, int y, int w, int h, Action<int, int> draw)
+        {
+            var px = x - w / 2;
+            var py = y - h / 2;
+
+            for (var i = px; i < px + w; i++)
+            {
+                for (var j = py; j < py + h; j++)
+                {
+                    draw(i, j);
+                }
+            }
+        }
+
+        public static void Circle(int x, int y, int radius, Action<int, int> draw)
+        {
+            for (var i = -radius; i <= radius; ++i)
+            {
+                for (var j = -radius; j <= radius; ++j)
+                {
+                    if (j * j + i * i <= radius * radius)
+                    {
+                        draw(x + i, j + y);
+                    }
+                }
+            }
+        }
+
+        public static void Line(int x1, int y1, int x2, int y2, Action<int, int> draw)
+        {
+            var w = x2 - x1;
+            var h = y2 - y1;
+            var dx1 = 0;
+            var dy1 = 0;
+            var dx2 = 0;
+            var dy2 = 0;
+            if (w < 0) dx1 = -1;
+            else if (w > 0) dx1 = 1;
+            if (h < 0) dy1 = -1;
+            else if (h > 0) dy1 = 1;
+            if (w < 0) dx2 = -1;
+            else if (w > 0) dx2 = 1;
+            var longest = Math.Abs(w);
+            var shortest = Math.Abs(h);
+            if (!(longest > shortest))
+            {
+                longest = Math.Abs(h);
+                shortest = Math.Abs(w);
+                if (h < 0) dy2 = -1;
+                else if (h > 0) dy2 = 1;
+                dx2 = 0;
+            }
+
+            var numerator = longest >> 1;
+            for (var i = 0; i <= longest; i++)
+            {
+                draw(x1, y1);
+                numerator += shortest;
+                if (!(numerator < longest))
+                {
+                    numerator -= longest;
+                    x1 += dx1;
+                    y1 += dy1;
+                }
+                else
+                {
+                    x1 += dx2;
+                    y1 += dy2;
+                }
+            }
+        }
+    }
+}
