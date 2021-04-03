@@ -3,6 +3,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Blocks;
 using UnityEditor;
 using UnityEngine;
+using Utils;
+using Color = UnityEngine.Color;
 
 namespace Tools.BlockMapper
 {
@@ -142,13 +144,7 @@ namespace Tools.BlockMapper
             var sprite = _spriteRenderer.sprite;
             var texelX = Mathf.Floor(_mouseWorldPosition.x * sprite.pixelsPerUnit) / sprite.pixelsPerUnit;
             var texelY = Mathf.Floor(_mouseWorldPosition.y * sprite.pixelsPerUnit) / sprite.pixelsPerUnit;
-            var x = texelX;
-            var y = texelY;
-
-            Debug.DrawLine(new Vector2(x, y), new Vector2(x + _texelSize, y), Color.red);
-            Debug.DrawLine(new Vector2(x, y + _texelSize), new Vector2(x, y), Color.red);
-            Debug.DrawLine(new Vector2(x + _texelSize, y), new Vector2(x + _texelSize, y + _texelSize), Color.red);
-            Debug.DrawLine(new Vector2(x, y + _texelSize), new Vector2(x + _texelSize, y + _texelSize), Color.red);
+            DebugDraw.Rectangle(texelX, texelY, _texelSize, _texelSize, Color.red);
         }
 
         private void SaveBlocks()

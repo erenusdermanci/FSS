@@ -119,6 +119,22 @@ namespace Tools.DrawingTool
             DrawBlockGrid(chunk.Position);
         }
 
+        private static void DrawBlockGrid(Vector2i chunkPos)
+        {
+            var gridColor = new Color32(255, 255, 255, 90);
+            for (var x = 0; x < Chunk.Size + 1; x++)
+            {
+                var xOffset = x / (float)Chunk.Size - 0.5f;
+                Debug.DrawLine(new Vector3(chunkPos.x + xOffset, chunkPos.y - 0.5f), new Vector3(chunkPos.x + xOffset, chunkPos.y + 0.5f), gridColor);
+            }
+
+            for (var y = 0; y < Chunk.Size + 1; y++)
+            {
+                var yOffset = y / (float)Chunk.Size - 0.5f;
+                Debug.DrawLine(new Vector3(chunkPos.x - 0.5f, chunkPos.y + yOffset), new Vector3(chunkPos.x + 0.5f, chunkPos.y + yOffset), gridColor);
+            }
+        }
+
         private void DrawSelected(float worldX, float worldY)
         {
             var chunk = GetChunkFromWorld(worldX, worldY);
@@ -134,11 +150,18 @@ namespace Tools.DrawingTool
             switch (selectedBrush)
             {
                 case BrushType.Box:
-                    DrawSelectedBlock(chunk.Position, blockXInChunk, blockYInChunk);
+                {
+                    var blockSize = 1f / Chunk.Size * boxSize;
+                    DebugDraw.Rectangle(chunk.Position.x - 0.5f + (blockXInChunk - boxSize / 2f) / Chunk.Size,
+                        chunk.Position.y - 0.5f + (blockYInChunk - boxSize / 2f) / Chunk.Size,
+                        blockSize, blockSize, UnityEngine.Color.red);
                     break;
+                }
                 case BrushType.Circle:
-                    DrawDebugCircle(worldX, worldY);
+                {
+                    DebugDraw.Circle(worldX / Chunk.Size - 0.5f, worldY / Chunk.Size - 0.5f, circleRadius / (float)Chunk.Size);
                     break;
+                }
             }
 
             var r = chunk.Data.colors[blockIndexInChunk * 4];
@@ -263,70 +286,6 @@ namespace Tools.DrawingTool
             }
             var worldPos = Camera.main.ScreenToWorldPoint(mousePos);
             return new Vector2i((int) Mathf.Floor((worldPos.x + 0.5f) * Chunk.Size), (int) Mathf.Floor((worldPos.y + 0.5f) * 64.0f));
-        }
-
-        private void DrawBlockGrid(Vector2i chunkPos)
-        {
-            // hardcoded but its debug so its ok
-            var gridColor = new Color32(255, 255, 255, 90);
-            for (var x = 0; x < Chunk.Size + 1; x++)
-            {
-                var xOffset = x / (float)Chunk.Size - 0.5f;
-                Debug.DrawLine(new Vector3(chunkPos.x + xOffset, chunkPos.y - 0.5f), new Vector3(chunkPos.x + xOffset, chunkPos.y + 0.5f), gridColor);
-            }
-
-            for (var y = 0; y < Chunk.Size + 1; y++)
-            {
-                var yOffset = y / (float)Chunk.Size - 0.5f;
-                Debug.DrawLine(new Vector3(chunkPos.x - 0.5f, chunkPos.y + yOffset), new Vector3(chunkPos.x + 0.5f, chunkPos.y + yOffset), gridColor);
-            }
-        }
-
-        private void DrawSelectedBlock(Vector2i chunkPos, int x, int y)
-        {
-            var selectColor = UnityEngine.Color.red;
-            var xOffset = (x - boxSize / 2) / (float)Chunk.Size;
-            var yOffset = (y - boxSize / 2) / (float)Chunk.Size;
-            var blockSize = (1 / (float)Chunk.Size) * boxSize;
-
-            // along x axis bottom
-            Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset),
-                            new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset), selectColor);
-            // along y axis right side
-            Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset),
-                            new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
-            // along y left side
-            Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset),
-                            new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
-            // along x axis top
-            Debug.DrawLine(new Vector3(chunkPos.x - 0.5f + xOffset, chunkPos.y - 0.5f + yOffset + blockSize),
-                            new Vector3(chunkPos.x - 0.5f + xOffset + blockSize, chunkPos.y - 0.5f + yOffset + blockSize), selectColor);
-        }
-
-        private void DrawDebugCircle(float worldX, float worldY)
-        {
-            const int segments = 50;
-            var xRadius = circleRadius / (float)Chunk.Size;
-            var yRadius = circleRadius / (float)Chunk.Size;
-
-            var angle = 20f;
-            var points = new List<Vector2>();
-            for (var i = 0; i < segments + 1; i++)
-            {
-                var x = Mathf.Sin(Mathf.Deg2Rad * angle) * xRadius;
-                var y = Mathf.Cos(Mathf.Deg2Rad * angle) * yRadius;
-
-                points.Add(new Vector2(worldX / Chunk.Size - 0.5f + x,worldY / Chunk.Size - 0.5f + y));
-
-                angle += 360f / segments;
-            }
-
-            var previousPoint = points[0];
-            for (var i = 1; i < points.Count; ++i)
-            {
-                Debug.DrawLine(previousPoint, points[i], UnityEngine.Color.red);
-                previousPoint = points[i];
-            }
         }
 
         private void DrawBrush(int x, int y, bool immediate = true)
