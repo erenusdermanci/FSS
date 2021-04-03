@@ -30,10 +30,6 @@ namespace DebugTools
         [Serializable]
         public struct GlobalConfigStruct
         {
-            public bool disableSave;
-            public bool disableLoad;
-            public bool enableProceduralGeneration;
-            public bool monoThreadSimulate;
             public bool pauseSimulation;
             public bool stepByStep;
             public bool outlineChunks;
@@ -42,12 +38,10 @@ namespace DebugTools
             public bool disableDirtyChunks;
             public bool disableDirtyRects;
             public bool disableCollisions;
-            public bool saveAsTestScene;
             public bool disableDrawingTool;
 
             public GlobalConfigStruct(GlobalConfigStruct other)
             {
-                monoThreadSimulate = other.monoThreadSimulate;
                 pauseSimulation = other.pauseSimulation;
                 stepByStep = other.stepByStep;
                 outlineChunks = other.outlineChunks;
@@ -55,28 +49,19 @@ namespace DebugTools
                 drawDirtyRects = other.drawDirtyRects;
                 disableDirtyChunks = other.disableDirtyChunks;
                 disableDirtyRects = other.disableDirtyRects;
-                saveAsTestScene = other.saveAsTestScene;
-                disableSave = other.disableSave;
-                disableLoad = other.disableLoad;
-                enableProceduralGeneration = other.enableProceduralGeneration;
                 disableCollisions = other.disableCollisions;
                 disableDrawingTool = other.disableDrawingTool;
             }
 
             public bool Equals(GlobalConfigStruct other)
             {
-                if (monoThreadSimulate != other.monoThreadSimulate
-                    || pauseSimulation != other.pauseSimulation
+                if (pauseSimulation != other.pauseSimulation
                     || stepByStep != other.stepByStep
                     || outlineChunks != other.outlineChunks
                     || hideCleanChunkOutlines != other.hideCleanChunkOutlines
                     || drawDirtyRects != other.drawDirtyRects
                     || disableDirtyChunks != other.disableDirtyChunks
                     || disableDirtyRects != other.disableDirtyRects
-                    || saveAsTestScene != other.saveAsTestScene
-                    || disableSave != other.disableSave
-                    || disableLoad != other.disableLoad
-                    || enableProceduralGeneration != other.enableProceduralGeneration
                     || disableCollisions != other.disableCollisions
                     || disableDrawingTool != other.disableDrawingTool)
                     return false;

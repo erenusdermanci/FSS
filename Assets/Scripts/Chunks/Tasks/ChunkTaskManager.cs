@@ -38,7 +38,7 @@ namespace Chunks.Tasks
                     continue;
                 var task = _tasks[position];
                 _processing.Add(task.Chunk.Position, task);
-                task.Schedule(GlobalDebugConfig.StaticGlobalConfig.monoThreadSimulate);
+                task.Schedule();
             }
 
             ProcessDoneTasks();
@@ -76,40 +76,6 @@ namespace Chunks.Tasks
             var task = _taskCreator(chunk);
             _queued.Add(chunk.Position);
             _tasks.Add(chunk.Position, task);
-        }
-
-        public void CompleteAll()
-        {
-            while (_queued.Count != 0)
-            {
-                var index = _queued.Count - 1;
-                var position = _queued[index];
-                _queued.RemoveAt(index);
-                var task = _tasks[position];
-                _processing.Add(task.Chunk.Position, task);
-                task.Schedule(GlobalDebugConfig.StaticGlobalConfig.monoThreadSimulate);
-            }
-            foreach (var saveTask in _processing.Values)
-            {
-                saveTask.Join();
-            }
-
-            ProcessDoneTasks();
-        }
-
-        public void Cancel(Vector2i position)
-        {
-            if (_processing.ContainsKey(position))
-            {
-                var task = _processing[position];
-                task.Cancel();
-                task.Join();
-                OnProcessed(task);
-            }
-            else
-            {
-                _tasks.Remove(position);
-            }
         }
 
         public void CancelAll()

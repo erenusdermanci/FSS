@@ -4,7 +4,6 @@ using Chunks.Client;
 using Chunks.Server;
 using Chunks.Tasks;
 using DebugTools;
-using ProceduralGeneration;
 using UnityEngine;
 using Utils;
 using Color = UnityEngine.Color;
@@ -37,33 +36,14 @@ namespace Chunks
         {
             _chunkServerTaskScheduler = new ChunkServerTaskScheduler(type);
             _chunkSimulator = new ChunkLayerSimulator(this);
-
-            ProceduralGenerator.UpdateEvent += ProceduralGeneratorUpdate;
         }
 
         public void Start()
         {
             _chunkPool = new GameObjectPool(this, chunkManager.generatedAreaSize * chunkManager.generatedAreaSize);
             chunkManager.GeneratedAreaSizeChanged += OnGeneratedAreaSizeChanged;
-            _chunkServerTaskScheduler.GetTaskManager(ChunkTaskTypes.Save).Processed += OnChunkSaved;
-            _chunkServerTaskScheduler.GetTaskManager(ChunkTaskTypes.Load).Processed += OnChunkLoaded;
             _chunkServerTaskScheduler.GetTaskManager(ChunkTaskTypes.Generate).Processed += OnChunkGenerated;
             _chunkSimulator.Simulated += OnChunkSimulated;
-        }
-
-        private void OnChunkSaved(object sender, EventArgs e)
-        {
-            var chunk = ((ChunkTaskEvent<ChunkServer>) e).Chunk;
-            ServerChunkMap[chunk.Position]?.Dispose();
-            ServerChunkMap.Remove(chunk.Position);
-            ClientChunkMap[chunk.Position]?.Dispose();
-            ClientChunkMap.Remove(chunk.Position);
-            _chunkSimulator.UpdateSimulationPool(chunk, false);
-        }
-
-        private void OnChunkLoaded(object sender, EventArgs e)
-        {
-            FinalizeChunkCreation(((ChunkTaskEvent<ChunkServer>) e).Chunk);
         }
 
         private void OnChunkGenerated(object sender, EventArgs e)
@@ -83,15 +63,14 @@ namespace Chunks
 
         private void OnGeneratedAreaSizeChanged(object sender, EventArgs e)
         {
-            ResetGrid(true);
+            ResetGrid();
         }
 
-        private void ResetGrid(bool loadFromDisk)
+        private void ResetGrid()
         {
             var position = ChunkManager.MainCameraPosition;
             var flooredAroundPosition = new Vector2i((int) Mathf.Floor(position.x), (int) Mathf.Floor(position.y));
 
-            _chunkServerTaskScheduler.CancelLoading();
             _chunkServerTaskScheduler.CancelGeneration();
 
             foreach (var clientChunk in ClientChunkMap.Map.Values)
@@ -108,12 +87,12 @@ namespace Chunks
 
             _chunkSimulator.Clear();
 
-            Generate(flooredAroundPosition, loadFromDisk);
+            Generate(flooredAroundPosition);
         }
 
         private void ProceduralGeneratorUpdate(object sender, EventArgs e)
         {
-            ResetGrid(false);
+            ResetGrid();
         }
 
         private void OutlineChunks()
@@ -168,7 +147,7 @@ namespace Chunks
         {
             if (chunkManager.CameraHasMoved)
             {
-                Generate(chunkManager.CameraFlooredPosition, true);
+                Generate(chunkManager.CameraFlooredPosition);
                 Clean(chunkManager.CameraFlooredPosition);
             }
 
@@ -208,22 +187,17 @@ namespace Chunks
             {
                 var chunk = ServerChunkMap[chunkPosition];
                 ServerChunkMap.Remove(chunkPosition);
-                DisposeAndSaveChunk(chunk);
+                DisposeChunk(chunk);
             }
         }
 
-        private void DisposeAndSaveChunk(ChunkServer chunk)
+        private void DisposeChunk(ChunkServer chunk)
         {
-            if (GlobalDebugConfig.StaticGlobalConfig.disableSave)
-            {
-                ServerChunkMap[chunk.Position]?.Dispose();
-                ServerChunkMap.Remove(chunk.Position);
-                ClientChunkMap[chunk.Position]?.Dispose();
-                ClientChunkMap.Remove(chunk.Position);
-                _chunkSimulator.UpdateSimulationPool(chunk, false);
-                return;
-            }
-            _chunkServerTaskScheduler.QueueForSaving(chunk);
+            ServerChunkMap[chunk.Position]?.Dispose();
+            ServerChunkMap.Remove(chunk.Position);
+            ClientChunkMap[chunk.Position]?.Dispose();
+            ClientChunkMap.Remove(chunk.Position);
+            _chunkSimulator.UpdateSimulationPool(chunk, false);
         }
 
         private void CreateClientChunk(ChunkServer serverChunk)
@@ -244,7 +218,7 @@ namespace Chunks
             clientChunk.UpdateTexture();
         }
 
-        private void Generate(Vector2i aroundPosition, bool loadFromDisk)
+        private void Generate(Vector2i aroundPosition)
         {
             for (var x = 0; x < chunkManager.generatedAreaSize; ++x)
             {
@@ -253,7 +227,7 @@ namespace Chunks
                     var pos = new Vector2i(aroundPosition.x + (x - chunkManager.generatedAreaSize / 2), aroundPosition.y + (y - chunkManager.generatedAreaSize / 2));
                     if (ServerChunkMap.Contains(pos))
                         continue;
-                    _chunkServerTaskScheduler.QueueForGeneration(pos, loadFromDisk);
+                    _chunkServerTaskScheduler.QueueForGeneration(pos);
                 }
             }
         }
@@ -314,15 +288,12 @@ namespace Chunks
 
         private void OnDestroy()
         {
-            _chunkServerTaskScheduler.CancelLoading();
             _chunkServerTaskScheduler.CancelGeneration();
 
             foreach (var chunk in ServerChunkMap.Chunks())
             {
-                DisposeAndSaveChunk(chunk);
+                DisposeChunk(chunk);
             }
-
-            _chunkServerTaskScheduler.ForceSaving();
 
             ServerChunkMap.Clear();
         }

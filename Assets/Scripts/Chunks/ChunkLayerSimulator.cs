@@ -30,7 +30,6 @@ namespace Chunks
         public void Update()
         {
             var enableDirty = !GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks;
-            var synchronous = GlobalDebugConfig.StaticGlobalConfig.monoThreadSimulate;
 
             foreach (var batch in _simulationBatchPool)
             {
@@ -38,7 +37,7 @@ namespace Chunks
                 {
                     if (enableDirty && !task.Chunk.Dirty)
                         continue;
-                    task.Schedule(synchronous);
+                    task.Schedule();
                 }
 
                 foreach (var task in batch.Values)

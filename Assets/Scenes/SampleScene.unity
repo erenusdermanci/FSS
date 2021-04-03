@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -149,7 +149,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 12
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &157987759
 GameObject:
@@ -413,7 +413,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 10
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &386375727
 GameObject:
@@ -570,237 +570,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1635059204}
   m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &518032209
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 518032211}
-  - component: {fileID: 518032210}
-  m_Layer: 0
-  m_Name: ProceduralGenerator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &518032210
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 518032209}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 553ecd07f81c9e441bb97ce71251b9ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  generationModel:
-    layers:
-    - heightNoises:
-      - type: 0
-        fractalType: 1
-        octaves: 3
-        gain: 6
-        frequency: 2
-        lacunarity: 1
-        xAmplitude: 1
-        yAmplitude: 1
-        xOffset: 0
-        yOffset: 0
-      - type: 0
-        fractalType: 1
-        octaves: 3
-        gain: 2
-        frequency: 6
-        lacunarity: 1
-        xAmplitude: 1
-        yAmplitude: 1
-        xOffset: 2.61
-        yOffset: 0.57
-      inLayerNoises:
-      - type: 3
-        fractalType: 1
-        octaves: 1
-        gain: 1
-        frequency: 1
-        lacunarity: 1
-        xAmplitude: 3.17
-        yAmplitude: 0.88
-        xOffset: 0
-        yOffset: 0
-      thresholds:
-      - type: 0
-        threshold: 0.5
-      - type: 0
-        threshold: 1
-      depth: 0
-    - heightNoises:
-      - type: 0
-        fractalType: 1
-        octaves: 3
-        gain: 6
-        frequency: 2
-        lacunarity: 1
-        xAmplitude: 32.41
-        yAmplitude: -4.6
-        xOffset: 0
-        yOffset: 0
-      - type: 0
-        fractalType: 1
-        octaves: 3
-        gain: 2
-        frequency: 6
-        lacunarity: 1
-        xAmplitude: 21
-        yAmplitude: 0.2
-        xOffset: -0.08
-        yOffset: 0
-      inLayerNoises:
-      - type: 3
-        fractalType: 1
-        octaves: 1
-        gain: 1
-        frequency: 1
-        lacunarity: 1
-        xAmplitude: 1
-        yAmplitude: 0.62
-        xOffset: -0.1
-        yOffset: 0
-      thresholds:
-      - type: 0
-        threshold: 0.3
-      - type: 3
-        threshold: 1
-      depth: 32
-    - heightNoises:
-      - type: 0
-        fractalType: 1
-        octaves: 3
-        gain: 5.89
-        frequency: 2.81
-        lacunarity: 1
-        xAmplitude: 36.69
-        yAmplitude: 0.3
-        xOffset: -15.7
-        yOffset: 0
-      - type: 0
-        fractalType: 1
-        octaves: 3
-        gain: 2
-        frequency: 6
-        lacunarity: 1
-        xAmplitude: 66.52
-        yAmplitude: 2.3
-        xOffset: 4.31
-        yOffset: 0.08
-      inLayerNoises:
-      - type: 3
-        fractalType: 1
-        octaves: 1
-        gain: 1
-        frequency: 1
-        lacunarity: 1
-        xAmplitude: 1
-        yAmplitude: 1
-        xOffset: 0
-        yOffset: 0
-      thresholds:
-      - type: 4
-        threshold: 1
-      depth: 32
-    - heightNoises:
-      - type: 0
-        fractalType: 1
-        octaves: 3
-        gain: 6.19
-        frequency: 2
-        lacunarity: 1
-        xAmplitude: 5.42
-        yAmplitude: -0.08
-        xOffset: -1.76
-        yOffset: 0
-      - type: 0
-        fractalType: 1
-        octaves: 3
-        gain: 2
-        frequency: 6
-        lacunarity: 1
-        xAmplitude: 46.07
-        yAmplitude: 6.83
-        xOffset: 1.29
-        yOffset: 2.9
-      inLayerNoises:
-      - type: 3
-        fractalType: 1
-        octaves: 5
-        gain: 1
-        frequency: 1
-        lacunarity: 1
-        xAmplitude: 1
-        yAmplitude: 1
-        xOffset: 0
-        yOffset: 0
-      thresholds:
-      - type: 5
-        threshold: 0.15
-      - type: 6
-        threshold: 1
-      depth: 128
-    - heightNoises:
-      - type: 0
-        fractalType: 1
-        octaves: 3
-        gain: 6
-        frequency: 2
-        lacunarity: 1
-        xAmplitude: 36
-        yAmplitude: 1.15
-        xOffset: 0
-        yOffset: 0
-      - type: 0
-        fractalType: 1
-        octaves: 3
-        gain: 2
-        frequency: 6
-        lacunarity: 1
-        xAmplitude: 41.44
-        yAmplitude: 2.5
-        xOffset: 0
-        yOffset: 0
-      inLayerNoises:
-      - type: 3
-        fractalType: 1
-        octaves: 1
-        gain: 1
-        frequency: 1
-        lacunarity: 1
-        xAmplitude: 1
-        yAmplitude: 1
-        xOffset: 0
-        yOffset: 0
-      thresholds:
-      - type: 6
-        threshold: 1
-      depth: 256
---- !u!4 &518032211
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 518032209}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1635059204}
-  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
@@ -1053,7 +822,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 14
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &781844751
 MonoBehaviour:
@@ -1713,7 +1482,6 @@ Transform:
   - {fileID: 1581361255}
   - {fileID: 1956363110}
   - {fileID: 729951047}
-  - {fileID: 518032211}
   - {fileID: 382563291}
   - {fileID: 2048673873}
   - {fileID: 153382464}
@@ -1834,10 +1602,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   globalConfig:
-    disableSave: 1
-    disableLoad: 1
-    enableProceduralGeneration: 1
-    monoThreadSimulate: 0
     pauseSimulation: 0
     stepByStep: 0
     outlineChunks: 0
@@ -1846,7 +1610,6 @@ MonoBehaviour:
     disableDirtyChunks: 0
     disableDirtyRects: 0
     disableCollisions: 0
-    saveAsTestScene: 0
     disableDrawingTool: 0
 --- !u!4 &1770982830
 Transform:
@@ -1860,7 +1623,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 13
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1956363109
 GameObject:
@@ -1966,7 +1729,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 15
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1999880402
 MonoBehaviour:
@@ -2029,7 +1792,7 @@ RectTransform:
   m_Children:
   - {fileID: 1127925851}
   m_Father: {fileID: 1635059204}
-  m_RootOrder: 11
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}

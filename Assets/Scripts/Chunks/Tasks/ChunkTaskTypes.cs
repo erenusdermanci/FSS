@@ -2,8 +2,6 @@
 {
     public enum ChunkTaskTypes
     {
-        Save,
-        Load,
         Generate
     }
 }
