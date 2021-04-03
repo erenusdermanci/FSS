@@ -10,7 +10,7 @@ using Utils;
 using static Chunks.ChunkLayer;
 using Color = Utils.Color;
 
-namespace DebugTools.DrawingTool
+namespace Tools.DrawingTool
 {
     public class DrawingTool : MonoBehaviour
     {

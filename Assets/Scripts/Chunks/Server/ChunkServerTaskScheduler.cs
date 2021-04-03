@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Chunks.Tasks;
-using DebugTools.ProfilingTool;
+using Tools.ProfilingTool;
 using Utils;
 using static Chunks.ChunkLayer;
 

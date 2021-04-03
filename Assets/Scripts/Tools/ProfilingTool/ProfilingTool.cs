@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace DebugTools.ProfilingTool
+namespace Tools.ProfilingTool
 {
     public class ProfilingTool : MonoBehaviour
     {

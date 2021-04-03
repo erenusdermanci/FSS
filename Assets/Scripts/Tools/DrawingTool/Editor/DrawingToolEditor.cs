@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace DebugTools.DrawingTool.Editor
+namespace Tools.DrawingTool.Editor
 {
     [CustomEditor(typeof(DrawingTool))]
     public class DrawingToolEditor : UnityEditor.Editor

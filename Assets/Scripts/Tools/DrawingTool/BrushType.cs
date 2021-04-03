@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DebugTools.DrawingTool
+namespace Tools.DrawingTool
 {
     [Serializable]
     public enum BrushType

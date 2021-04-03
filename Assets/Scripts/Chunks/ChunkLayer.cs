@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Chunks.Client;
 using Chunks.Server;
 using Chunks.Tasks;
-using DebugTools;
+using Tools;
 using UnityEngine;
 using Utils;
 using Color = UnityEngine.Color;
@@ -88,11 +88,6 @@ namespace Chunks
             _chunkSimulator.Clear();
 
             Generate(flooredAroundPosition);
-        }
-
-        private void ProceduralGeneratorUpdate(object sender, EventArgs e)
-        {
-            ResetGrid();
         }
 
         private void OutlineChunks()

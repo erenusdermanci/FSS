@@ -1,4 +1,4 @@
-﻿namespace DebugTools.ProfilingTool
+﻿namespace Tools.ProfilingTool
 {
 
     public enum ProfilingCounterTypes

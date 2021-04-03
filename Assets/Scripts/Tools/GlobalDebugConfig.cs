@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace DebugTools
+namespace Tools
 {
     public class GlobalDebugConfig : MonoBehaviour
     {
