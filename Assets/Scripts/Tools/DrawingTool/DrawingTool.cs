@@ -19,25 +19,14 @@ namespace Tools.DrawingTool
         public ClientCollisionManager clientCollisionManager;
 
         [HideInInspector]
-        public int selectedDrawBlock;
+        public DrawingParameters.DrawingParameters parameters;
 
         public bool drawBrushSelection;
-
-        public DrawingToolType selectedDrawingTool;
-        public DrawingBrushType selectedDrawingBrush;
-
-        [HideInInspector]
-        public int selectedState;
 
         public bool colorizeOnly;
         public bool overrideDefaultColors;
         public Color32 pixelColorOverride;
 
-        [HideInInspector]
-        public int boxSize;
-
-        [HideInInspector]
-        public int circleRadius;
 
         public Text uiCoordText;
 
@@ -49,6 +38,11 @@ namespace Tools.DrawingTool
         private readonly HashSet<Vector2i> _chunksToReload = new HashSet<Vector2i>();
 
         private ChunkLayerType _currentLayer = ChunkLayerType.Foreground;
+
+        private void Awake()
+        {
+            parameters = GetComponent<DrawingParameters.DrawingParameters>();
+        }
 
         private void Update()
         {
@@ -72,7 +66,7 @@ namespace Tools.DrawingTool
                 DrawChunkGrid(blockPosition.x, blockPosition.y);
             }
 
-            switch (selectedDrawingTool)
+            switch (parameters.tool)
             {
                 case DrawingToolType.Point:
                     UpdateDraw(blockPosition);
@@ -80,6 +74,8 @@ namespace Tools.DrawingTool
                 case DrawingToolType.Fill:
                     UpdateFill(blockPosition);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             foreach (var chunkPos in _chunksToReload)
@@ -144,19 +140,19 @@ namespace Tools.DrawingTool
             var blockInfo = new Block();
             chunk.GetBlockInfo(blockIndexInChunk, ref blockInfo);
 
-            switch (selectedDrawingBrush)
+            switch (parameters.brush)
             {
                 case DrawingBrushType.Box:
                 {
-                    var blockSize = 1f / Chunk.Size * boxSize;
-                    DebugDraw.Rectangle(chunk.Position.x - 0.5f + (blockXInChunk - boxSize / 2f) / Chunk.Size,
-                        chunk.Position.y - 0.5f + (blockYInChunk - boxSize / 2f) / Chunk.Size,
+                    var blockSize = 1f / Chunk.Size * parameters.size;
+                    DebugDraw.Rectangle(chunk.Position.x - 0.5f + (blockXInChunk - parameters.size / 2f) / Chunk.Size,
+                        chunk.Position.y - 0.5f + (blockYInChunk - parameters.size / 2f) / Chunk.Size,
                         blockSize, blockSize, UnityEngine.Color.red);
                     break;
                 }
                 case DrawingBrushType.Circle:
                 {
-                    DebugDraw.Circle(worldX / Chunk.Size - 0.5f, worldY / Chunk.Size - 0.5f, circleRadius / (float)Chunk.Size);
+                    DebugDraw.Circle(worldX / Chunk.Size - 0.5f, worldY / Chunk.Size - 0.5f, parameters.radius / (float)Chunk.Size);
                     break;
                 }
             }
@@ -250,13 +246,13 @@ namespace Tools.DrawingTool
 
         private void DrawBrush(int x, int y, bool immediate = true)
         {
-            switch (selectedDrawingBrush)
+            switch (parameters.brush)
             {
                 case DrawingBrushType.Box:
-                    Draw.Rectangle(x, y, boxSize, boxSize, (i, j) => PutBlock(i, j, immediate));
+                    Draw.Rectangle(x, y, parameters.size, parameters.size, (i, j) => PutBlock(i, j, immediate));
                     break;
                 case DrawingBrushType.Circle:
-                    Draw.Circle(x, y, circleRadius, (i, j) => PutBlock(i, j, immediate));
+                    Draw.Circle(x, y, parameters.radius, (i, j) => PutBlock(i, j, immediate));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -276,9 +272,9 @@ namespace Tools.DrawingTool
             var r = (byte)(blockColor.r / ((int) _currentLayer + 1.0f));
             var g = (byte)(blockColor.g / ((int)_currentLayer + 1.0f));
             var b = (byte)(blockColor.b / ((int)_currentLayer + 1.0f));
-            if (selectedState == 1)
+            if (parameters.state == 1)
             {
-                var fireSpread = BlockConstants.BlockDescriptors[selectedDrawBlock].FireSpreader;
+                var fireSpread = BlockConstants.BlockDescriptors[parameters.block].FireSpreader;
                 if (fireSpread != null && fireSpread.CombustionProbability > 0.0f)
                 {
                     blockColor = fireSpread.FireColor;
@@ -303,16 +299,16 @@ namespace Tools.DrawingTool
             }
             else
             {
-                var descriptor = BlockConstants.BlockDescriptors[selectedDrawBlock];
-                if (descriptor.InitialStates != 0 && selectedState == 0)
-                    selectedState = BlockConstants.BlockDescriptors[selectedDrawBlock].InitialStates;
-                chunk.PutBlock(blockXInChunk, blockYInChunk, selectedDrawBlock, r, g, b, blockColor.a,
-                    selectedState, BlockConstants.BlockDescriptors[selectedDrawBlock].BaseHealth, 0);
+                var descriptor = BlockConstants.BlockDescriptors[parameters.block];
+                if (descriptor.InitialStates != 0 && parameters.state == 0)
+                    parameters.state = BlockConstants.BlockDescriptors[parameters.block].InitialStates;
+                chunk.PutBlock(blockXInChunk, blockYInChunk, parameters.block, r, g, b, blockColor.a,
+                    parameters.state, BlockConstants.BlockDescriptors[parameters.block].BaseHealth, 0);
                 if (descriptor.PlantGrower != null)
                 {
-                    ref var plantBlockData = ref chunk.GetPlantBlockData(blockXInChunk, blockYInChunk, selectedDrawBlock);
+                    ref var plantBlockData = ref chunk.GetPlantBlockData(blockXInChunk, blockYInChunk, parameters.block);
                     if (plantBlockData.id != 0)
-                        plantBlockData.Reset(selectedDrawBlock, BlockIdGenerator.Next());
+                        plantBlockData.Reset(parameters.block, BlockIdGenerator.Next());
                 }
             }
 
@@ -345,7 +341,7 @@ namespace Tools.DrawingTool
             if (overrideDefaultColors)
                 return new Color(pixelColorOverride.r, pixelColorOverride.g, pixelColorOverride.b, pixelColorOverride.a);
 
-            var block = selectedDrawBlock;
+            var block = parameters.block;
             var color = BlockConstants.BlockDescriptors[block].Color;
             color.Shift(out var r, out var g, out var b);
             return new Color(r, g, b, color.a);

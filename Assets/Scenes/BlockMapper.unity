@@ -131,6 +131,7 @@ GameObject:
   m_Component:
   - component: {fileID: 164496527}
   - component: {fileID: 164496526}
+  - component: {fileID: 164496529}
   - component: {fileID: 164496528}
   m_Layer: 0
   m_Name: BlockMapper
@@ -216,7 +217,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3135b2cedbab3804087a5bd0ebcf5afc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedBlock: 0
+  parameters: {fileID: 0}
+--- !u!114 &164496529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 164496525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c04a31f4c9814e388ed02654a9c65c57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  block: 0
+  state: 0
+  tool: 0
+  brush: 1
+  size: 8
+  radius: 8
 --- !u!1 &448959329
 GameObject:
   m_ObjectHideFlags: 0

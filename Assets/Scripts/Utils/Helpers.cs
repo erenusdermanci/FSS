@@ -1,4 +1,6 @@
 ﻿using System;
+using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace Utils
@@ -26,6 +28,22 @@ namespace Utils
         {
             var r = n % m;
             return r < 0 ? r + m : r;
+        }
+
+        public static void SetEditorDirty(MonoBehaviour obj)
+        {
+            try
+            {
+                if (!GUI.changed)
+                    return;
+                EditorUtility.SetDirty(obj);
+                EditorSceneManager.MarkSceneDirty(obj.gameObject.scene);
+            }
+            catch (Exception)
+            {
+                // When the scene is playing, an exception is thrown because we cannot save the fields
+                // so silently catch it
+            }
         }
     }
 }

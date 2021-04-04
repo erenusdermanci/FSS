@@ -4,17 +4,17 @@ using Blocks;
 using UnityEditor;
 using UnityEngine;
 using Utils;
-using Color = UnityEngine.Color;
+using Color = Utils.Color;
 
 namespace Tools.BlockMapper
 {
     public class BlockMapper : MonoBehaviour
     {
         private const int UnassignedBlockType = -1;
-        private static readonly Utils.Color UnassignedBlockColor = new Utils.Color(255, 0, 0, 255);
+        private static readonly Color UnassignedBlockColor = new Color(255, 0, 0, 255);
 
         [HideInInspector]
-        public int selectedBlock;
+        public DrawingParameters.DrawingParameters parameters;
 
         private SpriteRenderer _blockMaskSpriteRenderer;
         private Texture2D _blockMaskTexture;
@@ -29,6 +29,7 @@ namespace Tools.BlockMapper
 
         private void Awake()
         {
+            parameters = GetComponent<DrawingParameters.DrawingParameters>();
             _spriteRenderer = GetComponent<SpriteRenderer>();
             var sprite = _spriteRenderer.sprite;
             _texelSize = 1.0f / sprite.pixelsPerUnit;
@@ -76,12 +77,12 @@ namespace Tools.BlockMapper
             _blockMaskTexture.Apply();
         }
 
-        private static Utils.Color GetBlockColor(int type)
+        private static Color GetBlockColor(int type)
         {
             return type == UnassignedBlockType ? UnassignedBlockColor : BlockConstants.BlockDescriptors[type].Color;
         }
 
-        private void AssignBlockColor(int index, Utils.Color color)
+        private void AssignBlockColor(int index, Color color)
         {
             _blockMaskColors[index * 4 + 0] = color.r;
             _blockMaskColors[index * 4 + 1] = color.g;
@@ -112,8 +113,8 @@ namespace Tools.BlockMapper
                 if (blockX < 0 || blockY < 0 || blockX >= sprite.texture.width || blockY >= sprite.texture.height)
                     return;
                 var blockIndex = blockY * sprite.texture.width + blockX;
-                _blockTypes[blockIndex] = selectedBlock;
-                AssignBlockColor(blockIndex, GetBlockColor(selectedBlock));
+                _blockTypes[blockIndex] = parameters.block;
+                AssignBlockColor(blockIndex, GetBlockColor(parameters.block));
                 ReloadBlockMaskTexture();
             }
         }
@@ -144,7 +145,7 @@ namespace Tools.BlockMapper
             var sprite = _spriteRenderer.sprite;
             var texelX = Mathf.Floor(_mouseWorldPosition.x * sprite.pixelsPerUnit) / sprite.pixelsPerUnit;
             var texelY = Mathf.Floor(_mouseWorldPosition.y * sprite.pixelsPerUnit) / sprite.pixelsPerUnit;
-            DebugDraw.Rectangle(texelX, texelY, _texelSize, _texelSize, Color.red);
+            DebugDraw.Rectangle(texelX, texelY, _texelSize, _texelSize, UnityEngine.Color.red);
         }
 
         private void SaveBlocks()
