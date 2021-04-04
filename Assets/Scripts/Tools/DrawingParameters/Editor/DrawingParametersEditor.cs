@@ -22,10 +22,10 @@ namespace Tools.DrawingParameters.Editor
                 switch (parameters.brush)
                 {
                     case DrawingBrushType.Box:
-                        parameters.size = EditorGUILayout.IntSlider("Size", parameters.size, 0, 1024);
+                        parameters.size = EditorGUILayout.IntSlider("Size", parameters.size, 1, 1024);
                         break;
                     case DrawingBrushType.Circle:
-                        parameters.radius = EditorGUILayout.IntSlider("Radius", parameters.radius, 0, 1024);
+                        parameters.size = EditorGUILayout.IntSlider("Radius", parameters.size, 1, 1024);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

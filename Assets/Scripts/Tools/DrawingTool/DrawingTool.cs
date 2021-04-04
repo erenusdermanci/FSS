@@ -69,7 +69,7 @@ namespace Tools.DrawingTool
             switch (parameters.tool)
             {
                 case DrawingToolType.Brush:
-                    UpdateDraw(blockPosition);
+                    UpdateBrush(blockPosition);
                     break;
                 case DrawingToolType.Fill:
                     UpdateFill(blockPosition);
@@ -153,7 +153,7 @@ namespace Tools.DrawingTool
                 case DrawingBrushType.Circle:
                 {
                     DebugDraw.Circle(worldX / Chunk.Size - 0.5f, worldY / Chunk.Size - 0.5f,
-                        parameters.radius / (float) Chunk.Size, UnityEngine.Color.red);
+                        parameters.size / (float) Chunk.Size, UnityEngine.Color.red);
                     break;
                 }
             }
@@ -175,7 +175,7 @@ namespace Tools.DrawingTool
                 + $"Current UpdatedFlag: {ChunkManager.UpdatedFlag}";
         }
 
-        private void UpdateDraw(Vector2i blockPosition)
+        private void UpdateBrush(Vector2i blockPosition)
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -253,7 +253,7 @@ namespace Tools.DrawingTool
                     Draw.Rectangle(x, y, parameters.size, parameters.size, (i, j) => PutBlock(i, j, immediate));
                     break;
                 case DrawingBrushType.Circle:
-                    Draw.Circle(x, y, parameters.radius, (i, j) => PutBlock(i, j, immediate));
+                    Draw.Circle(x, y, parameters.size, (i, j) => PutBlock(i, j, immediate));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -20,8 +20,5 @@ namespace Tools.DrawingParameters
 
         [HideInInspector]
         public int size;
-
-        [HideInInspector]
-        public int radius;
     }
 }
