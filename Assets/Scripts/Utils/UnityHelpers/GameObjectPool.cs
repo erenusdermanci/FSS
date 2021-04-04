@@ -14,7 +14,7 @@ namespace Utils
         public GameObjectPool(ChunkLayer chunkLayer, int amountToPool)
         {
             _chunkLayer = chunkLayer;
-            _objectToPool = (GameObject) Resources.Load("ChunkObject1");
+            _objectToPool = (GameObject) Resources.Load("Chunk");
             _pooledObjects = new List<GameObject>();
             for (var i = 0; i < amountToPool; i++)
             {
