@@ -1,6 +1,6 @@
 ﻿using System;
-using Chunks;
 using Chunks.Server;
+using Tiles;
 
 namespace Blocks.Behaviors
 {
@@ -23,7 +23,7 @@ namespace Blocks.Behaviors
             }
         }
 
-        private bool isBlockedBy(BlockTags tag)
+        private bool IsBlockedBy(BlockTags tag)
         {
             return _blockedBy[(int) tag];
         }
@@ -115,7 +115,7 @@ namespace Blocks.Behaviors
                 targetBlocks[j] = chunkNeighborhood.GetBlockType(targetX, targetY);
 
                 // collision, we cannot continue further in this direction
-                if (isBlockedBy(BlockConstants.BlockDescriptors[targetBlocks[j]].Tag))
+                if (IsBlockedBy(BlockConstants.BlockDescriptors[targetBlocks[j]].Tag))
                     return targetsFound;
 
                 // density logic check
@@ -148,7 +148,7 @@ namespace Blocks.Behaviors
                     continue;
 
                 // target was already updated during this simulation frame, not a valid target
-                if (chunkNeighborhood.GetBlockUpdatedFlag(targetX, targetY) == ChunkManager.UpdatedFlag)
+                if (chunkNeighborhood.GetBlockUpdatedFlag(targetX, targetY) == WorldManager.UpdatedFlag)
                     continue;
 
                 // all criteria met, target is available

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Tiles;
 using Utils;
 
 namespace Chunks.Tasks
@@ -7,7 +8,7 @@ namespace Chunks.Tasks
     {
         public int Compare(Vector2i x, Vector2i y)
         {
-            var playerPosition = ChunkManager.MainCameraPosition;
+            var playerPosition = WorldManager.MainCameraPosition;
             return -Vector2i.Distance(x, playerPosition.x, playerPosition.y)
                 .CompareTo(Vector2i.Distance(y, playerPosition.x, playerPosition.y));
         }

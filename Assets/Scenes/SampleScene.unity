@@ -547,7 +547,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: beddc75c589c4c659ad7a546749d559c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkManager: {fileID: 1436826251}
   type: 1
 --- !u!1 &781844749
 GameObject:
@@ -842,7 +841,7 @@ GameObject:
   - component: {fileID: 1436826252}
   - component: {fileID: 1436826251}
   m_Layer: 0
-  m_Name: ChunkManager
+  m_Name: WorldManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -860,8 +859,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5622f3aa0bab67e4f8985a03fde9de4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  generatedAreaSize: 20
-  cleanAreaSizeOffset: 2
+  chunkLayers:
+  - {fileID: 1956363111}
+  - {fileID: 729951048}
 --- !u!4 &1436826252
 Transform:
   m_ObjectHideFlags: 0
@@ -1209,7 +1209,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: beddc75c589c4c659ad7a546749d559c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkManager: {fileID: 1436826251}
   type: 0
 --- !u!1 &1999880400
 GameObject:
@@ -1284,7 +1283,6 @@ MonoBehaviour:
   tool: 0
   brush: 1
   size: 8
-  radius: 8
 --- !u!1 &2048673872
 GameObject:
   m_ObjectHideFlags: 0

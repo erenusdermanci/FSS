@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Blocks;
 using Serialized;
+using Tiles;
 
 namespace Chunks.Server
 {
@@ -41,7 +42,7 @@ namespace Chunks.Server
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
 
             if (Chunks[chunkIndex] == null)
-                return ChunkManager.UpdatedFlag;
+                return WorldManager.UpdatedFlag;
 
             return Chunks[chunkIndex].BlockUpdatedFlags[y * Chunk.Size + x];
         }
@@ -149,7 +150,7 @@ namespace Chunks.Server
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UpdateOutsideChunk(ref int x, ref int y, out int chunkIndex)
+        private static void UpdateOutsideChunk(ref int x, ref int y, out int chunkIndex)
         {
             var ix = (int) (x / 64.0f + 32768.0f) - 32768;
             var iy = (int) (y / 64.0f + 32768.0f) - 32768;

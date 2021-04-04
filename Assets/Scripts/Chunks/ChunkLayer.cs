@@ -4,6 +4,7 @@ using Chunks.Client;
 using Chunks.Server;
 using Chunks.Tasks;
 using Tools;
+using Tiles;
 using UnityEngine;
 using Utils;
 using Utils.UnityHelpers;
@@ -13,7 +14,6 @@ namespace Chunks
 {
     public class ChunkLayer : MonoBehaviour
     {
-        public ChunkManager chunkManager;
         private GameObjectPool _chunkPool;
 
         public enum ChunkLayerType
@@ -22,6 +22,7 @@ namespace Chunks
             Background
         }
 
+        // Chunks
         public ChunkLayerType type;
 
         public readonly ChunkMap<ChunkServer> ServerChunkMap = new ChunkMap<ChunkServer>();
@@ -29,22 +30,21 @@ namespace Chunks
         private readonly List<ChunkClient> _chunksToRender = new List<ChunkClient>();
 
         private ChunkServerTaskScheduler _chunkServerTaskScheduler;
-        private ChunkLayerSimulator _chunkSimulator;
+        public ChunkLayerSimulator chunkSimulator;
 
         private bool _userPressedSpace;
 
         public void Awake()
         {
+            _chunkPool = new GameObjectPool(this, Tile.Size * Tile.Size * 5); // 5 tiles at a time
             _chunkServerTaskScheduler = new ChunkServerTaskScheduler(type);
-            _chunkSimulator = new ChunkLayerSimulator(this);
+            chunkSimulator = new ChunkLayerSimulator(this);
         }
 
         public void Start()
         {
-            _chunkPool = new GameObjectPool(this, chunkManager.generatedAreaSize * chunkManager.generatedAreaSize);
-            chunkManager.GeneratedAreaSizeChanged += OnGeneratedAreaSizeChanged;
             _chunkServerTaskScheduler.GetTaskManager(ChunkTaskTypes.Generate).Processed += OnChunkGenerated;
-            _chunkSimulator.Simulated += OnChunkSimulated;
+            chunkSimulator.Simulated += OnChunkSimulated;
         }
 
         private void OnChunkGenerated(object sender, EventArgs e)
@@ -62,38 +62,9 @@ namespace Chunks
             _chunksToRender.Add(clientChunk);
         }
 
-        private void OnGeneratedAreaSizeChanged(object sender, EventArgs e)
-        {
-            ResetGrid();
-        }
-
-        private void ResetGrid()
-        {
-            var position = ChunkManager.MainCameraPosition;
-            var flooredAroundPosition = new Vector2i((int) Mathf.Floor(position.x), (int) Mathf.Floor(position.y));
-
-            _chunkServerTaskScheduler.CancelGeneration();
-
-            foreach (var clientChunk in ClientChunkMap.Map.Values)
-            {
-                clientChunk.Dispose();
-            }
-            ClientChunkMap.Clear();
-
-            foreach (var serverChunk in ServerChunkMap.Map.Values)
-            {
-                serverChunk.Dispose();
-            }
-            ServerChunkMap.Clear();
-
-            _chunkSimulator.Clear();
-
-            Generate(flooredAroundPosition);
-        }
-
         private void OutlineChunks()
         {
-            const float s = 0.5f;
+            const float worldOffset = 0.5f;
             foreach (var chunk in ServerChunkMap.Chunks())
             {
                 var x = chunk.Position.x;
@@ -102,23 +73,23 @@ namespace Chunks
 
                 // draw the map borders
                 if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x - 1, chunk.Position.y)))
-                    Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), mapBorderColor);
+                    Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset, y + worldOffset), mapBorderColor);
                 if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x + 1, chunk.Position.y)))
-                    Debug.DrawLine(new Vector3(x + s, y - s), new Vector3(x + s, y + s), mapBorderColor);
+                    Debug.DrawLine(new Vector3(x + worldOffset, y - worldOffset), new Vector3(x + worldOffset, y + worldOffset), mapBorderColor);
                 if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x, chunk.Position.y - 1)))
-                    Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), mapBorderColor);
+                    Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x + worldOffset, y - worldOffset), mapBorderColor);
                 if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x, chunk.Position.y + 1)))
-                    Debug.DrawLine(new Vector3(x - s, y + s), new Vector3(x + s, y + s), mapBorderColor);
+                    Debug.DrawLine(new Vector3(x - worldOffset, y + worldOffset), new Vector3(x + worldOffset, y + worldOffset), mapBorderColor);
 
                 if (GlobalDebugConfig.StaticGlobalConfig.hideCleanChunkOutlines && !chunk.Dirty)
                     continue;
 
                 // draw the chunk borders
                 var borderColor = chunk.Dirty ? Color.red : Color.white;
-                Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x + s, y - s), borderColor);
-                Debug.DrawLine(new Vector3(x - s, y - s), new Vector3(x - s, y + s), borderColor);
-                Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x - s, y + s), borderColor);
-                Debug.DrawLine(new Vector3(x + s, y + s), new Vector3(x + s, y - s), borderColor);
+                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x + worldOffset, y - worldOffset), borderColor);
+                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset, y + worldOffset), borderColor);
+                Debug.DrawLine(new Vector3(x + worldOffset, y + worldOffset), new Vector3(x - worldOffset, y + worldOffset), borderColor);
+                Debug.DrawLine(new Vector3(x + worldOffset, y + worldOffset), new Vector3(x + worldOffset, y - worldOffset), borderColor);
             }
         }
 
@@ -126,9 +97,9 @@ namespace Chunks
         {
             ServerChunkMap.Add(chunk);
 
-            CreateClientChunk(chunk);
+            // CreateClientChunk(chunk);
 
-            _chunkSimulator.UpdateSimulationPool(chunk, true);
+            chunkSimulator.UpdateSimulationPool(chunk, true);
         }
 
         public void Update()
@@ -141,19 +112,19 @@ namespace Chunks
 
         private void FixedUpdate()
         {
-            if (chunkManager.CameraHasMoved)
-            {
-                Generate(chunkManager.CameraFlooredPosition);
-                Clean(chunkManager.CameraFlooredPosition);
-            }
+            // if (worldManager.CameraHasMoved)
+            // {
+            //     Generate(worldManager.CameraFlooredPosition); // replace with load
+            //     Clean(worldManager.CameraFlooredPosition); // replace with save+unload
+            // }
 
             if (GlobalDebugConfig.StaticGlobalConfig.stepByStep && _userPressedSpace)
             {
                 _userPressedSpace = false;
-                _chunkSimulator.Update();
+                chunkSimulator.Update();
             }
             else if (!GlobalDebugConfig.StaticGlobalConfig.pauseSimulation)
-                _chunkSimulator.Update();
+                chunkSimulator.Update();
 
             RenderChunks();
 
@@ -164,28 +135,28 @@ namespace Chunks
                 DrawDirtyRects();
         }
 
-        private void Clean(Vector2i aroundPosition)
-        {
-            var px = aroundPosition.x - (float)chunkManager.generatedAreaSize / 2;
-            var py = aroundPosition.y - (float)chunkManager.generatedAreaSize / 2;
-
-            var chunksToRemove = new List<Vector2i>();
-            foreach (var chunk in ServerChunkMap.Chunks())
-            {
-                if (!(chunk.Position.x < px - chunkManager.cleanAreaSizeOffset) &&
-                    !(chunk.Position.x > px + chunkManager.generatedAreaSize + chunkManager.cleanAreaSizeOffset) &&
-                    !(chunk.Position.y < py - chunkManager.cleanAreaSizeOffset) &&
-                    !(chunk.Position.y > py + chunkManager.generatedAreaSize + chunkManager.cleanAreaSizeOffset)) continue;
-                chunksToRemove.Add(chunk.Position);
-            }
-
-            foreach (var chunkPosition in chunksToRemove)
-            {
-                var chunk = ServerChunkMap[chunkPosition];
-                ServerChunkMap.Remove(chunkPosition);
-                DisposeChunk(chunk);
-            }
-        }
+        // private void Clean(Vector2i aroundPosition)
+        // {
+        //     var px = aroundPosition.x - (float)worldManager.generatedAreaSize / 2;
+        //     var py = aroundPosition.y - (float)worldManager.generatedAreaSize / 2;
+        //
+        //     var chunksToRemove = new List<Vector2i>();
+        //     foreach (var chunk in ServerChunkMap.Chunks())
+        //     {
+        //         if (!(chunk.Position.x < px - worldManager.cleanAreaSizeOffset) &&
+        //             !(chunk.Position.x > px + worldManager.generatedAreaSize + worldManager.cleanAreaSizeOffset) &&
+        //             !(chunk.Position.y < py - worldManager.cleanAreaSizeOffset) &&
+        //             !(chunk.Position.y > py + worldManager.generatedAreaSize + worldManager.cleanAreaSizeOffset)) continue;
+        //         chunksToRemove.Add(chunk.Position);
+        //     }
+        //
+        //     foreach (var chunkPosition in chunksToRemove)
+        //     {
+        //         var chunk = ServerChunkMap[chunkPosition];
+        //         ServerChunkMap.Remove(chunkPosition);
+        //         DisposeChunk(chunk);
+        //     }
+        // }
 
         private void DisposeChunk(ChunkServer chunk)
         {
@@ -193,38 +164,27 @@ namespace Chunks
             ServerChunkMap.Remove(chunk.Position);
             ClientChunkMap[chunk.Position]?.Dispose();
             ClientChunkMap.Remove(chunk.Position);
-            _chunkSimulator.UpdateSimulationPool(chunk, false);
+            chunkSimulator.UpdateSimulationPool(chunk, false);
         }
 
-        private void CreateClientChunk(ChunkServer serverChunk)
+        public void CreateClientChunks()
         {
-            var chunkGameObject = _chunkPool.GetObject();
-            chunkGameObject.transform.position = new Vector3(serverChunk.Position.x, serverChunk.Position.y, 0);
-            var clientChunk = new ChunkClient
+            foreach (var serverChunk in ServerChunkMap.Chunks())
             {
-                Position = serverChunk.Position,
-                Colors = serverChunk.Data.colors, // pointer on ChunkServer colors,
-                Types = serverChunk.Data.types, // pointer on ChunkServer types,
-                GameObject = chunkGameObject,
-                Collider = chunkGameObject.GetComponent<PolygonCollider2D>(),
-                Texture = chunkGameObject.GetComponent<SpriteRenderer>().sprite.texture
-            };
-            chunkGameObject.SetActive(true);
-            ClientChunkMap.Add(clientChunk);
-            clientChunk.UpdateTexture();
-        }
-
-        private void Generate(Vector2i aroundPosition)
-        {
-            for (var x = 0; x < chunkManager.generatedAreaSize; ++x)
-            {
-                for (var y = 0; y < chunkManager.generatedAreaSize; ++y)
+                var chunkGameObject = _chunkPool.GetObject();
+                chunkGameObject.transform.position = new Vector3(serverChunk.Position.x, serverChunk.Position.y, 0);
+                var clientChunk = new ChunkClient
                 {
-                    var pos = new Vector2i(aroundPosition.x + (x - chunkManager.generatedAreaSize / 2), aroundPosition.y + (y - chunkManager.generatedAreaSize / 2));
-                    if (ServerChunkMap.Contains(pos))
-                        continue;
-                    _chunkServerTaskScheduler.QueueForGeneration(pos);
-                }
+                    Position = serverChunk.Position,
+                    Colors = serverChunk.Data.colors, // pointer on ChunkServer colors,
+                    Types = serverChunk.Data.types, // pointer on ChunkServer types,
+                    GameObject = chunkGameObject,
+                    Collider = chunkGameObject.GetComponent<PolygonCollider2D>(),
+                    Texture = chunkGameObject.GetComponent<SpriteRenderer>().sprite.texture
+                };
+                chunkGameObject.SetActive(true);
+                ClientChunkMap.Add(clientChunk);
+                clientChunk.UpdateTexture();
             }
         }
 

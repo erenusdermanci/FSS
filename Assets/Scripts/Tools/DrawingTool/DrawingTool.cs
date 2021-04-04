@@ -4,6 +4,7 @@ using Blocks;
 using Chunks;
 using Chunks.Client;
 using Chunks.Server;
+using Tiles;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
@@ -174,7 +175,7 @@ namespace Tools.DrawingTool
                 + $"UpdatedFlag: {chunk.BlockUpdatedFlags[blockIndexInChunk]}\n"
                 + $"Color: [{r},{g},{b},{a}]\n"
                 + $"Chunk X:{chunk.Position.x}, Chunk Y: {chunk.Position.y}\n"
-                + $"Current UpdatedFlag: {ChunkManager.UpdatedFlag}";
+                + $"Current UpdatedFlag: {WorldManager.UpdatedFlag}";
         }
 
         private void UpdateBrush(Vector2i blockPosition)

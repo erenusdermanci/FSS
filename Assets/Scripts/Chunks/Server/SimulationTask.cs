@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Blocks;
 using Chunks.Tasks;
+using Tiles;
 using Tools;
 using Utils;
 using static Chunks.ChunkLayer;
@@ -152,7 +153,7 @@ namespace Chunks.Server
         private unsafe bool SimulateBlock(int x, int y, ref Block block,
             int* distances, int* bitCount, int* directionX, int* directionY)
         {
-            if (Chunk.BlockUpdatedFlags[y * Chunks.Chunk.Size + x] == ChunkManager.UpdatedFlag)
+            if (Chunk.BlockUpdatedFlags[y * Chunks.Chunk.Size + x] == WorldManager.UpdatedFlag)
             {
                 Chunk.UpdateBlockDirty(x, y);
                 return true;

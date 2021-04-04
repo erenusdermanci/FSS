@@ -1,6 +1,7 @@
 ﻿using Blocks;
 using Metadata;
 using Serialized;
+using Tiles;
 
 namespace Chunks.Server
 {
@@ -60,7 +61,7 @@ namespace Chunks.Server
                     return;
             }
 
-            BlockUpdatedFlags[i] = ChunkManager.UpdatedFlag;
+            BlockUpdatedFlags[i] = WorldManager.UpdatedFlag;
         }
 
         public ref PlantBlockData GetPlantBlockData(int x, int y, int type)
@@ -102,7 +103,6 @@ namespace Chunks.Server
 
             x -= DirtyRectX[i];
             y -= DirtyRectY[i];
-            var d = DirtyRects[i];
             if (DirtyRects[i].X < 0.0f)
             {
                 DirtyRects[i].X = x;
