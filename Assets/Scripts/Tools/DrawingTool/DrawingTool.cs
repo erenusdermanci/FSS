@@ -68,7 +68,7 @@ namespace Tools.DrawingTool
 
             switch (parameters.tool)
             {
-                case DrawingToolType.Point:
+                case DrawingToolType.Brush:
                     UpdateDraw(blockPosition);
                     break;
                 case DrawingToolType.Fill:

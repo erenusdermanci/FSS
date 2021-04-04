@@ -15,6 +15,7 @@ namespace Tools.DrawingParameters
 
         public DrawingToolType tool;
 
+        [HideInInspector]
         public DrawingBrushType brush;
 
         [HideInInspector]

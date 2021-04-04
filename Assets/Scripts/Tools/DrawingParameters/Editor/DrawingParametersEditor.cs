@@ -16,16 +16,20 @@ namespace Tools.DrawingParameters.Editor
 
             var parameters = (DrawingParameters) target;
 
-            switch (parameters.brush)
+            if (parameters.tool == DrawingToolType.Brush)
             {
-                case DrawingBrushType.Box:
-                    parameters.size = EditorGUILayout.IntSlider("Size", parameters.size, 0, 1024);
-                    break;
-                case DrawingBrushType.Circle:
-                    parameters.radius = EditorGUILayout.IntSlider("Radius", parameters.radius, 0, 1024);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                parameters.brush = (DrawingBrushType) EditorGUILayout.EnumPopup("Brush", parameters.brush);
+                switch (parameters.brush)
+                {
+                    case DrawingBrushType.Box:
+                        parameters.size = EditorGUILayout.IntSlider("Size", parameters.size, 0, 1024);
+                        break;
+                    case DrawingBrushType.Circle:
+                        parameters.radius = EditorGUILayout.IntSlider("Radius", parameters.radius, 0, 1024);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
 
             parameters.block = EditorGUILayout.Popup("Block", parameters.block, BlockConstants.BlockNames);

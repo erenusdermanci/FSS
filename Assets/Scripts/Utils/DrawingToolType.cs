@@ -5,7 +5,7 @@ namespace Utils
     [Serializable]
     public enum DrawingToolType
     {
-        Point,
+        Brush,
         Fill
     }
 }
