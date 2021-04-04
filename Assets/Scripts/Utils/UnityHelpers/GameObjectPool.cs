@@ -3,7 +3,7 @@ using System.Linq;
 using Chunks;
 using UnityEngine;
 
-namespace Utils
+namespace Utils.UnityHelpers
 {
     public class GameObjectPool
     {
