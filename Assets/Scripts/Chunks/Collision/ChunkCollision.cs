@@ -137,13 +137,13 @@ namespace Chunks.Collision
                 var redPoint = line.Value;
                 colliderPoints.Add(redPoint);
                 lines[idx].Remove(bluePoint);
-                lines[idx].Remove(redPoint); // ?
+                lines[idx].Remove(redPoint);
 
                 while (bluePoint != redPoint)
                 {
                     idx = (idx + 1) % 2;
                     var greenPoint = redPoint;
-                    redPoint = lines[idx][greenPoint]; // we cannot find our next redpoint if the shape is _-_
+                    redPoint = lines[idx][greenPoint];
                     lines[idx].Remove(greenPoint);
                     lines[idx].Remove(redPoint);
                     colliderPoints.Add(redPoint);
@@ -165,8 +165,6 @@ namespace Chunks.Collision
             ref Dictionary<Vector2i, Vector2i> reversedLines,
             ref Dictionary<Vector2i, Vector2i> lines)
         {
-            // we might want to keep another hashmap and extend from the opposite side
-
             lines.Add(start, end);
 
             if (reversedLines.ContainsKey(start))
@@ -180,11 +178,7 @@ namespace Chunks.Collision
 
                 if (lines.ContainsKey(end))
                 {
-                    // let's extend that existing line all the way here, making sure we keep its end but
-                    // adjust its start
-                    // if my end is the key to a start line,
-                    // i want to modify my
-                    reversedLines[lines[end]] = previousStart; // on dirait que je ne prends pas tout le bout
+                    reversedLines[lines[end]] = previousStart;
                     reversedLines.Remove(end);
                     lines[previousStart] = lines[end];
                     lines.Remove(end);
@@ -195,10 +189,6 @@ namespace Chunks.Collision
                 // let's check if we can connect it to an existing line on the next block
                 if (lines.ContainsKey(end))
                 {
-                    // let's extend that existing line all the way here, making sure we keep its end but
-                    // adjust its start
-                    // if my end is the key to a start line,
-                    // i want to modify my
                     reversedLines[lines[end]] = start;
 
                     lines[start] = lines[end];
