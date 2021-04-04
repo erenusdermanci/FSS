@@ -10,7 +10,7 @@ namespace Tiles
 {
     public class WorldManager : MonoBehaviour
     {
-        // Tiles
+        public const int MaxLoadedTiles = 9;
         private readonly TileMap _serverTileMap = new TileMap();
 
         public ChunkLayer[] chunkLayers;
@@ -158,20 +158,20 @@ namespace Tiles
             int y;
             if (pos.x < 0)
             {
-                x = (int) Mathf.Floor((float) pos.x / Tile.Size);
+                x = (int) Mathf.Floor((float) pos.x / Tile.HorizontalSize);
             }
             else
             {
-                x = pos.x / Tile.Size;
+                x = pos.x / Tile.HorizontalSize;
             }
 
             if (pos.y < 0)
             {
-                y = (int) Mathf.Floor((float) pos.y / Tile.Size);
+                y = (int) Mathf.Floor((float) pos.y / Tile.VerticalSize);
             }
             else
             {
-                y = pos.y / Tile.Size;
+                y = pos.y / Tile.VerticalSize;
             }
 
             return new Vector2i(x, y);

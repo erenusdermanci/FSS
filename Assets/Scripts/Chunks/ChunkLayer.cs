@@ -36,7 +36,8 @@ namespace Chunks
 
         public void Awake()
         {
-            _chunkPool = new GameObjectPool(this, Tile.Size * Tile.Size * 5); // 5 tiles at a time
+            _chunkPool = new GameObjectPool(this,
+                Tile.VerticalSize * Tile.HorizontalSize * WorldManager.MaxLoadedTiles);
             _chunkServerTaskScheduler = new ChunkServerTaskScheduler(type);
             chunkSimulator = new ChunkLayerSimulator(this);
         }

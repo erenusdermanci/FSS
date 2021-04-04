@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Chunks;
 using Chunks.Server;
@@ -15,7 +14,8 @@ namespace Tiles
 {
     public class Tile : IDisposable
     {
-        public const int Size = 4;
+        public const int HorizontalSize = 4;
+        public const int VerticalSize = 3;
         public const int LayerCount = 2;
 
         private readonly string _tileDir = $"{Application.persistentDataPath}\\{SceneManager.GetActiveScene().name}\\Tiles";
@@ -53,9 +53,9 @@ namespace Tiles
                 for (var i = 0; i < LayerCount; ++i)
                 {
                     var idx = 0;
-                    for (var y = TilePosition.y * Size; y < TilePosition.y * Size + Size; ++y)
+                    for (var y = TilePosition.y * VerticalSize; y < TilePosition.y * VerticalSize + VerticalSize; ++y)
                     {
-                        for (var x = TilePosition.x * Size; x < TilePosition.x * Size + Size; ++x)
+                        for (var x = TilePosition.x * HorizontalSize; x < TilePosition.x * HorizontalSize + HorizontalSize; ++x)
                         {
                             var posVec = new Vector2i(x, y);
                             if (chunkMaps[i].Contains(posVec))
@@ -86,9 +86,9 @@ namespace Tiles
 
                 for (var i = 0; i < LayerCount; ++i)
                 {
-                    for (var y = TilePosition.y * Size; y < TilePosition.y * Size + Size; ++y)
+                    for (var y = TilePosition.y * VerticalSize; y < TilePosition.y * VerticalSize + VerticalSize; ++y)
                     {
-                        for (var x = TilePosition.x * Size; x < TilePosition.x * Size + Size; ++x)
+                        for (var x = TilePosition.x * HorizontalSize; x < TilePosition.x * HorizontalSize + HorizontalSize; ++x)
                         {
                             var posVec = new Vector2i(x, y);
                             var emptyChunk = new ChunkServer {Position = posVec};
@@ -122,10 +122,10 @@ namespace Tiles
             for (var i = 0; i < LayerCount; ++i)
             {
                 var idx = 0;
-                tileData.chunkLayers[i] = new BlockData[Size * Size];
-                for (var y = TilePosition.y * Size; y < TilePosition.y * Size + Size; ++y)
+                tileData.chunkLayers[i] = new BlockData[VerticalSize * HorizontalSize];
+                for (var y = TilePosition.y * VerticalSize; y < TilePosition.y * VerticalSize + VerticalSize; ++y)
                 {
-                    for (var x = TilePosition.x * Size; x < TilePosition.x * Size + Size; ++x)
+                    for (var x = TilePosition.x * HorizontalSize; x < TilePosition.x * HorizontalSize + HorizontalSize; ++x)
                     {
                         var posVec = new Vector2i(x, y);
                         if (chunkMaps[i].Contains(posVec))
