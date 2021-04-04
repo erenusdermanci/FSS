@@ -233,44 +233,7 @@ namespace Tools.DrawingTool
         {
             if (Input.GetMouseButtonDown(0))
             {
-                var positionQueue = new Queue<Vector2i>();
-                var processing = new HashSet<Vector2i>();
-                var first = new Vector2i(blockPosition.x, blockPosition.y);
-                positionQueue.Enqueue(first);
-                var blockUnderCursor = GetBlockType(blockPosition.x, blockPosition.y);
-                while (positionQueue.Count != 0)
-                {
-                    var pos = positionQueue.Dequeue();
-
-                    var x = pos.x;
-                    var y = pos.y;
-                    PutBlock(x, y);
-
-                    var right = new Vector2i(x + 1, y);
-                    var left = new Vector2i(x - 1, y);
-                    var up = new Vector2i(x, y + 1);
-                    var down = new Vector2i(x, y - 1);
-                    if (GetBlockType(right.x, right.y) == blockUnderCursor && !processing.Contains(right))
-                    {
-                        positionQueue.Enqueue(right);
-                        processing.Add(right);
-                    }
-                    if (GetBlockType(left.x, left.y) == blockUnderCursor && !processing.Contains(left))
-                    {
-                        positionQueue.Enqueue(left);
-                        processing.Add(left);
-                    }
-                    if (GetBlockType(up.x, up.y) == blockUnderCursor && !processing.Contains(up))
-                    {
-                        positionQueue.Enqueue(up);
-                        processing.Add(up);
-                    }
-                    if (GetBlockType(down.x, down.y) == blockUnderCursor && !processing.Contains(down))
-                    {
-                        positionQueue.Enqueue(down);
-                        processing.Add(down);
-                    }
-                }
+                Draw.Fill(blockPosition.x, blockPosition.y, GetBlockType, (x, y) => PutBlock(x, y));
             }
         }
 

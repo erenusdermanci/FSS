@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Utils
 {
@@ -72,6 +73,48 @@ namespace Utils
                 {
                     x1 += dx2;
                     y1 += dy2;
+                }
+            }
+        }
+
+        public static void Fill(int sx, int sy, Func<int, int, int> get, Action<int, int> draw)
+        {
+            var positionQueue = new Queue<Vector2i>();
+            var processing = new HashSet<Vector2i>();
+            var first = new Vector2i(sx, sy);
+            positionQueue.Enqueue(first);
+            var blockUnderCursor = get(sx, sy);
+            while (positionQueue.Count != 0)
+            {
+                var pos = positionQueue.Dequeue();
+
+                var x = pos.x;
+                var y = pos.y;
+                draw(x, y);
+
+                var right = new Vector2i(x + 1, y);
+                var left = new Vector2i(x - 1, y);
+                var up = new Vector2i(x, y + 1);
+                var down = new Vector2i(x, y - 1);
+                if (get(right.x, right.y) == blockUnderCursor && !processing.Contains(right))
+                {
+                    positionQueue.Enqueue(right);
+                    processing.Add(right);
+                }
+                if (get(left.x, left.y) == blockUnderCursor && !processing.Contains(left))
+                {
+                    positionQueue.Enqueue(left);
+                    processing.Add(left);
+                }
+                if (get(up.x, up.y) == blockUnderCursor && !processing.Contains(up))
+                {
+                    positionQueue.Enqueue(up);
+                    processing.Add(up);
+                }
+                if (get(down.x, down.y) == blockUnderCursor && !processing.Contains(down))
+                {
+                    positionQueue.Enqueue(down);
+                    processing.Add(down);
                 }
             }
         }
