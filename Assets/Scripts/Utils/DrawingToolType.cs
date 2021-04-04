@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Tools.DrawingTool
+namespace Utils
 {
     [Serializable]
-    public enum ToolType
+    public enum DrawingToolType
     {
         Point,
         Fill

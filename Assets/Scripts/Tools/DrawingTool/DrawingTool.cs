@@ -23,9 +23,8 @@ namespace Tools.DrawingTool
 
         public bool drawBrushSelection;
 
-        public ToolType selectedTool;
-
-        public BrushType selectedBrush;
+        public DrawingToolType selectedDrawingTool;
+        public DrawingBrushType selectedDrawingBrush;
 
         [HideInInspector]
         public int selectedState;
@@ -51,7 +50,6 @@ namespace Tools.DrawingTool
 
         private ChunkLayerType _currentLayer = ChunkLayerType.Foreground;
 
-        // Update is called once per frame
         private void Update()
         {
             if (GlobalDebugConfig.StaticGlobalConfig.disableDrawingTool)
@@ -74,12 +72,12 @@ namespace Tools.DrawingTool
                 DrawChunkGrid(blockPosition.x, blockPosition.y);
             }
 
-            switch (selectedTool)
+            switch (selectedDrawingTool)
             {
-                case ToolType.Point:
+                case DrawingToolType.Point:
                     UpdateDraw(blockPosition);
                     break;
-                case ToolType.Fill:
+                case DrawingToolType.Fill:
                     UpdateFill(blockPosition);
                     break;
             }
@@ -115,7 +113,6 @@ namespace Tools.DrawingTool
             if (chunk == null)
                 return;
 
-            // Draw block grid in chunk
             DrawBlockGrid(chunk.Position);
         }
 
@@ -147,9 +144,9 @@ namespace Tools.DrawingTool
             var blockInfo = new Block();
             chunk.GetBlockInfo(blockIndexInChunk, ref blockInfo);
 
-            switch (selectedBrush)
+            switch (selectedDrawingBrush)
             {
-                case BrushType.Box:
+                case DrawingBrushType.Box:
                 {
                     var blockSize = 1f / Chunk.Size * boxSize;
                     DebugDraw.Rectangle(chunk.Position.x - 0.5f + (blockXInChunk - boxSize / 2f) / Chunk.Size,
@@ -157,7 +154,7 @@ namespace Tools.DrawingTool
                         blockSize, blockSize, UnityEngine.Color.red);
                     break;
                 }
-                case BrushType.Circle:
+                case DrawingBrushType.Circle:
                 {
                     DebugDraw.Circle(worldX / Chunk.Size - 0.5f, worldY / Chunk.Size - 0.5f, circleRadius / (float)Chunk.Size);
                     break;
@@ -290,12 +287,12 @@ namespace Tools.DrawingTool
 
         private void DrawBrush(int x, int y, bool immediate = true)
         {
-            switch (selectedBrush)
+            switch (selectedDrawingBrush)
             {
-                case BrushType.Box:
+                case DrawingBrushType.Box:
                     Draw.Rectangle(x, y, boxSize, boxSize, (i, j) => PutBlock(i, j, immediate));
                     break;
-                case BrushType.Circle:
+                case DrawingBrushType.Circle:
                     Draw.Circle(x, y, circleRadius, (i, j) => PutBlock(i, j, immediate));
                     break;
                 default:

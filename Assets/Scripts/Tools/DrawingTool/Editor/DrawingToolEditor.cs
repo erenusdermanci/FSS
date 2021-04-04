@@ -5,6 +5,7 @@ using Blocks;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using Utils;
 
 namespace Tools.DrawingTool.Editor
 {
@@ -22,12 +23,12 @@ namespace Tools.DrawingTool.Editor
                 tool.selectedState = 0;
             tool.selectedState = EditorGUILayout.Popup("State", tool.selectedState, CreateStates(tool.selectedDrawBlock).ToArray());
 
-            switch (tool.selectedBrush)
+            switch (tool.selectedDrawingBrush)
             {
-                case BrushType.Box:
+                case DrawingBrushType.Box:
                     tool.boxSize = EditorGUILayout.IntSlider("Size", tool.boxSize, 0, 1024);
                     break;
-                case BrushType.Circle:
+                case DrawingBrushType.Circle:
                     tool.circleRadius = EditorGUILayout.IntSlider("Radius", tool.circleRadius, 0, 1024);
                     break;
             }

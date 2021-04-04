@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Tools.DrawingTool
+namespace Utils
 {
     [Serializable]
-    public enum BrushType
+    public enum DrawingBrushType
     {
         Box,
         Circle
