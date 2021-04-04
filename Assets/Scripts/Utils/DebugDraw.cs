@@ -5,16 +5,21 @@ namespace Utils
 {
     public static class DebugDraw
     {
-        public static void Rectangle(float x, float y, float w, float h, UnityEngine.Color color)
+        public static void Square(float x, float y, float size, UnityEngine.Color color)
+        {
+            Rectangle(x, y, size, size, color);
+        }
+
+        public static void Rectangle(float x, float y, float width, float height, UnityEngine.Color color)
         {
             Debug.DrawLine(new Vector2(x, y),
-                            new Vector2(x + w, y), color);
-            Debug.DrawLine(new Vector2(x + w, y),
-                            new Vector2(x + w, y + h), color);
+                            new Vector2(x + width, y), color);
+            Debug.DrawLine(new Vector2(x + width, y),
+                            new Vector2(x + width, y + height), color);
             Debug.DrawLine(new Vector2(x, y),
-                            new Vector2(x, y + h), color);
-            Debug.DrawLine(new Vector2(x, y + h),
-                            new Vector2(x + w, y + h), color);
+                            new Vector2(x, y + height), color);
+            Debug.DrawLine(new Vector2(x, y + height),
+                            new Vector2(x + width, y + height), color);
         }
 
         public static void Circle(float cx, float cy, float radius, UnityEngine.Color color)
