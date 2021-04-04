@@ -38,14 +38,14 @@ namespace Blocks.Behaviors
                 {
                     chunkNeighborhood.ReplaceBlock(x + directionX[i], y + directionY[i], _replaceConsumedBy,
                         BlockConstants.BlockDescriptors[_replaceConsumedBy].InitialStates,
-                        BlockConstants.BlockDescriptors[_replaceConsumedBy].BaseHealth, 0);
+                        BlockConstants.BlockDescriptors[_replaceConsumedBy].BaseHealth, 0, 0);
 
                     var replacedInto = _replacedInto;
                     if (_transformProbability >= rng.NextDouble())
                     {
                         chunkNeighborhood.ReplaceBlock(x, y, replacedInto,
                             BlockConstants.BlockDescriptors[replacedInto].InitialStates,
-                            BlockConstants.BlockDescriptors[replacedInto].BaseHealth, 0);
+                            BlockConstants.BlockDescriptors[replacedInto].BaseHealth, 0, 0);
                         destroyed = true;
                     }
                     return true;

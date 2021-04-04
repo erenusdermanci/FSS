@@ -305,7 +305,7 @@ namespace Tools.DrawingTool
                 if (descriptor.InitialStates != 0 && parameters.state == 0)
                     parameters.state = BlockConstants.BlockDescriptors[parameters.block].InitialStates;
                 chunk.PutBlock(blockXInChunk, blockYInChunk, parameters.block, r, g, b, blockColor.a,
-                    parameters.state, BlockConstants.BlockDescriptors[parameters.block].BaseHealth, 0);
+                    parameters.state, BlockConstants.BlockDescriptors[parameters.block].BaseHealth, 0, 0);
                 if (descriptor.PlantGrower != null)
                 {
                     ref var plantBlockData = ref chunk.GetPlantBlockData(blockXInChunk, blockYInChunk, parameters.block);

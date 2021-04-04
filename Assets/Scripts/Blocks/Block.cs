@@ -6,6 +6,7 @@
         public int StateBitset;
         public float Health;
         public float Lifetime;
+        public long AssetId;
 
         public bool GetState(int stateToCheck)
         {

@@ -42,7 +42,7 @@ namespace Blocks.Behaviors
                     }
                     chunkNeighborhood.ReplaceBlock(x, y, resultBlockType,
                         BlockConstants.BlockDescriptors[resultBlockType].InitialStates,
-                        BlockConstants.BlockDescriptors[resultBlockType].BaseHealth, 0);
+                        BlockConstants.BlockDescriptors[resultBlockType].BaseHealth, 0, 0);
                     destroyed = true;
                     return true;
                 }

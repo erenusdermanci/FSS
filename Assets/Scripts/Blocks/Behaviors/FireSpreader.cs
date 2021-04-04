@@ -131,7 +131,7 @@ namespace Blocks.Behaviors
                             }
                             chunkNeighborhood.ReplaceBlock(x + directionX[i], y + directionY[i], blockToEmit,
                                 BlockConstants.BlockDescriptors[blockToEmit].InitialStates,
-                                BlockConstants.BlockDescriptors[blockToEmit].BaseHealth, 0);
+                                BlockConstants.BlockDescriptors[blockToEmit].BaseHealth, 0, 0);
                             break;
                         default:
                             if (neighborBlocks[i].GetState((int)BlockStates.Burning))
@@ -188,7 +188,7 @@ namespace Blocks.Behaviors
 
             chunkNeighborhood.ReplaceBlock(x, y, resultBlockType,
                 BlockConstants.BlockDescriptors[resultBlockType].InitialStates,
-                BlockConstants.BlockDescriptors[resultBlockType].BaseHealth, 0);
+                BlockConstants.BlockDescriptors[resultBlockType].BaseHealth, 0, 0);
             destroyed = true;
             return true;
         }

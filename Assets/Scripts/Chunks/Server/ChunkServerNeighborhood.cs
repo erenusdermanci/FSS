@@ -53,7 +53,7 @@ namespace Chunks.Server
             return ref Chunks[chunkIndex].GetPlantBlockData(x, y, type);
         }
 
-        public void ReplaceBlock(int x, int y, int type, int stateBitset, float health, float lifetime)
+        public void ReplaceBlock(int x, int y, int type, int stateBitset, float health, float lifetime, long assetId)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
@@ -61,7 +61,7 @@ namespace Chunks.Server
             var color = BlockConstants.BlockDescriptors[type].Color;
             color.Shift(out var r, out var g, out var b);
             Chunks[chunkIndex].PutBlock(x, y, type, r, g, b,
-                color.a, stateBitset, health, lifetime);
+                color.a, stateBitset, health, lifetime, assetId);
             UpdateAdjacentBlockDirty(x, y);
         }
 
@@ -70,7 +70,7 @@ namespace Chunks.Server
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
-            Chunks[chunkIndex].PutBlock(x, y, block.Type, r, g, b, a, block.StateBitset, block.Health, block.Lifetime);
+            Chunks[chunkIndex].PutBlock(x, y, block.Type, r, g, b, a, block.StateBitset, block.Health, block.Lifetime, block.AssetId);
             UpdateAdjacentBlockDirty(x, y);
         }
 
@@ -82,7 +82,8 @@ namespace Chunks.Server
             UpdateOutsideChunk(ref ux, ref uy, out var newChunkIndex);
 
             // if there is no chunk at the destination, the block cannot move there
-            if (Chunks[newChunkIndex] == null)
+            var newChunk = Chunks[newChunkIndex];
+            if (newChunk == null)
                 return false;
 
             // put the source block at its destination
@@ -90,33 +91,37 @@ namespace Chunks.Server
             var srcIndex = Chunk.Size * y + x;
             var dstIndex = Chunk.Size * uy + ux;
             var destColorBuffer = stackalloc byte[4] {
-                Chunks[newChunkIndex].Data.colors[dstIndex * 4],
-                Chunks[newChunkIndex].Data.colors[dstIndex * 4 + 1],
-                Chunks[newChunkIndex].Data.colors[dstIndex * 4 + 2],
-                Chunks[newChunkIndex].Data.colors[dstIndex * 4 + 3]
+                newChunk.Data.colors[dstIndex * 4],
+                newChunk.Data.colors[dstIndex * 4 + 1],
+                newChunk.Data.colors[dstIndex * 4 + 2],
+                newChunk.Data.colors[dstIndex * 4 + 3]
             };
-            var destState = Chunks[newChunkIndex].Data.stateBitsets[dstIndex];
-            var destHealth = Chunks[newChunkIndex].Data.healths[dstIndex];
-            var destLifetime = Chunks[newChunkIndex].Data.lifetimes[dstIndex];
+            var destState = newChunk.Data.stateBitsets[dstIndex];
+            var destHealth = newChunk.Data.healths[dstIndex];
+            var destLifetime = newChunk.Data.lifetimes[dstIndex];
+            var destAssetId = newChunk.Data.assetIds[dstIndex];
 
-            Chunks[newChunkIndex].PutBlock(ux, uy, srcBlock,
-                Chunks[4].Data.colors[srcIndex * 4],
-                Chunks[4].Data.colors[srcIndex * 4 + 1],
-                Chunks[4].Data.colors[srcIndex * 4 + 2],
-                Chunks[4].Data.colors[srcIndex * 4 + 3],
-                Chunks[4].Data.stateBitsets[srcIndex],
-                Chunks[4].Data.healths[srcIndex],
-                Chunks[4].Data.lifetimes[srcIndex]);
+            var centralChunk = Chunks[CentralChunkIndex];
+            newChunk.PutBlock(ux, uy, srcBlock,
+                centralChunk.Data.colors[srcIndex * 4],
+                centralChunk.Data.colors[srcIndex * 4 + 1],
+                centralChunk.Data.colors[srcIndex * 4 + 2],
+                centralChunk.Data.colors[srcIndex * 4 + 3],
+                centralChunk.Data.stateBitsets[srcIndex],
+                centralChunk.Data.healths[srcIndex],
+                centralChunk.Data.lifetimes[srcIndex],
+                centralChunk.Data.assetIds[srcIndex]);
 
             // put the old destination block at the source position (swap)
-            Chunks[4].PutBlock(x, y, destBlock,
+            centralChunk.PutBlock(x, y, destBlock,
                 destColorBuffer[0],
                 destColorBuffer[1],
                 destColorBuffer[2],
                 destColorBuffer[3],
                 destState,
                 destHealth,
-                destLifetime);
+                destLifetime,
+                destAssetId);
             UpdateAdjacentBlockDirty(x, y);
 
             return true;

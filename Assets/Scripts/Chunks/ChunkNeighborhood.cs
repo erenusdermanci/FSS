@@ -4,7 +4,7 @@ namespace Chunks
     {
         protected T[] Chunks;
 
-        private const int CentralChunkIndex = 4;
+        protected const int CentralChunkIndex = 4;
 
         public ChunkNeighborhood(ChunkMap<T> chunkMap, T centralChunk)
         {

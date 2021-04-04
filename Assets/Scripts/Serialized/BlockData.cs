@@ -10,5 +10,6 @@ namespace Serialized
         public int[] stateBitsets;
         public float[] healths;
         public float[] lifetimes;
+        public long[] assetIds;
     }
 }
