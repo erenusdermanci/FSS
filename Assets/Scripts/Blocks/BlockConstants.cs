@@ -17,6 +17,9 @@ namespace Blocks
 
     public static class BlockConstants
     {
+        public const int UnassignedBlockType = -1;
+        public static readonly Color UnassignedBlockColor = new Color(255, 0, 0, 255);
+
         private static readonly Color FireColor = new Color(240, 127, 19, 255, 0.3f);
 
         public const int Air = 0;
@@ -421,6 +424,11 @@ namespace Blocks
                 }
             )
         };
+
+        public static Color GetBlockColor(int type)
+        {
+            return type == UnassignedBlockType ? UnassignedBlockColor : BlockDescriptors[type].Color;
+        }
 
         public static readonly string[] BlockNames = BlockDescriptors.Select(d => d.Name).ToArray();
     }
