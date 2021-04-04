@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using Blocks;
 using UnityEditor;
@@ -25,6 +27,8 @@ namespace Tools.BlockMapper
         private int[] _blockTypes;
         private float _texelSize;
 
+        private Vector2i? _lastPointDrawn;
+        private Vector2i? _lastPointDrawnForLine;
         private Vector2 _mouseWorldPosition;
 
         private void Awake()
@@ -46,6 +50,55 @@ namespace Tools.BlockMapper
             }
 
             InitializeBlockMaskSprite();
+        }
+
+        private void Update()
+        {
+            var mainCamera = Camera.main;
+            if (mainCamera is null)
+                return;
+            _mouseWorldPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+            DrawBounds();
+
+            var sprite = _spriteRenderer.sprite;
+            var blockPosition = new Vector2i(
+                (int) (Mathf.Floor(_mouseWorldPosition.x / _texelSize) + sprite.texture.width / 2f),
+                (int) (Mathf.Floor(_mouseWorldPosition.y / _texelSize) + sprite.texture.height / 2f)
+            );
+            if (blockPosition.x < 0 || blockPosition.y < 0 || blockPosition.x >= sprite.texture.width || blockPosition.y >= sprite.texture.height)
+                return;
+            switch (parameters.tool)
+            {
+                case DrawingToolType.Brush:
+                    UpdateBrush(blockPosition);
+                    DrawBrush();
+                    break;
+                case DrawingToolType.Fill:
+                    UpdateFill(blockPosition);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            ReloadBlockMaskTexture();
+        }
+
+        private void PutBlockType(int blockX, int blockY)
+        {
+            var sprite = _spriteRenderer.sprite;
+            if (blockX < 0 || blockY < 0 || blockX >= sprite.texture.width || blockY >= sprite.texture.height)
+                return;
+            var blockIndex = blockY * sprite.texture.width + blockX;
+            _blockTypes[blockIndex] = parameters.block;
+            AssignBlockColor(blockIndex, GetBlockColor(parameters.block));
+        }
+
+        private int GetBlockType(int blockX, int blockY)
+        {
+            var sprite = _spriteRenderer.sprite;
+            if (blockX < 0 || blockY < 0 || blockX >= sprite.texture.width || blockY >= sprite.texture.height)
+                return UnassignedBlockType - 1;
+            return _blockTypes[blockY * _spriteRenderer.sprite.texture.width + blockX];
         }
 
         private void InitializeBlockMaskSprite()
@@ -90,32 +143,51 @@ namespace Tools.BlockMapper
             _blockMaskColors[index * 4 + 3] = (byte)(color.a / 3f);
         }
 
-        private void Update()
+        private void UpdateBrush(Vector2i blockPosition)
         {
-            var mainCamera = Camera.main;
-            if (mainCamera is null)
-                return;
-            _mouseWorldPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-
-            UpdateBlockMapping();
-
-            DrawBounds();
-            DrawBrush();
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (_lastPointDrawnForLine != null && Input.GetKey(KeyCode.LeftShift))
+                    Draw.Line(_lastPointDrawnForLine.Value.x, _lastPointDrawnForLine.Value.y,
+                        blockPosition.x, blockPosition.y, (x, y) => DrawBlocks(x, y));
+            }
+            else if (Input.GetMouseButton(0))
+            {
+                if (_lastPointDrawn == null)
+                    DrawBlocks(blockPosition.x, blockPosition.y);
+                else
+                    Draw.Line(_lastPointDrawn.Value.x, _lastPointDrawn.Value.y, blockPosition.x, blockPosition.y, (x, y) => DrawBlocks(x, y));
+                _lastPointDrawn = new Vector2i(blockPosition.x, blockPosition.y);
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                _lastPointDrawnForLine = _lastPointDrawn;
+                _lastPointDrawn = null;
+            }
+            else if (Input.GetKey(KeyCode.LeftShift))
+            {
+                if (_lastPointDrawnForLine != null)
+                {
+                    DrawDebugLine(_lastPointDrawnForLine.Value, blockPosition, UnityEngine.Color.white);
+                }
+            }
         }
 
-        private void UpdateBlockMapping()
+        private void DrawDebugLine(Vector2i start, Vector2i end, Color32 color)
         {
-            if (Input.GetMouseButton(0))
+            var sprite = _spriteRenderer.sprite;
+            var xStart = (start.x - sprite.texture.width / 2f) * _texelSize + _texelSize / 2f;
+            var yStart = (start.y - sprite.texture.height / 2f) * _texelSize + _texelSize / 2f;
+            var xEnd = (end.x - sprite.texture.width / 2f) * _texelSize + _texelSize / 2f;
+            var yEnd = (end.y - sprite.texture.height / 2f) * _texelSize + _texelSize / 2f;
+            Debug.DrawLine(new Vector2(xStart, yStart), new Vector2(xEnd, yEnd), color);
+        }
+
+        private void UpdateFill(Vector2i blockPosition)
+        {
+            if (Input.GetMouseButtonDown(0))
             {
-                var sprite = _spriteRenderer.sprite;
-                var blockX = (int) (Mathf.Floor(_mouseWorldPosition.x / _texelSize) + sprite.texture.width / 2f);
-                var blockY = (int) (Mathf.Floor(_mouseWorldPosition.y / _texelSize) + sprite.texture.height / 2f);
-                if (blockX < 0 || blockY < 0 || blockX >= sprite.texture.width || blockY >= sprite.texture.height)
-                    return;
-                var blockIndex = blockY * sprite.texture.width + blockX;
-                _blockTypes[blockIndex] = parameters.block;
-                AssignBlockColor(blockIndex, GetBlockColor(parameters.block));
-                ReloadBlockMaskTexture();
+                Draw.Fill(blockPosition.x, blockPosition.y, GetBlockType, PutBlockType);
             }
         }
 
@@ -140,29 +212,62 @@ namespace Tools.BlockMapper
             Debug.DrawLine(new Vector2(x, y + textureWorldHeight), new Vector2(x + textureWorldWidth, y + textureWorldHeight));
         }
 
+        private void DrawBlocks(int x, int y)
+        {
+            switch (parameters.brush)
+            {
+                case DrawingBrushType.Box:
+                    Draw.Rectangle(x, y, parameters.size, parameters.size, PutBlockType);
+                    break;
+                case DrawingBrushType.Circle:
+                    Draw.Circle(x, y, parameters.size, PutBlockType);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         private void DrawBrush()
         {
             var sprite = _spriteRenderer.sprite;
             var texelX = Mathf.Floor(_mouseWorldPosition.x * sprite.pixelsPerUnit) / sprite.pixelsPerUnit;
             var texelY = Mathf.Floor(_mouseWorldPosition.y * sprite.pixelsPerUnit) / sprite.pixelsPerUnit;
-            DebugDraw.Rectangle(texelX, texelY, _texelSize, _texelSize, UnityEngine.Color.red);
+            switch (parameters.brush)
+            {
+                case DrawingBrushType.Box:
+                {
+                    var size = _texelSize * parameters.size;
+                    DebugDraw.Square(texelX - size / 2f + _texelSize / 2f,
+                        texelY - size / 2f + _texelSize / 2f,
+                        size, UnityEngine.Color.red);
+                    break;
+                }
+                case DrawingBrushType.Circle:
+                {
+                    DebugDraw.Circle(texelX + _texelSize / 2f,
+                        texelY + _texelSize / 2f,
+                        parameters.size * _texelSize, UnityEngine.Color.red);
+                    break;
+                }
+            }
         }
 
         private void SaveBlocks()
         {
             using (var file = File.Create(_blocksFilePath, _blockTypes.Length,
                 FileOptions.SequentialScan | FileOptions.Asynchronous))
+            using (var compressor = new GZipStream(file, CompressionMode.Compress))
             {
-                new BinaryFormatter().Serialize(file, _blockTypes);
+                new BinaryFormatter().Serialize(compressor, _blockTypes);
             }
         }
 
         private void LoadBlocks()
         {
             using (var file = File.Open(_blocksFilePath, FileMode.Open))
+            using (var decompressor = new GZipStream(file, CompressionMode.Decompress))
             {
-                var loadedData = new BinaryFormatter().Deserialize(file);
-                _blockTypes = (int[]) loadedData;
+                _blockTypes = (int[]) new BinaryFormatter().Deserialize(decompressor);
             }
         }
 
