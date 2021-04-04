@@ -22,7 +22,6 @@ namespace Chunks
             Background
         }
 
-        // Chunks
         public ChunkLayerType type;
 
         public readonly ChunkMap<ChunkServer> ServerChunkMap = new ChunkMap<ChunkServer>();

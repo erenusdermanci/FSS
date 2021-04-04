@@ -24,6 +24,7 @@ namespace Tiles
         private Vector2i _cameraFlooredPosition;
         private bool _cameraHasMoved;
         private Vector2i _oldCameraFlooredPosition;
+        private Vector2i _currentTilePosition;
 
         private void Start()
         {
@@ -35,7 +36,7 @@ namespace Tiles
                 UpdateCameraHasMoved();
             }
 
-            UpdateTileMapAroundPosition(GetTileFromPosition(_cameraFlooredPosition));
+            UpdateTileMapAroundPosition(GetTilePositionFromFlooredWorldPosition(_cameraFlooredPosition));
 
             GlobalDebugConfig.DisableDirtyRectsChanged += DisableDirtyRectsChangedEvent;
 
@@ -66,8 +67,11 @@ namespace Tiles
             if (_oldCameraFlooredPosition == _cameraFlooredPosition)
                 return false;
 
-            if (GetTileFromPosition(_oldCameraFlooredPosition) != GetTileFromPosition(_cameraFlooredPosition))
-                UpdateTileMapAroundPosition(_cameraFlooredPosition);
+            var newTilePos = GetTilePositionFromFlooredWorldPosition(_cameraFlooredPosition);
+            if (newTilePos != _currentTilePosition)
+            {
+                UpdateTileMapAroundPosition(newTilePos);
+            }
 
             _oldCameraFlooredPosition = _cameraFlooredPosition;
             return true;
@@ -76,7 +80,9 @@ namespace Tiles
         private void UpdateTileMapAroundPosition(Vector2i pos)
         {
             ClearTileMap();
-            var tilePositions = GetTilePositionsAroundPosition(pos);
+
+            _currentTilePosition = pos;
+            var tilePositions = GetTilePositionsAroundCentralTilePosition(pos);
             foreach (var tilePos in tilePositions)
             {
                 _serverTileMap.Add(new Tile(tilePos));
@@ -141,22 +147,21 @@ namespace Tiles
             _serverTileMap.Clear();
         }
 
-        private static List<Vector2i> GetTilePositionsAroundPosition(Vector2i flooredPos)
+        private static List<Vector2i> GetTilePositionsAroundCentralTilePosition(Vector2i pos)
         {
             var positions = new List<Vector2i>();
-            var currentTilePos = GetTileFromPosition(flooredPos);
 
             for (var y = -1; y < 2; y++)
             {
                 for (var x = -1; x < 2; x++)
                 {
-                    positions.Add(new Vector2i(currentTilePos.x + x, currentTilePos.y + y));
+                    positions.Add(new Vector2i(pos.x + x, pos.y + y));
                 }
             }
             return positions;
         }
 
-        private static Vector2i GetTileFromPosition(Vector2i pos)
+        private static Vector2i GetTilePositionFromFlooredWorldPosition(Vector2i pos)
         {
             int x;
             int y;
@@ -184,7 +189,7 @@ namespace Tiles
         private void OutlineTiles()
         {
             const float worldOffset = 0.5f;
-            var colorsPerIdx = new Color[9] {Color.blue,
+            var colorsPerIdx = new[] {Color.blue,
                 Color.red,
                 Color.cyan,
                 Color.green,
