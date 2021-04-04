@@ -179,7 +179,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 4756496f757d7394a94b48fcf45e0b73, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 894f8dd40c80047498e949a9ec758cd2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -234,7 +234,7 @@ MonoBehaviour:
   state: 0
   tool: 0
   brush: 0
-  size: 1
+  size: 8
 --- !u!1 &448959329
 GameObject:
   m_ObjectHideFlags: 0
