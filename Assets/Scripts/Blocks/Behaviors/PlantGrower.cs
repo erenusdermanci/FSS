@@ -1,6 +1,7 @@
 ﻿using System;
 using Chunks.Server;
 using Serialized;
+using Utils;
 
 namespace Blocks.Behaviors
 {
@@ -47,7 +48,7 @@ namespace Blocks.Behaviors
         {
             ref var self = ref chunkNeighborhood.GetCentralChunk().GetPlantBlockData(x, y, block.Type);
             if (self.id == 0)
-                self.Reset(block.Type, BlockIdGenerator.Next());
+                self.Reset(block.Type, UniqueIdGenerator.Next());
 
             self.ticksBeforeGrowth--;
 

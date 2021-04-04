@@ -310,7 +310,7 @@ namespace Tools.DrawingTool
                 {
                     ref var plantBlockData = ref chunk.GetPlantBlockData(blockXInChunk, blockYInChunk, parameters.block);
                     if (plantBlockData.id != 0)
-                        plantBlockData.Reset(parameters.block, BlockIdGenerator.Next());
+                        plantBlockData.Reset(parameters.block, UniqueIdGenerator.Next());
                 }
             }
 
