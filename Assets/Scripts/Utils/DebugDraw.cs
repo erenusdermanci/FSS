@@ -17,12 +17,12 @@ namespace Utils
                             new Vector2(x + w, y + h), color);
         }
 
-        public static void Circle(float cx, float cy, float radius)
+        public static void Circle(float cx, float cy, float radius, UnityEngine.Color color)
         {
-            Ellipse(cx, cy, radius, radius);
+            Ellipse(cx, cy, radius, radius, color);
         }
 
-        public static void Ellipse(float cx, float cy, float xRadius, float yRadius)
+        public static void Ellipse(float cx, float cy, float xRadius, float yRadius, UnityEngine.Color color)
         {
             const int segments = 50;
 
@@ -41,7 +41,7 @@ namespace Utils
             var previousPoint = points[0];
             for (var i = 1; i < points.Count; ++i)
             {
-                Debug.DrawLine(previousPoint, points[i], UnityEngine.Color.red);
+                Debug.DrawLine(previousPoint, points[i], color);
                 previousPoint = points[i];
             }
         }

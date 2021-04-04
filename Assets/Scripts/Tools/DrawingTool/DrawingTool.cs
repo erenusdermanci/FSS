@@ -152,7 +152,8 @@ namespace Tools.DrawingTool
                 }
                 case DrawingBrushType.Circle:
                 {
-                    DebugDraw.Circle(worldX / Chunk.Size - 0.5f, worldY / Chunk.Size - 0.5f, parameters.radius / (float)Chunk.Size);
+                    DebugDraw.Circle(worldX / Chunk.Size - 0.5f, worldY / Chunk.Size - 0.5f,
+                        parameters.radius / (float) Chunk.Size, UnityEngine.Color.red);
                     break;
                 }
             }
