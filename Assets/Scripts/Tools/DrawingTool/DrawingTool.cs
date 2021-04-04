@@ -97,7 +97,8 @@ namespace Tools.DrawingTool
                 var clientChunk = chunkLayers[(int)_currentLayer].ClientChunkMap[chunkPos];
                 if (clientChunk != null)
                 {
-                    clientCollisionManager.QueueChunkCollisionGeneration(clientChunk);
+                    if (_currentLayer == ChunkLayerType.Foreground)
+                        clientCollisionManager.QueueChunkCollisionGeneration(clientChunk);
                     clientChunk.UpdateTexture();
                 }
             }
