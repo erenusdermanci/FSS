@@ -33,6 +33,7 @@ namespace Tools
             public bool pauseSimulation;
             public bool stepByStep;
             public bool outlineChunks;
+            public bool outlineTiles;
             public bool hideCleanChunkOutlines;
             public bool drawDirtyRects;
             public bool disableDirtyChunks;
@@ -45,6 +46,7 @@ namespace Tools
                 pauseSimulation = other.pauseSimulation;
                 stepByStep = other.stepByStep;
                 outlineChunks = other.outlineChunks;
+                outlineTiles = other.outlineTiles;
                 hideCleanChunkOutlines = other.hideCleanChunkOutlines;
                 drawDirtyRects = other.drawDirtyRects;
                 disableDirtyChunks = other.disableDirtyChunks;
@@ -58,6 +60,7 @@ namespace Tools
                 if (pauseSimulation != other.pauseSimulation
                     || stepByStep != other.stepByStep
                     || outlineChunks != other.outlineChunks
+                    || outlineTiles != other.outlineTiles
                     || hideCleanChunkOutlines != other.hideCleanChunkOutlines
                     || drawDirtyRects != other.drawDirtyRects
                     || disableDirtyChunks != other.disableDirtyChunks

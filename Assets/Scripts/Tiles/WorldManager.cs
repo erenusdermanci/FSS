@@ -5,6 +5,7 @@ using Chunks.Server;
 using Tools;
 using UnityEngine;
 using Utils;
+using Color = UnityEngine.Color;
 
 namespace Tiles
 {
@@ -51,6 +52,9 @@ namespace Tiles
             {
                 MainCameraPosition = _mainCamera.transform.position;
             }
+
+            if (GlobalDebugConfig.StaticGlobalConfig.outlineTiles)
+                OutlineTiles();
         }
 
         private bool UpdateCameraHasMoved()
@@ -175,6 +179,36 @@ namespace Tiles
             }
 
             return new Vector2i(x, y);
+        }
+
+        private void OutlineTiles()
+        {
+            const float worldOffset = 0.5f;
+            var colorsPerIdx = new Color[9] {Color.blue,
+                Color.red,
+                Color.cyan,
+                Color.green,
+                Color.magenta,
+                Color.yellow,
+                Color.black,
+                Color.gray,
+                Color.white
+            };
+
+            var idx = 0;
+            foreach (var tile in _serverTileMap.Tiles())
+            {
+                var tileColor = colorsPerIdx[idx++];
+
+                var x = tile.TilePosition.x * Tile.HorizontalSize;
+                var y = tile.TilePosition.y * Tile.VerticalSize;
+
+                // draw the tile borders
+                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset), tileColor);
+                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset, y - worldOffset + Tile.VerticalSize), tileColor);
+                Debug.DrawLine(new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset + Tile.VerticalSize), new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset), tileColor);
+                Debug.DrawLine(new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset + Tile.VerticalSize), new Vector3(x - worldOffset, y - worldOffset + Tile.VerticalSize), tileColor);
+            }
         }
 
         private static void DisableDirtyRectsChangedEvent(object sender, EventArgs e)

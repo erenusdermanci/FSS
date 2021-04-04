@@ -1146,6 +1146,7 @@ MonoBehaviour:
     pauseSimulation: 0
     stepByStep: 0
     outlineChunks: 0
+    outlineTiles: 0
     hideCleanChunkOutlines: 0
     drawDirtyRects: 0
     disableDirtyChunks: 0
