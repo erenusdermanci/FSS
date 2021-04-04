@@ -128,7 +128,7 @@ namespace Chunks.Server
             return true;
         }
 
-        public void UpdateAdjacentBlockDirty(int x, int y)
+        private void UpdateAdjacentBlockDirty(int x, int y)
         {
             UpdateDirtyRectForAdjacentBlock(x - 1, y - 1);
             UpdateDirtyRectForAdjacentBlock(x, y - 1);
@@ -140,7 +140,7 @@ namespace Chunks.Server
             UpdateDirtyRectForAdjacentBlock(x + 1, y + 1);
         }
 
-        public void UpdateDirtyRectForAdjacentBlock(int x, int y)
+        private void UpdateDirtyRectForAdjacentBlock(int x, int y)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunk);
             if (Chunks[chunk] != null)

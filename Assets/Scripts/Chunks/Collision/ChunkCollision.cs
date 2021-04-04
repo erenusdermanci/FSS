@@ -28,7 +28,7 @@ namespace Chunks.Collision
             return GenerateColliders(horizontalLines, verticalLines);
         }
 
-        public static void GenerateLines(int[] grid,
+        private static void GenerateLines(int[] grid,
             out Dictionary<Vector2i, Vector2i> horizontalLines,
             out Dictionary<Vector2i, Vector2i> verticalLines)
         {
@@ -67,7 +67,7 @@ namespace Chunks.Collision
                             ref tmpReversedVerticalLines,
                             ref tmpVerticalLines);
                         }
-                        else if (!IsSolid(grid[y * Chunk.Size + (x + 1)]))
+                        else if (!IsSolid(grid[y * Chunk.Size + x + 1]))
                         {
                             ExtendExistingOrAdd(new Vector2i(x + 1, y), new Vector2i(x + 1, y + 1),
                             ref tmpReversedVerticalLines,
@@ -118,7 +118,7 @@ namespace Chunks.Collision
             }
         }
 
-        public static List<List<Vector2i>> GenerateColliders(
+        private static List<List<Vector2i>> GenerateColliders(
             Dictionary<Vector2i, Vector2i> horizontalLines,
             Dictionary<Vector2i, Vector2i> verticalLines)
         {

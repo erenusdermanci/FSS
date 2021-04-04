@@ -1,8 +1,8 @@
 ﻿namespace Utils
 {
-    public struct Color
+    public readonly struct Color
     {
-        public byte r, g, b, a;
+        public readonly byte r, g, b, a;
         private readonly float _maxShift;
 
         public Color(byte r, byte g, byte b, byte a, float maxShift = 0.0f)

@@ -6,9 +6,9 @@ namespace Tools.ProfilingTool
 {
     public class ProfilingTool : MonoBehaviour
     {
-        public static readonly int NumberOfCounters = Enum.GetValues(typeof(ProfilingCounterTypes)).Length;
+        private static readonly int NumberOfCounters = Enum.GetValues(typeof(ProfilingCounterTypes)).Length;
 
-        public static readonly int[] Counters = new int[NumberOfCounters];
+        private static readonly int[] Counters = new int[NumberOfCounters];
 
         public GameObject canvas;
 

@@ -18,7 +18,7 @@ namespace Blocks
     public static class BlockConstants
     {
         public const int UnassignedBlockType = -1;
-        public static readonly Color UnassignedBlockColor = new Color(255, 0, 0, 255);
+        private static readonly Color UnassignedBlockColor = new Color(255, 0, 0, 255);
 
         private static readonly Color FireColor = new Color(240, 127, 19, 255, 0.3f);
 
@@ -184,7 +184,7 @@ namespace Blocks
                 "Border",
                 BlockTags.Solid,
                 1000.0f,
-                new Color(255, 0, 0, 255, 0.0f),
+                new Color(255, 0, 0, 255),
                 0.0f,
                 0,
                 new IBehavior[] {}
@@ -293,7 +293,7 @@ namespace Blocks
                         9.0f,
                         new [] {
                             new BlockPotential(Spark, 0.08f),
-                            new BlockPotential(Smoke, 0.4f),
+                            new BlockPotential(Smoke, 0.4f)
                         },
                         new BlockPotential(Smoke, 0.1f),
                         false,

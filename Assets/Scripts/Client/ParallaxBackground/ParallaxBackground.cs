@@ -8,45 +8,45 @@ namespace Client.ParallaxBackground
         public bool infiniteHorizontal;
         public bool infiniteVertical;
 
-        private float[] parallaxScales;
-        private float[] textureUnitSizesX;
-        private float[] textureUnitSizesY;
+        private float[] _parallaxScales;
+        private float[] _textureUnitSizesX;
+        private float[] _textureUnitSizesY;
 
-        private Transform cameraTransform;
-        private Vector3 lastCameraPosition;
+        private Transform _cameraTransform;
+        private Vector3 _lastCameraPosition;
 
         // Start is called before the first frame update
         private void Start()
         {
-            parallaxScales = new float[backgrounds.Length];
-            textureUnitSizesX = new float[backgrounds.Length];
-            textureUnitSizesY = new float[backgrounds.Length];
+            _parallaxScales = new float[backgrounds.Length];
+            _textureUnitSizesX = new float[backgrounds.Length];
+            _textureUnitSizesY = new float[backgrounds.Length];
 
             // ReSharper disable once PossibleNullReferenceException
-            cameraTransform = UnityEngine.Camera.main.transform;
-            lastCameraPosition = cameraTransform.position;
+            _cameraTransform = UnityEngine.Camera.main.transform;
+            _lastCameraPosition = _cameraTransform.position;
 
             for (var i = 0; i < backgrounds.Length; ++i)
             {
                 var sprite = backgrounds[i].GetComponent<SpriteRenderer>().sprite;
                 var texture = sprite.texture;
-                textureUnitSizesX[i] = texture.width / sprite.pixelsPerUnit;
-                textureUnitSizesY[i] = texture.height / sprite.pixelsPerUnit;
+                _textureUnitSizesX[i] = texture.width / sprite.pixelsPerUnit;
+                _textureUnitSizesY[i] = texture.height / sprite.pixelsPerUnit;
 
-                parallaxScales[i] = backgrounds[i].position.z * -1;
+                _parallaxScales[i] = backgrounds[i].position.z * -1;
             }
         }
 
         // Update is called once per frame
         private void LateUpdate()
         {
-            var cameraPos = cameraTransform.position;
-            var deltaCameraPos = lastCameraPosition - cameraPos;
+            var cameraPos = _cameraTransform.position;
+            var deltaCameraPos = _lastCameraPosition - cameraPos;
 
             for (var i = 0; i < backgrounds.Length; ++i)
             {
-                var parallaxX = deltaCameraPos.x * parallaxScales[i];
-                var parallaxY = deltaCameraPos.y * parallaxScales[i];
+                var parallaxX = deltaCameraPos.x * _parallaxScales[i];
+                var parallaxY = deltaCameraPos.y * _parallaxScales[i];
 
                 backgrounds[i].position = new Vector3(
                     backgrounds[i].position.x + parallaxX,
@@ -55,9 +55,9 @@ namespace Client.ParallaxBackground
 
                 if (infiniteHorizontal)
                 {
-                    if (Mathf.Abs(cameraPos.x - backgrounds[i].position.x) >= textureUnitSizesX[i])
+                    if (Mathf.Abs(cameraPos.x - backgrounds[i].position.x) >= _textureUnitSizesX[i])
                     {
-                        var offsetPositionX = (cameraPos.x - backgrounds[i].position.x) % textureUnitSizesX[i];
+                        var offsetPositionX = (cameraPos.x - backgrounds[i].position.x) % _textureUnitSizesX[i];
                         backgrounds[i].position = new Vector3(cameraPos.x + offsetPositionX,
                             backgrounds[i].position.y,
                             backgrounds[i].position.z);
@@ -66,9 +66,9 @@ namespace Client.ParallaxBackground
 
                 if (infiniteVertical)
                 {
-                    if (Mathf.Abs(cameraPos.y - backgrounds[i].position.y) >= textureUnitSizesY[i])
+                    if (Mathf.Abs(cameraPos.y - backgrounds[i].position.y) >= _textureUnitSizesY[i])
                     {
-                        var offsetPositionY = (cameraPos.y - backgrounds[i].position.y) % textureUnitSizesY[i];
+                        var offsetPositionY = (cameraPos.y - backgrounds[i].position.y) % _textureUnitSizesY[i];
                         backgrounds[i].position = new Vector3(backgrounds[i].position.x,
                             cameraPos.y + offsetPositionY,
                             backgrounds[i].position.z);
@@ -76,7 +76,7 @@ namespace Client.ParallaxBackground
                 }
             }
 
-            lastCameraPosition = cameraPos;
+            _lastCameraPosition = cameraPos;
         }
     }
 }

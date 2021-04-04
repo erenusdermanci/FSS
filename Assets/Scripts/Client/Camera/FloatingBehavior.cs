@@ -45,7 +45,7 @@ namespace Client.Camera
                 if (!_dragging)
                     return;
                 var cameraTransform = _camera.transform;
-                _dragDiff = (_camera.ScreenToWorldPoint(Input.mousePosition)) - cameraTransform.position;
+                _dragDiff = _camera.ScreenToWorldPoint(Input.mousePosition) - cameraTransform.position;
                 cameraTransform.position = _dragStart - _dragDiff;
             }
 

@@ -9,7 +9,6 @@ namespace Chunks.Tasks
     {
         public bool Done;
 
-        protected readonly ChunkLayerType LayerType;
         public readonly T Chunk;
 
         private bool _synchronous;
@@ -20,7 +19,6 @@ namespace Chunks.Tasks
 
         protected ChunkTask(T chunk, ChunkLayerType layerType)
         {
-            LayerType = layerType;
             _cancellationTokenSource = new CancellationTokenSource();
             Chunk = chunk;
         }

@@ -18,28 +18,17 @@ namespace Tiles
         public const int Size = 4;
         public const int LayerCount = 2;
 
-        public List<Vector2i> ChunkPositions;
-
         private readonly string _tileDir = $"{Application.persistentDataPath}\\{SceneManager.GetActiveScene().name}\\Tiles";
         private readonly string _tileFileName;
 
         public Vector2i TilePosition;
-        public ChunkLayer.ChunkLayerType LayerType;
 
         public Tile(Vector2i position)
         {
             TilePosition = position;
             _tileFileName = $"{_tileDir}\\{TilePosition.x}_{TilePosition.y}";
-            ChunkPositions = EnumerateChunkPositions().ToList();
             if (!Directory.Exists(_tileDir))
                 Directory.CreateDirectory(_tileDir);
-        }
-
-        public Tile(Vector2i position, ChunkLayer.ChunkLayerType layerType)
-        {
-            TilePosition = position;
-            LayerType = layerType;
-            _tileFileName = $"{_tileDir}\\{LayerType.ToString()}\\{TilePosition.x}_{TilePosition.y}";
         }
 
         public void Dispose()
@@ -156,22 +145,6 @@ namespace Tiles
                 new BinaryFormatter().Serialize(compressionStream, tileData);
                 compressionStream.Flush();
             }
-        }
-
-        public IEnumerable<Vector2i> EnumerateChunkPositions()
-        {
-            var positions = new Vector2i[Size * Size];
-            var idx = 0;
-
-            for (var y = TilePosition.y * Size; y < TilePosition.y * Size + Size; ++y)
-            {
-                for (var x = TilePosition.x * Size; x < TilePosition.x * Size + Size; ++x)
-                {
-                    positions[idx++] = new Vector2i(x, y);
-                }
-            }
-
-            return positions;
         }
     }
 }

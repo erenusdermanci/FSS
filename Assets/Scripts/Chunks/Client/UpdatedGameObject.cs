@@ -7,20 +7,20 @@ namespace Chunks.Client
     [Serializable]
     public class UpdatedGameObject
     {
-        public GameObject GameObject;
-        public Collider2D GameObjectCollider;
+        public GameObject gameObject;
+        public Collider2D gameObjectCollider;
         public Vector2i GameObjectChunkPosition = new Vector2i(0, 0);
         public Vector2i? GameObjectOldChunkPosition;
         public readonly float GameObjectBoundsSizeMultiplier = 0.5f;
 
         public UpdatedGameObject(GameObject gameObject)
         {
-            GameObject = gameObject;
+            this.gameObject = gameObject;
         }
 
         public bool UpdateGameObjectChunkPosition()
         {
-            var position = GameObject.transform.position;
+            var position = gameObject.transform.position;
             GameObjectChunkPosition.Set((int) Mathf.Floor(position.x + 0.5f), (int) Mathf.Floor(position.y + 0.5f));
             if (GameObjectOldChunkPosition == null)
                 GameObjectOldChunkPosition = new Vector2i(0, 0);

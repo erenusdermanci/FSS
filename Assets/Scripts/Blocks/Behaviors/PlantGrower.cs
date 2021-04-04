@@ -10,8 +10,8 @@ namespace Blocks.Behaviors
         public readonly float XInitialGrowthDirection;
         public readonly float YInitialGrowthDirection;
         public readonly int MaximumDepthLevels;
-        public readonly int MinimumTicksBeforeGrowth;
-        public readonly int MaximumTickBeforeGrowth;
+        private readonly int _minimumTicksBeforeGrowth;
+        private readonly int _maximumTickBeforeGrowth;
         private readonly float _branchProbability;
         private readonly float[] _growthDirectionVariationProbabilitiesPerDepthLevel;
         private readonly int[] _minimumDistancesPerDepthLevel;
@@ -38,8 +38,8 @@ namespace Blocks.Behaviors
             _growthDirectionVariationProbabilitiesPerDepthLevel = growthDirectionVariationProbabilitiesPerDepthLevel;
             _minimumDistancesPerDepthLevel = minimumDistancesPerDepthLevel;
             _maximumDistancesPerDepthLevel = maximumDistancesPerDepthLevel;
-            MinimumTicksBeforeGrowth = minimumTicksBeforeGrowth;
-            MaximumTickBeforeGrowth = maximumTicksBeforeGrowth;
+            _minimumTicksBeforeGrowth = minimumTicksBeforeGrowth;
+            _maximumTickBeforeGrowth = maximumTicksBeforeGrowth;
             _growthMediumBlocks = growthMediumBlocks;
             _rootType = rootType;
         }
@@ -122,7 +122,7 @@ namespace Blocks.Behaviors
                 chunkNeighborhood.ReplaceBlock(nx, ny, block.Type, block.StateBitset, block.Health, block.Lifetime, block.AssetId);
                 ref var newBlock = ref chunkNeighborhood.GetPlantBlockData(nx, ny, block.Type);
                 newBlock.Reset(block.Type, self.id);
-                newBlock.ticksBeforeGrowth = rng.Next(MinimumTicksBeforeGrowth, MaximumTickBeforeGrowth + 1);
+                newBlock.ticksBeforeGrowth = rng.Next(_minimumTicksBeforeGrowth, _maximumTickBeforeGrowth + 1);
                 newBlock.xGrowthDirection = newXGrowthDirection;
                 newBlock.yGrowthDirection = newYGrowthDirection;
                 newBlock.depthLevel = depth;
@@ -132,7 +132,7 @@ namespace Blocks.Behaviors
             if (!branching)
                 self.growthCount += growthCountIncrement;
 
-            self.ticksBeforeGrowth = rng.Next(MinimumTicksBeforeGrowth, MaximumTickBeforeGrowth + 1);
+            self.ticksBeforeGrowth = rng.Next(_minimumTicksBeforeGrowth, _maximumTickBeforeGrowth + 1);
             return true;
         }
 
@@ -155,7 +155,7 @@ namespace Blocks.Behaviors
                 chunkNeighborhood.ReplaceBlock(nx, ny, _rootType, 0, rootDescriptor.BaseHealth, 0, 0);
                 ref var newBlock = ref chunkNeighborhood.GetPlantBlockData(nx, ny, _rootType);
                 newBlock.Reset(_rootType, self.id);
-                newBlock.ticksBeforeGrowth = rng.Next(rootGrower.MinimumTicksBeforeGrowth, rootGrower.MaximumTickBeforeGrowth + 1);
+                newBlock.ticksBeforeGrowth = rng.Next(rootGrower._minimumTicksBeforeGrowth, rootGrower._maximumTickBeforeGrowth + 1);
                 newBlock.xGrowthDirection = gx;
                 newBlock.yGrowthDirection = gy;
                 newBlock.depthLevel = 0;
@@ -163,7 +163,7 @@ namespace Blocks.Behaviors
             }
         }
 
-        public bool CanGrowInto(int targetBlock)
+        private bool CanGrowInto(int targetBlock)
         {
             foreach (var t in _growthMediumBlocks)
             {

@@ -4,6 +4,6 @@
     public enum ProfilingCounterTypes
     {
         QueuedGenerationTasks,
-        ProcessingGenerationTasks,
+        ProcessingGenerationTasks
     }
 }

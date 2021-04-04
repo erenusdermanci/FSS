@@ -68,7 +68,7 @@ namespace Chunks
                     return; // this chunk simulation task already exists
                 var task = new SimulationTask(chunk, _chunkLayer.type)
                 {
-                    ChunkNeighborhood = new ChunkServerNeighborhood(_chunkLayer.ServerChunkMap, chunk),
+                    ChunkNeighborhood = new ChunkServerNeighborhood(_chunkLayer.ServerChunkMap, chunk)
                 };
                 _simulationBatchPool[batchIndex].TryAdd(chunkPos, task);
             }

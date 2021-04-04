@@ -9,7 +9,7 @@ namespace Chunks.Client
     {
         // TODO Improve this when we have multiple dynamic game objects in the scene
         // atm we just hard set the player in the editor
-        public List<UpdatedGameObject> GameObjectsToUpdate = new List<UpdatedGameObject>();
+        public List<UpdatedGameObject> gameObjectsToUpdate = new List<UpdatedGameObject>();
 
         private readonly Dictionary<Vector2i, ClientCollisionTask> _clientCollisionTasks = new Dictionary<Vector2i, ClientCollisionTask>();
 
@@ -63,7 +63,7 @@ namespace Chunks.Client
 
         private void QueueCollisionsGenerationForUpdatedGameObjects()
         {
-            foreach (var updatedGameObject in GameObjectsToUpdate)
+            foreach (var updatedGameObject in gameObjectsToUpdate)
             {
                 var moved = updatedGameObject.UpdateGameObjectChunkPosition();
                 if (chunkLayer.ClientChunkMap[updatedGameObject.GameObjectChunkPosition] == null)
@@ -75,7 +75,7 @@ namespace Chunks.Client
                         chunkLayer.ClientChunkMap[updatedGameObject.GameObjectChunkPosition]);
                 }
 
-                var bounds = updatedGameObject.GameObjectCollider.bounds;
+                var bounds = updatedGameObject.gameObjectCollider.bounds;
                 var objectX1 = bounds.min.x - updatedGameObject.GameObjectBoundsSizeMultiplier * bounds.size.x;
                 var objectX2 = bounds.max.x + updatedGameObject.GameObjectBoundsSizeMultiplier * bounds.size.x;
                 var objectY1 = bounds.min.y - updatedGameObject.GameObjectBoundsSizeMultiplier * bounds.size.y;
