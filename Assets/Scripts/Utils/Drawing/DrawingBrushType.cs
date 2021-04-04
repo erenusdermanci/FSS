@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Utils
+namespace Utils.Drawing
 {
     [Serializable]
     public enum DrawingBrushType

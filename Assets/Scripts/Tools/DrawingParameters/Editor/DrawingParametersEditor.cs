@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Blocks;
 using UnityEditor;
-using Utils;
+using Utils.Drawing;
+using Utils.UnityHelpers;
 
 namespace Tools.DrawingParameters.Editor
 {

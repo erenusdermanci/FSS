@@ -1,9 +1,4 @@
-﻿using System.IO;
-using Tools;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using Utils;
-using static Chunks.ChunkLayer;
+﻿using Utils;
 
 namespace Chunks
 {

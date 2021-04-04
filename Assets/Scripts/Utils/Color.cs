@@ -16,10 +16,10 @@
 
         public void Shift(out byte r, out byte g, out byte b)
         {
-            var shift = Helpers.GetRandomShiftAmount(_maxShift);
-            r = Helpers.ShiftColorComponent(this.r, shift);
-            g = Helpers.ShiftColorComponent(this.g, shift);
-            b = Helpers.ShiftColorComponent(this.b, shift);
+            var shift = UnityHelpers.Helpers.GetRandomShiftAmount(_maxShift);
+            r = UnityHelpers.Helpers.ShiftColorComponent(this.r, shift);
+            g = UnityHelpers.Helpers.ShiftColorComponent(this.g, shift);
+            b = UnityHelpers.Helpers.ShiftColorComponent(this.b, shift);
         }
     }
 }
