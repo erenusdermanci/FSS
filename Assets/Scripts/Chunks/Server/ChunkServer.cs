@@ -33,29 +33,6 @@ namespace Chunks.Server
             Data.lifetimes = new float[Size * Size];
         }
 
-        public void PutBlock(int x, int y, int type, int states, float health, float lifetime)
-        {
-            var i = y * Size + x;
-            Data.types[i] = type;
-            Data.stateBitsets[i] = states;
-            Data.healths[i] = health;
-            Data.lifetimes[i] = lifetime;
-
-            UpdateBlockDirty(x, y);
-
-            // TODO replace by a lookup in block descriptor to know if this block should update the dirty rect
-            switch (type)
-            {
-                case BlockConstants.Air:
-                case BlockConstants.Stone:
-                case BlockConstants.Metal:
-                case BlockConstants.Border:
-                    return;
-            }
-
-            BlockUpdatedFlags[i] = ChunkManager.UpdatedFlag;
-        }
-
         public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health, float lifetime)
         {
             var i = y * Size + x;
