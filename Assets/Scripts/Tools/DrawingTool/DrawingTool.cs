@@ -245,7 +245,7 @@ namespace Tools.DrawingTool
                 throw new InvalidOperationException();
             }
             var worldPos = Camera.main.ScreenToWorldPoint(mousePos);
-            return new Vector2i((int) Mathf.Floor((worldPos.x + 0.5f) * Chunk.Size), (int) Mathf.Floor((worldPos.y + 0.5f) * 64.0f));
+            return new Vector2i((int) Mathf.Floor((worldPos.x + 0.5f) * Chunk.Size), (int) Mathf.Floor((worldPos.y + 0.5f) * Chunk.Size));
         }
 
         private void DrawBrush(int x, int y, bool immediate = true)
