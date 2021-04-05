@@ -68,16 +68,6 @@ namespace Tiles
 
         private void InitializeTileMap()
         {
-            var chunkServerMaps = new ChunkMap<ChunkServer>[Tile.LayerCount];
-            var chunkClientMaps = new ChunkMap<ChunkClient>[Tile.LayerCount];
-            var chunkSimulators = new ChunkLayerSimulator[Tile.LayerCount];
-            for (var i = 0; i < Tile.LayerCount; ++i)
-            {
-                chunkServerMaps[i] = chunkLayers[i].ServerChunkMap;
-                chunkClientMaps[i] = chunkLayers[i].ClientChunkMap;
-                chunkSimulators[i] = chunkLayers[i].chunkSimulator;
-            }
-
             var initialTilePos = TileHelpers.GetTilePositionFromFlooredWorldPosition(_cameraFlooredPosition);
             var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(initialTilePos);
             foreach (var tilePos in newTilePositions)
@@ -127,16 +117,6 @@ namespace Tiles
             {
                 var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(newTilePos);
 
-                var chunkServerMaps = new ChunkMap<ChunkServer>[Tile.LayerCount];
-                var chunkClientMaps = new ChunkMap<ChunkClient>[Tile.LayerCount];
-                var chunkSimulators = new ChunkLayerSimulator[Tile.LayerCount];
-                for (var i = 0; i < Tile.LayerCount; ++i)
-                {
-                    chunkServerMaps[i] = chunkLayers[i].ServerChunkMap;
-                    chunkClientMaps[i] = chunkLayers[i].ClientChunkMap;
-                    chunkSimulators[i] = chunkLayers[i].chunkSimulator;
-                }
-
                 foreach (var tilePos in newTilePositions)
                 {
                     if (_serverTileMap.Contains(tilePos))
@@ -164,9 +144,9 @@ namespace Tiles
 
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
-                for (var idx = 0; idx < tileTask.chunksForMainThread.Count; ++idx)
+                for (var idx = 0; idx < tileTask.chunksForMainThread[i].Count; ++idx)
                 {
-                    var chunk = tileTask.chunksForMainThread[idx];
+                    var chunk = tileTask.chunksForMainThread[i][idx];
 
                     if (chunkLayers[i].chunkSimulator != null)
                         chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, false);
@@ -191,9 +171,9 @@ namespace Tiles
 
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
-                for (var idx = 0; idx < tileTask.chunksForMainThread.Count; ++idx)
+                for (var idx = 0; idx < tileTask.chunksForMainThread[i].Count; ++idx)
                 {
-                    var chunk = tileTask.chunksForMainThread[idx];
+                    var chunk = tileTask.chunksForMainThread[i][idx];
 
                     if (chunkLayers[i].chunkSimulator != null)
                         chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, true);
@@ -267,7 +247,6 @@ namespace Tiles
             {
                 var tile = tiles[i];
                 _tileTaskScheduler.QueueForSave(tile);
-                tile.Dispose();
             }
 
             _tileTaskScheduler.ForceSave();

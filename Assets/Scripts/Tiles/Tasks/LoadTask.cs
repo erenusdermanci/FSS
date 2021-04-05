@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using Chunks;
@@ -43,6 +44,7 @@ namespace Tiles.Tasks
             // Set all the contained chunks
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
+                chunksForMainThread[i] = new List<ChunkServer>();
                 var idx = 0;
                 for (var y = Tile.TilePosition.y * Tile.VerticalSize; y < Tile.TilePosition.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
                 {
@@ -54,7 +56,8 @@ namespace Tiles.Tasks
                             Position = posVec, Data = tileData.chunkLayers[i][idx]
                         };
                         chunkLayers[i].ServerChunkMap.Add(chunk);
-                        chunksForMainThread.Add(chunk);
+
+                        chunksForMainThread[i].Add(chunk);
 
                         idx++;
                     }
@@ -68,6 +71,7 @@ namespace Tiles.Tasks
             // temporary measure until we have a pre-compiled world file
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
+                chunksForMainThread[i] = new List<ChunkServer>();
                 for (var y = Tile.TilePosition.y * Tile.VerticalSize; y < Tile.TilePosition.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
                 {
                     for (var x = Tile.TilePosition.x * Tile.HorizontalSize; x < Tile.TilePosition.x * Tile.HorizontalSize + Tile.HorizontalSize; ++x)
@@ -85,9 +89,9 @@ namespace Tiles.Tasks
                         else
                         {
                             chunkLayers[i].ServerChunkMap.Add(emptyChunk);
-
-                            chunksForMainThread.Add(emptyChunk);
                         }
+
+                        chunksForMainThread[i].Add(emptyChunk);
                     }
                 }
             }

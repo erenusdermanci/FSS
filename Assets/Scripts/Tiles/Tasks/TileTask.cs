@@ -12,7 +12,7 @@ namespace Tiles.Tasks
     {
         public bool Done;
         public readonly Tile Tile;
-        public List<ChunkServer> chunksForMainThread;
+        public List<ChunkServer>[] chunksForMainThread;
 
         protected readonly string tileFileName;
         protected ChunkLayer[] chunkLayers;
@@ -33,7 +33,7 @@ namespace Tiles.Tasks
             if (!Directory.Exists(TileHelpers.SavePath))
                 Directory.CreateDirectory(TileHelpers.SavePath);
 
-            chunksForMainThread = new List<ChunkServer>();
+            chunksForMainThread = new List<ChunkServer>[Tile.LayerCount];
         }
 
         public void Schedule(bool synchronous = false)

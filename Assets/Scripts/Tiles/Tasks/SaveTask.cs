@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using Chunks;
+using Chunks.Server;
 using Serialized;
 using Utils;
 
@@ -23,6 +25,7 @@ namespace Tiles.Tasks
             // Serialize all the contained chunks
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
+                chunksForMainThread[i] = new List<ChunkServer>();
                 var idx = 0;
                 tileData.chunkLayers[i] = new BlockData[Tile.VerticalSize * Tile.HorizontalSize];
                 for (var y = Tile.TilePosition.y * Tile.VerticalSize; y < Tile.TilePosition.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
@@ -36,7 +39,7 @@ namespace Tiles.Tasks
                             // ReSharper disable once PossibleNullReferenceException
                             tileData.chunkLayers[i][idx] = chunkToSave.Data;
 
-                            chunksForMainThread.Add(chunkToSave);
+                            chunksForMainThread[i].Add(chunkToSave);
                         }
 
                         idx++;
