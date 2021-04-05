@@ -231,7 +231,8 @@ namespace Tiles
             SimulationTask.ResetKnuthShuffle();
         }
 
-        private void OnDestroy()
+        // This is not multi-platform compatible, not reliable and not called between scene loads
+        private void OnApplicationQuit()
         {
             var chunkServerMaps = new ChunkMap<ChunkServer>[Tile.LayerCount];
             var chunkClientMaps = new ChunkMap<ChunkClient>[Tile.LayerCount];
