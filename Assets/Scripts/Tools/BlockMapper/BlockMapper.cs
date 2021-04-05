@@ -1,5 +1,4 @@
 ﻿using System;
-using Assets;
 using UnityEngine;
 using Utils;
 using Utils.Drawing;

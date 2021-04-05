@@ -95,11 +95,14 @@ namespace Chunks
                         neighbor.ResetDirty();
                         // find the neighbor in the batch pool
                         var neighborBatchIndex = GetChunkBatchIndex(neighbor.Position);
-                        var neighborTask = _simulationBatchPool[neighborBatchIndex][neighbor.Position];
+                        if (_simulationBatchPool[neighborBatchIndex].ContainsKey(neighbor.Position))
+                        {
+                            var neighborTask = _simulationBatchPool[neighborBatchIndex][neighbor.Position];
 
-                        // TODO: ideally we should only update the correct neighbor, but I'm being lazy here
-                        // and its not the worst strain on performance
-                        neighborTask.ChunkNeighborhood.UpdateNeighbors(_chunkLayer.ServerChunkMap, neighbor);
+                            // TODO: ideally we should only update the correct neighbor, but I'm being lazy here
+                            // and its not the worst strain on performance
+                            neighborTask.ChunkNeighborhood.UpdateNeighbors(_chunkLayer.ServerChunkMap, neighbor);
+                        }
                     }
                 }
             }
