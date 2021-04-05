@@ -78,6 +78,11 @@ namespace Tiles
             _tileTaskScheduler.ForceLoad();
         }
 
+        private void Update()
+        {
+            _tileTaskScheduler.Update();
+        }
+
         private void FixedUpdate()
         {
             _mainCamera = Camera.main;
@@ -219,7 +224,8 @@ namespace Tiles
             var idx = 0;
             foreach (var tile in _serverTileMap.Tiles())
             {
-                var tileColor = colorsPerIdx[idx++];
+                var tileColor = colorsPerIdx[idx];
+                idx = (idx + 1) % 9;
 
                 var x = tile.TilePosition.x * Tile.HorizontalSize;
                 var y = tile.TilePosition.y * Tile.VerticalSize;
