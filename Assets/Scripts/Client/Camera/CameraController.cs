@@ -30,7 +30,7 @@ namespace Client.Camera
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.C))
+            if (Input.GetMouseButtonDown(2))
             {
                 _currentCameraIndex++;
                 if (_currentCameraIndex < _cameras.Count)
