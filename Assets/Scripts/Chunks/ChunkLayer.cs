@@ -14,8 +14,6 @@ namespace Chunks
 {
     public class ChunkLayer : MonoBehaviour
     {
-        private GameObjectPool _chunkPool;
-
         public enum ChunkLayerType
         {
             Foreground,
@@ -35,8 +33,6 @@ namespace Chunks
 
         public void Awake()
         {
-            _chunkPool = new GameObjectPool(this,
-                Tile.VerticalSize * Tile.HorizontalSize * WorldManager.MaxLoadedTiles);
             _chunkServerTaskScheduler = new ChunkServerTaskScheduler(type);
             chunkSimulator = new ChunkLayerSimulator(this);
         }
@@ -165,27 +161,6 @@ namespace Chunks
             ClientChunkMap[chunk.Position]?.Dispose();
             ClientChunkMap.Remove(chunk.Position);
             chunkSimulator.UpdateSimulationPool(chunk, false);
-        }
-
-        public void CreateClientChunks()
-        {
-            foreach (var serverChunk in ServerChunkMap.Chunks())
-            {
-                var chunkGameObject = _chunkPool.GetObject();
-                chunkGameObject.transform.position = new Vector3(serverChunk.Position.x, serverChunk.Position.y, 0);
-                var clientChunk = new ChunkClient
-                {
-                    Position = serverChunk.Position,
-                    Colors = serverChunk.Data.colors, // pointer on ChunkServer colors,
-                    Types = serverChunk.Data.types, // pointer on ChunkServer types,
-                    GameObject = chunkGameObject,
-                    Collider = chunkGameObject.GetComponent<PolygonCollider2D>(),
-                    Texture = chunkGameObject.GetComponent<SpriteRenderer>().sprite.texture
-                };
-                chunkGameObject.SetActive(true);
-                ClientChunkMap.Add(clientChunk);
-                clientChunk.UpdateTexture();
-            }
         }
 
         private void DrawDirtyRects()

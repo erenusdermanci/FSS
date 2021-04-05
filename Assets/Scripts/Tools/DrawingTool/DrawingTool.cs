@@ -83,17 +83,7 @@ namespace Tools.DrawingTool
             foreach (var chunkPos in _chunksToReload)
             {
                 var serverChunk = chunkLayers[(int)_currentLayer].ServerChunkMap[chunkPos];
-                if (serverChunk != null)
-                {
-                    var chunkDirtyRects = serverChunk.DirtyRects;
-                    for (var i = 0; i < chunkDirtyRects.Length; ++i)
-                    {
-                        chunkDirtyRects[i].Reset();
-                        chunkDirtyRects[i].Initialized = false;
-                    }
-
-                    serverChunk.Dirty = true;
-                }
+                serverChunk?.ResetDirty();
 
                 var clientChunk = chunkLayers[(int)_currentLayer].ClientChunkMap[chunkPos];
                 if (clientChunk != null)

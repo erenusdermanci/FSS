@@ -1,17 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Chunks;
+using Chunks.Client;
 using Chunks.Server;
 using Tools;
 using UnityEngine;
 using Utils;
+using Utils.UnityHelpers;
 using Color = UnityEngine.Color;
 
 namespace Tiles
 {
     public class WorldManager : MonoBehaviour
     {
-        public const int MaxLoadedTiles = 9;
+        private const int MaxLoadedTiles = 9;
         private readonly TileMap _serverTileMap = new TileMap();
 
         public ChunkLayer[] chunkLayers;
@@ -26,6 +29,19 @@ namespace Tiles
         private Vector2i _oldCameraFlooredPosition;
         private Vector2i _currentTilePosition;
 
+        private GameObjectPool[] _chunkPools;
+
+        private void Awake()
+        {
+            _chunkPools = new GameObjectPool[Tile.LayerCount];
+
+            for (var i = 0; i < Tile.LayerCount; ++i)
+            {
+                _chunkPools[i] = new GameObjectPool(chunkLayers[i],
+                    Tile.VerticalSize * Tile.HorizontalSize * MaxLoadedTiles);
+            }
+        }
+
         private void Start()
         {
             if (Camera.main != null)
@@ -36,15 +52,38 @@ namespace Tiles
                 UpdateCameraHasMoved();
             }
 
-            UpdateTileMapAroundPosition(GetTilePositionFromFlooredWorldPosition(_cameraFlooredPosition));
+            InitializeTileMap();
 
             GlobalDebugConfig.DisableDirtyRectsChanged += DisableDirtyRectsChangedEvent;
 
             UpdatedFlag = 1;
         }
 
+        private void InitializeTileMap()
+        {
+            var chunkServerMaps = new ChunkMap<ChunkServer>[Tile.LayerCount];
+            var chunkClientMaps = new ChunkMap<ChunkClient>[Tile.LayerCount];
+            var chunkSimulators = new ChunkLayerSimulator[Tile.LayerCount];
+            for (var i = 0; i < Tile.LayerCount; ++i)
+            {
+                chunkServerMaps[i] = chunkLayers[i].ServerChunkMap;
+                chunkClientMaps[i] = chunkLayers[i].ClientChunkMap;
+                chunkSimulators[i] = chunkLayers[i].chunkSimulator;
+            }
+
+            var initialTilePos = GetTilePositionFromFlooredWorldPosition(_cameraFlooredPosition);
+            var newTilePositions = GetTilePositionsAroundCentralTilePosition(initialTilePos);
+            foreach (var tilePos in newTilePositions)
+            {
+                _serverTileMap.Add(new Tile(tilePos));
+                _serverTileMap[tilePos]?.Load(chunkServerMaps, chunkClientMaps, chunkSimulators, _chunkPools);
+            }
+        }
+
         private void FixedUpdate()
         {
+            _mainCamera = Camera.main;
+
             UpdatedFlag++;
 
             _cameraHasMoved = UpdateCameraHasMoved();
@@ -52,6 +91,7 @@ namespace Tiles
             if (_cameraHasMoved && _mainCamera != null)
             {
                 MainCameraPosition = _mainCamera.transform.position;
+                HandleTileMap();
             }
 
             if (GlobalDebugConfig.StaticGlobalConfig.outlineTiles)
@@ -67,84 +107,54 @@ namespace Tiles
             if (_oldCameraFlooredPosition == _cameraFlooredPosition)
                 return false;
 
-            var newTilePos = GetTilePositionFromFlooredWorldPosition(_cameraFlooredPosition);
-            if (newTilePos != _currentTilePosition)
-            {
-                UpdateTileMapAroundPosition(newTilePos);
-            }
-
             _oldCameraFlooredPosition = _cameraFlooredPosition;
             return true;
         }
 
-        private void UpdateTileMapAroundPosition(Vector2i pos)
+        private void HandleTileMap()
         {
-            ClearTileMap();
+            var newTilePos = GetTilePositionFromFlooredWorldPosition(_cameraFlooredPosition);
 
-            _currentTilePosition = pos;
-            var tilePositions = GetTilePositionsAroundCentralTilePosition(pos);
-            foreach (var tilePos in tilePositions)
+            if (newTilePos != _currentTilePosition)
             {
-                _serverTileMap.Add(new Tile(tilePos));
-            }
+                var newTilePositions = GetTilePositionsAroundCentralTilePosition(newTilePos);
 
-            UpdateChunkLayerChunkMaps();
-        }
-
-        private void UpdateChunkLayerChunkMaps()
-        {
-            var chunkMaps = new ChunkMap<ChunkServer>[2];
-            var chunkSimulators = new ChunkLayerSimulator[2];
-            for (var i = 0; i < Tile.LayerCount; ++i)
-            {
-                // clear existing
-                foreach (var clientChunk in chunkLayers[i].ClientChunkMap.Map.Values)
+                var chunkServerMaps = new ChunkMap<ChunkServer>[Tile.LayerCount];
+                var chunkClientMaps = new ChunkMap<ChunkClient>[Tile.LayerCount];
+                var chunkSimulators = new ChunkLayerSimulator[Tile.LayerCount];
+                for (var i = 0; i < Tile.LayerCount; ++i)
                 {
-                    clientChunk.Dispose();
+                    chunkServerMaps[i] = chunkLayers[i].ServerChunkMap;
+                    chunkClientMaps[i] = chunkLayers[i].ClientChunkMap;
+                    chunkSimulators[i] = chunkLayers[i].chunkSimulator;
                 }
 
-                chunkLayers[i].ClientChunkMap.Clear();
-
-                foreach (var serverChunk in chunkLayers[i].ServerChunkMap.Map.Values)
+                foreach (var tilePos in newTilePositions)
                 {
-                    serverChunk.Dispose();
+                    if (_serverTileMap.Contains(tilePos))
+                        continue;
+
+                    _serverTileMap.Add(new Tile(tilePos));
+                    _serverTileMap[tilePos]?.Load(chunkServerMaps, chunkClientMaps, chunkSimulators, _chunkPools);
                 }
 
-                chunkLayers[i].ServerChunkMap.Clear();
-                chunkLayers[i]?.chunkSimulator?.Clear();
+                // clean faraway tiles
+                var tiles = _serverTileMap.Tiles().ToList();
+                for (var i = 0; i < tiles.Count; ++i)
+                {
+                    var tilePos = tiles[i].TilePosition;
+                    if (Math.Abs(tilePos.x - newTilePos.x) >= 2 || Math.Abs(tilePos.y - newTilePos.y) >= 2)
+                    {
+                        //faraway tile
+                        var tile = _serverTileMap[tilePos];
+                        tile?.Save(chunkServerMaps, chunkClientMaps, chunkSimulators);
+                        tile?.Dispose();
+                        _serverTileMap.Remove(tilePos);
+                    }
+                }
 
-                chunkMaps[i] = chunkLayers[i].ServerChunkMap;
-                chunkSimulators[i] = chunkLayers[i].chunkSimulator;
+                _currentTilePosition = newTilePos;
             }
-
-            // add new tiles
-            foreach (var tile in _serverTileMap.Tiles())
-            {
-                // load the tile
-                tile.Load(chunkMaps, chunkSimulators);
-            }
-
-            for (var i = 0; i < Tile.LayerCount; ++i)
-            {
-                chunkLayers[i].CreateClientChunks();
-            }
-        }
-
-        private void ClearTileMap()
-        {
-            // save and unload the tiles before clearing
-            var chunkMaps = new ChunkMap<ChunkServer>[2];
-            for (var i = 0; i < Tile.LayerCount; ++i)
-            {
-                chunkMaps[i] = chunkLayers[i].ServerChunkMap;
-            }
-
-            foreach (var tile in _serverTileMap.Map.Values)
-            {
-                tile.Save(chunkMaps);
-                tile.Dispose();
-            }
-            _serverTileMap.Clear();
         }
 
         private static List<Vector2i> GetTilePositionsAroundCentralTilePosition(Vector2i pos)
@@ -219,6 +229,27 @@ namespace Tiles
         private static void DisableDirtyRectsChangedEvent(object sender, EventArgs e)
         {
             SimulationTask.ResetKnuthShuffle();
+        }
+
+        private void OnDestroy()
+        {
+            var chunkServerMaps = new ChunkMap<ChunkServer>[Tile.LayerCount];
+            var chunkClientMaps = new ChunkMap<ChunkClient>[Tile.LayerCount];
+            var chunkSimulators = new ChunkLayerSimulator[Tile.LayerCount];
+            for (var i = 0; i < Tile.LayerCount; ++i)
+            {
+                chunkServerMaps[i] = chunkLayers[i].ServerChunkMap;
+                chunkClientMaps[i] = chunkLayers[i].ClientChunkMap;
+                chunkSimulators[i] = chunkLayers[i].chunkSimulator;
+            }
+
+            var tiles = _serverTileMap.Tiles().ToList();
+            for (var i = 0; i < tiles.Count; ++i)
+            {
+                var tile = tiles[i];
+                tile.Save(chunkServerMaps, chunkClientMaps, chunkSimulators);
+                tile.Dispose();
+            }
         }
     }
 }

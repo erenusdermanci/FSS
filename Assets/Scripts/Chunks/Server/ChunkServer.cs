@@ -17,12 +17,19 @@ namespace Chunks.Server
 
         public ChunkServer()
         {
+            ResetDirty();
+        }
+
+        public void ResetDirty()
+        {
             for (var i = 0; i < DirtyRects.Length; ++i)
             {
                 _metadataManagers[i] = new MetadataManager();
                 DirtyRects[i].Reset();
                 DirtyRects[i].Initialized = false;
             }
+
+            Dirty = true;
         }
 
         public void Initialize()

@@ -92,6 +92,7 @@ namespace Chunks
                     var neighbor = ChunkHelpers.GetNeighborChunk(_chunkLayer.ServerChunkMap, chunk, x, y);
                     if (neighbor != null)
                     {
+                        neighbor.ResetDirty();
                         // find the neighbor in the batch pool
                         var neighborBatchIndex = GetChunkBatchIndex(neighbor.Position);
                         var neighborTask = _simulationBatchPool[neighborBatchIndex][neighbor.Position];
