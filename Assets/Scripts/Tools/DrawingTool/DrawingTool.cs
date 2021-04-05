@@ -60,7 +60,8 @@ namespace Tools.DrawingTool
 
             if (drawBrushSelection)
             {
-                DrawSelected(blockPosition.x, blockPosition.y);
+                parameters.DrawBrush(blockPosition.x - Chunk.Size / 2f, blockPosition.y - Chunk.Size / 2f, 1f / Chunk.Size);
+                PrintSelectedBlockInfo(blockPosition.x, blockPosition.y);
             }
 
             if (GlobalDebugConfig.StaticGlobalConfig.outlineChunks)
@@ -121,36 +122,16 @@ namespace Tools.DrawingTool
             }
         }
 
-        private void DrawSelected(float worldX, float worldY)
+        private void PrintSelectedBlockInfo(float worldX, float worldY)
         {
             var chunk = GetChunkFromWorld(worldX, worldY);
             if (chunk == null)
                 return;
-
             var blockXInChunk = Helpers.Mod((int) worldX, Chunk.Size);
             var blockYInChunk = Helpers.Mod((int) worldY, Chunk.Size);
             var blockIndexInChunk = blockYInChunk * Chunk.Size + blockXInChunk;
             var blockInfo = new Block();
             chunk.GetBlockInfo(blockIndexInChunk, ref blockInfo);
-
-            switch (parameters.brush)
-            {
-                case DrawingBrushType.Box:
-                {
-                    var blockSize = 1f / Chunk.Size * parameters.size;
-                    DebugDraw.Rectangle(chunk.Position.x - 0.5f + (blockXInChunk - parameters.size / 2f) / Chunk.Size,
-                        chunk.Position.y - 0.5f + (blockYInChunk - parameters.size / 2f) / Chunk.Size,
-                        blockSize, blockSize, UnityEngine.Color.red);
-                    break;
-                }
-                case DrawingBrushType.Circle:
-                {
-                    DebugDraw.Circle(worldX / Chunk.Size - 0.5f, worldY / Chunk.Size - 0.5f,
-                        parameters.size / (float) Chunk.Size, UnityEngine.Color.red);
-                    break;
-                }
-            }
-
             var r = chunk.Data.colors[blockIndexInChunk * 4];
             var g = chunk.Data.colors[blockIndexInChunk * 4 + 1];
             var b = chunk.Data.colors[blockIndexInChunk * 4 + 2];

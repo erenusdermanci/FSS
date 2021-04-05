@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets;
 using UnityEngine;
 using Utils;
 using Utils.Drawing;
@@ -41,7 +42,9 @@ namespace Tools.BlockMapper
             {
                 case DrawingToolType.Brush:
                     UpdateBrush(blockPosition);
-                    DrawBrush();
+                    var texelX = Mathf.Floor(_mouseWorldPosition.x * sprite.pixelsPerUnit);
+                    var texelY = Mathf.Floor(_mouseWorldPosition.y * sprite.pixelsPerUnit);
+                    parameters.DrawBrush(texelX, texelY, asset.texelSize);
                     break;
                 case DrawingToolType.Fill:
                     UpdateFill(blockPosition);
@@ -125,31 +128,6 @@ namespace Tools.BlockMapper
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        private void DrawBrush()
-        {
-            var sprite = asset.spriteRenderer.sprite;
-            var texelX = Mathf.Floor(_mouseWorldPosition.x * sprite.pixelsPerUnit) / sprite.pixelsPerUnit;
-            var texelY = Mathf.Floor(_mouseWorldPosition.y * sprite.pixelsPerUnit) / sprite.pixelsPerUnit;
-            switch (parameters.brush)
-            {
-                case DrawingBrushType.Box:
-                {
-                    var size = asset.texelSize * parameters.size;
-                    DebugDraw.Square(texelX - size / 2f + asset.texelSize / 2f,
-                        texelY - size / 2f + asset.texelSize / 2f,
-                        size, UnityEngine.Color.red);
-                    break;
-                }
-                case DrawingBrushType.Circle:
-                {
-                    DebugDraw.Circle(texelX + asset.texelSize / 2f,
-                        texelY + asset.texelSize / 2f,
-                        parameters.size * asset.texelSize, UnityEngine.Color.red);
-                    break;
-                }
             }
         }
     }
