@@ -1,5 +1,5 @@
-﻿using Assets;
-using Blocks;
+﻿using Blocks;
+using Entities;
 using UnityEngine;
 using Color = Utils.Color;
 
@@ -8,7 +8,7 @@ namespace Tools.BlockMapper
     public class BlockMap : MonoBehaviour
     {
         [HideInInspector]
-        public Asset asset;
+        public Entity entity;
 
         private SpriteRenderer _blockMaskSpriteRenderer;
         private Texture2D _blockMaskTexture;
@@ -16,7 +16,7 @@ namespace Tools.BlockMapper
 
         public void Start()
         {
-            var sprite = asset.spriteRenderer.sprite;
+            var sprite = entity.spriteRenderer.sprite;
             _blockMaskSpriteRenderer = GetComponent<SpriteRenderer>();
             _blockMaskTexture = new Texture2D(sprite.texture.width, sprite.texture.height, TextureFormat.RGBA32, false)
             {
@@ -33,7 +33,7 @@ namespace Tools.BlockMapper
                 SpriteMeshType.FullRect);
             _blockMaskColors = new byte[sprite.texture.width * sprite.texture.height * 4];
             for (var i = 0; i < _blockMaskColors.Length / 4; i++)
-                AssignBlockColor(i, BlockConstants.GetBlockColor(asset.blockTypes[i]));
+                AssignBlockColor(i, BlockConstants.GetBlockColor(entity.blockTypes[i]));
             Reload();
         }
 

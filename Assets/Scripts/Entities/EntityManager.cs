@@ -8,11 +8,11 @@ using UnityEngine;
 using Utils;
 using Utils.Drawing;
 
-namespace Assets
+namespace Entities
 {
-    public class AssetManager : MonoBehaviour
+    public class EntityManager : MonoBehaviour
     {
-        private readonly List<Asset> _assets = new List<Asset>();
+        private readonly List<Entity> _entities = new List<Entity>();
 
         public ClientCollisionManager clientCollisionManager;
         public ChunkLayer[] chunkLayers;
@@ -56,36 +56,36 @@ namespace Assets
             }
         }
 
-        public void BlitAsset(Asset asset)
+        public void BlitEntity(Entity entity)
         {
-            var sprite = asset.spriteRenderer.sprite;
-            var position = asset.transform.position;
+            var sprite = entity.spriteRenderer.sprite;
+            var position = entity.transform.position;
             var w = sprite.texture.width;
             var h = sprite.texture.height;
             var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - w / 2;
             var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - h / 2;
-            Draw.Rectangle(w / 2, h / 2, w, h, (i, j) => PutBlock(asset, i, j, x, y));
+            Draw.Rectangle(w / 2, h / 2, w, h, (i, j) => PutBlock(entity, i, j, x, y));
 
             // hide the sprite so we see the blocks in the grid
-            asset.GetComponent<SpriteRenderer>().enabled = false;
+            entity.GetComponent<SpriteRenderer>().enabled = false;
         }
 
-        private void PutBlock(Asset asset, int assetBlockX, int assetBlockY, int assetWorldX, int assetWorldY)
+        private void PutBlock(Entity entity, int entityBlockX, int entityBlockY, int entityWorldX, int entityWorldY)
         {
-            var blockType = asset.GetBlockType(assetBlockX, assetBlockY);
+            var blockType = entity.GetBlockType(entityBlockX, entityBlockY);
             if (blockType == BlockConstants.UnassignedBlockType)
             {
-                Debug.Log($"block at x={assetBlockX}, y={assetBlockY} in asset {asset.name} has not been assigned!");
+                Debug.Log($"block at x={entityBlockX}, y={entityBlockY} in entity {entity.name} has not been assigned!");
                 return;
             }
             if (blockType < BlockConstants.UnassignedBlockType)
-                throw new InvalidOperationException($"position x={assetBlockX}, y={assetBlockY} is invalid within asset {asset.name}");
+                throw new InvalidOperationException($"position x={entityBlockX}, y={entityBlockY} is invalid within entity {entity.name}");
 
-            asset.GetBlockColor(assetBlockX, assetBlockY, out var r, out var g, out var b, out var a);
+            entity.GetBlockColor(entityBlockX, entityBlockY, out var r, out var g, out var b, out var a);
 
-            var blockWorldX = assetWorldX + assetBlockX;
-            var blockWorldY = assetWorldY + assetBlockY;
-            var chunk = GetChunkFromWorld(blockWorldX, blockWorldY, asset.chunkLayerType);
+            var blockWorldX = entityWorldX + entityBlockX;
+            var blockWorldY = entityWorldY + entityBlockY;
+            var chunk = GetChunkFromWorld(blockWorldX, blockWorldY, entity.chunkLayerType);
             if (chunk == null)
                 return;
 
@@ -102,7 +102,7 @@ namespace Assets
                     plantBlockData.Reset(blockType, UniqueIdGenerator.Next());
             }
 
-            _chunksLayersToReload[(int)asset.chunkLayerType].Add(chunk.Position);
+            _chunksLayersToReload[(int)entity.chunkLayerType].Add(chunk.Position);
         }
 
         private ChunkServer GetChunkFromWorld(float worldX, float worldY, ChunkLayer.ChunkLayerType layerType)
@@ -114,9 +114,9 @@ namespace Assets
                 : null;
         }
 
-        public void AssetAwake(Asset asset)
+        public void EntityAwake(Entity entity)
         {
-            _assets.Add(asset);
+            _entities.Add(entity);
         }
     }
 }

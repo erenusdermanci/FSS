@@ -54,7 +54,7 @@ namespace Chunks.Server
             return ref Chunks[chunkIndex].GetPlantBlockData(x, y, type);
         }
 
-        public void ReplaceBlock(int x, int y, int type, int stateBitset, float health, float lifetime, long assetId)
+        public void ReplaceBlock(int x, int y, int type, int stateBitset, float health, float lifetime, long entityId)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
@@ -62,7 +62,7 @@ namespace Chunks.Server
             var color = BlockConstants.BlockDescriptors[type].Color;
             color.Shift(out var r, out var g, out var b);
             Chunks[chunkIndex].PutBlock(x, y, type, r, g, b,
-                color.a, stateBitset, health, lifetime, assetId);
+                color.a, stateBitset, health, lifetime, entityId);
             UpdateAdjacentBlockDirty(x, y);
         }
 
@@ -71,7 +71,7 @@ namespace Chunks.Server
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
-            Chunks[chunkIndex].PutBlock(x, y, block.Type, r, g, b, a, block.StateBitset, block.Health, block.Lifetime, block.AssetId);
+            Chunks[chunkIndex].PutBlock(x, y, block.Type, r, g, b, a, block.StateBitset, block.Health, block.Lifetime, block.EntityId);
             UpdateAdjacentBlockDirty(x, y);
         }
 
@@ -100,7 +100,7 @@ namespace Chunks.Server
             var destState = newChunk.Data.stateBitsets[dstIndex];
             var destHealth = newChunk.Data.healths[dstIndex];
             var destLifetime = newChunk.Data.lifetimes[dstIndex];
-            var destAssetId = newChunk.Data.assetIds[dstIndex];
+            var destEntityId = newChunk.Data.entityIds[dstIndex];
 
             var centralChunk = Chunks[CentralChunkIndex];
             newChunk.PutBlock(ux, uy, srcBlock,
@@ -111,7 +111,7 @@ namespace Chunks.Server
                 centralChunk.Data.stateBitsets[srcIndex],
                 centralChunk.Data.healths[srcIndex],
                 centralChunk.Data.lifetimes[srcIndex],
-                centralChunk.Data.assetIds[srcIndex]);
+                centralChunk.Data.entityIds[srcIndex]);
 
             // put the old destination block at the source position (swap)
             centralChunk.PutBlock(x, y, destBlock,
@@ -122,7 +122,7 @@ namespace Chunks.Server
                 destState,
                 destHealth,
                 destLifetime,
-                destAssetId);
+                destEntityId);
             UpdateAdjacentBlockDirty(x, y);
 
             return true;

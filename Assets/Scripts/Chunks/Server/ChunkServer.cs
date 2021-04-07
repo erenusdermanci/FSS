@@ -40,10 +40,10 @@ namespace Chunks.Server
             Data.stateBitsets = new int[totalSize];
             Data.healths = new float[totalSize];
             Data.lifetimes = new float[totalSize];
-            Data.assetIds = new long[totalSize];
+            Data.entityIds = new long[totalSize];
         }
 
-        public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health, float lifetime, long assetId)
+        public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health, float lifetime, long entityId)
         {
             var i = y * Size + x;
             Data.colors[i * 4] = r;
@@ -54,7 +54,7 @@ namespace Chunks.Server
             Data.stateBitsets[i] = states;
             Data.healths[i] = health;
             Data.lifetimes[i] = lifetime;
-            Data.assetIds[i] = assetId;
+            Data.entityIds[i] = entityId;
 
             UpdateBlockDirty(x, y);
 
@@ -147,7 +147,7 @@ namespace Chunks.Server
             block.StateBitset = Data.stateBitsets[blockIndex];
             block.Health = Data.healths[blockIndex];
             block.Lifetime = Data.lifetimes[blockIndex];
-            block.AssetId = Data.assetIds[blockIndex];
+            block.EntityId = Data.entityIds[blockIndex];
         }
 
         public void SetBlockStates(int x, int y, int states)
@@ -186,7 +186,7 @@ namespace Chunks.Server
                 Data.stateBitsets[i] = 0;
                 Data.healths[i] = BlockConstants.BlockDescriptors[BlockConstants.Air].BaseHealth;
                 Data.lifetimes[i] = 0;
-                Data.assetIds[i] = 0;
+                Data.entityIds[i] = 0;
             }
         }
 

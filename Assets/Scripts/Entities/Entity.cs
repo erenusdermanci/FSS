@@ -7,9 +7,9 @@ using Tools.BlockMapper;
 using UnityEditor;
 using UnityEngine;
 
-namespace Assets
+namespace Entities
 {
-    public class Asset : MonoBehaviour
+    public class Entity : MonoBehaviour
     {
         public long id;
 
@@ -49,7 +49,7 @@ namespace Assets
             }
 
             if (gameObject.transform.parent != null)
-                gameObject.transform.parent.SendMessage("AssetAwake", this);
+                gameObject.transform.parent.SendMessage("EntityAwake", this);
         }
 
         private void FixedUpdate()
@@ -84,7 +84,7 @@ namespace Assets
                 SpriteMeshType.FullRect);
             blockMapObject.layer = transform.gameObject.layer;
             _blockMap = blockMapObject.GetComponent<BlockMap>();
-            _blockMap.asset = this;
+            _blockMap.entity = this;
             blockMapObject.SetActive(true);
         }
 
@@ -151,7 +151,7 @@ namespace Assets
             a = color.a;
         }
 
-        private void AssetAwake(Asset asset)
+        private void EntityAwake(Entity entity)
         {
         }
 

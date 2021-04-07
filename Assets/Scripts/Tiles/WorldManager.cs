@@ -3,6 +3,7 @@ using System.Linq;
 using Chunks;
 using Chunks.Client;
 using Chunks.Server;
+using Entities;
 using Tiles.Tasks;
 using Tools;
 using UnityEngine;
@@ -32,6 +33,8 @@ namespace Tiles
         private Vector2i _currentTilePosition;
 
         private GameObjectPool[] _chunkPools;
+
+        private EntityManager _entityManager;
 
         private void Awake()
         {

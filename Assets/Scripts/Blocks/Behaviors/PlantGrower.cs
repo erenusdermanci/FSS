@@ -119,7 +119,7 @@ namespace Blocks.Behaviors
             var targetBlockType = chunkNeighborhood.GetBlockType(nx, ny);
             if (CanGrowInto(targetBlockType) || targetBlockType == block.Type)
             {
-                chunkNeighborhood.ReplaceBlock(nx, ny, block.Type, block.StateBitset, block.Health, block.Lifetime, block.AssetId);
+                chunkNeighborhood.ReplaceBlock(nx, ny, block.Type, block.StateBitset, block.Health, block.Lifetime, block.EntityId);
                 ref var newBlock = ref chunkNeighborhood.GetPlantBlockData(nx, ny, block.Type);
                 newBlock.Reset(block.Type, self.id);
                 newBlock.ticksBeforeGrowth = rng.Next(_minimumTicksBeforeGrowth, _maximumTickBeforeGrowth + 1);
