@@ -24,26 +24,18 @@ namespace Chunks
         public readonly ChunkMap<ChunkClient> ClientChunkMap = new ChunkMap<ChunkClient>();
         private readonly List<ChunkClient> _chunksToRender = new List<ChunkClient>();
 
-        private ChunkServerTaskScheduler _chunkServerTaskScheduler;
         public ChunkLayerSimulator chunkSimulator;
 
         private bool _userPressedSpace;
 
         public void Awake()
         {
-            _chunkServerTaskScheduler = new ChunkServerTaskScheduler(type);
             chunkSimulator = new ChunkLayerSimulator(this);
         }
 
         public void Start()
         {
-            _chunkServerTaskScheduler.GetTaskManager(ChunkTaskTypes.Generate).Processed += OnChunkGenerated;
             chunkSimulator.Simulated += OnChunkSimulated;
-        }
-
-        private void OnChunkGenerated(object sender, EventArgs e)
-        {
-            FinalizeChunkCreation(((ChunkTaskEvent<ChunkServer>) e).Chunk);
         }
 
         private void OnChunkSimulated(object sender, EventArgs e)
@@ -87,31 +79,14 @@ namespace Chunks
             }
         }
 
-        private void FinalizeChunkCreation(ChunkServer chunk)
-        {
-            ServerChunkMap.Add(chunk);
-
-            // CreateClientChunk(chunk);
-
-            chunkSimulator.UpdateSimulationPool(chunk, true);
-        }
-
         public void Update()
         {
-            _chunkServerTaskScheduler.Update();
-
             if (Input.GetKeyDown(KeyCode.Space))
                 _userPressedSpace = true;
         }
 
         private void FixedUpdate()
         {
-            // if (worldManager.CameraHasMoved)
-            // {
-            //     Generate(worldManager.CameraFlooredPosition); // replace with load
-            //     Clean(worldManager.CameraFlooredPosition); // replace with save+unload
-            // }
-
             if (GlobalConfig.StaticGlobalConfig.stepByStep && _userPressedSpace)
             {
                 _userPressedSpace = false;
@@ -128,29 +103,6 @@ namespace Chunks
             if (!GlobalConfig.StaticGlobalConfig.disableDirtyRects && GlobalConfig.StaticGlobalConfig.drawDirtyRects)
                 DrawDirtyRects();
         }
-
-        // private void Clean(Vector2i aroundPosition)
-        // {
-        //     var px = aroundPosition.x - (float)worldManager.generatedAreaSize / 2;
-        //     var py = aroundPosition.y - (float)worldManager.generatedAreaSize / 2;
-        //
-        //     var chunksToRemove = new List<Vector2i>();
-        //     foreach (var chunk in ServerChunkMap.Chunks())
-        //     {
-        //         if (!(chunk.Position.x < px - worldManager.cleanAreaSizeOffset) &&
-        //             !(chunk.Position.x > px + worldManager.generatedAreaSize + worldManager.cleanAreaSizeOffset) &&
-        //             !(chunk.Position.y < py - worldManager.cleanAreaSizeOffset) &&
-        //             !(chunk.Position.y > py + worldManager.generatedAreaSize + worldManager.cleanAreaSizeOffset)) continue;
-        //         chunksToRemove.Add(chunk.Position);
-        //     }
-        //
-        //     foreach (var chunkPosition in chunksToRemove)
-        //     {
-        //         var chunk = ServerChunkMap[chunkPosition];
-        //         ServerChunkMap.Remove(chunkPosition);
-        //         DisposeChunk(chunk);
-        //     }
-        // }
 
         private void DisposeChunk(ChunkServer chunk)
         {
@@ -217,8 +169,6 @@ namespace Chunks
 
         private void OnDestroy()
         {
-            _chunkServerTaskScheduler.CancelGeneration();
-
             foreach (var chunk in ServerChunkMap.Chunks())
             {
                 DisposeChunk(chunk);

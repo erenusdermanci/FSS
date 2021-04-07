@@ -24,7 +24,7 @@ namespace Chunks.Server
             ResetKnuthShuffle();
         }
 
-        public SimulationTask(ChunkServer chunk, ChunkLayerType layerType) : base(chunk, layerType)
+        public SimulationTask(ChunkServer chunk) : base(chunk)
         {
         }
 

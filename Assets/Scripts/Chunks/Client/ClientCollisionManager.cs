@@ -82,10 +82,8 @@ namespace Chunks.Client
                 var objectY2 = bounds.max.y + updatedGameObject.GameObjectBoundsSizeMultiplier * bounds.size.y;
 
                 var chunks = _chunkNeighborhood.GetChunks();
-                for (var chunkIdx = 0; chunkIdx < chunks.Length; ++chunkIdx)
+                foreach (var chunk in chunks)
                 {
-                    var chunk = chunks[chunkIdx];
-
                     if (chunk == null)
                         continue;
 
@@ -100,7 +98,7 @@ namespace Chunks.Client
                     if (!PlayerOverlapsInChunk(chunk.Position, objectX1, objectX2, objectY1, objectY2))
                         continue;
 
-                    var task = new ClientCollisionTask(chunk, chunkLayer.type);
+                    var task = new ClientCollisionTask(chunk);
                     _clientCollisionTasks.Add(chunk.Position, task);
                 }
             }
@@ -122,7 +120,7 @@ namespace Chunks.Client
         {
             if (_clientCollisionTasks.ContainsKey(chunkClient.Position))
                 return;
-            var task = new ClientCollisionTask(chunkClient, chunkLayer.type);
+            var task = new ClientCollisionTask(chunkClient);
             _clientCollisionTasks.Add(chunkClient.Position, task);
         }
     }

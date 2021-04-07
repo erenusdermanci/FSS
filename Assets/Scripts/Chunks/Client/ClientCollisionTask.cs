@@ -10,7 +10,7 @@ namespace Chunks.Client
     {
         public List<List<Vector2i>> CollisionData;
 
-        public ClientCollisionTask(ChunkClient chunk, ChunkLayerType layerType) : base(chunk, layerType)
+        public ClientCollisionTask(ChunkClient chunk) : base(chunk)
         {
         }
 

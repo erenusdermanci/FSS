@@ -66,7 +66,7 @@ namespace Chunks
             {
                 if (_simulationBatchPool[batchIndex].ContainsKey(chunkPos))
                     return; // this chunk simulation task already exists
-                var task = new SimulationTask(chunk, _chunkLayer.type)
+                var task = new SimulationTask(chunk)
                 {
                     ChunkNeighborhood = new ChunkServerNeighborhood(_chunkLayer.ServerChunkMap, chunk)
                 };

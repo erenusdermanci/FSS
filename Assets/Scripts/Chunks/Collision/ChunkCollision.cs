@@ -14,11 +14,6 @@ namespace Chunks.Collision
             return ComputeChunkColliders(chunk.Types);
         }
 
-        public static List<List<Vector2i>> ComputeChunkColliders(ChunkServer chunk)
-        {
-            return ComputeChunkColliders(chunk.Data.types);
-        }
-
         private static List<List<Vector2i>> ComputeChunkColliders(int[] grid)
         {
             GenerateLines(grid,

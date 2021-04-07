@@ -7,8 +7,6 @@ namespace Chunks.Tasks
 {
     public abstract class ChunkTask<T> : IDisposable  where T : Chunk
     {
-        public bool Done;
-
         public readonly T Chunk;
 
         private bool _synchronous;
@@ -17,7 +15,7 @@ namespace Chunks.Tasks
         private readonly CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
 
-        protected ChunkTask(T chunk, ChunkLayerType layerType)
+        protected ChunkTask(T chunk)
         {
             _cancellationTokenSource = new CancellationTokenSource();
             Chunk = chunk;
@@ -43,18 +41,6 @@ namespace Chunks.Tasks
             return _task != null;
         }
 
-        public bool Queued()
-        {
-            return _task.Status <= TaskStatus.Created;
-        }
-
-        public void Cancel()
-        {
-            if (_task == null)
-                return;
-            _cancellationTokenSource.Cancel();
-        }
-
         public void Join()
         {
             if (_synchronous)
@@ -66,20 +52,9 @@ namespace Chunks.Tasks
         private void Run()
         {
             Execute();
-
-            Done = true;
         }
 
         protected abstract void Execute();
-
-        protected bool ShouldCancel()
-        {
-            if (!_cancellationToken.IsCancellationRequested)
-                return false;
-
-            Done = true;
-            return true;
-        }
 
         public void Dispose()
         {
