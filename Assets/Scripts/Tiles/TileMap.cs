@@ -24,7 +24,7 @@ namespace Tiles
 
         public void Add(Tile tile)
         {
-            Map.TryAdd(tile.TilePosition, tile);
+            Map.TryAdd(tile.Position, tile);
         }
 
         public void Remove(Vector2i position)

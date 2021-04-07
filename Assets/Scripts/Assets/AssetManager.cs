@@ -12,7 +12,7 @@ namespace Assets
 {
     public class AssetManager : MonoBehaviour
     {
-        private List<Asset> _assets;
+        private readonly List<Asset> _assets = new List<Asset>();
 
         public ClientCollisionManager clientCollisionManager;
         public ChunkLayer[] chunkLayers;

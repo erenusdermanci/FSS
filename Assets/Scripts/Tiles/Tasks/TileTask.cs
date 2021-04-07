@@ -27,7 +27,7 @@ namespace Tiles.Tasks
             _cancellationTokenSource = new CancellationTokenSource();
 
             Tile = tile;
-            TileFileName = $"{TileHelpers.TilesSavePath}\\{tile.TilePosition.x}_{tile.TilePosition.y}";
+            TileFileName = $"{TileHelpers.TilesSavePath}\\{tile.Position.x}_{tile.Position.y}";
             this.ChunkLayers = chunkLayers;
 
             if (!Directory.Exists(TileHelpers.TilesSavePath))

@@ -9,11 +9,11 @@ namespace Tiles
         public const int VerticalSize = 3;
         public const int LayerCount = 2;
 
-        public Vector2i TilePosition;
+        public Vector2i Position;
 
         public Tile(Vector2i position)
         {
-            TilePosition = position;
+            Position = position;
         }
 
         public void Dispose()

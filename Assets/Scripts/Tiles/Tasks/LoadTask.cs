@@ -46,9 +46,9 @@ namespace Tiles.Tasks
             {
                 ChunksForMainThread[i] = new List<ChunkServer>();
                 var idx = 0;
-                for (var y = Tile.TilePosition.y * Tile.VerticalSize; y < Tile.TilePosition.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
+                for (var y = Tile.Position.y * Tile.VerticalSize; y < Tile.Position.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
                 {
-                    for (var x = Tile.TilePosition.x * Tile.HorizontalSize; x < Tile.TilePosition.x * Tile.HorizontalSize + Tile.HorizontalSize; ++x)
+                    for (var x = Tile.Position.x * Tile.HorizontalSize; x < Tile.Position.x * Tile.HorizontalSize + Tile.HorizontalSize; ++x)
                     {
                         var posVec = new Vector2i(x, y);
                         var chunk = new ChunkServer
@@ -72,9 +72,9 @@ namespace Tiles.Tasks
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
                 ChunksForMainThread[i] = new List<ChunkServer>();
-                for (var y = Tile.TilePosition.y * Tile.VerticalSize; y < Tile.TilePosition.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
+                for (var y = Tile.Position.y * Tile.VerticalSize; y < Tile.Position.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
                 {
-                    for (var x = Tile.TilePosition.x * Tile.HorizontalSize; x < Tile.TilePosition.x * Tile.HorizontalSize + Tile.HorizontalSize; ++x)
+                    for (var x = Tile.Position.x * Tile.HorizontalSize; x < Tile.Position.x * Tile.HorizontalSize + Tile.HorizontalSize; ++x)
                     {
                         var posVec = new Vector2i(x, y);
                         var emptyChunk = new ChunkServer {Position = posVec};

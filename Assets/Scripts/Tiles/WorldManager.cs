@@ -134,7 +134,7 @@ namespace Tiles
                 var tiles = _serverTileMap.Tiles().ToList();
                 for (var i = 0; i < tiles.Count; ++i)
                 {
-                    var tilePos = tiles[i].TilePosition;
+                    var tilePos = tiles[i].Position;
                     if (Math.Abs(tilePos.x - newTilePos.x) >= 2 || Math.Abs(tilePos.y - newTilePos.y) >= 2)
                          _tileTaskScheduler.QueueForSave(tiles[i]);
                 }
@@ -165,7 +165,7 @@ namespace Tiles
                 }
             }
 
-            _serverTileMap.Remove(tileTask.Tile.TilePosition);
+            _serverTileMap.Remove(tileTask.Tile.Position);
             tileTask.Tile.Dispose();
         }
 
@@ -227,8 +227,8 @@ namespace Tiles
                 var tileColor = colorsPerIdx[idx];
                 idx = (idx + 1) % 9;
 
-                var x = tile.TilePosition.x * Tile.HorizontalSize;
-                var y = tile.TilePosition.y * Tile.VerticalSize;
+                var x = tile.Position.x * Tile.HorizontalSize;
+                var y = tile.Position.y * Tile.VerticalSize;
 
                 // draw the tile borders
                 Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset), tileColor);

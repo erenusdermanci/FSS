@@ -28,9 +28,9 @@ namespace Tiles.Tasks
                 ChunksForMainThread[i] = new List<ChunkServer>();
                 var idx = 0;
                 tileData.chunkLayers[i] = new BlockData[Tile.VerticalSize * Tile.HorizontalSize];
-                for (var y = Tile.TilePosition.y * Tile.VerticalSize; y < Tile.TilePosition.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
+                for (var y = Tile.Position.y * Tile.VerticalSize; y < Tile.Position.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
                 {
-                    for (var x = Tile.TilePosition.x * Tile.HorizontalSize; x < Tile.TilePosition.x * Tile.HorizontalSize + Tile.HorizontalSize; ++x)
+                    for (var x = Tile.Position.x * Tile.HorizontalSize; x < Tile.Position.x * Tile.HorizontalSize + Tile.HorizontalSize; ++x)
                     {
                         var posVec = new Vector2i(x, y);
                         if (ChunkLayers[i].ServerChunkMap.Contains(posVec))

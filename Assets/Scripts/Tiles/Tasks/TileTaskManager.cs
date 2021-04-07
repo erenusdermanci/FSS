@@ -36,7 +36,7 @@ namespace Tiles.Tasks
                 if (!_tasks.ContainsKey(position))
                     continue;
                 var task = _tasks[position];
-                _processing.Add(task.Tile.TilePosition, task);
+                _processing.Add(task.Tile.Position, task);
                 task.Schedule();
             }
 
@@ -72,9 +72,11 @@ namespace Tiles.Tasks
 
         public void Enqueue(Tile tile)
         {
+            if (_tasks.ContainsKey(tile.Position))
+                return;
             var task = _taskCreator(tile);
-            _queued.Add(tile.TilePosition);
-            _tasks.Add(tile.TilePosition, task);
+            _queued.Add(tile.Position);
+            _tasks.Add(tile.Position, task);
         }
 
         public void CompleteAll()
@@ -85,7 +87,7 @@ namespace Tiles.Tasks
                 var position = _queued[index];
                 _queued.RemoveAt(index);
                 var task = _tasks[position];
-                _processing.Add(task.Tile.TilePosition, task);
+                _processing.Add(task.Tile.Position, task);
                 task.Schedule();
             }
             foreach (var saveTask in _processing.Values)
@@ -131,8 +133,8 @@ namespace Tiles.Tasks
 
         private void OnProcessed(TileTask task)
         {
-            _tasks.Remove(task.Tile.TilePosition);
-            _processing.Remove(task.Tile.TilePosition);
+            _tasks.Remove(task.Tile.Position);
+            _processing.Remove(task.Tile.Position);
             Processed?.Invoke(this, new TileTaskEvent(task));
             task.Dispose();
         }
