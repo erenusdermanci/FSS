@@ -1,5 +1,7 @@
-﻿using Blocks;
+﻿using Assets;
+using Blocks;
 using UnityEngine;
+using Color = Utils.Color;
 
 namespace Tools.BlockMapper
 {
@@ -41,7 +43,7 @@ namespace Tools.BlockMapper
             _blockMaskTexture.Apply();
         }
 
-        public void AssignBlockColor(int index, Utils.Color color)
+        public void AssignBlockColor(int index, Color color)
         {
             _blockMaskColors[index * 4 + 0] = color.r;
             _blockMaskColors[index * 4 + 1] = color.g;

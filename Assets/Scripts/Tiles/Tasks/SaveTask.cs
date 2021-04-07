@@ -25,7 +25,7 @@ namespace Tiles.Tasks
             // Serialize all the contained chunks
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
-                chunksForMainThread[i] = new List<ChunkServer>();
+                ChunksForMainThread[i] = new List<ChunkServer>();
                 var idx = 0;
                 tileData.chunkLayers[i] = new BlockData[Tile.VerticalSize * Tile.HorizontalSize];
                 for (var y = Tile.TilePosition.y * Tile.VerticalSize; y < Tile.TilePosition.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
@@ -33,13 +33,13 @@ namespace Tiles.Tasks
                     for (var x = Tile.TilePosition.x * Tile.HorizontalSize; x < Tile.TilePosition.x * Tile.HorizontalSize + Tile.HorizontalSize; ++x)
                     {
                         var posVec = new Vector2i(x, y);
-                        if (chunkLayers[i].ServerChunkMap.Contains(posVec))
+                        if (ChunkLayers[i].ServerChunkMap.Contains(posVec))
                         {
-                            var chunkToSave = chunkLayers[i].ServerChunkMap[posVec];
+                            var chunkToSave = ChunkLayers[i].ServerChunkMap[posVec];
                             // ReSharper disable once PossibleNullReferenceException
                             tileData.chunkLayers[i][idx] = chunkToSave.Data;
 
-                            chunksForMainThread[i].Add(chunkToSave);
+                            ChunksForMainThread[i].Add(chunkToSave);
                         }
 
                         idx++;
@@ -47,7 +47,7 @@ namespace Tiles.Tasks
                 }
             }
 
-            using (var file = File.Open(tileFileName, FileMode.Create))
+            using (var file = File.Open(TileFileName, FileMode.Create))
             using (var compressionStream = new GZipStream(file, CompressionMode.Compress))
             {
                 new BinaryFormatter().Serialize(compressionStream, tileData);

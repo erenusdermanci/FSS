@@ -435,9 +435,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2f11112b6a240dba30c89e37e748ff9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
   texelSize: 0
   spriteRenderer: {fileID: 0}
   blockTypes: 
+  chunkLayerType: 0
+  generateCollider: 0
   enableBlockMap: 1
 --- !u!4 &1962172606
 Transform:
@@ -492,12 +495,12 @@ SpriteRenderer:
   m_SortingLayerID: -2130255565
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 4756496f757d7394a94b48fcf45e0b73, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4aa8e3c97da9de248b1eeb806986b47f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.5, y: 0.5}
+  m_Size: {x: 2, y: 1.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

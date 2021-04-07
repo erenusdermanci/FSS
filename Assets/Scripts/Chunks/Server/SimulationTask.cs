@@ -30,7 +30,7 @@ namespace Chunks.Server
 
         public static void ResetKnuthShuffle()
         {
-            if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyRects)
+            if (!GlobalConfig.StaticGlobalConfig.disableDirtyRects)
                 InitializeDirtyRectShuffles();
             else
                 InitializeNoDirtyRectShuffle();
@@ -97,7 +97,7 @@ namespace Chunks.Server
             var blockInfo = new Block();
             var dirtied = false;
 
-            if (GlobalDebugConfig.StaticGlobalConfig.disableDirtyRects)
+            if (GlobalConfig.StaticGlobalConfig.disableDirtyRects)
             {
                 const int totalSize = Chunks.Chunk.Size * Chunks.Chunk.Size;
                 for (var i = 0; i < totalSize; ++i)

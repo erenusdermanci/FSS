@@ -29,7 +29,7 @@ namespace Chunks
 
         public void Update()
         {
-            var enableDirty = !GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks;
+            var enableDirty = !GlobalConfig.StaticGlobalConfig.disableDirtyChunks;
 
             foreach (var batch in _simulationBatchPool)
             {

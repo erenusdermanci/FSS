@@ -3,16 +3,16 @@ using UnityEngine;
 
 namespace Tools
 {
-    public class GlobalDebugConfig : MonoBehaviour
+    public class GlobalConfig : MonoBehaviour
     {
-        public GlobalConfigStruct globalConfig;
-        public static GlobalConfigStruct StaticGlobalConfig;
+        public GlobalConfigFields globalConfig;
+        public static GlobalConfigFields StaticGlobalConfig;
 
         public static event EventHandler DisableDirtyRectsChanged;
 
         private void Awake()
         {
-            StaticGlobalConfig = new GlobalConfigStruct(globalConfig);
+            StaticGlobalConfig = new GlobalConfigFields(globalConfig);
         }
 
         private void Update()
@@ -20,7 +20,7 @@ namespace Tools
             var oldDisableDirtyRects = StaticGlobalConfig.disableDirtyRects;
             if (StaticGlobalConfig.Equals(globalConfig))
                 return;
-            StaticGlobalConfig = new GlobalConfigStruct(globalConfig);
+            StaticGlobalConfig = new GlobalConfigFields(globalConfig);
             if (StaticGlobalConfig.disableDirtyRects != oldDisableDirtyRects)
             {
                 DisableDirtyRectsChanged?.Invoke(this, null);
@@ -28,8 +28,9 @@ namespace Tools
         }
 
         [Serializable]
-        public struct GlobalConfigStruct
+        public class GlobalConfigFields
         {
+            public string saveSceneOverride;
             public bool pauseSimulation;
             public bool stepByStep;
             public bool outlineChunks;
@@ -41,8 +42,9 @@ namespace Tools
             public bool disableCollisions;
             public bool disableDrawingTool;
 
-            public GlobalConfigStruct(GlobalConfigStruct other)
+            public GlobalConfigFields(GlobalConfigFields other)
             {
+                saveSceneOverride = other.saveSceneOverride;
                 pauseSimulation = other.pauseSimulation;
                 stepByStep = other.stepByStep;
                 outlineChunks = other.outlineChunks;
@@ -55,9 +57,10 @@ namespace Tools
                 disableDrawingTool = other.disableDrawingTool;
             }
 
-            public bool Equals(GlobalConfigStruct other)
+            public bool Equals(GlobalConfigFields other)
             {
-                if (pauseSimulation != other.pauseSimulation
+                if (saveSceneOverride != other.saveSceneOverride
+                    || pauseSimulation != other.pauseSimulation
                     || stepByStep != other.stepByStep
                     || outlineChunks != other.outlineChunks
                     || outlineTiles != other.outlineTiles

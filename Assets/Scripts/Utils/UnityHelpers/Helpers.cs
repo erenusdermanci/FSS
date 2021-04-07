@@ -1,12 +1,23 @@
 ﻿using System;
+using System.IO;
+using Tools;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Utils.UnityHelpers
 {
     public static class Helpers
     {
+        public static string SavePath()
+        {
+            var savePath = $"{Application.persistentDataPath}{Path.DirectorySeparatorChar}";
+            return GlobalConfig.StaticGlobalConfig.saveSceneOverride.Length != 0
+                ? $"{savePath}{GlobalConfig.StaticGlobalConfig.saveSceneOverride}"
+                : $"{savePath}{SceneManager.GetActiveScene().name}";
+        }
+
         public static float GetRandomShiftAmount(float baseAmount)
         {
             return baseAmount * ((float) StaticRandom.Get().NextDouble() - 0.5f) * 2.0f;

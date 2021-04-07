@@ -48,7 +48,7 @@ namespace Tools.DrawingTool
 
         private void Update()
         {
-            if (GlobalDebugConfig.StaticGlobalConfig.disableDrawingTool)
+            if (GlobalConfig.StaticGlobalConfig.disableDrawingTool)
                 return;
 
             var blockPosition = GetWorldPositionFromMousePosition();
@@ -64,7 +64,7 @@ namespace Tools.DrawingTool
                 PrintSelectedBlockInfo(blockPosition.x, blockPosition.y);
             }
 
-            if (GlobalDebugConfig.StaticGlobalConfig.outlineChunks)
+            if (GlobalConfig.StaticGlobalConfig.outlineChunks)
             {
                 DrawChunkGrid(blockPosition.x, blockPosition.y);
             }

@@ -20,7 +20,7 @@ namespace Tiles.Tasks
         {
             if (ShouldCancel()) return;
 
-            if (File.Exists(tileFileName))
+            if (File.Exists(TileFileName))
             {
                 LoadExisting();
             }
@@ -33,7 +33,7 @@ namespace Tiles.Tasks
         private void LoadExisting()
         {
             TileData tileData;
-            using (var file = File.Open(tileFileName, FileMode.Open))
+            using (var file = File.Open(TileFileName, FileMode.Open))
             using (var compressionStream = new GZipStream(file, CompressionMode.Decompress))
             {
                 var loadedData = new BinaryFormatter().Deserialize(compressionStream);
@@ -44,7 +44,7 @@ namespace Tiles.Tasks
             // Set all the contained chunks
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
-                chunksForMainThread[i] = new List<ChunkServer>();
+                ChunksForMainThread[i] = new List<ChunkServer>();
                 var idx = 0;
                 for (var y = Tile.TilePosition.y * Tile.VerticalSize; y < Tile.TilePosition.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
                 {
@@ -55,9 +55,9 @@ namespace Tiles.Tasks
                         {
                             Position = posVec, Data = tileData.chunkLayers[i][idx]
                         };
-                        chunkLayers[i].ServerChunkMap.Add(chunk);
+                        ChunkLayers[i].ServerChunkMap.Add(chunk);
 
-                        chunksForMainThread[i].Add(chunk);
+                        ChunksForMainThread[i].Add(chunk);
 
                         idx++;
                     }
@@ -71,7 +71,7 @@ namespace Tiles.Tasks
             // temporary measure until we have a pre-compiled world file
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
-                chunksForMainThread[i] = new List<ChunkServer>();
+                ChunksForMainThread[i] = new List<ChunkServer>();
                 for (var y = Tile.TilePosition.y * Tile.VerticalSize; y < Tile.TilePosition.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
                 {
                     for (var x = Tile.TilePosition.x * Tile.HorizontalSize; x < Tile.TilePosition.x * Tile.HorizontalSize + Tile.HorizontalSize; ++x)
@@ -81,17 +81,17 @@ namespace Tiles.Tasks
                         emptyChunk.Initialize();
                         emptyChunk.GenerateEmpty();
 
-                        if (chunkLayers[i].ServerChunkMap.Contains(posVec))
+                        if (ChunkLayers[i].ServerChunkMap.Contains(posVec))
                         {
                             // ReSharper disable once PossibleNullReferenceException
-                            chunkLayers[i].ServerChunkMap[posVec].Data = emptyChunk.Data;
+                            ChunkLayers[i].ServerChunkMap[posVec].Data = emptyChunk.Data;
                         }
                         else
                         {
-                            chunkLayers[i].ServerChunkMap.Add(emptyChunk);
+                            ChunkLayers[i].ServerChunkMap.Add(emptyChunk);
                         }
 
-                        chunksForMainThread[i].Add(emptyChunk);
+                        ChunksForMainThread[i].Add(emptyChunk);
                     }
                 }
             }

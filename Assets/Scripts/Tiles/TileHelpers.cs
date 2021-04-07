@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Utils;
+using static Utils.UnityHelpers.Helpers;
 
 namespace Tiles
 {
     public static class TileHelpers
     {
-        public static readonly string SavePath = $"{Application.persistentDataPath}\\{SceneManager.GetActiveScene().name}\\Tiles";
+        public static readonly string TilesSavePath = $"{SavePath()}\\Tiles";
 
-        public static List<Vector2i> GetTilePositionsAroundCentralTilePosition(Vector2i pos)
+        public static IEnumerable<Vector2i> GetTilePositionsAroundCentralTilePosition(Vector2i pos)
         {
             var positions = new List<Vector2i>();
 

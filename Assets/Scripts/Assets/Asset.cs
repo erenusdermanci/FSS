@@ -2,14 +2,17 @@
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using Blocks;
+using Chunks;
 using Tools.BlockMapper;
 using UnityEditor;
 using UnityEngine;
 
-namespace Tools
+namespace Assets
 {
     public class Asset : MonoBehaviour
     {
+        public long id;
+
         [HideInInspector]
         public float texelSize;
 
@@ -19,6 +22,9 @@ namespace Tools
         [HideInInspector]
         public int[] blockTypes;
 
+        public ChunkLayer.ChunkLayerType chunkLayerType;
+
+        public bool generateCollider;
         public bool enableBlockMap;
 
         private BlockMap _blockMap;
@@ -41,6 +47,9 @@ namespace Tools
             {
                 InitializeBlocks();
             }
+
+            if (gameObject.transform.parent != null)
+                gameObject.transform.parent.SendMessage("AssetAwake", this);
         }
 
         private void FixedUpdate()
@@ -100,6 +109,7 @@ namespace Tools
             using (var compressor = new GZipStream(file, CompressionMode.Compress))
             {
                 new BinaryFormatter().Serialize(compressor, blockTypes);
+                compressor.Flush();
             }
         }
 
@@ -131,9 +141,24 @@ namespace Tools
             return blockTypes[blockY * sprite.texture.width + blockX];
         }
 
+        public void GetBlockColor(int blockX, int blockY, out byte r, out byte g, out byte b, out byte a)
+        {
+            var sprite = spriteRenderer.sprite;
+            var color = sprite.texture.GetPixels32()[blockY * sprite.texture.width + blockX];
+            r = color.r;
+            g = color.g;
+            b = color.b;
+            a = color.a;
+        }
+
+        private void AssetAwake(Asset asset)
+        {
+        }
+
         private void OnDestroy()
         {
-            SaveBlocks();
+            if (enableBlockMap)
+                SaveBlocks();
         }
     }
 }

@@ -12,10 +12,10 @@ namespace Tiles.Tasks
     {
         public bool Done;
         public readonly Tile Tile;
-        public List<ChunkServer>[] chunksForMainThread;
+        public readonly List<ChunkServer>[] ChunksForMainThread;
 
-        protected readonly string tileFileName;
-        protected ChunkLayer[] chunkLayers;
+        protected readonly string TileFileName;
+        protected readonly ChunkLayer[] ChunkLayers;
 
         private bool _synchronous;
         private Task _task;
@@ -27,13 +27,13 @@ namespace Tiles.Tasks
             _cancellationTokenSource = new CancellationTokenSource();
 
             Tile = tile;
-            tileFileName = $"{TileHelpers.SavePath}\\{tile.TilePosition.x}_{tile.TilePosition.y}";
-            this.chunkLayers = chunkLayers;
+            TileFileName = $"{TileHelpers.TilesSavePath}\\{tile.TilePosition.x}_{tile.TilePosition.y}";
+            this.ChunkLayers = chunkLayers;
 
-            if (!Directory.Exists(TileHelpers.SavePath))
-                Directory.CreateDirectory(TileHelpers.SavePath);
+            if (!Directory.Exists(TileHelpers.TilesSavePath))
+                Directory.CreateDirectory(TileHelpers.TilesSavePath);
 
-            chunksForMainThread = new List<ChunkServer>[Tile.LayerCount];
+            ChunksForMainThread = new List<ChunkServer>[Tile.LayerCount];
         }
 
         public void Schedule(bool synchronous = false)

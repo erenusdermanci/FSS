@@ -75,7 +75,7 @@ namespace Chunks
                 if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x, chunk.Position.y + 1)))
                     Debug.DrawLine(new Vector3(x - worldOffset, y + worldOffset), new Vector3(x + worldOffset, y + worldOffset), mapBorderColor);
 
-                if (GlobalDebugConfig.StaticGlobalConfig.hideCleanChunkOutlines && !chunk.Dirty)
+                if (GlobalConfig.StaticGlobalConfig.hideCleanChunkOutlines && !chunk.Dirty)
                     continue;
 
                 // draw the chunk borders
@@ -112,20 +112,20 @@ namespace Chunks
             //     Clean(worldManager.CameraFlooredPosition); // replace with save+unload
             // }
 
-            if (GlobalDebugConfig.StaticGlobalConfig.stepByStep && _userPressedSpace)
+            if (GlobalConfig.StaticGlobalConfig.stepByStep && _userPressedSpace)
             {
                 _userPressedSpace = false;
                 chunkSimulator.Update();
             }
-            else if (!GlobalDebugConfig.StaticGlobalConfig.pauseSimulation)
+            else if (!GlobalConfig.StaticGlobalConfig.pauseSimulation)
                 chunkSimulator.Update();
 
             RenderChunks();
 
-            if (GlobalDebugConfig.StaticGlobalConfig.outlineChunks)
+            if (GlobalConfig.StaticGlobalConfig.outlineChunks)
                 OutlineChunks();
 
-            if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyRects && GlobalDebugConfig.StaticGlobalConfig.drawDirtyRects)
+            if (!GlobalConfig.StaticGlobalConfig.disableDirtyRects && GlobalConfig.StaticGlobalConfig.drawDirtyRects)
                 DrawDirtyRects();
         }
 

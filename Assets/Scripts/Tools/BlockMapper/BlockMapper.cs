@@ -1,7 +1,9 @@
 ﻿using System;
+using Assets;
 using UnityEngine;
 using Utils;
 using Utils.Drawing;
+using Color = UnityEngine.Color;
 
 namespace Tools.BlockMapper
 {
@@ -79,7 +81,7 @@ namespace Tools.BlockMapper
             {
                 if (_lastPointDrawnForLine != null)
                 {
-                    DrawDebugLine(_lastPointDrawnForLine.Value, blockPosition, UnityEngine.Color.white);
+                    DrawDebugLine(_lastPointDrawnForLine.Value, blockPosition, Color.white);
                 }
             }
         }

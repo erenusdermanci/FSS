@@ -61,7 +61,7 @@ namespace Tiles
 
             InitializeTileMap();
 
-            GlobalDebugConfig.DisableDirtyRectsChanged += DisableDirtyRectsChangedEvent;
+            GlobalConfig.DisableDirtyRectsChanged += DisableDirtyRectsChangedEvent;
 
             UpdatedFlag = 1;
         }
@@ -97,7 +97,7 @@ namespace Tiles
                 HandleTileMap();
             }
 
-            if (GlobalDebugConfig.StaticGlobalConfig.outlineTiles)
+            if (GlobalConfig.StaticGlobalConfig.outlineTiles)
                 OutlineTiles();
         }
 
@@ -149,9 +149,9 @@ namespace Tiles
 
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
-                for (var idx = 0; idx < tileTask.chunksForMainThread[i].Count; ++idx)
+                for (var idx = 0; idx < tileTask.ChunksForMainThread[i].Count; ++idx)
                 {
-                    var chunk = tileTask.chunksForMainThread[i][idx];
+                    var chunk = tileTask.ChunksForMainThread[i][idx];
 
                     if (chunkLayers[i].chunkSimulator != null)
                         chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, false);
@@ -176,9 +176,9 @@ namespace Tiles
 
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
-                for (var idx = 0; idx < tileTask.chunksForMainThread[i].Count; ++idx)
+                for (var idx = 0; idx < tileTask.ChunksForMainThread[i].Count; ++idx)
                 {
-                    var chunk = tileTask.chunksForMainThread[i][idx];
+                    var chunk = tileTask.ChunksForMainThread[i][idx];
 
                     if (chunkLayers[i].chunkSimulator != null)
                         chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, true);

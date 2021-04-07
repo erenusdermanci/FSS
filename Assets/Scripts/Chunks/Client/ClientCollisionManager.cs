@@ -19,7 +19,7 @@ namespace Chunks.Client
 
         public void FixedUpdate()
         {
-            if (GlobalDebugConfig.StaticGlobalConfig.disableCollisions)
+            if (GlobalConfig.StaticGlobalConfig.disableCollisions)
                 return;
 
             QueueCollisionsGenerationForUpdatedGameObjects();
@@ -89,7 +89,7 @@ namespace Chunks.Client
                     if (chunk == null)
                         continue;
 
-                    if (!GlobalDebugConfig.StaticGlobalConfig.disableDirtyChunks
+                    if (!GlobalConfig.StaticGlobalConfig.disableDirtyChunks
                         && !chunk.Dirty
                         && chunk.Collider.enabled)
                         continue;
