@@ -12,6 +12,8 @@ namespace Chunks.Client
         public Vector2i GameObjectChunkPosition = new Vector2i(0, 0);
         public Vector2i? GameObjectOldChunkPosition;
         public readonly float GameObjectBoundsSizeMultiplier = 0.5f;
+        public ChunkNeighborhood<ChunkClient> ChunkNeighborhood;
+        public bool[] chunkNeighborhoodCleanFlags;
 
         public UpdatedGameObject(GameObject gameObject)
         {
