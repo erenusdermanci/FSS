@@ -2,7 +2,6 @@
 using Chunks.Collision;
 using Chunks.Tasks;
 using Utils;
-using static Chunks.ChunkLayer;
 
 namespace Chunks.Client
 {

@@ -5,7 +5,6 @@ using Chunks.Tasks;
 using Tiles;
 using Tools;
 using Utils;
-using static Chunks.ChunkLayer;
 
 namespace Chunks.Server
 {
