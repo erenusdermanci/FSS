@@ -9,18 +9,15 @@ namespace Tiles
     {
         public static readonly string TilesSavePath = $"{SavePath()}\\Tiles";
 
-        public static IEnumerable<Vector2i> GetTilePositionsAroundCentralTilePosition(Vector2i pos)
+        public static IEnumerable<Vector2i> GetTilePositionsAroundCentralTilePosition(Vector2i pos, int gridThickness)
         {
-            var positions = new List<Vector2i>();
-
-            for (var y = -1; y < 2; y++)
+            for (var y = -gridThickness; y <= gridThickness; y++)
             {
-                for (var x = -1; x < 2; x++)
+                for (var x = -gridThickness; x <= gridThickness; x++)
                 {
-                    positions.Add(new Vector2i(pos.x + x, pos.y + y));
+                    yield return new Vector2i(pos.x + x, pos.y + y);
                 }
             }
-            return positions;
         }
 
         public static Vector2i GetTilePositionFromFlooredWorldPosition(Vector2i pos)

@@ -15,8 +15,9 @@ namespace Tiles
 {
     public class WorldManager : MonoBehaviour
     {
-        private const int MaxLoadedTiles = 9;
+        public int tileGridThickness; // the number of tiles in each direction around the central tile
         private readonly TileMap _serverTileMap = new TileMap();
+        private int _maxLoadedTiles;
 
         private TileTaskScheduler _tileTaskScheduler;
 
@@ -39,13 +40,13 @@ namespace Tiles
         private void Awake()
         {
             _tileTaskScheduler = new TileTaskScheduler(chunkLayers);
-
             _chunkPools = new GameObjectPool[Tile.LayerCount];
 
+            _maxLoadedTiles = (2 * tileGridThickness + 1) * (2 * tileGridThickness + 1);
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
                 _chunkPools[i] = new GameObjectPool(chunkLayers[i],
-                    Tile.VerticalSize * Tile.HorizontalSize * MaxLoadedTiles);
+                    Tile.VerticalSize * Tile.HorizontalSize * _maxLoadedTiles);
             }
         }
 
@@ -72,7 +73,7 @@ namespace Tiles
         private void InitializeTileMap()
         {
             var initialTilePos = TileHelpers.GetTilePositionFromFlooredWorldPosition(_cameraFlooredPosition);
-            var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(initialTilePos);
+            var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(initialTilePos, tileGridThickness);
             foreach (var tilePos in newTilePositions)
             {
                 _tileTaskScheduler.QueueForLoad(tilePos);
@@ -97,8 +98,10 @@ namespace Tiles
             if (_cameraHasMoved && _mainCamera != null)
             {
                 MainCameraPosition = _mainCamera.transform.position;
-                HandleTileMap();
+                HandleTileMapLoading();
             }
+
+            HandleTileMapUnloading();
 
             if (GlobalConfig.StaticGlobalConfig.outlineTiles)
                 OutlineTiles();
@@ -117,14 +120,13 @@ namespace Tiles
             return true;
         }
 
-        private void HandleTileMap()
+        private void HandleTileMapLoading()
         {
             var newTilePos = TileHelpers.GetTilePositionFromFlooredWorldPosition(_cameraFlooredPosition);
 
             if (newTilePos != _currentTilePosition)
             {
-                var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(newTilePos);
-
+                var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(newTilePos, tileGridThickness);
                 foreach (var tilePos in newTilePositions)
                 {
                     if (_serverTileMap.Contains(tilePos))
@@ -133,16 +135,18 @@ namespace Tiles
                     _tileTaskScheduler.QueueForLoad(tilePos);
                 }
 
-                // clean faraway tiles
-                var tiles = _serverTileMap.Tiles().ToList();
-                for (var i = 0; i < tiles.Count; ++i)
-                {
-                    var tilePos = tiles[i].Position;
-                    if (Math.Abs(tilePos.x - newTilePos.x) >= 2 || Math.Abs(tilePos.y - newTilePos.y) >= 2)
-                         _tileTaskScheduler.QueueForSave(tiles[i]);
-                }
-
                 _currentTilePosition = newTilePos;
+            }
+        }
+
+        private void HandleTileMapUnloading()
+        {
+            // unload faraway tiles
+            foreach (var tile in _serverTileMap.Tiles())
+            {
+                if (Math.Abs(_currentTilePosition.x - tile.Position.x) >= tileGridThickness + 1
+                    || Math.Abs(_currentTilePosition.y - tile.Position.y) >= tileGridThickness + 1)
+                    _tileTaskScheduler.QueueForSave(tile);
             }
         }
 
