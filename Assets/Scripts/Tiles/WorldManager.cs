@@ -21,7 +21,7 @@ namespace Tiles
 
         private TileTaskScheduler _tileTaskScheduler;
 
-        public ChunkLayer[] chunkLayers;
+        private ChunkLayer[] _chunkLayers;
 
         public static int UpdatedFlag;
 
@@ -35,19 +35,28 @@ namespace Tiles
 
         private GameObjectPool[] _chunkPools;
 
+        [NonSerialized]
+        public ClientCollisionManager CollisionManager;
+
         private EntityManager _entityManager;
 
         private void Awake()
         {
-            _tileTaskScheduler = new TileTaskScheduler(chunkLayers);
+            _chunkLayers = transform.GetComponentsInChildren<ChunkLayer>();
+
+            _entityManager = transform.GetComponentInChildren<EntityManager>();
+
+            _tileTaskScheduler = new TileTaskScheduler(_chunkLayers);
             _chunkPools = new GameObjectPool[Tile.LayerCount];
 
             _maxLoadedTiles = (2 * tileGridThickness + 1) * (2 * tileGridThickness + 1);
             for (var i = 0; i < Tile.LayerCount; ++i)
             {
-                _chunkPools[i] = new GameObjectPool(chunkLayers[i],
+                _chunkPools[i] = new GameObjectPool(_chunkLayers[i],
                     Tile.VerticalSize * Tile.HorizontalSize * _maxLoadedTiles);
             }
+
+            CollisionManager = new ClientCollisionManager(_chunkLayers[(int) ChunkLayer.ChunkLayerType.Foreground]);
         }
 
         private void Start()
@@ -85,6 +94,7 @@ namespace Tiles
         private void Update()
         {
             _tileTaskScheduler.Update();
+            CollisionManager.Update();
         }
 
         private void FixedUpdate()
@@ -160,15 +170,15 @@ namespace Tiles
                 {
                     var chunk = tileTask.ChunksForMainThread[i][idx];
 
-                    if (chunkLayers[i].chunkSimulator != null)
-                        chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, false);
+                    if (_chunkLayers[i].chunkSimulator != null)
+                        _chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, false);
 
                     // remove the chunks from the chunkmap
                     chunk.Dispose();
-                    chunkLayers[i].ServerChunkMap.Remove(chunk.Position);
+                    _chunkLayers[i].ServerChunkMap.Remove(chunk.Position);
 
-                    chunkLayers[i].ClientChunkMap[chunk.Position]?.Dispose();
-                    chunkLayers[i].ClientChunkMap.Remove(chunk.Position);
+                    _chunkLayers[i].ClientChunkMap[chunk.Position]?.Dispose();
+                    _chunkLayers[i].ClientChunkMap.Remove(chunk.Position);
                 }
             }
 
@@ -187,10 +197,10 @@ namespace Tiles
                 {
                     var chunk = tileTask.ChunksForMainThread[i][idx];
 
-                    if (chunkLayers[i].chunkSimulator != null)
-                        chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, true);
+                    if (_chunkLayers[i].chunkSimulator != null)
+                        _chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, true);
 
-                    chunkLayers[i].ClientChunkMap.Add(CreateClientChunk(_chunkPools[i], chunk));
+                    _chunkLayers[i].ClientChunkMap.Add(CreateClientChunk(_chunkPools[i], chunk));
                 }
             }
         }
@@ -243,6 +253,17 @@ namespace Tiles
                 Debug.DrawLine(new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset + Tile.VerticalSize), new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset), tileColor);
                 Debug.DrawLine(new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset + Tile.VerticalSize), new Vector3(x - worldOffset, y - worldOffset + Tile.VerticalSize), tileColor);
             }
+        }
+
+        public ChunkServer GetChunk(Vector2i position, ChunkLayer.ChunkLayerType layerType)
+        {
+            var chunkMap = _chunkLayers[(int) layerType].ServerChunkMap;
+            return chunkMap.Contains(position) ? chunkMap[position] : null;
+        }
+
+        public void QueueChunkForReload(Vector2i chunkPosition, ChunkLayer.ChunkLayerType layerType)
+        {
+            _chunkLayers[(int) layerType].QueueChunkForReload(chunkPosition);
         }
 
         private static void DisableDirtyRectsChangedEvent(object sender, EventArgs e)

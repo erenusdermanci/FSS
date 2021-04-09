@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using Blocks;
 using Chunks;
-using Chunks.Client;
-using Chunks.Server;
+using Tiles;
 using UnityEngine;
 using Utils;
 using Utils.Drawing;
@@ -12,48 +11,13 @@ namespace Entities
 {
     public class EntityManager : MonoBehaviour
     {
-        private readonly List<Entity> _entities = new List<Entity>();
+        private Dictionary<long, Entity> _entities = new Dictionary<long, Entity>();
 
-        public ClientCollisionManager clientCollisionManager;
-        public ChunkLayer[] chunkLayers;
-        private HashSet<Vector2i>[] _chunksLayersToReload;
+        private WorldManager _worldManager;
 
         private void Awake()
         {
-            _chunksLayersToReload = new HashSet<Vector2i>[chunkLayers.Length];
-            for (var i = 0; i < chunkLayers.Length; ++i)
-                _chunksLayersToReload[i] = new HashSet<Vector2i>();
-        }
-
-        private void Update()
-        {
-            for (var layerIndex = 0; layerIndex < _chunksLayersToReload.Length; ++layerIndex)
-            {
-                foreach (var chunkPosition in _chunksLayersToReload[layerIndex])
-                {
-                    var serverChunk = chunkLayers[layerIndex].ServerChunkMap[chunkPosition];
-                    if (serverChunk != null)
-                    {
-                        var chunkDirtyRects = serverChunk.DirtyRects;
-                        for (var i = 0; i < chunkDirtyRects.Length; ++i)
-                        {
-                            chunkDirtyRects[i].Reset();
-                            chunkDirtyRects[i].Initialized = false;
-                        }
-
-                        serverChunk.Dirty = true;
-                    }
-
-                    var clientChunk = chunkLayers[layerIndex].ClientChunkMap[chunkPosition];
-                    if (clientChunk != null)
-                    {
-                        if (layerIndex == (int)ChunkLayer.ChunkLayerType.Foreground)
-                            clientCollisionManager.QueueChunkCollisionGeneration(clientChunk);
-                        clientChunk.UpdateTexture();
-                    }
-                }
-                _chunksLayersToReload[layerIndex].Clear();
-            }
+            _worldManager = transform.parent.GetComponent<WorldManager>();
         }
 
         public void BlitEntity(Entity entity)
@@ -85,7 +49,9 @@ namespace Entities
 
             var blockWorldX = entityWorldX + entityBlockX;
             var blockWorldY = entityWorldY + entityBlockY;
-            var chunk = GetChunkFromWorld(blockWorldX, blockWorldY, entity.chunkLayerType);
+            var chunkPosition = new Vector2i((int) Mathf.Floor(blockWorldX / (float)Chunk.Size),
+                (int) Mathf.Floor(blockWorldY / (float)Chunk.Size));
+            var chunk = _worldManager.GetChunk(chunkPosition, entity.chunkLayerType);
             if (chunk == null)
                 return;
 
@@ -102,21 +68,24 @@ namespace Entities
                     plantBlockData.Reset(blockType, UniqueIdGenerator.Next());
             }
 
-            _chunksLayersToReload[(int)entity.chunkLayerType].Add(chunk.Position);
-        }
-
-        private ChunkServer GetChunkFromWorld(float worldX, float worldY, ChunkLayer.ChunkLayerType layerType)
-        {
-            var chunkPosition = new Vector2i((int) Mathf.Floor(worldX / Chunk.Size),
-                (int) Mathf.Floor(worldY / Chunk.Size));
-            return chunkLayers[(int) layerType].ServerChunkMap.Contains(chunkPosition)
-                ? chunkLayers[(int) layerType].ServerChunkMap[chunkPosition]
-                : null;
+            _worldManager.QueueChunkForReload(chunk.Position, entity.chunkLayerType);
         }
 
         public void EntityAwake(Entity entity)
         {
-            _entities.Add(entity);
+            // assign this entity Unique Id that will be transmitted to blocks when they are put in the grid
+            entity.id = UniqueIdGenerator.Next();
+
+            _entities.Add(entity.id, entity);
+
+            // add the block grid snapping script
+            var snap = entity.gameObject.AddComponent<EntitySnap>();
+            snap.enabled = true;
+        }
+
+        private void EntityDestroyed(Entity childEntity)
+        {
+            _entities.Remove(childEntity.id);
         }
     }
 }

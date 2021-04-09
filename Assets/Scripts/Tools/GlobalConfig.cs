@@ -41,6 +41,7 @@ namespace Tools
             public bool disableDirtyRects;
             public bool disableCollisions;
             public bool disableDrawingTool;
+            public bool levelDesignMode;
 
             public GlobalConfigFields(GlobalConfigFields other)
             {
@@ -55,6 +56,7 @@ namespace Tools
                 disableDirtyRects = other.disableDirtyRects;
                 disableCollisions = other.disableCollisions;
                 disableDrawingTool = other.disableDrawingTool;
+                levelDesignMode = other.levelDesignMode;
             }
 
             public bool Equals(GlobalConfigFields other)
@@ -69,7 +71,8 @@ namespace Tools
                     || disableDirtyChunks != other.disableDirtyChunks
                     || disableDirtyRects != other.disableDirtyRects
                     || disableCollisions != other.disableCollisions
-                    || disableDrawingTool != other.disableDrawingTool)
+                    || disableDrawingTool != other.disableDrawingTool
+                    || levelDesignMode != other.levelDesignMode)
                     return false;
 
                 return true;

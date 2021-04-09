@@ -1,7 +1,7 @@
 ﻿using Chunks;
 using UnityEngine;
 
-namespace Tools.LevelDesigner
+namespace Entities
 {
     public class EntitySnap : MonoBehaviour
     {

@@ -5,7 +5,7 @@ using Utils;
 
 namespace Chunks.Client
 {
-    public class ClientCollisionManager : MonoBehaviour
+    public class ClientCollisionManager
     {
         // TODO Improve this when we have multiple dynamic game objects in the scene
         // atm we just hard set the player in the editor
@@ -15,9 +15,14 @@ namespace Chunks.Client
 
         private ChunkNeighborhood<ChunkClient> _chunkNeighborhood;
 
-        public ChunkLayer chunkLayer;
+        private readonly ChunkLayer _chunkLayer;
 
-        public void FixedUpdate()
+        public ClientCollisionManager(ChunkLayer chunkLayer)
+        {
+            _chunkLayer = chunkLayer;
+        }
+
+        public void Update()
         {
             if (GlobalConfig.StaticGlobalConfig.disableCollisions)
                 return;
@@ -66,13 +71,13 @@ namespace Chunks.Client
             foreach (var updatedGameObject in gameObjectsToUpdate)
             {
                 var moved = updatedGameObject.UpdateGameObjectChunkPosition();
-                if (chunkLayer.ClientChunkMap[updatedGameObject.GameObjectChunkPosition] == null)
+                if (_chunkLayer.ClientChunkMap[updatedGameObject.GameObjectChunkPosition] == null)
                     return;
 
                 if (_chunkNeighborhood == null || moved)
                 {
-                    _chunkNeighborhood = new ChunkNeighborhood<ChunkClient>(chunkLayer.ClientChunkMap,
-                        chunkLayer.ClientChunkMap[updatedGameObject.GameObjectChunkPosition]);
+                    _chunkNeighborhood = new ChunkNeighborhood<ChunkClient>(_chunkLayer.ClientChunkMap,
+                        _chunkLayer.ClientChunkMap[updatedGameObject.GameObjectChunkPosition]);
                 }
 
                 var bounds = updatedGameObject.gameObjectCollider.bounds;

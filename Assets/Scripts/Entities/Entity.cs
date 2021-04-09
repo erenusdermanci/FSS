@@ -23,7 +23,7 @@ namespace Entities
         public int[] blockTypes;
 
         public ChunkLayer.ChunkLayerType chunkLayerType;
-
+        public bool dynamic;
         public bool generateCollider;
         public bool enableBlockMap;
 
@@ -48,6 +48,8 @@ namespace Entities
                 InitializeBlocks();
             }
 
+            if (gameObject.transform.parent == null)
+                gameObject.transform.parent = GameObject.Find("EntityManager").transform;
             if (gameObject.transform.parent != null)
                 gameObject.transform.parent.SendMessage("EntityAwake", this);
         }

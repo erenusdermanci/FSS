@@ -16,10 +16,6 @@ namespace Tools.DrawingTool
 {
     public class DrawingTool : MonoBehaviour
     {
-        public ChunkLayer[] chunkLayers;
-
-        public ClientCollisionManager clientCollisionManager;
-
         [HideInInspector]
         public DrawingParameters.DrawingParameters parameters;
 
@@ -29,6 +25,7 @@ namespace Tools.DrawingTool
         public bool overrideDefaultColors;
         public Color32 pixelColorOverride;
 
+        public WorldManager worldManager;
 
         public Text uiCoordText;
 
@@ -36,8 +33,6 @@ namespace Tools.DrawingTool
         private Vector2i? _lastPointDrawnForLine;
 
         private readonly UniqueQueue<Vector2i> _blockQueue = new UniqueQueue<Vector2i>();
-
-        private readonly HashSet<Vector2i> _chunksToReload = new HashSet<Vector2i>();
 
         private ChunkLayerType _currentLayer = ChunkLayerType.Foreground;
 
@@ -80,26 +75,11 @@ namespace Tools.DrawingTool
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            foreach (var chunkPos in _chunksToReload)
-            {
-                var serverChunk = chunkLayers[(int)_currentLayer].ServerChunkMap[chunkPos];
-                serverChunk?.ResetDirty();
-
-                var clientChunk = chunkLayers[(int)_currentLayer].ClientChunkMap[chunkPos];
-                if (clientChunk != null)
-                {
-                    if (_currentLayer == ChunkLayerType.Foreground)
-                        clientCollisionManager.QueueChunkCollisionGeneration(clientChunk);
-                    clientChunk.UpdateTexture();
-                }
-            }
-            _chunksToReload.Clear();
         }
 
         private void DrawChunkGrid(float worldX, float worldY)
         {
-            var chunk = GetChunkFromWorld(worldX, worldY);
+            var chunk = worldManager.GetChunk(GetChunkPosition(worldX, worldY), _currentLayer);
             if (chunk == null)
                 return;
 
@@ -124,7 +104,7 @@ namespace Tools.DrawingTool
 
         private void PrintSelectedBlockInfo(float worldX, float worldY)
         {
-            var chunk = GetChunkFromWorld(worldX, worldY);
+            var chunk = worldManager.GetChunk(GetChunkPosition(worldX, worldY), _currentLayer);
             if (chunk == null)
                 return;
             var blockXInChunk = Helpers.Mod((int) worldX, Chunk.Size);
@@ -257,7 +237,7 @@ namespace Tools.DrawingTool
                 }
             }
 
-            var chunk = GetChunkFromWorld(worldX, worldY);
+            var chunk = worldManager.GetChunk(GetChunkPosition(worldX, worldY), _currentLayer);
             if (chunk == null)
                 return;
 
@@ -287,12 +267,12 @@ namespace Tools.DrawingTool
                 }
             }
 
-            _chunksToReload.Add(chunk.Position);
+            worldManager.QueueChunkForReload(chunk.Position, _currentLayer);
         }
 
         private int GetBlockType(int worldX, int worldY)
         {
-            var chunk = GetChunkFromWorld(worldX, worldY);
+            var chunk = worldManager.GetChunk(GetChunkPosition(worldX, worldY), _currentLayer);
             if (chunk == null)
                 return -1;
 
@@ -302,13 +282,10 @@ namespace Tools.DrawingTool
             return chunk.GetBlockType(blockYInChunk * Chunk.Size + blockXInChunk);
         }
 
-        private ChunkServer GetChunkFromWorld(float worldX, float worldY)
+        private Vector2i GetChunkPosition(float worldX, float worldY)
         {
-            var chunkPosition = new Vector2i((int) Mathf.Floor(worldX / Chunk.Size),
+            return new Vector2i((int) Mathf.Floor(worldX / Chunk.Size),
                 (int) Mathf.Floor(worldY / Chunk.Size));
-            return chunkLayers[(int) _currentLayer].ServerChunkMap.Contains(chunkPosition)
-                ? chunkLayers[(int) _currentLayer].ServerChunkMap[chunkPosition]
-                : null;
         }
 
         private Color GetBlockColor()

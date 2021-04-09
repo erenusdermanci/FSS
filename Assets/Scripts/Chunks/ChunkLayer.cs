@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Chunks.Client;
 using Chunks.Server;
 using Chunks.Tasks;
+using Tiles;
 using Tools;
 using UnityEngine;
 using Utils;
@@ -20,9 +21,12 @@ namespace Chunks
 
         public ChunkLayerType type;
 
+        private WorldManager _worldManager;
+
         public readonly ChunkMap<ChunkServer> ServerChunkMap = new ChunkMap<ChunkServer>();
         public readonly ChunkMap<ChunkClient> ClientChunkMap = new ChunkMap<ChunkClient>();
         private readonly List<ChunkClient> _chunksToRender = new List<ChunkClient>();
+        private readonly HashSet<Vector2i> _chunksToReload = new HashSet<Vector2i>();
 
         public ChunkLayerSimulator chunkSimulator;
 
@@ -30,6 +34,7 @@ namespace Chunks
 
         public void Awake()
         {
+            _worldManager = transform.parent.GetComponent<WorldManager>();
             chunkSimulator = new ChunkLayerSimulator(this);
         }
 
@@ -83,6 +88,31 @@ namespace Chunks
         {
             if (Input.GetKeyDown(KeyCode.Space))
                 _userPressedSpace = true;
+
+            foreach (var chunkPosition in _chunksToReload)
+            {
+                var serverChunk = ServerChunkMap[chunkPosition];
+                if (serverChunk != null)
+                {
+                    var chunkDirtyRects = serverChunk.DirtyRects;
+                    for (var i = 0; i < chunkDirtyRects.Length; ++i)
+                    {
+                        chunkDirtyRects[i].Reset();
+                        chunkDirtyRects[i].Initialized = false;
+                    }
+
+                    serverChunk.Dirty = true;
+                }
+
+                var clientChunk = ClientChunkMap[chunkPosition];
+                if (clientChunk != null)
+                {
+                    if (type == ChunkLayerType.Foreground)
+                        _worldManager.CollisionManager.QueueChunkCollisionGeneration(clientChunk);
+                    clientChunk.UpdateTexture();
+                }
+            }
+            _chunksToReload.Clear();
         }
 
         private void FixedUpdate()
@@ -102,15 +132,6 @@ namespace Chunks
 
             if (!GlobalConfig.StaticGlobalConfig.disableDirtyRects && GlobalConfig.StaticGlobalConfig.drawDirtyRects)
                 DrawDirtyRects();
-        }
-
-        private void DisposeChunk(ChunkServer chunk)
-        {
-            ServerChunkMap[chunk.Position]?.Dispose();
-            ServerChunkMap.Remove(chunk.Position);
-            ClientChunkMap[chunk.Position]?.Dispose();
-            ClientChunkMap.Remove(chunk.Position);
-            chunkSimulator.UpdateSimulationPool(chunk, false);
         }
 
         private void DrawDirtyRects()
@@ -158,6 +179,11 @@ namespace Chunks
             }
         }
 
+        public void QueueChunkForReload(Vector2i chunkPosition)
+        {
+            _chunksToReload.Add(chunkPosition);
+        }
+
         private void RenderChunks()
         {
             foreach (var chunkClient in _chunksToRender)
@@ -165,16 +191,6 @@ namespace Chunks
                 chunkClient.UpdateTexture();
             }
             _chunksToRender.Clear();
-        }
-
-        private void OnDestroy()
-        {
-            foreach (var chunk in ServerChunkMap.Chunks())
-            {
-                DisposeChunk(chunk);
-            }
-
-            ServerChunkMap.Clear();
         }
     }
 }
