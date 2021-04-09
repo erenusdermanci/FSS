@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parameters: {fileID: 0}
-  asset: {fileID: 1962172605}
+  entity: {fileID: 1962172605}
 --- !u!114 &164496529
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -417,7 +417,7 @@ GameObject:
   - component: {fileID: 1962172607}
   - component: {fileID: 1962172605}
   m_Layer: 0
-  m_Name: Asset
+  m_Name: Entity
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
