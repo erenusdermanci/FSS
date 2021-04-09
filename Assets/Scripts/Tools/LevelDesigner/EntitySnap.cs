@@ -1,31 +1,24 @@
-﻿using System;
-using Entities;
+﻿using Chunks;
 using UnityEngine;
 
 namespace Tools.LevelDesigner
 {
     public class EntitySnap : MonoBehaviour
     {
-        public Vector2 oldPosition;
+        private const float GridUnitSize = 1f / Chunk.Size;
 
-        public Entity entity;
-
-        public void Start()
+        private void Update()
         {
-            oldPosition = transform.position;
+            SnapToGrid();
         }
 
-        public void Update()
+        private void SnapToGrid()
         {
-            if (!transform.position.Equals(oldPosition))
-            {
-                oldPosition = transform.position;
-            }
-        }
-
-        private void Snap()
-        {
-
+            var position = transform.position;
+            position = new Vector2(
+                Mathf.Round(position.x / GridUnitSize) * GridUnitSize,
+                Mathf.Round(position.y / GridUnitSize) * GridUnitSize);
+            transform.position = position;
         }
     }
 }

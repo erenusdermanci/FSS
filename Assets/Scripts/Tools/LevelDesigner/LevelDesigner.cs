@@ -28,7 +28,6 @@ namespace Tools.LevelDesigner
 
             // add the block grid snapping script
             var snap = entity.gameObject.AddComponent<EntitySnap>();
-            snap.entity = entity;
             snap.enabled = true;
         }
 
