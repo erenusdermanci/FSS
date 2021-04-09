@@ -12,7 +12,7 @@ namespace Utils
 
         public static long Next()
         {
-            return Id.Value;
+            return Id.Value++;
         }
     }
 }
