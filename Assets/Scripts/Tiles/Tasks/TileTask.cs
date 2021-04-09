@@ -28,7 +28,7 @@ namespace Tiles.Tasks
 
             Tile = tile;
             TileFileName = $"{TileHelpers.TilesSavePath}\\{tile.Position.x}_{tile.Position.y}";
-            this.ChunkLayers = chunkLayers;
+            ChunkLayers = chunkLayers;
 
             if (!Directory.Exists(TileHelpers.TilesSavePath))
                 Directory.CreateDirectory(TileHelpers.TilesSavePath);
