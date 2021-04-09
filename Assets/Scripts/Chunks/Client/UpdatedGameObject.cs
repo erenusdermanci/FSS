@@ -16,6 +16,7 @@ namespace Chunks.Client
         public UpdatedGameObject(GameObject gameObject)
         {
             this.gameObject = gameObject;
+            gameObjectCollider = gameObject.GetComponent<Collider2D>();
         }
 
         public bool UpdateGameObjectChunkPosition()

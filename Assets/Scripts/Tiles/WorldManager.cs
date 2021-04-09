@@ -25,6 +25,8 @@ namespace Tiles
 
         public static int UpdatedFlag;
 
+        private UpdatedGameObject _player;
+
         private Camera _mainCamera;
         public static Vector3 MainCameraPosition = Vector3.zero;
 
@@ -56,7 +58,9 @@ namespace Tiles
                     Tile.VerticalSize * Tile.HorizontalSize * _maxLoadedTiles);
             }
 
+            _player = new UpdatedGameObject(GameObject.Find("Player"));
             CollisionManager = new ClientCollisionManager(_chunkLayers[(int) ChunkLayer.ChunkLayerType.Foreground]);
+            CollisionManager.gameObjectsToUpdate.Add(_player);
         }
 
         private void Start()
@@ -224,6 +228,39 @@ namespace Tiles
             return clientChunk;
         }
 
+        public ChunkServer GetChunk(Vector2i position, ChunkLayer.ChunkLayerType layerType)
+        {
+            var chunkMap = _chunkLayers[(int) layerType].ServerChunkMap;
+            return chunkMap.Contains(position) ? chunkMap[position] : null;
+        }
+
+        public void QueueChunkForReload(Vector2i chunkPosition, ChunkLayer.ChunkLayerType layerType)
+        {
+            _chunkLayers[(int) layerType].QueueChunkForReload(chunkPosition);
+        }
+
+        private static void DisableDirtyRectsChangedEvent(object sender, EventArgs e)
+        {
+            SimulationTask.ResetKnuthShuffle();
+        }
+
+        // This is not multi-platform compatible, not reliable and not called between scene loads
+        private void OnApplicationQuit()
+        {
+            _tileTaskScheduler.CancelLoad();
+
+            var tiles = _serverTileMap.Tiles().ToList();
+            for (var i = 0; i < tiles.Count; ++i)
+            {
+                var tile = tiles[i];
+                _tileTaskScheduler.QueueForSave(tile);
+            }
+
+            _tileTaskScheduler.ForceSave();
+        }
+
+        #region Debug
+
         private void OutlineTiles()
         {
             const float worldOffset = 0.5f;
@@ -255,35 +292,6 @@ namespace Tiles
             }
         }
 
-        public ChunkServer GetChunk(Vector2i position, ChunkLayer.ChunkLayerType layerType)
-        {
-            var chunkMap = _chunkLayers[(int) layerType].ServerChunkMap;
-            return chunkMap.Contains(position) ? chunkMap[position] : null;
-        }
-
-        public void QueueChunkForReload(Vector2i chunkPosition, ChunkLayer.ChunkLayerType layerType)
-        {
-            _chunkLayers[(int) layerType].QueueChunkForReload(chunkPosition);
-        }
-
-        private static void DisableDirtyRectsChangedEvent(object sender, EventArgs e)
-        {
-            SimulationTask.ResetKnuthShuffle();
-        }
-
-        // This is not multi-platform compatible, not reliable and not called between scene loads
-        private void OnApplicationQuit()
-        {
-            _tileTaskScheduler.CancelLoad();
-
-            var tiles = _serverTileMap.Tiles().ToList();
-            for (var i = 0; i < tiles.Count; ++i)
-            {
-                var tile = tiles[i];
-                _tileTaskScheduler.QueueForSave(tile);
-            }
-
-            _tileTaskScheduler.ForceSave();
-        }
+        #endregion
     }
 }

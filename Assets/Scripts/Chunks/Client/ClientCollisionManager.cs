@@ -7,9 +7,7 @@ namespace Chunks.Client
 {
     public class ClientCollisionManager
     {
-        // TODO Improve this when we have multiple dynamic game objects in the scene
-        // atm we just hard set the player in the editor
-        public List<UpdatedGameObject> gameObjectsToUpdate = new List<UpdatedGameObject>();
+        public readonly List<UpdatedGameObject> gameObjectsToUpdate = new List<UpdatedGameObject>();
 
         private readonly Dictionary<Vector2i, ClientCollisionTask> _clientCollisionTasks = new Dictionary<Vector2i, ClientCollisionTask>();
 

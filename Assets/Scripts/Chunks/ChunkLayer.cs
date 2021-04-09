@@ -53,37 +53,6 @@ namespace Chunks
             _chunksToRender.Add(clientChunk);
         }
 
-        private void OutlineChunks()
-        {
-            const float worldOffset = 0.5f;
-            foreach (var chunk in ServerChunkMap.Chunks())
-            {
-                var x = chunk.Position.x;
-                var y = chunk.Position.y;
-                var mapBorderColor = Color.white;
-
-                // draw the map borders
-                if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x - 1, chunk.Position.y)))
-                    Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset, y + worldOffset), mapBorderColor);
-                if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x + 1, chunk.Position.y)))
-                    Debug.DrawLine(new Vector3(x + worldOffset, y - worldOffset), new Vector3(x + worldOffset, y + worldOffset), mapBorderColor);
-                if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x, chunk.Position.y - 1)))
-                    Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x + worldOffset, y - worldOffset), mapBorderColor);
-                if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x, chunk.Position.y + 1)))
-                    Debug.DrawLine(new Vector3(x - worldOffset, y + worldOffset), new Vector3(x + worldOffset, y + worldOffset), mapBorderColor);
-
-                if (GlobalConfig.StaticGlobalConfig.hideCleanChunkOutlines && !chunk.Dirty)
-                    continue;
-
-                // draw the chunk borders
-                var borderColor = chunk.Dirty ? Color.red : Color.white;
-                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x + worldOffset, y - worldOffset), borderColor);
-                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset, y + worldOffset), borderColor);
-                Debug.DrawLine(new Vector3(x + worldOffset, y + worldOffset), new Vector3(x - worldOffset, y + worldOffset), borderColor);
-                Debug.DrawLine(new Vector3(x + worldOffset, y + worldOffset), new Vector3(x + worldOffset, y - worldOffset), borderColor);
-            }
-        }
-
         public void Update()
         {
             if (Input.GetKeyDown(KeyCode.Space))
@@ -134,6 +103,22 @@ namespace Chunks
                 DrawDirtyRects();
         }
 
+        public void QueueChunkForReload(Vector2i chunkPosition)
+        {
+            _chunksToReload.Add(chunkPosition);
+        }
+
+        private void RenderChunks()
+        {
+            foreach (var chunkClient in _chunksToRender)
+            {
+                chunkClient.UpdateTexture();
+            }
+            _chunksToRender.Clear();
+        }
+
+        #region Debug
+
         private void DrawDirtyRects()
         {
             foreach (var chunk in ServerChunkMap.Chunks())
@@ -179,18 +164,37 @@ namespace Chunks
             }
         }
 
-        public void QueueChunkForReload(Vector2i chunkPosition)
+        private void OutlineChunks()
         {
-            _chunksToReload.Add(chunkPosition);
+            const float worldOffset = 0.5f;
+            foreach (var chunk in ServerChunkMap.Chunks())
+            {
+                var x = chunk.Position.x;
+                var y = chunk.Position.y;
+                var mapBorderColor = Color.white;
+
+                // draw the map borders
+                if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x - 1, chunk.Position.y)))
+                    Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset, y + worldOffset), mapBorderColor);
+                if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x + 1, chunk.Position.y)))
+                    Debug.DrawLine(new Vector3(x + worldOffset, y - worldOffset), new Vector3(x + worldOffset, y + worldOffset), mapBorderColor);
+                if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x, chunk.Position.y - 1)))
+                    Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x + worldOffset, y - worldOffset), mapBorderColor);
+                if (!ServerChunkMap.Contains(new Vector2i(chunk.Position.x, chunk.Position.y + 1)))
+                    Debug.DrawLine(new Vector3(x - worldOffset, y + worldOffset), new Vector3(x + worldOffset, y + worldOffset), mapBorderColor);
+
+                if (GlobalConfig.StaticGlobalConfig.hideCleanChunkOutlines && !chunk.Dirty)
+                    continue;
+
+                // draw the chunk borders
+                var borderColor = chunk.Dirty ? Color.red : Color.white;
+                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x + worldOffset, y - worldOffset), borderColor);
+                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset, y + worldOffset), borderColor);
+                Debug.DrawLine(new Vector3(x + worldOffset, y + worldOffset), new Vector3(x - worldOffset, y + worldOffset), borderColor);
+                Debug.DrawLine(new Vector3(x + worldOffset, y + worldOffset), new Vector3(x + worldOffset, y - worldOffset), borderColor);
+            }
         }
 
-        private void RenderChunks()
-        {
-            foreach (var chunkClient in _chunksToRender)
-            {
-                chunkClient.UpdateTexture();
-            }
-            _chunksToRender.Clear();
-        }
+        #endregion
     }
 }
