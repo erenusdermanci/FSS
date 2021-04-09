@@ -151,7 +151,11 @@ namespace Entities
             a = color.a;
         }
 
-        private void EntityAwake(Entity entity)
+        private void EntityAwake(Entity childEntity)
+        {
+        }
+
+        private void EntityDestroyed(Entity childEntity)
         {
         }
 
@@ -159,6 +163,8 @@ namespace Entities
         {
             if (enableBlockMap)
                 SaveBlocks();
+            if (gameObject.transform.parent != null && gameObject.transform.parent.gameObject.activeSelf)
+                gameObject.transform.parent.SendMessage("EntityDestroyed", this);
         }
     }
 }
