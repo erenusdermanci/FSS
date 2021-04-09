@@ -58,9 +58,14 @@ namespace Tiles
                     Tile.VerticalSize * Tile.HorizontalSize * _maxLoadedTiles);
             }
 
-            _player = new UpdatedGameObject(GameObject.Find("Player"));
             CollisionManager = new ClientCollisionManager(_chunkLayers[(int) ChunkLayer.ChunkLayerType.Foreground]);
-            CollisionManager.gameObjectsToUpdate.Add(_player);
+
+            var playerGameObject = GameObject.Find("Player");
+            if (playerGameObject)
+            {
+                _player = new UpdatedGameObject(GameObject.Find("Player"));
+                CollisionManager.gameObjectsToUpdate.Add(_player);
+            }
         }
 
         private void Start()
