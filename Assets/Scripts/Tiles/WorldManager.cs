@@ -165,8 +165,26 @@ namespace Tiles
             {
                 if (Math.Abs(_currentTilePosition.x - tile.Position.x) >= tileGridThickness + 1
                     || Math.Abs(_currentTilePosition.y - tile.Position.y) >= tileGridThickness + 1)
-                    _tileTaskScheduler.QueueForSave(tile);
+                {
+                    QueueTileForSave(tile);
+                }
             }
+        }
+
+        private void QueueTileForSave(Tile tile)
+        {
+            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
+            {
+                foreach (var position in tile.GetChunkPositions())
+                {
+                    if (_chunkLayers[i].chunkSimulator != null)
+                    {
+                        var chunk = _chunkLayers[i].ServerChunkMap[position];
+                        _chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, false);
+                    }
+                }
+            }
+            _tileTaskScheduler.QueueForSave(tile);
         }
 
         private void OnTileSaved(object sender, EventArgs e)
@@ -178,10 +196,6 @@ namespace Tiles
                 for (var idx = 0; idx < tileTask.ChunksForMainThread[i].Count; ++idx)
                 {
                     var chunk = tileTask.ChunksForMainThread[i][idx];
-
-                    if (_chunkLayers[i].chunkSimulator != null)
-                        _chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, false);
-
                     // remove the chunks from the chunkmap
                     chunk.Dispose();
                     _chunkLayers[i].ServerChunkMap.Remove(chunk.Position);
@@ -258,7 +272,7 @@ namespace Tiles
             for (var i = 0; i < tiles.Count; ++i)
             {
                 var tile = tiles[i];
-                _tileTaskScheduler.QueueForSave(tile);
+                QueueTileForSave(tile);
             }
 
             _tileTaskScheduler.ForceSave();
