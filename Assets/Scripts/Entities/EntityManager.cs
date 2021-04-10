@@ -71,6 +71,16 @@ namespace Entities
             _worldManager.QueueChunkForReload(chunk.Position, entity.chunkLayerType);
         }
 
+        public void BlitStaticEntities()
+        {
+            foreach (var entity in _entities.Values)
+            {
+                if (entity.dynamic)
+                    continue;
+                BlitEntity(entity);
+            }
+        }
+
         public void EntityAwake(Entity entity)
         {
             // assign this entity Unique Id that will be transmitted to blocks when they are put in the grid

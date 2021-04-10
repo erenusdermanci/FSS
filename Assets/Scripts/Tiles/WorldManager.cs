@@ -268,6 +268,9 @@ namespace Tiles
         {
             _tileTaskScheduler.CancelLoad();
 
+            if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
+                _entityManager.BlitStaticEntities();
+
             var tiles = _serverTileMap.Tiles().ToList();
             for (var i = 0; i < tiles.Count; ++i)
             {
