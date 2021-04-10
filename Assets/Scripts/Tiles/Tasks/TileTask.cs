@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Chunks;
-using Chunks.Server;
+using Serialized;
 
 namespace Tiles.Tasks
 {
@@ -12,30 +10,26 @@ namespace Tiles.Tasks
     {
         public bool Done;
         public readonly Tile Tile;
-        public readonly List<ChunkServer>[] ChunksForMainThread;
+        public TileData? TileData;
 
         protected readonly string TileFileName;
         protected string TileFullFileName;
-        protected readonly ChunkLayer[] ChunkLayers;
 
         private bool _synchronous;
         private Task _task;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
 
-        protected TileTask(Tile tile, ChunkLayer[] chunkLayers)
+        protected TileTask(Tile tile)
         {
             _cancellationTokenSource = new CancellationTokenSource();
 
             Tile = tile;
             TileFileName = $"{tile.Position.x}_{tile.Position.y}";
             TileFullFileName = $"{TileHelpers.TilesSavePath}\\{TileFileName}";
-            ChunkLayers = chunkLayers;
 
             if (!Directory.Exists(TileHelpers.TilesSavePath))
                 Directory.CreateDirectory(TileHelpers.TilesSavePath);
-
-            ChunksForMainThread = new List<ChunkServer>[ChunkLayer.TotalChunkLayers];
         }
 
         public void Schedule(bool synchronous = false)

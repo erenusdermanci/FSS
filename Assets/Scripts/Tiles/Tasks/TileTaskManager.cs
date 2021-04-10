@@ -63,20 +63,19 @@ namespace Tiles.Tasks
             return _tasks.ContainsKey(position);
         }
 
-        public void Enqueue(Vector2i position)
+        public TileTask Enqueue(Vector2i position)
         {
-            if (_tasks.ContainsKey(position))
-                return;
-            Enqueue(new Tile(position));
+            return !_tasks.ContainsKey(position) ? Enqueue(new Tile(position)) : null;
         }
 
-        public void Enqueue(Tile tile)
+        public TileTask Enqueue(Tile tile)
         {
             if (_tasks.ContainsKey(tile.Position))
-                return;
+                return null;
             var task = _taskCreator(tile);
             _queued.Add(tile.Position);
             _tasks.Add(tile.Position, task);
+            return task;
         }
 
         public void CompleteAll()

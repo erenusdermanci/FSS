@@ -7,7 +7,7 @@ namespace Chunks
 {
     public class ChunkMap<T> where T : Chunk
     {
-        private readonly ConcurrentDictionary<Vector2i, T> _map = new ConcurrentDictionary<Vector2i, T>();
+        private readonly Dictionary<Vector2i, T> _map = new Dictionary<Vector2i, T>();
 
         [CanBeNull]
         public T this[Vector2i i] => _map.ContainsKey(i) ? _map[i] : null;
@@ -24,12 +24,12 @@ namespace Chunks
 
         public void Add(T chunk)
         {
-            _map.TryAdd(chunk.Position, chunk);
+            _map.Add(chunk.Position, chunk);
         }
 
         public void Remove(Vector2i position)
         {
-            _map.TryRemove(position, out _);
+            _map.Remove(position);
         }
 
         public IEnumerable<T> Chunks()

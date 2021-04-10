@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Chunks;
 using Utils;
 
 namespace Tiles.Tasks
@@ -8,17 +7,17 @@ namespace Tiles.Tasks
     {
         private readonly Dictionary<TileTaskTypes, TileTaskManager> _tileTaskManagers;
 
-        public TileTaskScheduler(ChunkLayer[] chunkLayers)
+        public TileTaskScheduler()
         {
             _tileTaskManagers = new Dictionary<TileTaskTypes, TileTaskManager>
             {
                 {
                     TileTaskTypes.Save,
-                    new TileTaskManager(16, tile => new TileSaveTask(tile, chunkLayers))
+                    new TileTaskManager(16, tile => new TileSaveTask(tile))
                 },
                 {
                     TileTaskTypes.Load,
-                    new TileTaskManager(16, tile => new TileLoadTask(tile, chunkLayers))
+                    new TileTaskManager(16, tile => new TileLoadTask(tile))
                 }
             };
         }
@@ -36,26 +35,27 @@ namespace Tiles.Tasks
             }
         }
 
-        public void QueueForLoad(Vector2i pos)
+        public TileLoadTask QueueForLoad(Vector2i pos)
         {
             if (_tileTaskManagers[TileTaskTypes.Load].Pending(pos)) // chunk is already being loaded or queued for loading
-                return;
+                return null;
             if (_tileTaskManagers[TileTaskTypes.Save].Pending(pos)) // chunk is being saved or queued for saving
             {
                 // if it was queued we have a chance to remove it so that we don't take the time to save before loading
                 _tileTaskManagers[TileTaskTypes.Save].Cancel(pos);
             }
 
-            _tileTaskManagers[TileTaskTypes.Load].Enqueue(pos);
+            return (TileLoadTask)_tileTaskManagers[TileTaskTypes.Load].Enqueue(pos);
         }
 
-        public void QueueForSave(Tile tile)
+        public TileSaveTask QueueForSave(Tile tile)
         {
             if (_tileTaskManagers[TileTaskTypes.Load].Pending(tile.Position))
             {
                 _tileTaskManagers[TileTaskTypes.Load].Cancel(tile.Position);
             }
-            _tileTaskManagers[TileTaskTypes.Save].Enqueue(tile);
+
+            return (TileSaveTask)_tileTaskManagers[TileTaskTypes.Save].Enqueue(tile);
         }
 
         public void ForceLoad()

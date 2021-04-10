@@ -7,7 +7,7 @@ namespace Tiles
 {
     public class TileMap
     {
-        public readonly ConcurrentDictionary<Vector2i, Tile> Map = new ConcurrentDictionary<Vector2i, Tile>();
+        public readonly Dictionary<Vector2i, Tile> Map = new Dictionary<Vector2i, Tile>();
 
         [CanBeNull]
         public Tile this[Vector2i i] => Map.ContainsKey(i) ? Map[i] : null;
@@ -24,12 +24,12 @@ namespace Tiles
 
         public void Add(Tile tile)
         {
-            Map.TryAdd(tile.Position, tile);
+            Map.Add(tile.Position, tile);
         }
 
         public void Remove(Vector2i position)
         {
-            Map.TryRemove(position, out _);
+            Map.Remove(position);
         }
 
         public IEnumerable<Tile> Tiles()

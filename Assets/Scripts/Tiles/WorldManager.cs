@@ -49,7 +49,7 @@ namespace Tiles
 
             _entityManager = transform.GetComponentInChildren<EntityManager>();
 
-            _tileTaskScheduler = new TileTaskScheduler(_chunkLayers);
+            _tileTaskScheduler = new TileTaskScheduler();
             _chunkPools = new GameObjectPool[ChunkLayer.TotalChunkLayers];
 
             _maxLoadedTiles = (2 * tileGridThickness + 1) * (2 * tileGridThickness + 1);
@@ -185,7 +185,24 @@ namespace Tiles
                     }
                 }
             }
-            _tileTaskScheduler.QueueForSave(tile);
+            var tileSaveTask = _tileTaskScheduler.QueueForSave(tile);
+            if (tileSaveTask == null)
+                return;
+
+            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
+            {
+                var idx = 0;
+                foreach (var position in tileSaveTask.Tile.GetChunkPositions())
+                {
+                    if (_chunkLayers[i].ServerChunkMap.Contains(position))
+                    {
+                        var chunkToSave = _chunkLayers[i].ServerChunkMap[position];
+                        if (tileSaveTask.TileData != null && chunkToSave != null)
+                            tileSaveTask.TileData.Value.chunkLayers[i][idx] = chunkToSave.Data;
+                    }
+                    idx++;
+                }
+            }
         }
 
         private void OnTileSaved(object sender, EventArgs e)
@@ -194,15 +211,15 @@ namespace Tiles
 
             for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
             {
-                for (var idx = 0; idx < tileTask.ChunksForMainThread[i].Count; ++idx)
+                foreach (var position in tileTask.Tile.GetChunkPositions())
                 {
-                    var chunk = tileTask.ChunksForMainThread[i][idx];
-                    // remove the chunks from the chunkmap
-                    chunk.Dispose();
-                    _chunkLayers[i].ServerChunkMap.Remove(chunk.Position);
+                    var serverChunk = _chunkLayers[i].ServerChunkMap[position];
+                    serverChunk?.Dispose();
+                    _chunkLayers[i].ServerChunkMap.Remove(position);
 
-                    _chunkLayers[i].ClientChunkMap[chunk.Position]?.Dispose();
-                    _chunkLayers[i].ClientChunkMap.Remove(chunk.Position);
+                    var clientChunk = _chunkLayers[i].ClientChunkMap[position];
+                    clientChunk?.Dispose();
+                    _chunkLayers[i].ClientChunkMap.Remove(position);
                 }
             }
 
@@ -217,19 +234,31 @@ namespace Tiles
 
             for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
             {
-                for (var idx = 0; idx < tileTask.ChunksForMainThread[i].Count; ++idx)
+                var idx = 0;
+                foreach (var position in tileTask.Tile.GetChunkPositions())
                 {
-                    var chunk = tileTask.ChunksForMainThread[i][idx];
-
+                    var chunk = new ChunkServer
+                    {
+                        Position = position
+                    };
+                    if (tileTask.TileData != null)
+                        chunk.Data = tileTask.TileData.Value.chunkLayers[i][idx];
+                    else
+                    {
+                        chunk.Initialize();
+                        chunk.GenerateEmpty();
+                    }
+                    _chunkLayers[i].ServerChunkMap.Add(chunk);
                     if (_chunkLayers[i].chunkSimulator != null)
                         _chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, true);
 
                     _chunkLayers[i].ClientChunkMap.Add(CreateClientChunk(_chunkPools[i], chunk));
+                    idx++;
                 }
             }
         }
 
-        private ChunkClient CreateClientChunk(GameObjectPool chunkPool, ChunkServer chunkServer)
+        private static ChunkClient CreateClientChunk(GameObjectPool chunkPool, ChunkServer chunkServer)
         {
             var chunkGameObject = chunkPool.GetObject();
             chunkGameObject.transform.position = new Vector3(chunkServer.Position.x, chunkServer.Position.y, 0);
