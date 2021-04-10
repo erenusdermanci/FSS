@@ -42,12 +42,13 @@ namespace Blocks
         public const int Plant = 16;
         public const int PlantRoot = 17;
         public const int Grass = 18;
-        public const int NumberOfBlocks = 19;
+        public const int Leaf = 19;
+        public const int NumberOfBlocks = 20;
 
         private static readonly FireSpreader PlantFireSpreader = new FireSpreader(
             1.0f,
             FireColor,
-            BurntColor,
+            new Color(150, 150, 150, 255, 0.3f),
             5.0f,
             new[]
             {
@@ -429,6 +430,18 @@ namespace Blocks
                         16,
                         new [] { Air },
                         Border),
+                    PlantFireSpreader
+                }
+            ),
+            new BlockDescriptor(
+                "Leaf",
+                BlockTags.Vegetation,
+                3.0f,
+                new Color(80, 160, 80, 255, 0.4f),
+                100.0f,
+                0,
+                new IBehavior[]
+                {
                     PlantFireSpreader
                 }
             )
