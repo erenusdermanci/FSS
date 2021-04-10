@@ -49,7 +49,11 @@ namespace Entities
             }
 
             if (gameObject.transform.parent == null)
-                gameObject.transform.parent = GameObject.Find("EntityManager").transform;
+            {
+                var entityManager = GameObject.Find("EntityManager");
+                if (entityManager)
+                    gameObject.transform.parent = entityManager.transform;
+            }
             if (gameObject.transform.parent != null)
                 gameObject.transform.parent.SendMessage("EntityAwake", this);
         }
