@@ -21,6 +21,7 @@ namespace Blocks
         private static readonly Color UnassignedBlockColor = new Color(255, 0, 0, 255);
 
         private static readonly Color FireColor = new Color(240, 127, 19, 255, 0.3f);
+        private static readonly Color BurntColor = new Color(25, 25, 25, 255, 0.1f);
 
         public const int Air = 0;
         public const int Flame = 1;
@@ -46,6 +47,7 @@ namespace Blocks
         private static readonly FireSpreader PlantFireSpreader = new FireSpreader(
             1.0f,
             FireColor,
+            BurntColor,
             5.0f,
             new[]
             {
@@ -81,6 +83,7 @@ namespace Blocks
                     ),
                     new FireSpreader(0.0f,
                         FireColor,
+                        BurntColor,
                         0.0f,
                         new BlockPotential[] {},
                         null,
@@ -106,6 +109,7 @@ namespace Blocks
                 {
                     new FireSpreader(0.1f,
                         FireColor,
+                        BurntColor,
                         0.01f,
                         new [] { new BlockPotential(Flame, 1.0f) },
                         new BlockPotential(Smoke, 0.5f),
@@ -200,6 +204,7 @@ namespace Blocks
                 {
                     new FireSpreader(1.0f,
                         FireColor,
+                        BurntColor,
                         10.0f,
                         new BlockPotential [] {},
                         new BlockPotential(Smoke, 0.25f),
@@ -245,6 +250,7 @@ namespace Blocks
                 new IBehavior[] {
                     new FireSpreader(0.8f,
                         FireColor,
+                        BurntColor,
                         3.0f,
                         new [] {
                             new BlockPotential(Spark, 0.12f),
@@ -266,6 +272,7 @@ namespace Blocks
                 new IBehavior[] {
                     new FireSpreader(0.2f,
                         FireColor,
+                        BurntColor,
                         0.01f,
                         new [] { new BlockPotential(Flame, 1.0f) },
                         new BlockPotential(Smoke, 1.0f),
@@ -290,6 +297,7 @@ namespace Blocks
                 new IBehavior[] {
                     new FireSpreader(1.0f,
                         FireColor,
+                        BurntColor,
                         9.0f,
                         new [] {
                             new BlockPotential(Spark, 0.08f),
@@ -324,6 +332,7 @@ namespace Blocks
                     ),
                     new FireSpreader(0.0f,
                         FireColor,
+                        BurntColor,
                         0.0f,
                         new [] { new BlockPotential(Smoke, 0.0001f) },
                         new BlockPotential(Air, 1.0f),

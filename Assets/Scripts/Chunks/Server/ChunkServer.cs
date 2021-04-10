@@ -2,6 +2,7 @@
 using Metadata;
 using Serialized;
 using Tiles;
+using Utils;
 
 namespace Chunks.Server
 {
@@ -131,13 +132,13 @@ namespace Chunks.Server
             Dirty = true;
         }
 
-        public void SetBlockColor(int x, int y, byte r, byte g, byte b, byte a)
+        public void SetBlockColor(int x, int y, Color c)
         {
             var blockIndex = y * Size + x;
-            Data.colors[blockIndex * 4] = r;
-            Data.colors[blockIndex * 4 + 1] = g;
-            Data.colors[blockIndex * 4 + 2] = b;
-            Data.colors[blockIndex * 4 + 3] = a;
+            Data.colors[blockIndex * 4] = c.r;
+            Data.colors[blockIndex * 4 + 1] = c.g;
+            Data.colors[blockIndex * 4 + 2] = c.b;
+            Data.colors[blockIndex * 4 + 3] = c.a;
             UpdateBlockDirty(x, y);
         }
 

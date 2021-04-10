@@ -8,7 +8,7 @@ namespace Blocks.Behaviors
     {
         public readonly float CombustionProbability;
         public readonly Color FireColor;
-
+        private readonly Color _burntColor;
         private readonly float _burningRate;
         private readonly BlockPotential[] _emissionPotentialBlocks;
         private readonly BlockPotential _combustionPotentialBlock;
@@ -19,6 +19,7 @@ namespace Blocks.Behaviors
 
         public FireSpreader(float combustionProbability,
             Color fireColor,
+            Color burntColor,
             float burningRate,
             BlockPotential[] emissionPotentialBlocks,
             BlockPotential combustionPotentialBlock,
@@ -27,6 +28,7 @@ namespace Blocks.Behaviors
         {
             CombustionProbability = combustionProbability;
             FireColor = fireColor;
+            _burntColor = burntColor;
             _burningRate = burningRate;
             _emissionPotentialBlocks = emissionPotentialBlocks;
             _combustionPotentialBlock = combustionPotentialBlock;
@@ -87,9 +89,7 @@ namespace Blocks.Behaviors
                 chunkNeighborhood.GetCentralChunk().SetBlockStates(x, y, block.StateBitset);
 
                 // reset color of block
-                var color = BlockConstants.BlockDescriptors[block.Type].Color;
-                color.Shift(out var r, out var g, out var b);
-                chunkNeighborhood.GetCentralChunk().SetBlockColor(x, y, r, g, b, color.a);
+                chunkNeighborhood.GetCentralChunk().SetBlockColor(x, y, _burntColor);
             }
             else
             {
