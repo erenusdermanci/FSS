@@ -19,6 +19,8 @@ namespace Chunks
             Background
         }
 
+        public static readonly int TotalChunkLayers = Enum.GetValues(typeof(ChunkLayerType)).Length;
+
         public ChunkLayerType type;
 
         private WorldManager _worldManager;

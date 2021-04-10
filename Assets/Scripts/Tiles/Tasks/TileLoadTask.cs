@@ -41,26 +41,19 @@ namespace Tiles.Tasks
                 tileData = (TileData) loadedData;
             }
 
-            // Set all the contained chunks
-            for (var i = 0; i < Tile.LayerCount; ++i)
+            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
             {
                 ChunksForMainThread[i] = new List<ChunkServer>();
                 var idx = 0;
-                for (var y = Tile.Position.y * Tile.VerticalSize; y < Tile.Position.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
+                foreach (var position in Tile.GetChunkPositions())
                 {
-                    for (var x = Tile.Position.x * Tile.HorizontalSize; x < Tile.Position.x * Tile.HorizontalSize + Tile.HorizontalSize; ++x)
+                    var chunk = new ChunkServer
                     {
-                        var posVec = new Vector2i(x, y);
-                        var chunk = new ChunkServer
-                        {
-                            Position = posVec, Data = tileData.chunkLayers[i][idx]
-                        };
-                        ChunkLayers[i].ServerChunkMap.Add(chunk);
-
-                        ChunksForMainThread[i].Add(chunk);
-
-                        idx++;
-                    }
+                        Position = position, Data = tileData.chunkLayers[i][idx]
+                    };
+                    ChunkLayers[i].ServerChunkMap.Add(chunk);
+                    ChunksForMainThread[i].Add(chunk);
+                    idx++;
                 }
             }
         }
@@ -69,30 +62,30 @@ namespace Tiles.Tasks
         {
             // tile does not exist, generate empty chunks instead
             // temporary measure until we have a pre-compiled world file
-            for (var i = 0; i < Tile.LayerCount; ++i)
+            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
             {
                 ChunksForMainThread[i] = new List<ChunkServer>();
-                for (var y = Tile.Position.y * Tile.VerticalSize; y < Tile.Position.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
+
+                foreach (var position in Tile.GetChunkPositions())
                 {
-                    for (var x = Tile.Position.x * Tile.HorizontalSize; x < Tile.Position.x * Tile.HorizontalSize + Tile.HorizontalSize; ++x)
+                    var emptyChunk = new ChunkServer
                     {
-                        var posVec = new Vector2i(x, y);
-                        var emptyChunk = new ChunkServer {Position = posVec};
-                        emptyChunk.Initialize();
-                        emptyChunk.GenerateEmpty();
+                        Position = position
+                    };
+                    emptyChunk.Initialize();
+                    emptyChunk.GenerateEmpty();
 
-                        if (ChunkLayers[i].ServerChunkMap.Contains(posVec))
-                        {
-                            // ReSharper disable once PossibleNullReferenceException
-                            ChunkLayers[i].ServerChunkMap[posVec].Data = emptyChunk.Data;
-                        }
-                        else
-                        {
-                            ChunkLayers[i].ServerChunkMap.Add(emptyChunk);
-                        }
-
-                        ChunksForMainThread[i].Add(emptyChunk);
+                    if (ChunkLayers[i].ServerChunkMap.Contains(position))
+                    {
+                        // ReSharper disable once PossibleNullReferenceException
+                        ChunkLayers[i].ServerChunkMap[position].Data = emptyChunk.Data;
                     }
+                    else
+                    {
+                        ChunkLayers[i].ServerChunkMap.Add(emptyChunk);
+                    }
+
+                    ChunksForMainThread[i].Add(emptyChunk);
                 }
             }
         }

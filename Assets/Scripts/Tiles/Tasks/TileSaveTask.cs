@@ -22,31 +22,24 @@ namespace Tiles.Tasks
 
             var tileData = new TileData
             {
-                chunkLayers = new BlockData[Tile.LayerCount][]
+                chunkLayers = new BlockData[ChunkLayer.TotalChunkLayers][]
             };
 
-            // Serialize all the contained chunks
-            for (var i = 0; i < Tile.LayerCount; ++i)
+            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
             {
                 ChunksForMainThread[i] = new List<ChunkServer>();
                 var idx = 0;
-                tileData.chunkLayers[i] = new BlockData[Tile.VerticalSize * Tile.HorizontalSize];
-                for (var y = Tile.Position.y * Tile.VerticalSize; y < Tile.Position.y * Tile.VerticalSize + Tile.VerticalSize; ++y)
+                tileData.chunkLayers[i] = new BlockData[Tile.TotalSize];
+                foreach (var position in Tile.GetChunkPositions())
                 {
-                    for (var x = Tile.Position.x * Tile.HorizontalSize; x < Tile.Position.x * Tile.HorizontalSize + Tile.HorizontalSize; ++x)
+                    if (ChunkLayers[i].ServerChunkMap.Contains(position))
                     {
-                        var posVec = new Vector2i(x, y);
-                        if (ChunkLayers[i].ServerChunkMap.Contains(posVec))
-                        {
-                            var chunkToSave = ChunkLayers[i].ServerChunkMap[posVec];
-                            // ReSharper disable once PossibleNullReferenceException
-                            tileData.chunkLayers[i][idx] = chunkToSave.Data;
-
-                            ChunksForMainThread[i].Add(chunkToSave);
-                        }
-
-                        idx++;
+                        var chunkToSave = ChunkLayers[i].ServerChunkMap[position];
+                        // ReSharper disable once PossibleNullReferenceException
+                        tileData.chunkLayers[i][idx] = chunkToSave.Data;
+                        ChunksForMainThread[i].Add(chunkToSave);
                     }
+                    idx++;
                 }
             }
 

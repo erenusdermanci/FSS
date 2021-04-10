@@ -33,7 +33,7 @@ namespace Tiles.Tasks
             if (!Directory.Exists(TileHelpers.TilesSavePath))
                 Directory.CreateDirectory(TileHelpers.TilesSavePath);
 
-            ChunksForMainThread = new List<ChunkServer>[Tile.LayerCount];
+            ChunksForMainThread = new List<ChunkServer>[ChunkLayer.TotalChunkLayers];
         }
 
         public void Schedule(bool synchronous = false)

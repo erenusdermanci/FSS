@@ -49,13 +49,13 @@ namespace Tiles
             _entityManager = transform.GetComponentInChildren<EntityManager>();
 
             _tileTaskScheduler = new TileTaskScheduler(_chunkLayers);
-            _chunkPools = new GameObjectPool[Tile.LayerCount];
+            _chunkPools = new GameObjectPool[ChunkLayer.TotalChunkLayers];
 
             _maxLoadedTiles = (2 * tileGridThickness + 1) * (2 * tileGridThickness + 1);
-            for (var i = 0; i < Tile.LayerCount; ++i)
+            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
             {
                 _chunkPools[i] = new GameObjectPool(_chunkLayers[i],
-                    Tile.VerticalSize * Tile.HorizontalSize * _maxLoadedTiles);
+                    Tile.TotalSize * _maxLoadedTiles);
             }
 
             CollisionManager = new ClientCollisionManager(_chunkLayers[(int) ChunkLayer.ChunkLayerType.Foreground]);
@@ -173,7 +173,7 @@ namespace Tiles
         {
             var tileTask = ((TileTaskEvent) e).Task;
 
-            for (var i = 0; i < Tile.LayerCount; ++i)
+            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
             {
                 for (var idx = 0; idx < tileTask.ChunksForMainThread[i].Count; ++idx)
                 {
@@ -200,7 +200,7 @@ namespace Tiles
             var tileTask = ((TileTaskEvent) e).Task;
             _serverTileMap.Add(tileTask.Tile);
 
-            for (var i = 0; i < Tile.LayerCount; ++i)
+            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
             {
                 for (var idx = 0; idx < tileTask.ChunksForMainThread[i].Count; ++idx)
                 {
