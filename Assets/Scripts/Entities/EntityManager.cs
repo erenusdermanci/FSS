@@ -20,7 +20,7 @@ namespace Entities
             _worldManager = transform.parent.GetComponent<WorldManager>();
         }
 
-        public void BlitEntity(Entity entity)
+        private void BlitEntity(Entity entity)
         {
             var sprite = entity.spriteRenderer.sprite;
             var position = entity.transform.position;
@@ -37,11 +37,15 @@ namespace Entities
         private void PutBlock(Entity entity, int entityBlockX, int entityBlockY, int entityWorldX, int entityWorldY)
         {
             var blockType = entity.GetBlockType(entityBlockX, entityBlockY);
-            if (blockType == BlockConstants.UnassignedBlockType)
+            switch (blockType)
             {
-                Debug.Log($"block at x={entityBlockX}, y={entityBlockY} in entity {entity.name} has not been assigned!");
-                return;
+                case BlockConstants.Air:
+                    return;
+                case BlockConstants.UnassignedBlockType:
+                    Debug.Log($"block at x={entityBlockX}, y={entityBlockY} in entity {entity.name} has not been assigned!");
+                    return;
             }
+
             if (blockType < BlockConstants.UnassignedBlockType)
                 throw new InvalidOperationException($"position x={entityBlockX}, y={entityBlockY} is invalid within entity {entity.name}");
 
