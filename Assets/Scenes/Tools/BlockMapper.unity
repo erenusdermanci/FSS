@@ -440,6 +440,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   blockTypes: 
   chunkLayerType: 0
+  dynamic: 0
   generateCollider: 0
   enableBlockMap: 1
 --- !u!4 &1962172606
