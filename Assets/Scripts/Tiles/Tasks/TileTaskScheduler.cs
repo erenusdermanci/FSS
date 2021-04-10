@@ -51,6 +51,10 @@ namespace Tiles.Tasks
 
         public void QueueForSave(Tile tile)
         {
+            if (_tileTaskManagers[TileTaskTypes.Load].Pending(tile.Position))
+            {
+                _tileTaskManagers[TileTaskTypes.Load].Cancel(tile.Position);
+            }
             _tileTaskManagers[TileTaskTypes.Save].Enqueue(tile);
         }
 

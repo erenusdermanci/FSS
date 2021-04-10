@@ -20,7 +20,10 @@ namespace Tiles.Tasks
         {
             if (ShouldCancel()) return;
 
-            var tileData = new TileData {chunkLayers = new BlockData[Tile.LayerCount][]};
+            var tileData = new TileData
+            {
+                chunkLayers = new BlockData[Tile.LayerCount][]
+            };
 
             // Serialize all the contained chunks
             for (var i = 0; i < Tile.LayerCount; ++i)
