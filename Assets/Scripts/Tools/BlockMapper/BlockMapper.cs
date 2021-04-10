@@ -62,14 +62,14 @@ namespace Tools.BlockMapper
             {
                 if (_lastPointDrawnForLine != null && Input.GetKey(KeyCode.LeftShift))
                     Draw.Line(_lastPointDrawnForLine.Value.x, _lastPointDrawnForLine.Value.y,
-                        blockPosition.x, blockPosition.y, (x, y) => DrawBlocks(x, y));
+                        blockPosition.x, blockPosition.y, DrawBlocks);
             }
             else if (Input.GetMouseButton(0))
             {
                 if (_lastPointDrawn == null)
                     DrawBlocks(blockPosition.x, blockPosition.y);
                 else
-                    Draw.Line(_lastPointDrawn.Value.x, _lastPointDrawn.Value.y, blockPosition.x, blockPosition.y, (x, y) => DrawBlocks(x, y));
+                    Draw.Line(_lastPointDrawn.Value.x, _lastPointDrawn.Value.y, blockPosition.x, blockPosition.y, DrawBlocks);
                 _lastPointDrawn = new Vector2i(blockPosition.x, blockPosition.y);
             }
             else if (Input.GetMouseButtonUp(0))
