@@ -31,9 +31,9 @@ namespace Tiles
         private Camera _mainCamera;
         public static Vector3 MainCameraPosition = Vector3.zero;
 
-        private Vector2i _cameraFlooredPosition;
+        private Vector2i _cameraChunkPosition;
         private bool _cameraHasMoved;
-        private Vector2i _oldCameraFlooredPosition;
+        private Vector2i _oldCameraChunkPosition;
         private Vector2i _currentTilePosition;
 
         private GameObjectPool[] _chunkPools;
@@ -78,7 +78,7 @@ namespace Tiles
             {
                 _mainCamera = Camera.main;
                 MainCameraPosition = _mainCamera.transform.position;
-                _oldCameraFlooredPosition = _cameraFlooredPosition;
+                _oldCameraChunkPosition = _cameraChunkPosition;
                 UpdateCameraHasMoved();
             }
 
@@ -91,7 +91,7 @@ namespace Tiles
 
         private void InitializeTileMap()
         {
-            var initialTilePos = TileHelpers.GetTilePositionFromFlooredWorldPosition(_cameraFlooredPosition);
+            var initialTilePos = TileHelpers.GetTilePositionFromFlooredWorldPosition(_cameraChunkPosition);
             var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(initialTilePos, tileGridThickness);
             foreach (var tilePos in newTilePositions)
             {
@@ -132,17 +132,17 @@ namespace Tiles
             if (_mainCamera == null)
                 return false;
             var position = _mainCamera.transform.position;
-            _cameraFlooredPosition = new Vector2i((int) Mathf.Floor(position.x + 0.5f), (int) Mathf.Floor(position.y + 0.5f));
-            if (_oldCameraFlooredPosition == _cameraFlooredPosition)
+            _cameraChunkPosition = new Vector2i((int) Mathf.Floor(position.x + 0.5f), (int) Mathf.Floor(position.y + 0.5f));
+            if (_oldCameraChunkPosition == _cameraChunkPosition)
                 return false;
 
-            _oldCameraFlooredPosition = _cameraFlooredPosition;
+            _oldCameraChunkPosition = _cameraChunkPosition;
             return true;
         }
 
         private void HandleTileMapLoading()
         {
-            var newTilePos = TileHelpers.GetTilePositionFromFlooredWorldPosition(_cameraFlooredPosition);
+            var newTilePos = TileHelpers.GetTilePositionFromFlooredWorldPosition(_cameraChunkPosition);
 
             if (newTilePos != _currentTilePosition)
             {
@@ -304,9 +304,8 @@ namespace Tiles
                     _entityManager.BlitStaticEntities();
 
                 var tiles = _serverTileMap.Tiles().ToList();
-                for (var i = 0; i < tiles.Count; ++i)
+                foreach (var tile in tiles)
                 {
-                    var tile = tiles[i];
                     QueueTileForSave(tile);
                 }
 
