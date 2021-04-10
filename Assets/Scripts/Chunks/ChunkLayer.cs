@@ -88,18 +88,21 @@ namespace Chunks
 
         private void FixedUpdate()
         {
-            if (GlobalConfig.StaticGlobalConfig.stepByStep && _userPressedSpace)
+            if (!GlobalConfig.StaticGlobalConfig.levelDesignMode)
             {
-                _userPressedSpace = false;
-                chunkSimulator.Update();
+                if (GlobalConfig.StaticGlobalConfig.stepByStep && _userPressedSpace)
+                {
+                    _userPressedSpace = false;
+                    chunkSimulator.Update();
+                }
+                else if (!GlobalConfig.StaticGlobalConfig.pauseSimulation)
+                    chunkSimulator.Update();
             }
-            else if (!GlobalConfig.StaticGlobalConfig.pauseSimulation)
-                chunkSimulator.Update();
-
-            RenderChunks();
 
             if (GlobalConfig.StaticGlobalConfig.outlineChunks)
                 OutlineChunks();
+
+            RenderChunks();
 
             if (!GlobalConfig.StaticGlobalConfig.disableDirtyRects && GlobalConfig.StaticGlobalConfig.drawDirtyRects)
                 DrawDirtyRects();
