@@ -9,9 +9,9 @@ using Utils;
 
 namespace Tiles.Tasks
 {
-    public class LoadTask : TileTask
+    public class TileLoadTask : TileTask
     {
-        public LoadTask(Tile tile, ChunkLayer[] chunkLayers) : base(tile, chunkLayers)
+        public TileLoadTask(Tile tile, ChunkLayer[] chunkLayers) : base(tile, chunkLayers)
         {
 
         }

@@ -14,11 +14,11 @@ namespace Tiles.Tasks
             {
                 {
                     TileTaskTypes.Save,
-                    new TileTaskManager(16, tile => new SaveTask(tile, chunkLayers))
+                    new TileTaskManager(16, tile => new TileSaveTask(tile, chunkLayers))
                 },
                 {
                     TileTaskTypes.Load,
-                    new TileTaskManager(16, tile => new LoadTask(tile, chunkLayers))
+                    new TileTaskManager(16, tile => new TileLoadTask(tile, chunkLayers))
                 }
             };
         }
