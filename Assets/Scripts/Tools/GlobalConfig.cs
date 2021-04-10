@@ -30,7 +30,9 @@ namespace Tools
         [Serializable]
         public class GlobalConfigFields
         {
+            public string initialLoadSceneOverride;
             public string saveSceneOverride;
+            public bool deleteSaveOnExit;
             public bool pauseSimulation;
             public bool stepByStep;
             public bool outlineChunks;
@@ -45,7 +47,9 @@ namespace Tools
 
             public GlobalConfigFields(GlobalConfigFields other)
             {
+                initialLoadSceneOverride = other.initialLoadSceneOverride;
                 saveSceneOverride = other.saveSceneOverride;
+                deleteSaveOnExit = other.deleteSaveOnExit;
                 pauseSimulation = other.pauseSimulation;
                 stepByStep = other.stepByStep;
                 outlineChunks = other.outlineChunks;
@@ -61,7 +65,9 @@ namespace Tools
 
             public bool Equals(GlobalConfigFields other)
             {
-                if (saveSceneOverride != other.saveSceneOverride
+                if (initialLoadSceneOverride != other.initialLoadSceneOverride
+                    || saveSceneOverride != other.saveSceneOverride
+                    || deleteSaveOnExit != other.deleteSaveOnExit
                     || pauseSimulation != other.pauseSimulation
                     || stepByStep != other.stepByStep
                     || outlineChunks != other.outlineChunks

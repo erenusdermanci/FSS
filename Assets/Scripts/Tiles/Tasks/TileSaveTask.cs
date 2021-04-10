@@ -42,7 +42,7 @@ namespace Tiles.Tasks
                 }
             }
 
-            using (var file = File.Open(TileFileName, FileMode.Create))
+            using (var file = File.Open(TileFullFileName, FileMode.Create))
             using (var compressionStream = new GZipStream(file, CompressionMode.Compress))
             {
                 new BinaryFormatter().Serialize(compressionStream, tileData);

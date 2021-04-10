@@ -509,7 +509,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   globalConfig:
-    saveSceneOverride: SampleScene
+    initialLoadSceneOverride: WorldBuilder
+    saveSceneOverride: WorldBuilder
+    deleteSaveOnExit: 0
     pauseSimulation: 0
     stepByStep: 0
     outlineChunks: 1

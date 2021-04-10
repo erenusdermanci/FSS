@@ -7,6 +7,7 @@ namespace Tiles
 {
     public static class TileHelpers
     {
+        public static readonly string TilesInitialLoadPath = $"{InitialLoadPath()}\\Tiles";
         public static readonly string TilesSavePath = $"{SavePath()}\\Tiles";
 
         public static IEnumerable<Vector2i> GetTilePositionsAroundCentralTilePosition(Vector2i pos, int gridThickness)

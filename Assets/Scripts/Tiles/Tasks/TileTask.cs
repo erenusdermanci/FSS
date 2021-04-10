@@ -15,6 +15,7 @@ namespace Tiles.Tasks
         public readonly List<ChunkServer>[] ChunksForMainThread;
 
         protected readonly string TileFileName;
+        protected string TileFullFileName;
         protected readonly ChunkLayer[] ChunkLayers;
 
         private bool _synchronous;
@@ -27,7 +28,8 @@ namespace Tiles.Tasks
             _cancellationTokenSource = new CancellationTokenSource();
 
             Tile = tile;
-            TileFileName = $"{TileHelpers.TilesSavePath}\\{tile.Position.x}_{tile.Position.y}";
+            TileFileName = $"{tile.Position.x}_{tile.Position.y}";
+            TileFullFileName = $"{TileHelpers.TilesSavePath}\\{TileFileName}";
             ChunkLayers = chunkLayers;
 
             if (!Directory.Exists(TileHelpers.TilesSavePath))

@@ -19,20 +19,35 @@ namespace Tiles.Tasks
         {
             if (ShouldCancel()) return;
 
-            if (File.Exists(TileFileName))
+            if (File.Exists(TileFullFileName))
             {
                 LoadExisting();
             }
             else
             {
-                GenerateEmpty();
+                if (TileHelpers.TilesInitialLoadPath != TileHelpers.TilesSavePath) // reference world exists
+                {
+                    TileFullFileName = $"{TileHelpers.TilesInitialLoadPath}\\{TileFileName}";
+                    if (File.Exists(TileFullFileName))
+                    {
+                        LoadExisting();
+                    }
+                    else
+                    {
+                        GenerateEmpty();
+                    }
+                }
+                else
+                {
+                    GenerateEmpty();
+                }
             }
         }
 
         private void LoadExisting()
         {
             TileData tileData;
-            using (var file = File.Open(TileFileName, FileMode.Open))
+            using (var file = File.Open(TileFullFileName, FileMode.Open))
             using (var compressionStream = new GZipStream(file, CompressionMode.Decompress))
             {
                 var loadedData = new BinaryFormatter().Deserialize(compressionStream);

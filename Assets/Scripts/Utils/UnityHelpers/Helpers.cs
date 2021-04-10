@@ -10,12 +10,30 @@ namespace Utils.UnityHelpers
 {
     public static class Helpers
     {
+        public static string InitialLoadPath()
+        {
+            var loadPath = $"{Application.persistentDataPath}{Path.DirectorySeparatorChar}";
+            return GlobalConfig.StaticGlobalConfig.initialLoadSceneOverride.Length != 0
+                ? $"{loadPath}{GlobalConfig.StaticGlobalConfig.initialLoadSceneOverride}"
+                : $"{SavePath()}";
+        }
+
         public static string SavePath()
         {
             var savePath = $"{Application.persistentDataPath}{Path.DirectorySeparatorChar}";
             return GlobalConfig.StaticGlobalConfig.saveSceneOverride.Length != 0
                 ? $"{savePath}{GlobalConfig.StaticGlobalConfig.saveSceneOverride}"
                 : $"{savePath}{SceneManager.GetActiveScene().name}";
+        }
+
+        public static void RemoveFilesInDirectory(string directoryPath)
+        {
+            var di = new DirectoryInfo(directoryPath);
+
+            foreach (var file in di.EnumerateFiles())
+            {
+                file.Delete();
+            }
         }
 
         public static float GetRandomShiftAmount(float baseAmount)

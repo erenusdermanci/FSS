@@ -10,6 +10,7 @@ using UnityEngine;
 using Utils;
 using Utils.UnityHelpers;
 using Color = UnityEngine.Color;
+using Helpers = Utils.UnityHelpers.Helpers;
 
 namespace Tiles
 {
@@ -266,19 +267,37 @@ namespace Tiles
         // This is not multi-platform compatible, not reliable and not called between scene loads
         private void OnApplicationQuit()
         {
-            _tileTaskScheduler.CancelLoad();
-
-            if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
-                _entityManager.BlitStaticEntities();
-
-            var tiles = _serverTileMap.Tiles().ToList();
-            for (var i = 0; i < tiles.Count; ++i)
+            if (!GlobalConfig.StaticGlobalConfig.deleteSaveOnExit)
             {
-                var tile = tiles[i];
-                QueueTileForSave(tile);
-            }
+                _tileTaskScheduler.CancelLoad();
 
-            _tileTaskScheduler.ForceSave();
+                if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
+                    _entityManager.BlitStaticEntities();
+
+                var tiles = _serverTileMap.Tiles().ToList();
+                for (var i = 0; i < tiles.Count; ++i)
+                {
+                    var tile = tiles[i];
+                    QueueTileForSave(tile);
+                }
+
+                _tileTaskScheduler.ForceSave();
+            }
+            else
+            {
+                _tileTaskScheduler.CancelLoad();
+                _tileTaskScheduler.ForceSave();
+
+                try
+                {
+                    Helpers.RemoveFilesInDirectory(TileHelpers.TilesSavePath);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                    throw;
+                }
+            }
         }
 
         #region Debug
