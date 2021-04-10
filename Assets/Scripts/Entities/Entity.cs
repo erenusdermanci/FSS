@@ -134,6 +134,9 @@ namespace Entities
             if (blockX < 0 || blockY < 0 || blockX >= sprite.texture.width || blockY >= sprite.texture.height)
                 return;
             var blockIndex = blockY * sprite.texture.width + blockX;
+            GetBlockColor(blockX, blockY, out _, out _, out _, out var a);
+            if (a == 0)
+                type = BlockConstants.Air;
             blockTypes[blockIndex] = type;
             if (enableBlockMap)
                 _blockMap.AssignBlockColor(blockIndex, BlockConstants.GetBlockColor(type));
