@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Chunks;
 using Chunks.Client;
 using Chunks.Server;
 using Entities;
+using Serialized;
 using Tiles.Tasks;
 using Tools;
 using UnityEngine;
@@ -11,6 +13,7 @@ using Utils;
 using Utils.UnityHelpers;
 using Color = UnityEngine.Color;
 using Helpers = Utils.UnityHelpers.Helpers;
+using Object = UnityEngine.Object;
 
 namespace Tiles
 {
@@ -59,7 +62,7 @@ namespace Tiles
                     Tile.TotalSize * _maxLoadedTiles);
             }
 
-            CollisionManager = new ClientCollisionManager(_chunkLayers[(int) ChunkLayer.ChunkLayerType.Foreground]);
+            CollisionManager = new ClientCollisionManager(_chunkLayers[(int) ChunkLayerType.Foreground]);
 
             var playerGameObject = GameObject.Find("Player");
             if (playerGameObject)
@@ -91,7 +94,7 @@ namespace Tiles
 
         private void InitializeTileMap()
         {
-            var initialTilePos = TileHelpers.GetTilePositionFromFlooredWorldPosition(_cameraChunkPosition);
+            var initialTilePos = TileHelpers.GetTilePositionFromChunkPosition(_cameraChunkPosition);
             var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(initialTilePos, tileGridThickness);
             foreach (var tilePos in newTilePositions)
             {
@@ -142,20 +145,20 @@ namespace Tiles
 
         private void HandleTileMapLoading()
         {
-            var newTilePos = TileHelpers.GetTilePositionFromFlooredWorldPosition(_cameraChunkPosition);
+            var newTilePosition = TileHelpers.GetTilePositionFromChunkPosition(_cameraChunkPosition);
 
-            if (newTilePos != _currentTilePosition)
+            if (newTilePosition != _currentTilePosition)
             {
-                var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(newTilePos, tileGridThickness);
-                foreach (var tilePos in newTilePositions)
+                var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(newTilePosition, tileGridThickness);
+                foreach (var tilePosition in newTilePositions)
                 {
-                    if (_serverTileMap.Contains(tilePos))
+                    if (_serverTileMap.Contains(tilePosition))
                         continue;
 
-                    _tileTaskScheduler.QueueForLoad(tilePos);
+                    _tileTaskScheduler.QueueForLoad(tilePosition);
                 }
 
-                _currentTilePosition = newTilePos;
+                _currentTilePosition = newTilePosition;
             }
         }
 
@@ -202,6 +205,31 @@ namespace Tiles
                     }
                     idx++;
                 }
+            }
+
+            var entitiesToSave = new List<EntityData>[ChunkLayer.TotalChunkLayers];
+            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
+                entitiesToSave[i] = new List<EntityData>();
+            foreach (var entity in _entityManager.Entities.Values)
+            {
+                var entityPosition = entity.transform.position;
+                if (TileHelpers.GetTilePositionFromWorldPosition(entityPosition) == tileSaveTask.Tile.Position)
+                {
+                    entitiesToSave[(int) entity.chunkLayerType].Add(new EntityData
+                    {
+                        x = entityPosition.x,
+                        y = entityPosition.y,
+                        id = entity.id,
+                        chunkLayer = (int) entity.chunkLayerType,
+                        resourceName = entity.ResourceName
+                    });
+                }
+            }
+
+            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
+            {
+                if (tileSaveTask.TileData != null)
+                    tileSaveTask.TileData.Value.entities[i] = entitiesToSave[i].ToArray();
             }
         }
 
@@ -256,6 +284,22 @@ namespace Tiles
                     idx++;
                 }
             }
+
+            if (tileTask.TileData != null)
+            {
+                foreach (var entityLayer in tileTask.TileData.Value.entities)
+                {
+                    foreach (var entityData in entityLayer)
+                    {
+                        var entityObject = Instantiate((GameObject) Resources.Load(entityData.resourceName), _entityManager.transform, true);
+                        entityObject.transform.position = new Vector2(entityData.x, entityData.y);
+                        var entity = entityObject.GetComponent<Entity>();
+                        entity.id = entityData.id;
+                        entity.SetChunkLayerType((ChunkLayerType) entityData.chunkLayer);
+                        _entityManager.Entities.Add(entity.id, entity);
+                    }
+                }
+            }
         }
 
         private static ChunkClient CreateClientChunk(GameObjectPool chunkPool, ChunkServer chunkServer)
@@ -277,13 +321,13 @@ namespace Tiles
             return clientChunk;
         }
 
-        public ChunkServer GetChunk(Vector2i position, ChunkLayer.ChunkLayerType layerType)
+        public ChunkServer GetChunk(Vector2i position, ChunkLayerType layerType)
         {
             var chunkMap = _chunkLayers[(int) layerType].ServerChunkMap;
             return chunkMap.Contains(position) ? chunkMap[position] : null;
         }
 
-        public void QueueChunkForReload(Vector2i chunkPosition, ChunkLayer.ChunkLayerType layerType)
+        public void QueueChunkForReload(Vector2i chunkPosition, ChunkLayerType layerType)
         {
             _chunkLayers[(int) layerType].QueueChunkForReload(chunkPosition);
         }

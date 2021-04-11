@@ -11,7 +11,7 @@ namespace Entities
 {
     public class EntityManager : MonoBehaviour
     {
-        private Dictionary<long, Entity> _entities = new Dictionary<long, Entity>();
+        public readonly Dictionary<long, Entity> Entities = new Dictionary<long, Entity>();
 
         private WorldManager _worldManager;
 
@@ -77,29 +77,12 @@ namespace Entities
 
         public void BlitStaticEntities()
         {
-            foreach (var entity in _entities.Values)
+            foreach (var entity in Entities.Values)
             {
                 if (entity.dynamic)
                     continue;
                 BlitEntity(entity);
             }
-        }
-
-        public void EntityAwake(Entity entity)
-        {
-            // assign this entity Unique Id that will be transmitted to blocks when they are put in the grid
-            entity.id = UniqueIdGenerator.Next();
-
-            _entities.Add(entity.id, entity);
-
-            // add the block grid snapping script
-            var snap = entity.gameObject.AddComponent<EntitySnap>();
-            snap.enabled = true;
-        }
-
-        private void EntityDestroyed(Entity childEntity)
-        {
-            _entities.Remove(childEntity.id);
         }
     }
 }

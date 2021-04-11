@@ -6,5 +6,6 @@ namespace Serialized
     public struct TileData
     {
         public BlockData[][] chunkLayers;
+        public EntityData[][] entities;
     }
 }

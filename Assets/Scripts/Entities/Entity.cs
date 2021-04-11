@@ -1,17 +1,22 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using Blocks;
 using Chunks;
+using Tools;
 using Tools.BlockMapper;
 using UnityEditor;
 using UnityEngine;
+using Utils;
 
 namespace Entities
 {
     public class Entity : MonoBehaviour
     {
         public long id;
+
+        public string ResourceName;
 
         [HideInInspector]
         public float texelSize;
@@ -22,7 +27,8 @@ namespace Entities
         [HideInInspector]
         public int[] blockTypes;
 
-        public ChunkLayer.ChunkLayerType chunkLayerType;
+        [HideInInspector]
+        public ChunkLayerType chunkLayerType;
         public bool dynamic;
         public bool generateCollider;
         public bool enableBlockMap;
@@ -48,14 +54,15 @@ namespace Entities
                 InitializeBlocks();
             }
 
-            if (gameObject.transform.parent == null)
+            if (transform.parent == null)
             {
                 var entityManager = GameObject.Find("EntityManager");
                 if (entityManager)
-                    gameObject.transform.parent = entityManager.transform;
+                    transform.parent = entityManager.transform;
+                // assign this entity Unique Id that will be transmitted to blocks when they are put in the grid
+                id = UniqueIdGenerator.Next();
+                entityManager.GetComponent<EntityManager>().Entities.Add(id, this);
             }
-            if (gameObject.transform.parent != null)
-                gameObject.transform.parent.SendMessage("EntityAwake", this);
         }
 
         private void FixedUpdate()
@@ -88,7 +95,7 @@ namespace Entities
                 sprite.pixelsPerUnit,
                 0,
                 SpriteMeshType.FullRect);
-            blockMapObject.layer = transform.gameObject.layer;
+            blockMapObject.layer = gameObject.layer;
             _blockMap = blockMapObject.GetComponent<BlockMap>();
             _blockMap.entity = this;
             blockMapObject.SetActive(true);
@@ -160,20 +167,34 @@ namespace Entities
             a = color.a;
         }
 
-        private void EntityAwake(Entity childEntity)
+        public void SetChunkLayerType(ChunkLayerType layerType)
         {
-        }
-
-        private void EntityDestroyed(Entity childEntity)
-        {
+            if (chunkLayerType == layerType)
+                return;
+            chunkLayerType = layerType;
+            spriteRenderer = spriteRenderer == null ? GetComponent<SpriteRenderer>() : spriteRenderer;
+            switch (layerType)
+            {
+                case ChunkLayerType.Foreground:
+                    spriteRenderer.sortingLayerName = "ForegroundEntities";
+                    break;
+                case ChunkLayerType.Background:
+                    spriteRenderer.sortingLayerName = "BackgroundEntities";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         private void OnDestroy()
         {
             if (enableBlockMap)
                 SaveBlocks();
-            if (gameObject.transform.parent != null && gameObject.transform.parent.gameObject.activeSelf)
-                gameObject.transform.parent.SendMessage("EntityDestroyed", this);
+            if (transform.parent != null)
+            {
+                var entityManager = transform.parent.GetComponent<EntityManager>();
+                entityManager.Entities.Remove(id);
+            }
         }
     }
 }

@@ -35,17 +35,17 @@ namespace Tiles.Tasks
             }
         }
 
-        public TileLoadTask QueueForLoad(Vector2i pos)
+        public TileLoadTask QueueForLoad(Vector2i position)
         {
-            if (_tileTaskManagers[TileTaskTypes.Load].Pending(pos)) // chunk is already being loaded or queued for loading
+            if (_tileTaskManagers[TileTaskTypes.Load].Pending(position)) // chunk is already being loaded or queued for loading
                 return null;
-            if (_tileTaskManagers[TileTaskTypes.Save].Pending(pos)) // chunk is being saved or queued for saving
+            if (_tileTaskManagers[TileTaskTypes.Save].Pending(position)) // chunk is being saved or queued for saving
             {
                 // if it was queued we have a chance to remove it so that we don't take the time to save before loading
-                _tileTaskManagers[TileTaskTypes.Save].Cancel(pos);
+                _tileTaskManagers[TileTaskTypes.Save].Cancel(position);
             }
 
-            return (TileLoadTask)_tileTaskManagers[TileTaskTypes.Load].Enqueue(pos);
+            return (TileLoadTask)_tileTaskManagers[TileTaskTypes.Load].Enqueue(position);
         }
 
         public TileSaveTask QueueForSave(Tile tile)

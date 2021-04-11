@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6516158160374733572}
   - component: {fileID: 6516158160374733573}
   - component: {fileID: 1360277533192696065}
+  - component: {fileID: 349222204853299593}
   m_Layer: 0
   m_Name: wheel
   m_TagString: Untagged
@@ -69,7 +70,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -362783085
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 894f8dd40c80047498e949a9ec758cd2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -94,11 +95,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2f11112b6a240dba30c89e37e748ff9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
+  ResourceName: 
   texelSize: 0
   spriteRenderer: {fileID: 0}
   blockTypes: 
+  chunkLayerType: 0
+  dynamic: 0
   generateCollider: 0
   enableBlockMap: 0
+--- !u!114 &349222204853299593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6516158160374733691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a298a2b09414cbbb6c74ad46b4967c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6516158160569112836
 GameObject:
   m_ObjectHideFlags: 0
@@ -110,8 +127,9 @@ GameObject:
   - component: {fileID: 6516158160569112837}
   - component: {fileID: 6516158160569112838}
   - component: {fileID: 4207035248503647789}
+  - component: {fileID: 8118006418130175223}
   m_Layer: 0
-  m_Name: cart
+  m_Name: Cart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -169,8 +187,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -362783085
-  m_SortingLayer: 4
+  m_SortingLayerID: 2101899929
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 4756496f757d7394a94b48fcf45e0b73, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -195,11 +213,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2f11112b6a240dba30c89e37e748ff9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
+  ResourceName: Cart
   texelSize: 0
   spriteRenderer: {fileID: 0}
   blockTypes: 
+  chunkLayerType: 0
+  dynamic: 0
   generateCollider: 0
   enableBlockMap: 0
+--- !u!114 &8118006418130175223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6516158160569112836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a298a2b09414cbbb6c74ad46b4967c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6516158161360718595
 GameObject:
   m_ObjectHideFlags: 0
@@ -211,6 +245,7 @@ GameObject:
   - component: {fileID: 6516158161360718604}
   - component: {fileID: 6516158161360718605}
   - component: {fileID: 884836616161558691}
+  - component: {fileID: 8200936255718166295}
   m_Layer: 0
   m_Name: wheel
   m_TagString: Untagged
@@ -269,7 +304,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -362783085
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 894f8dd40c80047498e949a9ec758cd2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -294,8 +329,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2f11112b6a240dba30c89e37e748ff9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
+  ResourceName: 
   texelSize: 0
   spriteRenderer: {fileID: 0}
   blockTypes: 
+  chunkLayerType: 0
+  dynamic: 0
   generateCollider: 0
   enableBlockMap: 0
+--- !u!114 &8200936255718166295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6516158161360718595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a298a2b09414cbbb6c74ad46b4967c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

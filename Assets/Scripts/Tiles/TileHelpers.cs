@@ -10,40 +10,31 @@ namespace Tiles
         public static readonly string TilesInitialLoadPath = $"{InitialLoadPath()}\\Tiles";
         public static readonly string TilesSavePath = $"{SavePath()}\\Tiles";
 
-        public static IEnumerable<Vector2i> GetTilePositionsAroundCentralTilePosition(Vector2i pos, int gridThickness)
+        public static IEnumerable<Vector2i> GetTilePositionsAroundCentralTilePosition(Vector2i position, int gridThickness)
         {
             for (var y = -gridThickness; y <= gridThickness; y++)
             {
                 for (var x = -gridThickness; x <= gridThickness; x++)
                 {
-                    yield return new Vector2i(pos.x + x, pos.y + y);
+                    yield return new Vector2i(position.x + x, position.y + y);
                 }
             }
         }
 
-        public static Vector2i GetTilePositionFromFlooredWorldPosition(Vector2i pos)
+        public static Vector2i GetTilePositionFromChunkPosition(Vector2i position)
         {
-            int x;
-            int y;
-            if (pos.x < 0)
-            {
-                x = (int) Mathf.Floor((float) pos.x / Tile.HorizontalSize);
-            }
-            else
-            {
-                x = pos.x / Tile.HorizontalSize;
-            }
+            return new Vector2i(
+                (int) Mathf.Floor((float) position.x / Tile.HorizontalSize),
+                (int) Mathf.Floor((float) position.y / Tile.VerticalSize)
+            );
+        }
 
-            if (pos.y < 0)
-            {
-                y = (int) Mathf.Floor((float) pos.y / Tile.VerticalSize);
-            }
-            else
-            {
-                y = pos.y / Tile.VerticalSize;
-            }
-
-            return new Vector2i(x, y);
+        public static Vector2i GetTilePositionFromWorldPosition(Vector2 position)
+        {
+            return new Vector2i(
+                (int) Mathf.Floor((position.x + 0.5f) / Tile.HorizontalSize),
+                (int) Mathf.Floor((position.y + 0.5f) / Tile.VerticalSize)
+            );
         }
     }
 }

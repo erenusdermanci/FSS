@@ -47,7 +47,7 @@ namespace Utils.UnityHelpers
                 0,
                 SpriteMeshType.FullRect);
             obj.layer = _chunkLayer.gameObject.layer;
-            spriteRenderer.sortingLayerName = _chunkLayer.type.ToString();
+            spriteRenderer.sortingLayerName = _chunkLayer.GetChunkSortingLayer();
             var collider = obj.AddComponent<PolygonCollider2D>();
             collider.enabled = false;
             _pooledObjects.Add(obj);

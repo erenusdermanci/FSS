@@ -12,7 +12,8 @@ namespace Tiles.Tasks
         {
             TileData = new TileData
             {
-                chunkLayers = new BlockData[ChunkLayer.TotalChunkLayers][]
+                chunkLayers = new BlockData[ChunkLayer.TotalChunkLayers][],
+                entities = new EntityData[ChunkLayer.TotalChunkLayers][]
             };
 
             for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)

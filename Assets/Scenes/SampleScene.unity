@@ -1139,7 +1139,7 @@ MonoBehaviour:
   globalConfig:
     initialLoadSceneOverride: WorldBuilder
     saveSceneOverride: SampleScene
-    deleteSaveOnExit: 0
+    deleteSaveOnExit: 1
     pauseSimulation: 0
     stepByStep: 0
     outlineChunks: 0

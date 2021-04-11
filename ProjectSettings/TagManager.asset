@@ -48,11 +48,17 @@ TagManager:
   - name: Background
     uniqueID: 3926119195
     locked: 0
+  - name: BackgroundEntities
+    uniqueID: 2334927421
+    locked: 0
   - name: Midground
     uniqueID: 2164711731
     locked: 0
   - name: Foreground
     uniqueID: 3932184211
+    locked: 0
+  - name: ForegroundEntities
+    uniqueID: 2101899929
     locked: 0
   - name: UI
     uniqueID: 512370845

@@ -13,12 +13,6 @@ namespace Chunks
 {
     public class ChunkLayer : MonoBehaviour
     {
-        public enum ChunkLayerType
-        {
-            Foreground,
-            Background
-        }
-
         public static readonly int TotalChunkLayers = Enum.GetValues(typeof(ChunkLayerType)).Length;
 
         public ChunkLayerType type;
@@ -201,5 +195,18 @@ namespace Chunks
         }
 
         #endregion
+
+        public string GetChunkSortingLayer()
+        {
+            switch (type)
+            {
+                case ChunkLayerType.Foreground:
+                    return "Foreground";
+                case ChunkLayerType.Background:
+                    return "Background";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
     }
 }
