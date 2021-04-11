@@ -12,7 +12,8 @@ namespace Tools.BlockMapper
         [HideInInspector]
         public DrawingParameters.DrawingParameters parameters;
 
-        public Entity entity;
+        public GameObject entityToInstanciate;
+        private Entity _entity;
 
         private Vector2i? _lastPointDrawn;
         private Vector2i? _lastPointDrawnForLine;
@@ -21,6 +22,13 @@ namespace Tools.BlockMapper
         private void Awake()
         {
             parameters = GetComponent<DrawingParameters.DrawingParameters>();
+
+            if (entityToInstanciate == null)
+                throw new InvalidOperationException("You must specify an entity to instanciate!");
+
+            var entityObject = Instantiate(entityToInstanciate, new Vector3(0, 0, 0), Quaternion.identity);
+            _entity = entityObject.GetComponent<Entity>();
+            _entity.enableBlockMap = true;
         }
 
         private void Update()
@@ -32,10 +40,10 @@ namespace Tools.BlockMapper
 
             DrawBounds();
 
-            var sprite = entity.spriteRenderer.sprite;
+            var sprite = _entity.spriteRenderer.sprite;
             var blockPosition = new Vector2i(
-                (int) (Mathf.Floor(_mouseWorldPosition.x / entity.texelSize) + sprite.texture.width / 2f),
-                (int) (Mathf.Floor(_mouseWorldPosition.y / entity.texelSize) + sprite.texture.height / 2f)
+                (int) (Mathf.Floor(_mouseWorldPosition.x / _entity.texelSize) + sprite.texture.width / 2f),
+                (int) (Mathf.Floor(_mouseWorldPosition.y / _entity.texelSize) + sprite.texture.height / 2f)
             );
             if (blockPosition.x < 0 || blockPosition.y < 0 || blockPosition.x >= sprite.texture.width || blockPosition.y >= sprite.texture.height)
                 return;
@@ -45,7 +53,7 @@ namespace Tools.BlockMapper
                     UpdateBrush(blockPosition);
                     var texelX = Mathf.Floor(_mouseWorldPosition.x * sprite.pixelsPerUnit);
                     var texelY = Mathf.Floor(_mouseWorldPosition.y * sprite.pixelsPerUnit);
-                    parameters.DrawBrush(texelX, texelY, entity.texelSize);
+                    parameters.DrawBrush(texelX, texelY, _entity.texelSize);
                     break;
                 case DrawingToolType.Fill:
                     UpdateFill(blockPosition);
@@ -53,7 +61,7 @@ namespace Tools.BlockMapper
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            entity.ReloadBlockMap();
+            _entity.ReloadBlockMap();
         }
 
         private void UpdateBrush(Vector2i blockPosition)
@@ -88,11 +96,11 @@ namespace Tools.BlockMapper
 
         private void DrawDebugLine(Vector2i start, Vector2i end, Color32 color)
         {
-            var sprite = entity.spriteRenderer.sprite;
-            var xStart = (start.x - sprite.texture.width / 2f) * entity.texelSize + entity.texelSize / 2f;
-            var yStart = (start.y - sprite.texture.height / 2f) * entity.texelSize + entity.texelSize / 2f;
-            var xEnd = (end.x - sprite.texture.width / 2f) * entity.texelSize + entity.texelSize / 2f;
-            var yEnd = (end.y - sprite.texture.height / 2f) * entity.texelSize + entity.texelSize / 2f;
+            var sprite = _entity.spriteRenderer.sprite;
+            var xStart = (start.x - sprite.texture.width / 2f) * _entity.texelSize + _entity.texelSize / 2f;
+            var yStart = (start.y - sprite.texture.height / 2f) * _entity.texelSize + _entity.texelSize / 2f;
+            var xEnd = (end.x - sprite.texture.width / 2f) * _entity.texelSize + _entity.texelSize / 2f;
+            var yEnd = (end.y - sprite.texture.height / 2f) * _entity.texelSize + _entity.texelSize / 2f;
             Debug.DrawLine(new Vector2(xStart, yStart), new Vector2(xEnd, yEnd), color);
         }
 
@@ -100,15 +108,15 @@ namespace Tools.BlockMapper
         {
             if (Input.GetMouseButtonDown(0))
             {
-                Draw.Fill(blockPosition.x, blockPosition.y, entity.GetBlockType, (i, j) => entity.PutBlockType(i, j, parameters.block));
+                Draw.Fill(blockPosition.x, blockPosition.y, _entity.GetBlockType, (i, j) => _entity.PutBlockType(i, j, parameters.block));
             }
         }
 
         private void DrawBounds()
         {
-            var sprite = entity.spriteRenderer.sprite;
-            var textureWorldWidth = sprite.texture.width * entity.texelSize;
-            var textureWorldHeight = sprite.texture.height * entity.texelSize;
+            var sprite = _entity.spriteRenderer.sprite;
+            var textureWorldWidth = sprite.texture.width * _entity.texelSize;
+            var textureWorldHeight = sprite.texture.height * _entity.texelSize;
             var x = -textureWorldWidth / 2.0f;
             var y = -textureWorldHeight / 2.0f;
             Debug.DrawLine(new Vector2(x, y), new Vector2(x + textureWorldWidth, y));
@@ -122,10 +130,10 @@ namespace Tools.BlockMapper
             switch (parameters.brush)
             {
                 case DrawingBrushType.Box:
-                    Draw.Rectangle(x, y, parameters.size, parameters.size, (i, j) => entity.PutBlockType(i, j, parameters.block));
+                    Draw.Rectangle(x, y, parameters.size, parameters.size, (i, j) => _entity.PutBlockType(i, j, parameters.block));
                     break;
                 case DrawingBrushType.Circle:
-                    Draw.Circle(x, y, parameters.size, (i, j) => entity.PutBlockType(i, j, parameters.block));
+                    Draw.Circle(x, y, parameters.size, (i, j) => _entity.PutBlockType(i, j, parameters.block));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

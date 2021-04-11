@@ -56,10 +56,12 @@ namespace Entities
             {
                 var entityManager = GameObject.Find("EntityManager");
                 if (entityManager)
+                {
                     transform.parent = entityManager.transform;
-                // assign this entity Unique Id that will be transmitted to blocks when they are put in the grid
-                id = UniqueIdGenerator.Next();
-                entityManager.GetComponent<EntityManager>().Entities.Add(id, this);
+                    // assign this entity Unique Id that will be transmitted to blocks when they are put in the grid
+                    id = UniqueIdGenerator.Next();
+                    entityManager.GetComponent<EntityManager>().Entities.Add(id, this);
+                }
             }
         }
 
