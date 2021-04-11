@@ -13,7 +13,6 @@ using Utils;
 using Utils.UnityHelpers;
 using Color = UnityEngine.Color;
 using Helpers = Utils.UnityHelpers.Helpers;
-using Object = UnityEngine.Object;
 
 namespace Tiles
 {
@@ -221,6 +220,7 @@ namespace Tiles
                         y = entityPosition.y,
                         id = entity.id,
                         chunkLayer = (int) entity.chunkLayerType,
+                        dynamic = entity.dynamic,
                         resourceName = entity.ResourceName
                     });
                 }
@@ -291,12 +291,17 @@ namespace Tiles
                 {
                     foreach (var entityData in entityLayer)
                     {
+                        if (!GlobalConfig.StaticGlobalConfig.levelDesignMode && !entityData.dynamic)
+                            continue;
                         var entityObject = Instantiate((GameObject) Resources.Load(entityData.resourceName), _entityManager.transform, true);
                         entityObject.transform.position = new Vector2(entityData.x, entityData.y);
                         var entity = entityObject.GetComponent<Entity>();
                         entity.id = entityData.id;
+                        entity.dynamic = entityData.dynamic;
                         entity.SetChunkLayerType((ChunkLayerType) entityData.chunkLayer);
                         _entityManager.Entities.Add(entity.id, entity);
+                        if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
+                            _entityManager.QueueEntityRemoveFromMap(entity);
                     }
                 }
             }

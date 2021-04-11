@@ -44,6 +44,21 @@ namespace Chunks.Server
             Data.entityIds = new long[totalSize];
         }
 
+        public void FastPutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health,
+            float lifetime, long entityId)
+        {
+            var i = y * Size + x;
+            Data.colors[i * 4] = r;
+            Data.colors[i * 4 + 1] = g;
+            Data.colors[i * 4 + 2] = b;
+            Data.colors[i * 4 + 3] = a;
+            Data.types[i] = type;
+            Data.stateBitsets[i] = states;
+            Data.healths[i] = health;
+            Data.lifetimes[i] = lifetime;
+            Data.entityIds[i] = entityId;
+        }
+
         public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health, float lifetime, long entityId)
         {
             var i = y * Size + x;
@@ -149,6 +164,11 @@ namespace Chunks.Server
             block.Health = Data.healths[blockIndex];
             block.Lifetime = Data.lifetimes[blockIndex];
             block.EntityId = Data.entityIds[blockIndex];
+        }
+
+        public long GetBlockEntityId(int blockIndex)
+        {
+            return Data.entityIds[blockIndex];
         }
 
         public void SetBlockStates(int x, int y, int states)

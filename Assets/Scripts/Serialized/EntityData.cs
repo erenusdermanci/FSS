@@ -9,6 +9,7 @@ namespace Serialized
         public float y;
         public long id;
         public int chunkLayer;
+        public bool dynamic;
         public string resourceName;
     }
 }

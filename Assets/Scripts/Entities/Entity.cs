@@ -4,7 +4,6 @@ using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using Blocks;
 using Chunks;
-using Tools;
 using Tools.BlockMapper;
 using UnityEditor;
 using UnityEngine;
@@ -30,7 +29,6 @@ namespace Entities
         [HideInInspector]
         public ChunkLayerType chunkLayerType;
         public bool dynamic;
-        public bool generateCollider;
         public bool enableBlockMap;
 
         private BlockMap _blockMap;
