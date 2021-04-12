@@ -21,12 +21,14 @@ namespace Entities
         protected virtual void Awake()
         {
             Collider = gameObject.GetComponent<Collider2D>();
-            if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
+            if (Collider != null)
             {
-                if (Collider != null)
+                if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
                 {
                     Collider.enabled = false;
-                    gameObject.GetComponent<Rigidbody2D>().isKinematic = true;
+                    var rigidBody = gameObject.GetComponent<Rigidbody2D>();
+                    if (rigidBody != null)
+                        rigidBody.simulated = false;
                 }
             }
         }
