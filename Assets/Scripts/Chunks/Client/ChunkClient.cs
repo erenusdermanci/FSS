@@ -9,6 +9,7 @@ namespace Chunks.Client
         public PolygonCollider2D Collider = null;
         public byte[] Colors;
         public int[] Types;
+        public long[] EntityIds;
 
         public void UpdateTexture()
         {

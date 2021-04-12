@@ -45,12 +45,9 @@ namespace Entities
             var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - w / 2;
             var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - h / 2;
             Draw.Rectangle(w / 2, h / 2, w, h, (i, j) => PutEntityBlock(entity, i, j, x, y));
-
-            // hide the sprite so we see the blocks in the grid
-            entity.GetComponent<SpriteRenderer>().enabled = false;
         }
 
-        private void RemoveEntityFromMap(Entity entity)
+        public void RemoveEntityFromMap(Entity entity)
         {
             var sprite = entity.spriteRenderer.sprite;
             var position = entity.transform.position;
@@ -59,12 +56,9 @@ namespace Entities
             var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - w / 2;
             var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - h / 2;
             Draw.Rectangle(w / 2, h / 2, w, h, (i, j) => RemoveEntityBlock(entity, i, j, x, y));
-
-            // show the sprite so we can move the entity
-            entity.GetComponent<SpriteRenderer>().enabled = true;
         }
 
-        private void RemoveEntityBlock(Entity entity, int entityBlockX, int entityBlockY, int entityWorldX,
+        public void RemoveEntityBlock(Entity entity, int entityBlockX, int entityBlockY, int entityWorldX,
             int entityWorldY)
         {
             var blockType = entity.GetBlockType(entityBlockX, entityBlockY);
@@ -102,7 +96,7 @@ namespace Entities
             _worldManager.QueueChunkForReload(chunk.Position, entity.chunkLayerType);
         }
 
-        private void PutEntityBlock(Entity entity, int entityBlockX, int entityBlockY, int entityWorldX, int entityWorldY)
+        public void PutEntityBlock(Entity entity, int entityBlockX, int entityBlockY, int entityWorldX, int entityWorldY)
         {
             var blockType = entity.GetBlockType(entityBlockX, entityBlockY);
             switch (blockType)

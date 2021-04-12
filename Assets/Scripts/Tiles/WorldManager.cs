@@ -304,7 +304,11 @@ namespace Tiles
                         entity.SetChunkLayerType((ChunkLayerType) entityData.chunkLayer);
                         EntityManager.Entities.Add(entity.id, entity);
                         if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
+                        {
                             EntityManager.QueueEntityRemoveFromMap(entity);
+                            // show the sprite so we can move the entity
+                            entity.spriteRenderer.enabled = true;
+                        }
                     }
                 }
             }
@@ -317,8 +321,9 @@ namespace Tiles
             var clientChunk = new ChunkClient
             {
                 Position = chunkServer.Position,
-                Colors = chunkServer.Data.colors, // pointer on ChunkServer colors,
-                Types = chunkServer.Data.types, // pointer on ChunkServer types,
+                Colors = chunkServer.Data.colors,
+                Types = chunkServer.Data.types,
+                EntityIds = chunkServer.Data.entityIds,
                 GameObject = chunkGameObject,
                 Collider = chunkGameObject.GetComponent<PolygonCollider2D>(),
                 Texture = chunkGameObject.GetComponent<SpriteRenderer>().sprite.texture

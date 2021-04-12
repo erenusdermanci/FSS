@@ -4,10 +4,12 @@ using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using Blocks;
 using Chunks;
+using Tools;
 using Tools.BlockMapper;
 using UnityEditor;
 using UnityEngine;
 using Utils;
+using Utils.Drawing;
 
 namespace Entities
 {
@@ -35,6 +37,10 @@ namespace Entities
         private BlockMap _blockMap;
         private string _blocksFilePath;
 
+        private EntityManager _entityManager;
+
+        private Vector2 _oldPosition;
+
         protected override void Awake()
         {
             base.Awake();
@@ -57,20 +63,44 @@ namespace Entities
 
             if (transform.parent == null)
             {
-                var entityManager = GameObject.Find("EntityManager");
-                if (entityManager)
+                var entityManagerObject = GameObject.Find("EntityManager");
+                if (entityManagerObject)
                 {
-                    transform.parent = entityManager.transform;
+                    transform.parent = entityManagerObject.transform;
                     // assign this entity Unique Id that will be transmitted to blocks when they are put in the grid
                     id = UniqueIdGenerator.Next();
-                    entityManager.GetComponent<EntityManager>().Entities.Add(id, this);
+                    _entityManager = entityManagerObject.GetComponent<EntityManager>();
+                    _entityManager.Entities.Add(id, this);
                 }
+            }
+            else
+            {
+                _entityManager = transform.parent.GetComponent<EntityManager>();
+            }
+
+            _oldPosition = transform.position;
+
+            if (!GlobalConfig.StaticGlobalConfig.levelDesignMode)
+            {
+                spriteRenderer.enabled = false;
             }
         }
 
         protected override void FixedUpdate()
         {
             base.FixedUpdate();
+
+            if (!GlobalConfig.StaticGlobalConfig.levelDesignMode && dynamic)
+            {
+                Vector2 newPosition = transform.position;
+                if (!_oldPosition.Equals(newPosition))
+                {
+                    RemoveFromMap(_oldPosition);
+                    BlitIntoMap(newPosition);
+                }
+
+                _oldPosition = newPosition;
+            }
 
             if (enableBlockMap && _blockMap == null)
                 CreateBlockMap();
@@ -79,6 +109,26 @@ namespace Entities
                 Destroy(_blockMap.gameObject);
                 _blockMap = null;
             }
+        }
+
+        private void BlitIntoMap(Vector2 position)
+        {
+            var sprite = spriteRenderer.sprite;
+            var w = sprite.texture.width;
+            var h = sprite.texture.height;
+            var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - w / 2;
+            var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - h / 2;
+            Draw.Rectangle(w / 2, h / 2, w, h, (i, j) => _entityManager.PutEntityBlock(this, i, j, x, y));
+        }
+
+        private void RemoveFromMap(Vector2 position)
+        {
+            var sprite = spriteRenderer.sprite;
+            var w = sprite.texture.width;
+            var h = sprite.texture.height;
+            var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - w / 2;
+            var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - h / 2;
+            Draw.Rectangle(w / 2, h / 2, w, h, (i, j) => _entityManager.RemoveEntityBlock(this, i, j, x, y));
         }
 
         private void CreateBlockMap()
@@ -195,10 +245,9 @@ namespace Entities
         {
             if (enableBlockMap)
                 SaveBlocks();
-            if (transform.parent != null)
+            if (transform.parent != null && _entityManager != null)
             {
-                var entityManager = transform.parent.GetComponent<EntityManager>();
-                entityManager.Entities.Remove(id);
+                _entityManager.Entities.Remove(id);
             }
         }
     }

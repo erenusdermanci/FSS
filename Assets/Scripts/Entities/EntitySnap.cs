@@ -8,7 +8,12 @@ namespace Entities
     {
         private const float GridUnitSize = 1f / Chunk.Size;
 
-        private void Update()
+        private void Awake()
+        {
+            SnapToGrid();
+        }
+
+        private void FixedUpdate()
         {
             SnapToGrid();
         }

@@ -10,19 +10,19 @@ namespace Chunks.Collision
     {
         public static List<List<Vector2i>> ComputeChunkColliders(ChunkClient chunk)
         {
-            return ComputeChunkColliders(chunk.Types);
+            return ComputeChunkColliders(chunk.Types, chunk.EntityIds);
         }
 
-        private static List<List<Vector2i>> ComputeChunkColliders(int[] grid)
+        private static List<List<Vector2i>> ComputeChunkColliders(int[] types, long[] entityIds)
         {
-            GenerateLines(grid,
+            GenerateLines(types, entityIds,
                 out var horizontalLines,
                 out var verticalLines);
 
             return GenerateColliders(horizontalLines, verticalLines);
         }
 
-        private static void GenerateLines(int[] grid,
+        private static void GenerateLines(int[] types, long[] entityIds,
             out Dictionary<Vector2i, Vector2i> horizontalLines,
             out Dictionary<Vector2i, Vector2i> verticalLines)
         {
@@ -38,7 +38,7 @@ namespace Chunks.Collision
             {
                 for (var x = 0; x < Chunk.Size; ++x) // columns
                 {
-                    if (IsSolid(grid[y * Chunk.Size + x]))
+                    if (Collides(y * Chunk.Size + x, types, entityIds))
                     {
                         // Check left neighbour
                         if (x == 0)
@@ -47,7 +47,7 @@ namespace Chunks.Collision
                             ref tmpReversedVerticalLines,
                             ref tmpVerticalLines);
                         }
-                        else if (!IsSolid(grid[y * Chunk.Size + (x - 1)]))
+                        else if (!Collides(y * Chunk.Size + (x - 1), types, entityIds))
                         {
                             ExtendExistingOrAdd(new Vector2i(x, y), new Vector2i(x, y + 1),
                             ref tmpReversedVerticalLines,
@@ -61,7 +61,7 @@ namespace Chunks.Collision
                             ref tmpReversedVerticalLines,
                             ref tmpVerticalLines);
                         }
-                        else if (!IsSolid(grid[y * Chunk.Size + x + 1]))
+                        else if (!Collides(y * Chunk.Size + x + 1, types, entityIds))
                         {
                             ExtendExistingOrAdd(new Vector2i(x + 1, y), new Vector2i(x + 1, y + 1),
                             ref tmpReversedVerticalLines,
@@ -75,7 +75,7 @@ namespace Chunks.Collision
                             ref tmpReversedHorizontalLines,
                             ref tmpHorizontalLines);
                         }
-                        else if (!IsSolid(grid[(y - 1) * Chunk.Size + x]))
+                        else if (!Collides((y - 1) * Chunk.Size + x, types, entityIds))
                         {
                             ExtendExistingOrAdd(new Vector2i(x, y), new Vector2i(x + 1, y),
                             ref tmpReversedHorizontalLines,
@@ -89,7 +89,7 @@ namespace Chunks.Collision
                             ref tmpReversedHorizontalLines,
                             ref tmpHorizontalLines);
                         }
-                        else if (!IsSolid(grid[(y + 1) * Chunk.Size + x]))
+                        else if (!Collides((y + 1) * Chunk.Size + x, types, entityIds))
                         {
                             ExtendExistingOrAdd(new Vector2i(x, y + 1), new Vector2i(x + 1, y + 1),
                             ref tmpReversedHorizontalLines,
@@ -149,10 +149,11 @@ namespace Chunks.Collision
             return colliderLists;
         }
 
-        private static bool IsSolid(int type)
+        private static bool Collides(int index, int[] types, long[] entityIds)
         {
-            var isSolid = BlockConstants.BlockDescriptors[type].Tag == BlockTags.Solid;
-            return isSolid;
+            if (entityIds[index] != 0)
+                return false;
+            return BlockConstants.BlockDescriptors[types[index]].Tag == BlockTags.Solid;
         }
 
         private static void ExtendExistingOrAdd(Vector2i start, Vector2i end,
