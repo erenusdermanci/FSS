@@ -10,6 +10,7 @@ namespace Serialized
         public long id;
         public int chunkLayer;
         public bool dynamic;
+        public bool generateCollider;
         public string resourceName;
     }
 }

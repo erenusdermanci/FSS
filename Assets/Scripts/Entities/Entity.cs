@@ -11,7 +11,7 @@ using Utils;
 
 namespace Entities
 {
-    public class Entity : MonoBehaviour
+    public class Entity : Collidable
     {
         public long id;
 
@@ -29,13 +29,16 @@ namespace Entities
         [HideInInspector]
         public ChunkLayerType chunkLayerType;
         public bool dynamic;
+        public bool generateCollider;
         public bool enableBlockMap;
 
         private BlockMap _blockMap;
         private string _blocksFilePath;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+
             spriteRenderer = GetComponent<SpriteRenderer>();
             var sprite = spriteRenderer.sprite;
             texelSize = 1.0f / sprite.pixelsPerUnit;
@@ -65,8 +68,10 @@ namespace Entities
             }
         }
 
-        private void FixedUpdate()
+        protected override void FixedUpdate()
         {
+            base.FixedUpdate();
+
             if (enableBlockMap && _blockMap == null)
                 CreateBlockMap();
             else if (_blockMap != null && !enableBlockMap)

@@ -24,11 +24,9 @@ namespace Tiles
 
         private TileTaskScheduler _tileTaskScheduler;
 
-        private ChunkLayer[] _chunkLayers;
+        public ChunkLayer[] ChunkLayers { get; private set; }
 
         public static int UpdatedFlag;
-
-        private UpdatedGameObject _player;
 
         private Camera _mainCamera;
         public static Vector3 MainCameraPosition = Vector3.zero;
@@ -43,13 +41,13 @@ namespace Tiles
         [NonSerialized]
         public ClientCollisionManager CollisionManager;
 
-        private EntityManager _entityManager;
+        public EntityManager EntityManager { get; private set; }
 
         private void Awake()
         {
-            _chunkLayers = transform.GetComponentsInChildren<ChunkLayer>();
+            ChunkLayers = transform.GetComponentsInChildren<ChunkLayer>();
 
-            _entityManager = transform.GetComponentInChildren<EntityManager>();
+            EntityManager = transform.GetComponentInChildren<EntityManager>();
 
             _tileTaskScheduler = new TileTaskScheduler();
             _chunkPools = new GameObjectPool[ChunkLayer.TotalChunkLayers];
@@ -57,18 +55,11 @@ namespace Tiles
             _maxLoadedTiles = (2 * tileGridThickness + 1) * (2 * tileGridThickness + 1);
             for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
             {
-                _chunkPools[i] = new GameObjectPool(_chunkLayers[i],
+                _chunkPools[i] = new GameObjectPool(ChunkLayers[i],
                     Tile.TotalSize * _maxLoadedTiles);
             }
 
-            CollisionManager = new ClientCollisionManager(_chunkLayers[(int) ChunkLayerType.Foreground]);
-
-            var playerGameObject = GameObject.Find("Player");
-            if (playerGameObject)
-            {
-                _player = new UpdatedGameObject(GameObject.Find("Player"));
-                CollisionManager.gameObjectsToUpdate.Add(_player);
-            }
+            CollisionManager = new ClientCollisionManager(this);
         }
 
         private void Start()
@@ -180,10 +171,10 @@ namespace Tiles
             {
                 foreach (var position in tile.GetChunkPositions())
                 {
-                    if (_chunkLayers[i].chunkSimulator != null)
+                    if (ChunkLayers[i].chunkSimulator != null)
                     {
-                        var chunk = _chunkLayers[i].ServerChunkMap[position];
-                        _chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, false);
+                        var chunk = ChunkLayers[i].ServerChunkMap[position];
+                        ChunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, false);
                     }
                 }
             }
@@ -196,9 +187,9 @@ namespace Tiles
                 var idx = 0;
                 foreach (var position in tileSaveTask.Tile.GetChunkPositions())
                 {
-                    if (_chunkLayers[i].ServerChunkMap.Contains(position))
+                    if (ChunkLayers[i].ServerChunkMap.Contains(position))
                     {
-                        var chunkToSave = _chunkLayers[i].ServerChunkMap[position];
+                        var chunkToSave = ChunkLayers[i].ServerChunkMap[position];
                         if (tileSaveTask.TileData != null && chunkToSave != null)
                             tileSaveTask.TileData.Value.chunkLayers[i][idx] = chunkToSave.Data;
                     }
@@ -209,7 +200,8 @@ namespace Tiles
             var entitiesToSave = new List<EntityData>[ChunkLayer.TotalChunkLayers];
             for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
                 entitiesToSave[i] = new List<EntityData>();
-            foreach (var entity in _entityManager.Entities.Values)
+            var entitiesToDestroy = new List<Entity>();
+            foreach (var entity in EntityManager.Entities.Values)
             {
                 var entityPosition = entity.transform.position;
                 if (TileHelpers.GetTilePositionFromWorldPosition(entityPosition) == tileSaveTask.Tile.Position)
@@ -221,10 +213,15 @@ namespace Tiles
                         id = entity.id,
                         chunkLayer = (int) entity.chunkLayerType,
                         dynamic = entity.dynamic,
+                        generateCollider = entity.generateCollider,
                         resourceName = entity.ResourceName
                     });
+                    entitiesToDestroy.Add(entity);
                 }
             }
+
+            foreach (var entity in entitiesToDestroy)
+                Destroy(entity.gameObject);
 
             for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
             {
@@ -241,13 +238,13 @@ namespace Tiles
             {
                 foreach (var position in tileTask.Tile.GetChunkPositions())
                 {
-                    var serverChunk = _chunkLayers[i].ServerChunkMap[position];
+                    var serverChunk = ChunkLayers[i].ServerChunkMap[position];
                     serverChunk?.Dispose();
-                    _chunkLayers[i].ServerChunkMap.Remove(position);
+                    ChunkLayers[i].ServerChunkMap.Remove(position);
 
-                    var clientChunk = _chunkLayers[i].ClientChunkMap[position];
+                    var clientChunk = ChunkLayers[i].ClientChunkMap[position];
                     clientChunk?.Dispose();
-                    _chunkLayers[i].ClientChunkMap.Remove(position);
+                    ChunkLayers[i].ClientChunkMap.Remove(position);
                 }
             }
 
@@ -276,11 +273,11 @@ namespace Tiles
                         chunk.Initialize();
                         chunk.GenerateEmpty();
                     }
-                    _chunkLayers[i].ServerChunkMap.Add(chunk);
-                    if (_chunkLayers[i].chunkSimulator != null)
-                        _chunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, true);
+                    ChunkLayers[i].ServerChunkMap.Add(chunk);
+                    if (ChunkLayers[i].chunkSimulator != null)
+                        ChunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, true);
 
-                    _chunkLayers[i].ClientChunkMap.Add(CreateClientChunk(_chunkPools[i], chunk));
+                    ChunkLayers[i].ClientChunkMap.Add(CreateClientChunk(_chunkPools[i], chunk));
                     idx++;
                 }
             }
@@ -293,15 +290,16 @@ namespace Tiles
                     {
                         if (!GlobalConfig.StaticGlobalConfig.levelDesignMode && !entityData.dynamic)
                             continue;
-                        var entityObject = Instantiate((GameObject) Resources.Load(entityData.resourceName), _entityManager.transform, true);
+                        var entityObject = Instantiate((GameObject) Resources.Load(entityData.resourceName), EntityManager.transform, true);
                         entityObject.transform.position = new Vector2(entityData.x, entityData.y);
                         var entity = entityObject.GetComponent<Entity>();
                         entity.id = entityData.id;
                         entity.dynamic = entityData.dynamic;
+                        entity.generateCollider = entityData.generateCollider;
                         entity.SetChunkLayerType((ChunkLayerType) entityData.chunkLayer);
-                        _entityManager.Entities.Add(entity.id, entity);
+                        EntityManager.Entities.Add(entity.id, entity);
                         if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
-                            _entityManager.QueueEntityRemoveFromMap(entity);
+                            EntityManager.QueueEntityRemoveFromMap(entity);
                     }
                 }
             }
@@ -328,13 +326,13 @@ namespace Tiles
 
         public ChunkServer GetChunk(Vector2i position, ChunkLayerType layerType)
         {
-            var chunkMap = _chunkLayers[(int) layerType].ServerChunkMap;
+            var chunkMap = ChunkLayers[(int) layerType].ServerChunkMap;
             return chunkMap.Contains(position) ? chunkMap[position] : null;
         }
 
         public void QueueChunkForReload(Vector2i chunkPosition, ChunkLayerType layerType)
         {
-            _chunkLayers[(int) layerType].QueueChunkForReload(chunkPosition);
+            ChunkLayers[(int) layerType].QueueChunkForReload(chunkPosition);
         }
 
         private static void DisableDirtyRectsChangedEvent(object sender, EventArgs e)
@@ -350,7 +348,7 @@ namespace Tiles
                 _tileTaskScheduler.CancelLoad();
 
                 if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
-                    _entityManager.BlitStaticEntities();
+                    EntityManager.BlitStaticEntities();
 
                 var tiles = _serverTileMap.Tiles().ToList();
                 foreach (var tile in tiles)

@@ -1,8 +1,9 @@
+using Entities;
 using UnityEngine;
 
 namespace Client.Player
 {
-    public class PlayerInput : MonoBehaviour
+    public class PlayerInput : Collidable
     {
         public float playerSpeed;
         public LayerMask groundLayer;
@@ -23,6 +24,11 @@ namespace Client.Player
         private static readonly int Run = Animator.StringToHash("Run");
         private static readonly int Jump = Animator.StringToHash("Jump");
 
+        protected override void Awake()
+        {
+            base.Awake();
+        }
+
         private void Start()
         {
             _animator = GetComponent<Animator>();
@@ -38,8 +44,10 @@ namespace Client.Player
             HandleMovementInput();
         }
 
-        private void FixedUpdate()
+        protected override void FixedUpdate()
         {
+            base.FixedUpdate();
+
             _playerTransform.transform.position += _movement * (_playerCurrentSpeed * Time.deltaTime);
         }
 
