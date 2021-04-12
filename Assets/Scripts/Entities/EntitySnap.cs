@@ -1,4 +1,5 @@
-﻿using Chunks;
+﻿using System;
+using Chunks;
 using UnityEngine;
 
 namespace Entities
@@ -15,9 +16,11 @@ namespace Entities
         private void SnapToGrid()
         {
             var position = transform.position;
-            position = new Vector2(
+            position.Set(
                 Mathf.Round(position.x / GridUnitSize) * GridUnitSize,
-                Mathf.Round(position.y / GridUnitSize) * GridUnitSize);
+                Mathf.Round(position.y / GridUnitSize) * GridUnitSize,
+                0.0f
+            );
             transform.position = position;
         }
     }
