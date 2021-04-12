@@ -97,12 +97,13 @@ namespace Tiles
         private void Update()
         {
             _tileTaskScheduler.Update();
-            CollisionManager.Update();
         }
 
         private void FixedUpdate()
         {
             _mainCamera = Camera.main;
+
+            CollisionManager.Update();
 
             UpdatedFlag++;
 
@@ -277,7 +278,11 @@ namespace Tiles
                     if (ChunkLayers[i].chunkSimulator != null)
                         ChunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, true);
 
-                    ChunkLayers[i].ClientChunkMap.Add(CreateClientChunk(_chunkPools[i], chunk));
+                    var clientChunk = CreateClientChunk(_chunkPools[i], chunk);
+                    ChunkLayers[i].ClientChunkMap.Add(clientChunk);
+
+                    if (i == (int) ChunkLayerType.Foreground)
+                        CollisionManager.QueueChunkCollisionGeneration(clientChunk);
                     idx++;
                 }
             }
