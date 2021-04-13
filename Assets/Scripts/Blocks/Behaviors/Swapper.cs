@@ -28,7 +28,7 @@ namespace Blocks.Behaviors
             return _blockedBy[(int) tag];
         }
 
-        public unsafe bool Execute(Random rng, ChunkServerNeighborhood chunkNeighborhood, int block, int x, int y,
+        public unsafe bool Execute(Random rng, ChunkServerNeighborhood chunkNeighborhood,  ref Block block, int x, int y,
             int* directionX, int* directionY, int* distances, int* bitCount)
         {
             var availableTargets = stackalloc int[4];
@@ -56,7 +56,7 @@ namespace Blocks.Behaviors
                     var directionIdx = _priorities[i + (loopStart + k) % loopRange];
 
                     // we need to check our possible movements in this direction
-                    if (!FillAvailableTargets(chunkNeighborhood, x, y, block, directionIdx, directionX,
+                    if (!FillAvailableTargets(chunkNeighborhood, x, y, ref block, directionIdx, directionX,
                         directionY, availableTargets, targetBlocks))
                         continue; // we found no targets, check other direction
 
@@ -96,14 +96,14 @@ namespace Blocks.Behaviors
                     return chunkNeighborhood.MoveBlock(x, y,
                         distance * directionX[directionIdx],
                         distance * directionY[directionIdx],
-                        block, targetBlocks[distance - 1]);
+                        ref block, targetBlocks[distance - 1]);
                 }
             }
 
             return false;
         }
 
-        private unsafe bool FillAvailableTargets(ChunkServerNeighborhood chunkNeighborhood, int x, int y, int block, int directionIdx,
+        private unsafe bool FillAvailableTargets(ChunkServerNeighborhood chunkNeighborhood, int x, int y,  ref Block block, int directionIdx,
             int* directionX, int* directionY, int* availableTargets, int* targetBlocks)
         {
             var targetsFound = false;
@@ -121,7 +121,7 @@ namespace Blocks.Behaviors
                 // density logic check
                 // when swapping vertically, we need to make sure the blocks respect density rules
                 var densityDiff = BlockConstants.BlockDescriptors[targetBlocks[j]].DensityPriority -
-                                  BlockConstants.BlockDescriptors[block].DensityPriority;
+                                  BlockConstants.BlockDescriptors[block.type].DensityPriority;
 
                 // same density value, should not swap with same block
                 if (densityDiff == 0f)
@@ -138,7 +138,7 @@ namespace Blocks.Behaviors
                     }
                     else
                     {
-                        if (block != upBlock)
+                        if (block.type != upBlock)
                             continue;
                     }
                 }

@@ -179,7 +179,7 @@ namespace Chunks.Server
             }
             if (!destroyed && blockLogic.Swapper != null)
             {
-                dirtied |= blockLogic.Swapper.Execute(_rng, ChunkNeighborhood, block.type, x, y, directionX, directionY,
+                dirtied |= blockLogic.Swapper.Execute(_rng, ChunkNeighborhood, ref block, x, y, directionX, directionY,
                     distances, bitCount);
             }
 

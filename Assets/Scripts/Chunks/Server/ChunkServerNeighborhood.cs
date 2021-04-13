@@ -60,7 +60,7 @@ namespace Chunks.Server
             UpdateAdjacentBlockDirty(x, y);
         }
 
-        public unsafe bool MoveBlock(int x, int y, int xOffset, int yOffset, int srcBlockType, int destBlockType)
+        public unsafe bool MoveBlock(int x, int y, int xOffset, int yOffset,  ref Block srcBlock, int destBlockType)
         {
             // compute the new coordinates and chunk index if we go outside of the current chunk
             var ux = x + xOffset;
@@ -85,8 +85,7 @@ namespace Chunks.Server
             var destBlock = newChunk.Blocks[dstIndex]; // makes a copy of this block
 
             var centralChunk = Chunks[CentralChunkIndex];
-            ref var srcBlock = ref centralChunk.Blocks[srcIndex];
-            newChunk.PutBlock(ux, uy, srcBlockType,
+            newChunk.PutBlock(ux, uy, srcBlock.type,
                 centralChunk.Colors[srcIndex * 4],
                 centralChunk.Colors[srcIndex * 4 + 1],
                 centralChunk.Colors[srcIndex * 4 + 2],
