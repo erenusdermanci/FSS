@@ -44,11 +44,11 @@ namespace Blocks.Behaviors
             _rootType = rootType;
         }
 
-        public bool Execute(Random rng, ChunkServerNeighborhood chunkNeighborhood, Block block, int x, int y)
+        public bool Execute(Random rng, ChunkServerNeighborhood chunkNeighborhood, ref Block block, int x, int y)
         {
-            ref var self = ref chunkNeighborhood.GetCentralChunk().GetPlantBlockData(x, y, block.Type);
+            ref var self = ref chunkNeighborhood.GetCentralChunk().GetPlantBlockData(x, y, block.type);
             if (self.id == 0)
-                self.Reset(block.Type, UniqueIdGenerator.Next());
+                self.Reset(block.type, UniqueIdGenerator.Next());
 
             self.ticksBeforeGrowth--;
 
@@ -117,11 +117,11 @@ namespace Blocks.Behaviors
             var nx = x + (int) gx;
             var ny = y + (int) gy;
             var targetBlockType = chunkNeighborhood.GetBlockType(nx, ny);
-            if (CanGrowInto(targetBlockType) || targetBlockType == block.Type)
+            if (CanGrowInto(targetBlockType) || targetBlockType == block.type)
             {
-                chunkNeighborhood.ReplaceBlock(nx, ny, block.Type, block.StateBitset, block.Health, block.Lifetime, block.EntityId);
-                ref var newBlock = ref chunkNeighborhood.GetPlantBlockData(nx, ny, block.Type);
-                newBlock.Reset(block.Type, self.id);
+                chunkNeighborhood.ReplaceBlock(nx, ny, block.type, block.states, block.health, block.lifetime, block.entityId);
+                ref var newBlock = ref chunkNeighborhood.GetPlantBlockData(nx, ny, block.type);
+                newBlock.Reset(block.type, self.id);
                 newBlock.ticksBeforeGrowth = rng.Next(_minimumTicksBeforeGrowth, _maximumTickBeforeGrowth + 1);
                 newBlock.xGrowthDirection = newXGrowthDirection;
                 newBlock.yGrowthDirection = newYGrowthDirection;

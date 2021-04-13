@@ -106,19 +106,18 @@ namespace Tools.DrawingTool
             var blockXInChunk = Helpers.Mod((int) worldX, Chunk.Size);
             var blockYInChunk = Helpers.Mod((int) worldY, Chunk.Size);
             var blockIndexInChunk = blockYInChunk * Chunk.Size + blockXInChunk;
-            var blockInfo = new Block();
-            chunk.GetBlockInfo(blockIndexInChunk, ref blockInfo);
-            var r = chunk.Data.colors[blockIndexInChunk * 4];
-            var g = chunk.Data.colors[blockIndexInChunk * 4 + 1];
-            var b = chunk.Data.colors[blockIndexInChunk * 4 + 2];
-            var a = chunk.Data.colors[blockIndexInChunk * 4 + 3];
+            ref var block = ref chunk.GetBlockInfo(blockIndexInChunk);
+            var r = chunk.Colors[blockIndexInChunk * 4];
+            var g = chunk.Colors[blockIndexInChunk * 4 + 1];
+            var b = chunk.Colors[blockIndexInChunk * 4 + 2];
+            var a = chunk.Colors[blockIndexInChunk * 4 + 3];
 
             uiCoordText.text =
                 $"X: {blockXInChunk}, Y: {blockYInChunk}\n"
-                + $"Type: {BlockConstants.BlockNames[blockInfo.Type]}\n"
-                + $"StateBitset: {blockInfo.StateBitset}\n"
-                + $"Health: {blockInfo.Health}\n"
-                + $"Lifetime: {blockInfo.Lifetime}\n"
+                + $"Type: {BlockConstants.BlockNames[block.type]}\n"
+                + $"StateBitset: {block.states}\n"
+                + $"Health: {block.health}\n"
+                + $"Lifetime: {block.lifetime}\n"
                 + $"UpdatedFlag: {chunk.BlockUpdatedFlags[blockIndexInChunk]}\n"
                 + $"Color: [{r},{g},{b},{a}]\n"
                 + $"Chunk X:{chunk.Position.x}, Chunk Y: {chunk.Position.y}\n"
@@ -243,10 +242,10 @@ namespace Tools.DrawingTool
             if (colorizeOnly)
             {
                 var i = blockYInChunk * Chunk.Size + blockXInChunk;
-                chunk.Data.colors[i * 4] = (byte)(pixelColorOverride.r / ((int) _currentLayer + 1.0f));
-                chunk.Data.colors[i * 4 + 1] = (byte)(pixelColorOverride.g / ((int) _currentLayer + 1.0f));
-                chunk.Data.colors[i * 4 + 2] = (byte)(pixelColorOverride.b / ((int) _currentLayer + 1.0f));
-                chunk.Data.colors[i * 4 + 3] = pixelColorOverride.a;
+                chunk.Colors[i * 4] = (byte)(pixelColorOverride.r / ((int) _currentLayer + 1.0f));
+                chunk.Colors[i * 4 + 1] = (byte)(pixelColorOverride.g / ((int) _currentLayer + 1.0f));
+                chunk.Colors[i * 4 + 2] = (byte)(pixelColorOverride.b / ((int) _currentLayer + 1.0f));
+                chunk.Colors[i * 4 + 3] = pixelColorOverride.a;
             }
             else
             {

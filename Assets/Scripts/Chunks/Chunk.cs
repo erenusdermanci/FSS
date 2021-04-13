@@ -1,4 +1,5 @@
 ﻿using System;
+using Blocks;
 using Utils;
 
 namespace Chunks
@@ -10,6 +11,9 @@ namespace Chunks
         public Vector2i Position;
 
         public bool Dirty;
+
+        public byte[] Colors;
+        public Block[] Blocks;
 
         public abstract void Dispose();
     }

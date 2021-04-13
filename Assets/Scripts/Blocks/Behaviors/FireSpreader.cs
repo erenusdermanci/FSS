@@ -1,4 +1,5 @@
 ﻿using System;
+using Chunks;
 using Chunks.Server;
 using Utils;
 
@@ -36,7 +37,7 @@ namespace Blocks.Behaviors
             _destroyedWhenExtinguished = destroyedWhenExtinguished;
         }
 
-        public unsafe bool Execute(Random rng, ChunkServerNeighborhood chunkNeighborhood, Block block, int x, int y, int* directionX,
+        public unsafe bool Execute(Random rng, ChunkServerNeighborhood chunkNeighborhood, ref Block block, int x, int y, int* directionX,
             int* directionY, ref bool destroyed)
         {
             if (!block.GetState((int) BlockStates.Burning))
@@ -44,20 +45,30 @@ namespace Blocks.Behaviors
 
             var dirty = true;
 
-            var neighborBlocks = stackalloc Block[8];
+            var neighborBlocks = stackalloc Block*[8];
             var airNeighborsCount = 0;
             var selfNeighborsCount = 0;
             var lavaNeighborsCount = 0;
 
-            // We need to go through the neighbours of this fire block
+            var chunks = chunkNeighborhood.GetChunks();
             for (var i = 0; i < 8; ++i)
             {
-                var neighborFound = chunkNeighborhood.GetBlockInfo(x + directionX[i], y + directionY[i], ref neighborBlocks[i]);
-
-                if (!neighborFound)
+                var nx = x + directionX[i];
+                var ny = y + directionY[i];
+                ChunkServerNeighborhood.UpdateOutsideChunk(ref nx, ref ny, out var chunkIndex);
+                var chunk = chunks[chunkIndex];
+                if (chunk == null)
+                {
+                    neighborBlocks[i] = null;
                     continue;
+                }
 
-                switch (neighborBlocks[i].Type)
+                fixed (Block *neighborBlock = &chunk.GetBlockInfo(ny * Chunk.Size + nx))
+                {
+                    neighborBlocks[i] = neighborBlock;
+                }
+
+                switch (neighborBlocks[i]->type)
                 {
                     case BlockConstants.Air:
                         airNeighborsCount++;
@@ -69,7 +80,7 @@ namespace Blocks.Behaviors
                         break;
                 }
 
-                if (neighborBlocks[i].Type == block.Type)
+                if (neighborBlocks[i]->type == block.type)
                     selfNeighborsCount++;
             }
 
@@ -85,21 +96,19 @@ namespace Blocks.Behaviors
                     return DestroyBlock(rng, chunkNeighborhood, x, y, ref destroyed);
                 }
 
-                // update state for block
-                chunkNeighborhood.GetCentralChunk().SetBlockStates(x, y, block.StateBitset);
-
                 // reset color of block
                 chunkNeighborhood.GetCentralChunk().SetBlockColor(x, y, _burntColor);
+                chunkNeighborhood.GetCentralChunk().UpdateBlockDirty(x, y, block.type);
             }
             else
             {
                 // now we try to spread
                 for (var i = 0; i < 8; i++)
                 {
-                    switch (neighborBlocks[i].Type)
+                    if (neighborBlocks[i] == null)
+                        continue;
+                    switch (neighborBlocks[i]->type)
                     {
-                        case -1: // there is no neighbour here (chunk doesn't exist)
-                            break;
                         case BlockConstants.Air:
                             // replace Air with CombustionEmissionBlockType
                             if (_emissionPotentialBlocks.Length == 0)
@@ -134,9 +143,9 @@ namespace Blocks.Behaviors
                                 BlockConstants.BlockDescriptors[blockToEmit].BaseHealth, 0, 0);
                             break;
                         default:
-                            if (neighborBlocks[i].GetState((int)BlockStates.Burning))
+                            if (neighborBlocks[i]->GetState((int)BlockStates.Burning))
                                 continue;
-                            var fireSpread = BlockConstants.BlockDescriptors[neighborBlocks[i].Type].FireSpreader;
+                            var fireSpread = BlockConstants.BlockDescriptors[neighborBlocks[i]->type].FireSpreader;
                             if (fireSpread == null)
                                 continue;
                             var combustionProbability = fireSpread.CombustionProbability;
@@ -147,7 +156,7 @@ namespace Blocks.Behaviors
                                 || combustionProbability > rng.NextDouble())
                             {
                                 // spreading to this block
-                                neighborBlocks[i].SetState((int)BlockStates.Burning);
+                                neighborBlocks[i]->SetState((int)BlockStates.Burning);
                                 var color = fireSpread.FireColor;
                                 color.Shift(out var r, out var g, out var b);
                                 chunkNeighborhood.UpdateBlock(x + directionX[i], y + directionY[i], neighborBlocks[i], r, g, b, color.a);
@@ -159,14 +168,14 @@ namespace Blocks.Behaviors
                 var healthDecrement = _burningRate * (1 + airNeighborsCount + lavaNeighborsCount * 30);
                 if (healthDecrement > 0.0f)
                 {
-                    block.Health -= healthDecrement;
-                    if (block.Health <= 0.0f)
+                    block.health -= healthDecrement;
+                    if (block.health <= 0.0f)
                     {
                         // Block is consumed by fire, destroy it
                         return DestroyBlock(rng, chunkNeighborhood, x, y, ref destroyed);
                     }
 
-                    chunkNeighborhood.GetCentralChunk().SetBlockHealth(x, y, block.Health);
+                    chunkNeighborhood.GetCentralChunk().UpdateBlockDirty(x, y, block.type);
                 }
 
                 dirty = healthDecrement > 0.0f;

@@ -10,21 +10,6 @@ namespace Chunks.Server
         public ChunkServerNeighborhood(ChunkMap<ChunkServer> chunkMap, ChunkServer centralChunk)
             : base(chunkMap, centralChunk)
         {
-
-        }
-
-        public bool GetBlockInfo(int x, int y, ref Block block)
-        {
-            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
-
-            if (Chunks[chunkIndex] == null)
-            {
-                block.Type = -1;
-                return false;
-            }
-
-            Chunks[chunkIndex].GetBlockInfo(y * Chunk.Size + x, ref block);
-            return true;
         }
 
         public int GetBlockType(int x, int y)
@@ -66,16 +51,16 @@ namespace Chunks.Server
             UpdateAdjacentBlockDirty(x, y);
         }
 
-        public void UpdateBlock(int x, int y, Block block, byte r, byte g, byte b, byte a)
+        public unsafe void UpdateBlock(int x, int y, Block* block, byte r, byte g, byte b, byte a)
         {
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
             if (Chunks[chunkIndex] == null)
                 return;
-            Chunks[chunkIndex].PutBlock(x, y, block.Type, r, g, b, a, block.StateBitset, block.Health, block.Lifetime, block.EntityId);
+            Chunks[chunkIndex].PutBlock(x, y, block->type, r, g, b, a, block->states, block->health, block->lifetime, block->entityId);
             UpdateAdjacentBlockDirty(x, y);
         }
 
-        public unsafe bool MoveBlock(int x, int y, int xOffset, int yOffset, int srcBlock, int destBlock)
+        public unsafe bool MoveBlock(int x, int y, int xOffset, int yOffset, int srcBlockType, int destBlockType)
         {
             // compute the new coordinates and chunk index if we go outside of the current chunk
             var ux = x + xOffset;
@@ -92,43 +77,41 @@ namespace Chunks.Server
             var srcIndex = Chunk.Size * y + x;
             var dstIndex = Chunk.Size * uy + ux;
             var destColorBuffer = stackalloc byte[4] {
-                newChunk.Data.colors[dstIndex * 4],
-                newChunk.Data.colors[dstIndex * 4 + 1],
-                newChunk.Data.colors[dstIndex * 4 + 2],
-                newChunk.Data.colors[dstIndex * 4 + 3]
+                newChunk.Colors[dstIndex * 4],
+                newChunk.Colors[dstIndex * 4 + 1],
+                newChunk.Colors[dstIndex * 4 + 2],
+                newChunk.Colors[dstIndex * 4 + 3]
             };
-            var destState = newChunk.Data.stateBitsets[dstIndex];
-            var destHealth = newChunk.Data.healths[dstIndex];
-            var destLifetime = newChunk.Data.lifetimes[dstIndex];
-            var destEntityId = newChunk.Data.entityIds[dstIndex];
+            var destBlock = newChunk.Blocks[dstIndex]; // makes a copy of this block
 
             var centralChunk = Chunks[CentralChunkIndex];
-            newChunk.PutBlock(ux, uy, srcBlock,
-                centralChunk.Data.colors[srcIndex * 4],
-                centralChunk.Data.colors[srcIndex * 4 + 1],
-                centralChunk.Data.colors[srcIndex * 4 + 2],
-                centralChunk.Data.colors[srcIndex * 4 + 3],
-                centralChunk.Data.stateBitsets[srcIndex],
-                centralChunk.Data.healths[srcIndex],
-                centralChunk.Data.lifetimes[srcIndex],
-                centralChunk.Data.entityIds[srcIndex]);
+            ref var srcBlock = ref centralChunk.Blocks[srcIndex];
+            newChunk.PutBlock(ux, uy, srcBlockType,
+                centralChunk.Colors[srcIndex * 4],
+                centralChunk.Colors[srcIndex * 4 + 1],
+                centralChunk.Colors[srcIndex * 4 + 2],
+                centralChunk.Colors[srcIndex * 4 + 3],
+                srcBlock.states,
+                srcBlock.health,
+                srcBlock.lifetime,
+                srcBlock.entityId);
 
             // put the old destination block at the source position (swap)
-            centralChunk.PutBlock(x, y, destBlock,
+            centralChunk.PutBlock(x, y, destBlockType,
                 destColorBuffer[0],
                 destColorBuffer[1],
                 destColorBuffer[2],
                 destColorBuffer[3],
-                destState,
-                destHealth,
-                destLifetime,
-                destEntityId);
+                destBlock.states,
+                destBlock.health,
+                destBlock.lifetime,
+                destBlock.entityId);
             UpdateAdjacentBlockDirty(x, y);
 
             return true;
         }
 
-        private void UpdateAdjacentBlockDirty(int x, int y)
+        public void UpdateAdjacentBlockDirty(int x, int y)
         {
             UpdateDirtyRectForAdjacentBlock(x - 1, y - 1);
             UpdateDirtyRectForAdjacentBlock(x, y - 1);
@@ -142,15 +125,13 @@ namespace Chunks.Server
 
         private void UpdateDirtyRectForAdjacentBlock(int x, int y)
         {
-            UpdateOutsideChunk(ref x, ref y, out var chunk);
-            if (Chunks[chunk] != null)
-            {
-                Chunks[chunk].UpdateBlockDirty(x, y);
-            }
+            UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
+            var chunk = Chunks[chunkIndex];
+            chunk?.UpdateBlockDirty(x, y, chunk.GetBlockType(y * Chunk.Size + x));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void UpdateOutsideChunk(ref int x, ref int y, out int chunkIndex)
+        public static void UpdateOutsideChunk(ref int x, ref int y, out int chunkIndex)
         {
             var ix = (int) (x / 64.0f + 32768.0f) - 32768;
             var iy = (int) (y / 64.0f + 32768.0f) - 32768;

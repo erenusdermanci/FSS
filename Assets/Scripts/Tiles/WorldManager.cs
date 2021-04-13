@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Blocks;
 using Chunks;
 using Chunks.Client;
 using Chunks.Server;
@@ -192,7 +193,15 @@ namespace Tiles
                     {
                         var chunkToSave = ChunkLayers[i].ServerChunkMap[position];
                         if (tileSaveTask.TileData != null && chunkToSave != null)
-                            tileSaveTask.TileData.Value.chunkLayers[i][idx] = chunkToSave.Data;
+                        {
+                            ref var blockData = ref tileSaveTask.TileData.Value.chunkLayers[i][idx];
+                            blockData.colors = chunkToSave.Colors;
+                            blockData.types = chunkToSave.Blocks.Select(b => b.type).ToArray();
+                            blockData.states = chunkToSave.Blocks.Select(b => b.states).ToArray();
+                            blockData.healths = chunkToSave.Blocks.Select(b => b.health).ToArray();
+                            blockData.lifetimes = chunkToSave.Blocks.Select(b => b.lifetime).ToArray();
+                            blockData.entityIds = chunkToSave.Blocks.Select(b => b.entityId).ToArray();
+                        }
                     }
                     idx++;
                 }
@@ -268,7 +277,19 @@ namespace Tiles
                         Position = position
                     };
                     if (tileTask.TileData != null)
-                        chunk.Data = tileTask.TileData.Value.chunkLayers[i][idx];
+                    {
+                        var blockData = tileTask.TileData.Value.chunkLayers[i][idx];
+                        chunk.Blocks = new Block[blockData.types.Length];
+                        for (var n = 0; n < blockData.types.Length; ++n)
+                        {
+                            chunk.Blocks[n].type = blockData.types[n];
+                            chunk.Blocks[n].states = blockData.states[n];
+                            chunk.Blocks[n].health = blockData.healths[n];
+                            chunk.Blocks[n].lifetime = blockData.lifetimes[n];
+                            chunk.Blocks[n].entityId = blockData.entityIds[n];
+                        }
+                        chunk.Colors = blockData.colors;
+                    }
                     else
                     {
                         chunk.Initialize();
@@ -314,16 +335,15 @@ namespace Tiles
             }
         }
 
-        private static ChunkClient CreateClientChunk(GameObjectPool chunkPool, ChunkServer chunkServer)
+        private static ChunkClient CreateClientChunk(GameObjectPool chunkPool, Chunk chunkServer)
         {
             var chunkGameObject = chunkPool.GetObject();
             chunkGameObject.transform.position = new Vector3(chunkServer.Position.x, chunkServer.Position.y, 0);
             var clientChunk = new ChunkClient
             {
                 Position = chunkServer.Position,
-                Colors = chunkServer.Data.colors,
-                Types = chunkServer.Data.types,
-                EntityIds = chunkServer.Data.entityIds,
+                Colors = chunkServer.Colors,
+                Blocks = chunkServer.Blocks,
                 GameObject = chunkGameObject,
                 Collider = chunkGameObject.GetComponent<PolygonCollider2D>(),
                 Texture = chunkGameObject.GetComponent<SpriteRenderer>().sprite.texture

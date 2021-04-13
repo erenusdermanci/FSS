@@ -2,25 +2,25 @@
 {
     public struct Block
     {
-        public int Type;
-        public int StateBitset;
-        public float Health;
-        public float Lifetime;
-        public long EntityId;
+        public int type;
+        public int states;
+        public float health;
+        public float lifetime;
+        public long entityId;
 
         public bool GetState(int stateToCheck)
         {
-            return ((StateBitset >> stateToCheck) & 1) == 1;
+            return ((states >> stateToCheck) & 1) == 1;
         }
 
         public void SetState(int stateToSet)
         {
-            StateBitset |= 1 << stateToSet;
+            states |= 1 << stateToSet;
         }
 
         public void ClearState(int stateToClear)
         {
-            StateBitset &= ~(1 << stateToClear);
+            states &= ~(1 << stateToClear);
         }
     }
 }

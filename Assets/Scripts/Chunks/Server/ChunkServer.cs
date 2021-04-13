@@ -8,7 +8,6 @@ namespace Chunks.Server
 {
     public class ChunkServer : Chunk
     {
-        public BlockData Data;
         public readonly int[] BlockUpdatedFlags = new int[Size * Size];
 
         public readonly ChunkDirtyRect[] DirtyRects = new ChunkDirtyRect[4];
@@ -36,43 +35,41 @@ namespace Chunks.Server
         public void Initialize()
         {
             const int totalSize = Size * Size;
-            Data.colors = new byte[totalSize * 4];
-            Data.types = new int[totalSize];
-            Data.stateBitsets = new int[totalSize];
-            Data.healths = new float[totalSize];
-            Data.lifetimes = new float[totalSize];
-            Data.entityIds = new long[totalSize];
+            Colors = new byte[totalSize * 4];
+            Blocks = new Block[totalSize];
         }
 
         public void FastPutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health,
             float lifetime, long entityId)
         {
             var i = y * Size + x;
-            Data.colors[i * 4] = r;
-            Data.colors[i * 4 + 1] = g;
-            Data.colors[i * 4 + 2] = b;
-            Data.colors[i * 4 + 3] = a;
-            Data.types[i] = type;
-            Data.stateBitsets[i] = states;
-            Data.healths[i] = health;
-            Data.lifetimes[i] = lifetime;
-            Data.entityIds[i] = entityId;
+            Colors[i * 4] = r;
+            Colors[i * 4 + 1] = g;
+            Colors[i * 4 + 2] = b;
+            Colors[i * 4 + 3] = a;
+            ref var block = ref Blocks[i];
+            block.type = type;
+            block.states = states;
+            block.health = health;
+            block.lifetime = lifetime;
+            block.entityId = entityId;
         }
 
         public void PutBlock(int x, int y, int type, byte r, byte g, byte b, byte a, int states, float health, float lifetime, long entityId)
         {
             var i = y * Size + x;
-            Data.colors[i * 4] = r;
-            Data.colors[i * 4 + 1] = g;
-            Data.colors[i * 4 + 2] = b;
-            Data.colors[i * 4 + 3] = a;
-            Data.types[i] = type;
-            Data.stateBitsets[i] = states;
-            Data.healths[i] = health;
-            Data.lifetimes[i] = lifetime;
-            Data.entityIds[i] = entityId;
+            Colors[i * 4] = r;
+            Colors[i * 4 + 1] = g;
+            Colors[i * 4 + 2] = b;
+            Colors[i * 4 + 3] = a;
+            ref var block = ref Blocks[i];
+            block.type = type;
+            block.states = states;
+            block.health = health;
+            block.lifetime = lifetime;
+            block.entityId = entityId;
 
-            UpdateBlockDirty(x, y);
+            UpdateBlockDirty(x, y, type);
 
             // TODO replace by a lookup in block descriptor to know if this block should update the dirty rect
             switch (type)
@@ -97,17 +94,17 @@ namespace Chunks.Server
             ref var blockData = ref _metadataManagers[i].PlantMetadata[y % hs * hs + x % hs];
             var plantGrower = BlockConstants.BlockDescriptors[type].PlantGrower;
             if (blockData.growthCount < 1 && blockData.depthLevel < plantGrower.MaximumDepthLevels)
-                UpdateBlockDirty(x, y);
+                UpdateBlockDirty(x, y, type);
             if (blockData.id != 0)
                 return ref blockData;
             return ref blockData;
         }
 
         // TODO optimize this, highly critical
-        public void UpdateBlockDirty(int x, int y)
+        public void UpdateBlockDirty(int x, int y, int blockType)
         {
             // TODO replace by a lookup in block descriptor to know if this block should update the dirty rect
-            switch (Data.types[y * Size + x])
+            switch (blockType)
             {
                 case BlockConstants.Air:
                 case BlockConstants.Stone:
@@ -150,48 +147,25 @@ namespace Chunks.Server
         public void SetBlockColor(int x, int y, Color c)
         {
             var blockIndex = y * Size + x;
-            Data.colors[blockIndex * 4] = c.r;
-            Data.colors[blockIndex * 4 + 1] = c.g;
-            Data.colors[blockIndex * 4 + 2] = c.b;
-            Data.colors[blockIndex * 4 + 3] = c.a;
-            UpdateBlockDirty(x, y);
+            Colors[blockIndex * 4] = c.r;
+            Colors[blockIndex * 4 + 1] = c.g;
+            Colors[blockIndex * 4 + 2] = c.b;
+            Colors[blockIndex * 4 + 3] = c.a;
         }
 
-        public void GetBlockInfo(int blockIndex, ref Block block)
+        public ref Block GetBlockInfo(int blockIndex)
         {
-            block.Type = Data.types[blockIndex];
-            block.StateBitset = Data.stateBitsets[blockIndex];
-            block.Health = Data.healths[blockIndex];
-            block.Lifetime = Data.lifetimes[blockIndex];
-            block.EntityId = Data.entityIds[blockIndex];
-        }
-
-        public long GetBlockEntityId(int blockIndex)
-        {
-            return Data.entityIds[blockIndex];
-        }
-
-        public void SetBlockStates(int x, int y, int states)
-        {
-            Data.stateBitsets[y * Size + x] = states;
-            UpdateBlockDirty(x, y);
-        }
-
-        public void SetBlockLifetime(int x, int y, float lifetime)
-        {
-            Data.lifetimes[y * Size + x] = lifetime;
-            UpdateBlockDirty(x, y);
-        }
-
-        public void SetBlockHealth(int x, int y, float health)
-        {
-            Data.healths[y * Size + x] = health;
-            UpdateBlockDirty(x, y);
+            return ref Blocks[blockIndex];
         }
 
         public int GetBlockType(int blockIndex)
         {
-            return Data.types[blockIndex];
+            return Blocks[blockIndex].type;
+        }
+
+        public long GetBlockEntityId(int blockIndex)
+        {
+            return Blocks[blockIndex].entityId;
         }
 
         public void GenerateEmpty()
@@ -199,15 +173,16 @@ namespace Chunks.Server
             var airColor = BlockConstants.BlockDescriptors[BlockConstants.Air].Color;
             for (var i = 0; i < Size * Size; i++)
             {
-                Data.colors[i * 4] = airColor.r;
-                Data.colors[i * 4 + 1] = airColor.g;
-                Data.colors[i * 4 + 2] = airColor.b;
-                Data.colors[i * 4 + 3] = airColor.a;
-                Data.types[i] = BlockConstants.Air;
-                Data.stateBitsets[i] = 0;
-                Data.healths[i] = BlockConstants.BlockDescriptors[BlockConstants.Air].BaseHealth;
-                Data.lifetimes[i] = 0;
-                Data.entityIds[i] = 0;
+                Colors[i * 4] = airColor.r;
+                Colors[i * 4 + 1] = airColor.g;
+                Colors[i * 4 + 2] = airColor.b;
+                Colors[i * 4 + 3] = airColor.a;
+                ref var block = ref Blocks[i];
+                block.type = BlockConstants.Air;
+                block.states = 0;
+                block.health = BlockConstants.BlockDescriptors[BlockConstants.Air].BaseHealth;
+                block.lifetime = 0;
+                block.entityId = 0;
             }
         }
 

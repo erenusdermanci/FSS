@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using Client.Player;
 using Entities;
+using Tiles;
 using Tools;
 using UnityEngine;
 using Utils;
-using WorldManager = Tiles.WorldManager;
 
 namespace Chunks.Client
 {

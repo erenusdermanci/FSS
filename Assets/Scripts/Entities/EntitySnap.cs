@@ -1,5 +1,4 @@
-﻿using System;
-using Chunks;
+﻿using Chunks;
 using UnityEngine;
 
 namespace Entities

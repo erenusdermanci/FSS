@@ -93,7 +93,6 @@ namespace Chunks.Server
 
             _rng = StaticRandom.Get();
 
-            var blockInfo = new Block();
             var dirtied = false;
 
             if (GlobalConfig.StaticGlobalConfig.disableDirtyRects)
@@ -104,7 +103,7 @@ namespace Chunks.Server
                     var x = _noDirtyRectShuffle[i] / Chunks.Chunk.Size;
                     var y = _noDirtyRectShuffle[i] % Chunks.Chunk.Size;
 
-                    dirtied |= SimulateBlock(x, y, ref blockInfo, distances, bitCount, directionX, directionY);
+                    dirtied |= SimulateBlock(x, y, distances, bitCount, directionX, directionY);
                 }
             }
             else
@@ -141,7 +140,7 @@ namespace Chunks.Server
                         var x = startX + _dirtyRectShuffles[knuthRngIndex, totalSize][j] % (endX - startX + 1);
                         var y = startY + _dirtyRectShuffles[knuthRngIndex, totalSize][j] / (endX - startX + 1);
 
-                        dirtied |= SimulateBlock(x, y, ref blockInfo, distances, bitCount, directionX, directionY);
+                        dirtied |= SimulateBlock(x, y, distances, bitCount, directionX, directionY);
                     }
                 }
             }
@@ -149,18 +148,19 @@ namespace Chunks.Server
             Chunk.Dirty = dirtied;
         }
 
-        private unsafe bool SimulateBlock(int x, int y, ref Block block,
+        private unsafe bool SimulateBlock(int x, int y,
             int* distances, int* bitCount, int* directionX, int* directionY)
         {
-            if (Chunk.BlockUpdatedFlags[y * Chunks.Chunk.Size + x] == WorldManager.UpdatedFlag)
+            var blockIndex = y * Chunks.Chunk.Size + x;
+            if (Chunk.BlockUpdatedFlags[blockIndex] == WorldManager.UpdatedFlag)
             {
-                Chunk.UpdateBlockDirty(x, y);
+                Chunk.UpdateBlockDirty(x, y, Chunk.GetBlockType(blockIndex));
                 return true;
             }
 
-            ChunkNeighborhood.GetBlockInfo(x, y, ref block);
+            ref var block = ref Chunk.GetBlockInfo(blockIndex);
 
-            var blockLogic = BlockConstants.BlockDescriptors[block.Type];
+            var blockLogic = BlockConstants.BlockDescriptors[block.type];
 
             var destroyed = false;
             var dirtied = false;
@@ -170,22 +170,22 @@ namespace Chunks.Server
             }
             if (!destroyed && blockLogic.FireSpreader != null)
             {
-                dirtied |= blockLogic.FireSpreader.Execute(_rng, ChunkNeighborhood, block, x, y, directionX, directionY,
+                dirtied |= blockLogic.FireSpreader.Execute(_rng, ChunkNeighborhood, ref block, x, y, directionX, directionY,
                     ref destroyed);
             }
             if (!destroyed && blockLogic.Despawner != null)
             {
-                dirtied |= blockLogic.Despawner.Execute(_rng, ChunkNeighborhood, block, x, y, ref destroyed);
+                dirtied |= blockLogic.Despawner.Execute(_rng, ChunkNeighborhood, ref block, x, y, ref destroyed);
             }
             if (!destroyed && blockLogic.Swapper != null)
             {
-                dirtied |= blockLogic.Swapper.Execute(_rng, ChunkNeighborhood, block.Type, x, y, directionX, directionY,
+                dirtied |= blockLogic.Swapper.Execute(_rng, ChunkNeighborhood, block.type, x, y, directionX, directionY,
                     distances, bitCount);
             }
 
             if (!destroyed && blockLogic.PlantGrower != null)
             {
-                dirtied |= blockLogic.PlantGrower.Execute(_rng, ChunkNeighborhood, block, x, y);
+                dirtied |= blockLogic.PlantGrower.Execute(_rng, ChunkNeighborhood, ref block, x, y);
             }
 
             return dirtied;
