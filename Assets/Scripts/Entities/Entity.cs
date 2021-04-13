@@ -25,6 +25,8 @@ namespace Entities
         [HideInInspector]
         public SpriteRenderer spriteRenderer;
 
+        private Color32[] textureColors;
+
         [HideInInspector]
         public int[] blockTypes;
 
@@ -47,6 +49,7 @@ namespace Entities
 
             spriteRenderer = GetComponent<SpriteRenderer>();
             var sprite = spriteRenderer.sprite;
+            textureColors = sprite.texture.GetPixels32();
             texelSize = 1.0f / sprite.pixelsPerUnit;
 
             var assetPath = AssetDatabase.GetAssetPath(sprite);
@@ -215,7 +218,7 @@ namespace Entities
         public void GetBlockColor(int blockX, int blockY, out byte r, out byte g, out byte b, out byte a)
         {
             var sprite = spriteRenderer.sprite;
-            var color = sprite.texture.GetPixels32()[blockY * sprite.texture.width + blockX];
+            var color = textureColors[blockY * sprite.texture.width + blockX];
             r = color.r;
             g = color.g;
             b = color.b;
