@@ -83,7 +83,7 @@ namespace Entities
 
             _oldPosition = transform.position;
 
-            if (!GlobalConfig.StaticGlobalConfig.levelDesignMode)
+            if (!GlobalConfig.StaticGlobalConfig.levelDesignMode && !dynamic)
             {
                 spriteRenderer.enabled = false;
             }
@@ -93,24 +93,24 @@ namespace Entities
         {
             base.FixedUpdate();
 
-            if (!GlobalConfig.StaticGlobalConfig.levelDesignMode && dynamic)
+            if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
+            {
+                if (enableBlockMap && _blockMap == null)
+                    CreateBlockMap();
+                else if (_blockMap != null && !enableBlockMap)
+                {
+                    Destroy(_blockMap.gameObject);
+                    _blockMap = null;
+                }
+            }
+            else if (dynamic)
             {
                 Vector2 newPosition = transform.position;
                 if (!_oldPosition.Equals(newPosition))
                 {
-                    RemoveFromMap(_oldPosition);
-                    BlitIntoMap(newPosition);
                 }
 
                 _oldPosition = newPosition;
-            }
-
-            if (enableBlockMap && _blockMap == null)
-                CreateBlockMap();
-            else if (_blockMap != null && !enableBlockMap)
-            {
-                Destroy(_blockMap.gameObject);
-                _blockMap = null;
             }
         }
 

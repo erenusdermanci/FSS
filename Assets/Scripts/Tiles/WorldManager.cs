@@ -324,12 +324,12 @@ namespace Tiles
                         entity.generateCollider = entityData.generateCollider;
                         entity.SetChunkLayerType((ChunkLayerType) entityData.chunkLayer);
                         EntityManager.Entities.Add(entity.id, entity);
-                        if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
+                        if (GlobalConfig.StaticGlobalConfig.levelDesignMode && !entity.dynamic)
                         {
                             EntityManager.QueueEntityRemoveFromMap(entity);
-                            // show the sprite so we can move the entity
-                            entity.spriteRenderer.enabled = true;
                         }
+                        // show the sprite so we can move the entity
+                        entity.spriteRenderer.enabled = true;
                     }
                 }
             }
