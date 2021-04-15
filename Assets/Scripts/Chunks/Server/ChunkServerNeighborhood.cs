@@ -132,8 +132,8 @@ namespace Chunks.Server
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UpdateOutsideChunk(ref int x, ref int y, out int chunkIndex)
         {
-            var ix = (int) (x / 64.0f + 32768.0f) - 32768;
-            var iy = (int) (y / 64.0f + 32768.0f) - 32768;
+            var ix = (int) (x / (float)Chunk.Size + 32768.0f) - 32768;
+            var iy = (int) (y / (float)Chunk.Size + 32768.0f) - 32768;
             chunkIndex = (iy + 1) * 3 + ix + 1;
             x += -ix * Chunk.Size;
             y += -iy * Chunk.Size;
