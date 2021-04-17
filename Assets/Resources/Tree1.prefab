@@ -96,10 +96,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
-  ResourceName: Tree1
+  resourceName: Tree1
   texelSize: 0
   spriteRenderer: {fileID: 3807213654615958273}
-  blockTypes: 
   chunkLayerType: 0
   dynamic: 0
   generateCollider: 0

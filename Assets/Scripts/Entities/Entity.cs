@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Blocks;
 using Chunks;
@@ -17,7 +18,7 @@ namespace Entities
     {
         public long id;
 
-        public string ResourceName;
+        public string resourceName;
 
         [HideInInspector]
         public float texelSize;
@@ -25,10 +26,12 @@ namespace Entities
         [HideInInspector]
         public SpriteRenderer spriteRenderer;
 
-        private Color32[] textureColors;
+        private Color32[] _textureColors;
 
-        [HideInInspector]
-        public int[] blockTypes;
+        public Block[] blocks;
+
+        private int _width;
+        private int _height;
 
         [HideInInspector]
         public ChunkLayerType chunkLayerType;
@@ -49,7 +52,10 @@ namespace Entities
 
             spriteRenderer = GetComponent<SpriteRenderer>();
             var sprite = spriteRenderer.sprite;
-            textureColors = sprite.texture.GetPixels32();
+            _width = sprite.texture.width;
+            _height = sprite.texture.height;
+
+            _textureColors = sprite.texture.GetPixels32();
             texelSize = 1.0f / sprite.pixelsPerUnit;
 
             var assetPath = AssetDatabase.GetAssetPath(sprite);
@@ -114,34 +120,12 @@ namespace Entities
             }
         }
 
-        private void BlitIntoMap(Vector2 position)
-        {
-            var sprite = spriteRenderer.sprite;
-            var w = sprite.texture.width;
-            var h = sprite.texture.height;
-            var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - w / 2;
-            var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - h / 2;
-            Draw.Rectangle(w / 2, h / 2, w, h, (i, j) => _entityManager.PutEntityBlock(this, i, j, x, y));
-        }
-
-        private void RemoveFromMap(Vector2 position)
-        {
-            var sprite = spriteRenderer.sprite;
-            var w = sprite.texture.width;
-            var h = sprite.texture.height;
-            var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - w / 2;
-            var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - h / 2;
-            Draw.Rectangle(w / 2, h / 2, w, h, (i, j) => _entityManager.RemoveEntityBlock(this, i, j, x, y));
-        }
-
         private void CreateBlockMap()
         {
             var blockMapObject = Instantiate((GameObject) Resources.Load("BlockMap"), transform, true);
             blockMapObject.SetActive(false);
             var sprite = spriteRenderer.sprite;
-            var width = sprite.texture.width;
-            var height = sprite.texture.height;
-            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            var texture = new Texture2D(_width, _height, TextureFormat.RGBA32, false)
             {
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Point
@@ -149,7 +133,7 @@ namespace Entities
             var blockMapSpriteRenderer = blockMapObject.GetComponent<SpriteRenderer>();
             blockMapSpriteRenderer.sprite = Sprite.Create(
                 texture,
-                new Rect(new Vector2(0, 0), new Vector2(width, height)), new Vector2(0.5f, 0.5f),
+                new Rect(new Vector2(0, 0), new Vector2(_width, _height)), new Vector2(0.5f, 0.5f),
                 sprite.pixelsPerUnit,
                 0,
                 SpriteMeshType.FullRect);
@@ -168,57 +152,67 @@ namespace Entities
         private void InitializeBlocks()
         {
             var sprite = spriteRenderer.sprite;
-            blockTypes = new int[sprite.texture.width * sprite.texture.height];
-            for (var i = 0; i < blockTypes.Length; ++i)
-                blockTypes[i] = BlockConstants.UnassignedBlockType;
+            blocks = new Block[_width * _height];
+            for (var i = 0; i < blocks.Length; ++i)
+            {
+                blocks[i] = new Block();
+                blocks[i].Initialize(BlockConstants.UnassignedBlockType);
+            }
         }
 
         private void SaveBlocks()
         {
-            using (var file = File.Create(_blocksFilePath, blockTypes.Length,
+            using (var file = File.Create(_blocksFilePath, blocks.Length,
                 FileOptions.SequentialScan | FileOptions.Asynchronous))
             using (var compressor = new GZipStream(file, CompressionMode.Compress))
             {
-                new BinaryFormatter().Serialize(compressor, blockTypes);
+                new BinaryFormatter().Serialize(compressor, blocks.Select(b => b.type).ToArray());
                 compressor.Flush();
             }
         }
 
         private void LoadBlocks()
         {
+            int[] blockTypes;
             using (var file = File.Open(_blocksFilePath, FileMode.Open))
             using (var decompressor = new GZipStream(file, CompressionMode.Decompress))
             {
                 blockTypes = (int[]) new BinaryFormatter().Deserialize(decompressor);
+                decompressor.Flush();
             }
+
+            blocks = blockTypes.Select(bt =>
+            {
+                var block = new Block();
+                block.Initialize(bt);
+                return block;
+            }).ToArray();
         }
 
         public void PutBlockType(int blockX, int blockY, int type)
         {
-            var sprite = spriteRenderer.sprite;
-            if (blockX < 0 || blockY < 0 || blockX >= sprite.texture.width || blockY >= sprite.texture.height)
+            if (blockX < 0 || blockY < 0 || blockX >= _width || blockY >= _height)
                 return;
-            var blockIndex = blockY * sprite.texture.width + blockX;
+            var blockIndex = blockY * _width + blockX;
             GetBlockColor(blockX, blockY, out _, out _, out _, out var a);
             if (a == 0)
                 type = BlockConstants.Air;
-            blockTypes[blockIndex] = type;
+            blocks[blockIndex].type = type;
             if (enableBlockMap)
                 _blockMap.AssignBlockColor(blockIndex, BlockConstants.GetBlockColor(type));
         }
 
         public int GetBlockType(int blockX, int blockY)
         {
-            var sprite = spriteRenderer.sprite;
-            if (blockX < 0 || blockY < 0 || blockX >= sprite.texture.width || blockY >= sprite.texture.height)
+            if (blockX < 0 || blockY < 0 || blockX >= _width || blockY >= _height)
                 return BlockConstants.UnassignedBlockType - 1;
-            return blockTypes[blockY * sprite.texture.width + blockX];
+            return blocks[blockY * _width + blockX].type;
         }
 
         public void GetBlockColor(int blockX, int blockY, out byte r, out byte g, out byte b, out byte a)
         {
             var sprite = spriteRenderer.sprite;
-            var color = textureColors[blockY * sprite.texture.width + blockX];
+            var color = _textureColors[blockY * sprite.texture.width + blockX];
             r = color.r;
             g = color.g;
             b = color.b;
@@ -252,6 +246,20 @@ namespace Entities
             {
                 _entityManager.Entities.Remove(id);
             }
+        }
+
+        private void BlitIntoMap(Vector2 position)
+        {
+            var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - _width / 2;
+            var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - _height / 2;
+            Draw.Rectangle(_width / 2, _height / 2, _width, _height, (i, j) => _entityManager.PutEntityBlock(this, i, j, x, y));
+        }
+
+        private void RemoveFromMap(Vector2 position)
+        {
+            var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - _width / 2;
+            var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - _height / 2;
+            Draw.Rectangle(_width / 2, _height / 2, _width, _height, (i, j) => _entityManager.RemoveEntityBlock(this, i, j, x, y));
         }
     }
 }

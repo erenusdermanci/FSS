@@ -39,7 +39,7 @@ public class TexturePostProcessor : AssetPostprocessor
         spriteRenderer.sprite = sprite;
         spriteRenderer.sortingLayerName = "ForegroundEntities";
 
-        entity.ResourceName = filename;
+        entity.resourceName = filename;
 
         PrefabUtility.SaveAsPrefabAsset(prefabGameObj, $"Assets/Resources/{filename}.prefab");
         // ReSharper disable once AccessToStaticMemberViaDerivedType

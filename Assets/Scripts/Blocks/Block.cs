@@ -8,6 +8,16 @@
         public float lifetime;
         public long entityId;
 
+        public void Initialize(int blockType)
+        {
+            var blockDesc = BlockConstants.BlockDescriptors[blockType];
+
+            type = blockType;
+            states = blockDesc.InitialStates;
+            health = blockDesc.BaseHealth;
+            lifetime = 0;
+        }
+
         public bool GetState(int stateToCheck)
         {
             return ((states >> stateToCheck) & 1) == 1;

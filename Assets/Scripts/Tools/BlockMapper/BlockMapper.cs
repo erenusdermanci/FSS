@@ -24,7 +24,7 @@ namespace Tools.BlockMapper
             parameters = GetComponent<DrawingParameters.DrawingParameters>();
 
             if (entityToInstanciate == null)
-                throw new InvalidOperationException("You must specify an entity to instanciate!");
+                throw new InvalidOperationException("You must specify an entity to instantiate!");
 
             var entityObject = Instantiate(entityToInstanciate, new Vector3(0, 0, 0), Quaternion.identity);
             _entity = entityObject.GetComponent<Entity>();

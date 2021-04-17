@@ -224,7 +224,7 @@ namespace Tiles
                         chunkLayer = (int) entity.chunkLayerType,
                         dynamic = entity.dynamic,
                         generateCollider = entity.generateCollider,
-                        resourceName = entity.ResourceName
+                        resourceName = entity.resourceName
                     });
                     entitiesToDestroy.Add(entity);
                 }

@@ -151,8 +151,6 @@ namespace Chunks.Collision
 
         private static bool Collides(int index, Block[] blocks)
         {
-            if (blocks[index].entityId != 0)
-                return false;
             return BlockConstants.BlockDescriptors[blocks[index].type].Tag == BlockTags.Solid;
         }
 

@@ -96,10 +96,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
-  ResourceName: frank
+  resourceName: frank
   texelSize: 0
   spriteRenderer: {fileID: 0}
-  blockTypes: 
   chunkLayerType: 0
   dynamic: 0
   generateCollider: 1
