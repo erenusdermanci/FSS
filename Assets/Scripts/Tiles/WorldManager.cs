@@ -27,7 +27,7 @@ namespace Tiles
 
         public ChunkLayer[] ChunkLayers { get; private set; }
 
-        public static int UpdatedFlag;
+        public static int CurrentFrame;
 
         private Camera _mainCamera;
         public static Vector3 MainCameraPosition = Vector3.zero;
@@ -80,7 +80,7 @@ namespace Tiles
 
             GlobalConfig.DisableDirtyRectsChanged += DisableDirtyRectsChangedEvent;
 
-            UpdatedFlag = 1;
+            CurrentFrame = 1;
         }
 
         private void InitializeTileMap()
@@ -106,7 +106,7 @@ namespace Tiles
 
             CollisionManager.Update();
 
-            UpdatedFlag++;
+            CurrentFrame++;
 
             _cameraHasMoved = UpdateCameraHasMoved();
 

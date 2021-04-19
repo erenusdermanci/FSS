@@ -152,7 +152,7 @@ namespace Chunks.Server
             int* distances, int* bitCount, int* directionX, int* directionY)
         {
             var blockIndex = y * Chunks.Chunk.Size + x;
-            if (Chunk.BlockUpdatedFlags[blockIndex] == WorldManager.UpdatedFlag)
+            if (Chunk.LastBlockUpdateFrame[blockIndex] == WorldManager.CurrentFrame)
             {
                 Chunk.UpdateBlockDirty(x, y, Chunk.GetBlockType(blockIndex));
                 return true;

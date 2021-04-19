@@ -148,7 +148,7 @@ namespace Blocks.Behaviors
                     continue;
 
                 // target was already updated during this simulation frame, not a valid target
-                if (chunkNeighborhood.GetBlockUpdatedFlag(targetX, targetY) == WorldManager.UpdatedFlag)
+                if (chunkNeighborhood.GetBlockUpdatedFlag(targetX, targetY) == WorldManager.CurrentFrame)
                     continue;
 
                 // all criteria met, target is available

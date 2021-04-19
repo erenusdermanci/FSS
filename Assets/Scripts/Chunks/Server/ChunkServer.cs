@@ -8,7 +8,7 @@ namespace Chunks.Server
 {
     public class ChunkServer : Chunk
     {
-        public readonly int[] BlockUpdatedFlags = new int[Size * Size];
+        public readonly int[] LastBlockUpdateFrame = new int[Size * Size];
 
         public readonly ChunkDirtyRect[] DirtyRects = new ChunkDirtyRect[4];
         private readonly MetadataManager[] _metadataManagers = new MetadataManager[4];
@@ -81,7 +81,7 @@ namespace Chunks.Server
                     return;
             }
 
-            BlockUpdatedFlags[i] = WorldManager.UpdatedFlag;
+            LastBlockUpdateFrame[i] = WorldManager.CurrentFrame;
         }
 
         public ref PlantBlockData GetPlantBlockData(int x, int y, int type)

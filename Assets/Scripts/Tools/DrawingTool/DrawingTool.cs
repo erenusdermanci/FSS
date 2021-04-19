@@ -118,10 +118,10 @@ namespace Tools.DrawingTool
                 + $"StateBitset: {block.states}\n"
                 + $"Health: {block.health}\n"
                 + $"Lifetime: {block.lifetime}\n"
-                + $"UpdatedFlag: {chunk.BlockUpdatedFlags[blockIndexInChunk]}\n"
+                + $"UpdatedFlag: {chunk.LastBlockUpdateFrame[blockIndexInChunk]}\n"
                 + $"Color: [{r},{g},{b},{a}]\n"
                 + $"Chunk X:{chunk.Position.x}, Chunk Y: {chunk.Position.y}\n"
-                + $"Current UpdatedFlag: {WorldManager.UpdatedFlag}";
+                + $"Current Frame: {WorldManager.CurrentFrame}";
         }
 
         private void UpdateBrush(Vector2i blockPosition)

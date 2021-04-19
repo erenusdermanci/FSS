@@ -27,9 +27,9 @@ namespace Chunks.Server
             UpdateOutsideChunk(ref x, ref y, out var chunkIndex);
 
             if (Chunks[chunkIndex] == null)
-                return WorldManager.UpdatedFlag;
+                return WorldManager.CurrentFrame;
 
-            return Chunks[chunkIndex].BlockUpdatedFlags[y * Chunk.Size + x];
+            return Chunks[chunkIndex].LastBlockUpdateFrame[y * Chunk.Size + x];
         }
 
         public ref PlantBlockData GetPlantBlockData(int x, int y, int type)
