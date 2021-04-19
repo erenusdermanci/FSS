@@ -196,11 +196,19 @@ namespace Tiles
                         {
                             ref var blockData = ref tileSaveTask.TileData.Value.chunkLayers[i][idx];
                             blockData.colors = chunkToSave.Colors;
-                            blockData.types = chunkToSave.Blocks.Select(b => b.type).ToArray();
-                            blockData.states = chunkToSave.Blocks.Select(b => b.states).ToArray();
-                            blockData.healths = chunkToSave.Blocks.Select(b => b.health).ToArray();
-                            blockData.lifetimes = chunkToSave.Blocks.Select(b => b.lifetime).ToArray();
-                            blockData.entityIds = chunkToSave.Blocks.Select(b => b.entityId).ToArray();
+                            blockData.types = new int[chunkToSave.Blocks.Length];
+                            blockData.states = new int[chunkToSave.Blocks.Length];
+                            blockData.healths = new float[chunkToSave.Blocks.Length];
+                            blockData.lifetimes = new float[chunkToSave.Blocks.Length];
+                            blockData.entityIds = new long[chunkToSave.Blocks.Length];
+                            for (var n = 0; n < chunkToSave.Blocks.Length; ++n)
+                            {
+                                blockData.types[n] = chunkToSave.Blocks[n].type;
+                                blockData.states[n] = chunkToSave.Blocks[n].states;
+                                blockData.healths[n] = chunkToSave.Blocks[n].health;
+                                blockData.lifetimes[n] = chunkToSave.Blocks[n].lifetime;
+                                blockData.entityIds[n] = chunkToSave.Blocks[n].entityId;
+                            }
                         }
                     }
                     idx++;
