@@ -14,8 +14,6 @@ namespace Tiles.Tasks
 
         protected override void Execute()
         {
-            if (ShouldCancel()) return;
-
             if (File.Exists(TileFullFileName))
             {
                 LoadExisting();

@@ -169,6 +169,10 @@ namespace Tiles
 
         private void QueueTileForSave(Tile tile)
         {
+            var tileSaveTask = _tileTaskScheduler.QueueForSave(tile);
+            if (tileSaveTask == null)
+                return;
+
             for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
             {
                 foreach (var position in tile.GetChunkPositions())
@@ -180,9 +184,6 @@ namespace Tiles
                     }
                 }
             }
-            var tileSaveTask = _tileTaskScheduler.QueueForSave(tile);
-            if (tileSaveTask == null)
-                return;
 
             for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
             {
@@ -195,7 +196,7 @@ namespace Tiles
                         if (tileSaveTask.TileData != null && chunkToSave != null)
                         {
                             ref var blockData = ref tileSaveTask.TileData.Value.chunkLayers[i][idx];
-                            blockData.colors = chunkToSave.Colors;
+                            blockData.colors = chunkToSave.Colors.ToArray();
                             blockData.types = new int[chunkToSave.Blocks.Length];
                             blockData.states = new int[chunkToSave.Blocks.Length];
                             blockData.healths = new float[chunkToSave.Blocks.Length];
@@ -210,6 +211,14 @@ namespace Tiles
                                 blockData.entityIds[n] = chunkToSave.Blocks[n].entityId;
                             }
                         }
+
+                        var serverChunk = ChunkLayers[i].ServerChunkMap[position];
+                        serverChunk?.Dispose();
+                        ChunkLayers[i].ServerChunkMap.Remove(position);
+
+                        var clientChunk = ChunkLayers[i].ClientChunkMap[position];
+                        clientChunk?.Dispose();
+                        ChunkLayers[i].ClientChunkMap.Remove(position);
                     }
                     idx++;
                 }
@@ -251,20 +260,6 @@ namespace Tiles
         private void OnTileSaved(object sender, EventArgs e)
         {
             var tileTask = ((TileTaskEvent) e).Task;
-
-            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
-            {
-                foreach (var position in tileTask.Tile.GetChunkPositions())
-                {
-                    var serverChunk = ChunkLayers[i].ServerChunkMap[position];
-                    serverChunk?.Dispose();
-                    ChunkLayers[i].ServerChunkMap.Remove(position);
-
-                    var clientChunk = ChunkLayers[i].ClientChunkMap[position];
-                    clientChunk?.Dispose();
-                    ChunkLayers[i].ClientChunkMap.Remove(position);
-                }
-            }
 
             _serverTileMap.Remove(tileTask.Tile.Position);
             tileTask.Tile.Dispose();

@@ -24,8 +24,6 @@ namespace Tiles.Tasks
 
         protected override void Execute()
         {
-            if (ShouldCancel()) return;
-
             using (var file = File.Open(TileFullFileName, FileMode.Create))
             using (var compressionStream = new GZipStream(file, CompressionMode.Compress))
             {
