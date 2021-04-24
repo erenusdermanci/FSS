@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Chunks.Server;
 using Client.Player;
 using Entities;
 using Tiles;
@@ -45,7 +46,11 @@ namespace Chunks.Client
                     continue;
                 task.Join();
 
-                var chunkCollider = task.Chunk.Collider;
+                var clientChunk = _chunkLayer.ClientChunkMap[task.Chunk.Position];
+                if (clientChunk == null)
+                    continue;
+
+                var chunkCollider = clientChunk.Collider;
 
                 chunkCollider.enabled = false;
                 chunkCollider.pathCount = task.CollisionData.Count;
@@ -53,16 +58,14 @@ namespace Chunks.Client
                 for (var i = 0; i < task.CollisionData.Count; ++i)
                 {
                     var coll = task.CollisionData[i];
-                    var vec2S = new Vector2[coll.Count];
                     for (var j = 0; j < coll.Count; ++j)
                     {
-                        vec2S[j] = new Vector2(
-                            coll[j].x / (float) Chunk.Size - 0.5f,
-                            coll[j].y / (float) Chunk.Size - 0.5f
-                        );
+                        var tmp = coll[j];
+                        tmp.Set(coll[j].x / Chunk.Size - 0.5f, coll[j].y / Chunk.Size - 0.5f);
+                        coll[j] = tmp;
                     }
 
-                    chunkCollider.SetPath(i, vec2S);
+                    chunkCollider.SetPath(i, task.CollisionData[i]);
                 }
 
                 chunkCollider.enabled = true;
@@ -83,7 +86,7 @@ namespace Chunks.Client
         {
             foreach (var collidable in Collidables())
             {
-                if (_chunkLayer.ClientChunkMap[collidable.ChunkPosition] == null)
+                if (_chunkLayer.ServerChunkMap[collidable.ChunkPosition] == null)
                     return;
 
                 for (var chunkIdx = 0; chunkIdx < 9; ++chunkIdx)
@@ -91,33 +94,34 @@ namespace Chunks.Client
                     if (!collidable.OverlapChunk(collidable.chunkNeighborhoodPositions[chunkIdx]))
                         continue;
 
-                    var chunk = _chunkLayer.ClientChunkMap[collidable.chunkNeighborhoodPositions[chunkIdx]];
+                    var clientChunk = _chunkLayer.ClientChunkMap[collidable.chunkNeighborhoodPositions[chunkIdx]];
+                    var serverChunk = _chunkLayer.ServerChunkMap[collidable.chunkNeighborhoodPositions[chunkIdx]];
 
-                    if (chunk == null)
+                    if (clientChunk == null || serverChunk == null)
                         continue;
 
                     if (!GlobalConfig.StaticGlobalConfig.disableDirtyChunks
-                        && !chunk.Dirty
+                        && !serverChunk.Dirty
                         && collidable.neighborChunkColliderGenerated[chunkIdx]
-                        && chunk.Collider.enabled)
+                        && clientChunk.Collider.enabled)
                         continue;
 
-                    if (_clientCollisionTasks.ContainsKey(chunk.Position))
+                    if (_clientCollisionTasks.ContainsKey(serverChunk.Position))
                         continue;
 
-                    var task = new ClientCollisionTask(chunk);
-                    _clientCollisionTasks.Add(chunk.Position, task);
+                    var task = new ClientCollisionTask(serverChunk);
+                    _clientCollisionTasks.Add(serverChunk.Position, task);
                     collidable.neighborChunkColliderGenerated[chunkIdx] = true;
                 }
             }
         }
 
-        public void QueueChunkCollisionGeneration(ChunkClient chunkClient)
+        public void QueueChunkCollisionGeneration(ChunkServer chunkServer)
         {
-            if (_clientCollisionTasks.ContainsKey(chunkClient.Position))
+            if (_clientCollisionTasks.ContainsKey(chunkServer.Position))
                 return;
-            var task = new ClientCollisionTask(chunkClient);
-            _clientCollisionTasks.Add(chunkClient.Position, task);
+            var task = new ClientCollisionTask(chunkServer);
+            _clientCollisionTasks.Add(chunkServer.Position, task);
         }
     }
 }

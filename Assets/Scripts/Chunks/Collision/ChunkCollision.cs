@@ -1,43 +1,40 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Blocks;
-using Chunks.Client;
-using Utils;
+using Chunks.Server;
+using UnityEngine;
 
 namespace Chunks.Collision
 {
     public static class ChunkCollision
     {
-        public static List<List<Vector2i>> ComputeChunkColliders(ChunkClient chunk)
+        public static List<List<Vector2>> ComputeChunkColliders(ChunkServer chunk)
         {
-            return ComputeChunkColliders(chunk.Blocks);
-        }
+            var horizontalLines = new Dictionary<Vector2, Vector2>();
+            var verticalLines = new Dictionary<Vector2, Vector2>();
 
-        private static List<List<Vector2i>> ComputeChunkColliders(Block[] blocks)
-        {
-            var horizontalLines = new Dictionary<Vector2i, Vector2i>();
-            var verticalLines = new Dictionary<Vector2i, Vector2i>();
-
-            GenerateLines(blocks, horizontalLines, verticalLines);
+            GenerateLines(chunk, horizontalLines, verticalLines);
 
             return GenerateColliders(horizontalLines, verticalLines);
         }
 
-        private static void GenerateLines(Block[] blocks,
-            IDictionary<Vector2i, Vector2i> horizontalLines,
-            IDictionary<Vector2i, Vector2i> verticalLines)
+        private static void GenerateLines(ChunkServer chunk,
+            IDictionary<Vector2, Vector2> horizontalLines,
+            IDictionary<Vector2, Vector2> verticalLines)
         {
-            var tmpReversedHorizontalLines = new Dictionary<Vector2i, Vector2i>();
-            var tmpReversedVerticalLines = new Dictionary<Vector2i, Vector2i>();
-            var tmpHorizontalLines = new Dictionary<Vector2i, Vector2i>();
-            var tmpVerticalLines = new Dictionary<Vector2i, Vector2i>();
+            var blocks = chunk.Blocks;
+            var tmpReversedHorizontalLines = new Dictionary<Vector2, Vector2>();
+            var tmpReversedVerticalLines = new Dictionary<Vector2, Vector2>();
+            var tmpHorizontalLines = new Dictionary<Vector2, Vector2>();
+            var tmpVerticalLines = new Dictionary<Vector2, Vector2>();
 
-            Vector2i start = default, end = default;
+            Vector2 start = default, end = default;
             for (var y = 0; y < Chunk.Size; ++y) // lines
             {
                 for (var x = 0; x < Chunk.Size; ++x) // columns
                 {
-                    if (!Collides(y * Chunk.Size + x, blocks))
+                    if (!Collides(x, y, blocks)
+                    || IsInsideADirtyRect(x, y, chunk.DirtyRects))
                         continue;
 
                     // Check left neighbour
@@ -47,7 +44,7 @@ namespace Chunks.Collision
                         end.Set(x, y + 1);
                         ExtendExistingOrAdd(start, end, ref tmpReversedVerticalLines, ref tmpVerticalLines);
                     }
-                    else if (!Collides(y * Chunk.Size + (x - 1), blocks))
+                    else if (!Collides(x - 1, y, blocks) || IsInsideADirtyRect(x - 1, y, chunk.DirtyRects))
                     {
                         start.Set(x, y);
                         end.Set(x, y + 1);
@@ -61,7 +58,7 @@ namespace Chunks.Collision
                         end.Set(x + 1, y + 1);
                         ExtendExistingOrAdd(start, end, ref tmpReversedVerticalLines, ref tmpVerticalLines);
                     }
-                    else if (!Collides(y * Chunk.Size + x + 1, blocks))
+                    else if (!Collides(x + 1, y, blocks) || IsInsideADirtyRect(x + 1, y, chunk.DirtyRects))
                     {
                         start.Set(x + 1, y);
                         end.Set(x + 1, y + 1);
@@ -75,7 +72,7 @@ namespace Chunks.Collision
                         end.Set(x + 1, y);
                         ExtendExistingOrAdd(start, end, ref tmpReversedHorizontalLines, ref tmpHorizontalLines);
                     }
-                    else if (!Collides((y - 1) * Chunk.Size + x, blocks))
+                    else if (!Collides(x, y - 1, blocks) || IsInsideADirtyRect(x, y - 1, chunk.DirtyRects))
                     {
                         start.Set(x, y);
                         end.Set(x + 1, y);
@@ -89,7 +86,7 @@ namespace Chunks.Collision
                         end.Set(x + 1, y + 1);
                         ExtendExistingOrAdd(start, end, ref tmpReversedHorizontalLines, ref tmpHorizontalLines);
                     }
-                    else if (!Collides((y + 1) * Chunk.Size + x, blocks))
+                    else if (!Collides(x, y + 1, blocks) || IsInsideADirtyRect(x, y + 1, chunk.DirtyRects))
                     {
                         start.Set(x, y + 1);
                         end.Set(x + 1, y + 1);
@@ -111,17 +108,19 @@ namespace Chunks.Collision
             }
         }
 
-        private static List<List<Vector2i>> GenerateColliders(
-            Dictionary<Vector2i, Vector2i> horizontalLines,
-            Dictionary<Vector2i, Vector2i> verticalLines)
+        private static List<List<Vector2>> GenerateColliders(
+            Dictionary<Vector2, Vector2> horizontalLines,
+            Dictionary<Vector2, Vector2> verticalLines)
         {
-            var colliderLists = new List<List<Vector2i>>();
+            var colliderLists = new List<List<Vector2>>();
             var lines = new [] { horizontalLines, verticalLines };
+
+
 
             while (horizontalLines.Count > 0)
             {
                 var idx = 0;
-                var colliderPoints = new List<Vector2i>();
+                var colliderPoints = new List<Vector2>();
 
                 var line = lines[idx].ElementAt(0);
                 var bluePoint = line.Key;
@@ -146,14 +145,33 @@ namespace Chunks.Collision
             return colliderLists;
         }
 
-        private static bool Collides(int index, Block[] blocks)
+        private static bool Collides(int x, int y, Block[] blocks)
         {
-            return BlockConstants.BlockDescriptors[blocks[index].type].Tag == BlockTags.Solid;
+            return BlockConstants.BlockDescriptors[blocks[y * Chunk.Size + x].type].Tag == BlockTags.Solid;
         }
 
-        private static void ExtendExistingOrAdd(Vector2i start, Vector2i end,
-            ref Dictionary<Vector2i, Vector2i> reversedLines,
-            ref Dictionary<Vector2i, Vector2i> lines)
+        private static bool IsInsideADirtyRect(int x, int y, ChunkDirtyRect[] dirtyRects)
+        {
+            for (var i = 0; i < dirtyRects.Length; ++i)
+            {
+                if (dirtyRects[i].X < 0)
+                    continue;
+
+                var startX = ChunkServer.DirtyRectX[i] + dirtyRects[i].X;
+                var startY = ChunkServer.DirtyRectY[i] + dirtyRects[i].Y;
+                var endX = ChunkServer.DirtyRectX[i] + dirtyRects[i].XMax;
+                var endY = ChunkServer.DirtyRectY[i] + dirtyRects[i].YMax;
+
+                if (x >= startX && x <= endX && y >= startY && y <= endY)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static void ExtendExistingOrAdd(Vector2 start, Vector2 end,
+            ref Dictionary<Vector2, Vector2> reversedLines,
+            ref Dictionary<Vector2, Vector2> lines)
         {
             lines.Add(start, end);
 

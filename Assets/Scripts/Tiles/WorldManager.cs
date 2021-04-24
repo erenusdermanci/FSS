@@ -306,7 +306,7 @@ namespace Tiles
                     ChunkLayers[i].ClientChunkMap.Add(clientChunk);
 
                     if (i == (int) ChunkLayerType.Foreground)
-                        CollisionManager.QueueChunkCollisionGeneration(clientChunk);
+                        CollisionManager.QueueChunkCollisionGeneration(chunk);
                     idx++;
                 }
             }

@@ -73,7 +73,7 @@ namespace Chunks
                 if (clientChunk != null)
                 {
                     if (type == ChunkLayerType.Foreground)
-                        _worldManager.CollisionManager.QueueChunkCollisionGeneration(clientChunk);
+                        _worldManager.CollisionManager.QueueChunkCollisionGeneration(serverChunk);
                     clientChunk.UpdateTexture();
                 }
             }

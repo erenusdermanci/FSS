@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using Chunks.Collision;
+using Chunks.Server;
 using Chunks.Tasks;
-using Utils;
+using UnityEngine;
 
 namespace Chunks.Client
 {
-    public class ClientCollisionTask : ChunkTask<ChunkClient>
+    public class ClientCollisionTask : ChunkTask<ChunkServer>
     {
-        public List<List<Vector2i>> CollisionData;
+        public List<List<Vector2>> CollisionData;
 
-        public ClientCollisionTask(ChunkClient chunk) : base(chunk)
+        public ClientCollisionTask(ChunkServer chunk) : base(chunk)
         {
         }
 
