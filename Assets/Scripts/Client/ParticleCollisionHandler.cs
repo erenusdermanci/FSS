@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Blocks;
 using Chunks;
 using Tiles;
@@ -11,16 +10,17 @@ namespace Client
     public class ParticleCollisionHandler : MonoBehaviour
     {
         public WorldManager worldManager;
+        public int blockToUse;
+        private SpellManager _spellManager;
         private ParticleSystem.Particle[] _particles;
         private readonly List<ParticleCollisionEvent> _events = new List<ParticleCollisionEvent>();
         private ParticleSystem _particleSystem;
         private ParticleSystem.EmitParams _emitParams;
-        private readonly int BlockToUse = BlockConstants.Oil;
 
         // Start is called before the first frame update
         private void Awake()
         {
-            var blockDescriptor = BlockConstants.BlockDescriptors[BlockToUse];
+            var blockDescriptor = BlockConstants.BlockDescriptors[blockToUse];
             _particleSystem = GetComponent<ParticleSystem>();
             _particles = new ParticleSystem.Particle[_particleSystem.main.maxParticles];
             _emitParams.startColor = new Color32(
@@ -28,6 +28,8 @@ namespace Client
                 blockDescriptor.Color.g,
                 blockDescriptor.Color.b,
                 blockDescriptor.Color.a);
+
+            _spellManager = GetComponentInParent<SpellManager>();
         }
 
         // Update is called once per frame
@@ -37,7 +39,7 @@ namespace Client
             if (!(mainCamera is null))
             {
                 Vector2 mousePos = Input.mousePosition;
-                if (Input.GetMouseButton(1))
+                if (_spellManager.selectedBlock == blockToUse && Input.GetMouseButton(1))
                 {
                     Vector2 pos = mainCamera.WorldToScreenPoint(transform.position);
                     var dir = mousePos - pos;
@@ -81,8 +83,8 @@ namespace Client
                 var blockYInChunk = Helpers.Mod(blockWorldPosition.y, Chunk.Size);
                 if (serverChunk.GetBlockType(blockYInChunk * Chunk.Size + blockXInChunk) != BlockConstants.Air)
                     continue;
-                var blockDescriptor = BlockConstants.BlockDescriptors[BlockToUse];
-                serverChunk.PutBlock(blockXInChunk, blockYInChunk, BlockToUse,
+                var blockDescriptor = BlockConstants.BlockDescriptors[blockToUse];
+                serverChunk.PutBlock(blockXInChunk, blockYInChunk, blockToUse,
                     blockDescriptor.Color.r,
                     blockDescriptor.Color.g,
                     blockDescriptor.Color.b,
