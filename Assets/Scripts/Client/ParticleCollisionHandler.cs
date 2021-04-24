@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Blocks;
 using Chunks;
 using Tiles;
@@ -10,31 +11,62 @@ namespace Client
     public class ParticleCollisionHandler : MonoBehaviour
     {
         public WorldManager worldManager;
+        private ParticleSystem.Particle[] _particles;
         private readonly List<ParticleCollisionEvent> _events = new List<ParticleCollisionEvent>();
         private ParticleSystem _particleSystem;
+        private ParticleSystem.EmitParams _emitParams;
+        private readonly int BlockToUse = BlockConstants.Oil;
 
         // Start is called before the first frame update
         private void Awake()
         {
+            var blockDescriptor = BlockConstants.BlockDescriptors[BlockToUse];
             _particleSystem = GetComponent<ParticleSystem>();
-            _particleSystem.Stop();
+            _particles = new ParticleSystem.Particle[_particleSystem.main.maxParticles];
+            _emitParams.startColor = new Color32(
+                blockDescriptor.Color.r,
+                blockDescriptor.Color.g,
+                blockDescriptor.Color.b,
+                blockDescriptor.Color.a);
         }
 
         // Update is called once per frame
-        void FixedUpdate()
+        private void FixedUpdate()
         {
-            if (Input.GetKeyDown(KeyCode.X))
+            var mainCamera = UnityEngine.Camera.main;
+            if (!(mainCamera is null))
             {
-                if (_particleSystem.isStopped)
-                    _particleSystem.Play();
-                else
-                    _particleSystem.Stop();
+                Vector2 mousePos = Input.mousePosition;
+                if (Input.GetMouseButton(1))
+                {
+                    Vector2 pos = mainCamera.WorldToScreenPoint(transform.position);
+                    var dir = mousePos - pos;
+                    var angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                    transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+                    _particleSystem.Emit(_emitParams, 100);
+                }
+
+                Vector2 mouseWorldPos = mainCamera.ScreenToWorldPoint(mousePos);
+                var count = _particleSystem.GetParticles(_particles);
+
+                for (var i = 0; i < count; ++i)
+                {
+                    var p = _particles[i];
+                    Vector2 position = p.position;
+
+                    var targetDirection = (mouseWorldPos - position).normalized;
+                    var force = targetDirection * 0.1f;
+                    _particles[i].velocity += (Vector3)force;
+                }
+                _particleSystem.SetParticles(_particles, count);
             }
         }
 
         private void OnParticleCollision(GameObject other)
         {
             var count = _particleSystem.GetCollisionEvents(other, _events);
+            if (count == 0)
+                return;
 
             for (var i = 0; i < count; ++i)
             {
@@ -47,9 +79,16 @@ namespace Client
                     continue;
                 var blockXInChunk = Helpers.Mod(blockWorldPosition.x, Chunk.Size);
                 var blockYInChunk = Helpers.Mod(blockWorldPosition.y, Chunk.Size);
-                var d = BlockConstants.BlockDescriptors[BlockConstants.Water];
-                serverChunk.PutBlock(blockXInChunk, blockYInChunk, BlockConstants.Water, d.Color.r, d.Color.g,
-                    d.Color.b, d.Color.a, d.InitialStates, d.BaseHealth, 0f, 0);
+                if (serverChunk.GetBlockType(blockYInChunk * Chunk.Size + blockXInChunk) != BlockConstants.Air)
+                    continue;
+                var blockDescriptor = BlockConstants.BlockDescriptors[BlockToUse];
+                serverChunk.PutBlock(blockXInChunk, blockYInChunk, BlockToUse,
+                    blockDescriptor.Color.r,
+                    blockDescriptor.Color.g,
+                    blockDescriptor.Color.b,
+                    blockDescriptor.Color.a,
+                    blockDescriptor.InitialStates,
+                    blockDescriptor.BaseHealth, 0f, 0);
             }
         }
 
