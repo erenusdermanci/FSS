@@ -15,100 +15,99 @@ namespace Chunks.Collision
 
         private static List<List<Vector2i>> ComputeChunkColliders(Block[] blocks)
         {
-            GenerateLines(blocks,
-                out var horizontalLines,
-                out var verticalLines);
+            var horizontalLines = new Dictionary<Vector2i, Vector2i>();
+            var verticalLines = new Dictionary<Vector2i, Vector2i>();
+
+            GenerateLines(blocks, horizontalLines, verticalLines);
 
             return GenerateColliders(horizontalLines, verticalLines);
         }
 
         private static void GenerateLines(Block[] blocks,
-            out Dictionary<Vector2i, Vector2i> horizontalLines,
-            out Dictionary<Vector2i, Vector2i> verticalLines)
+            IDictionary<Vector2i, Vector2i> horizontalLines,
+            IDictionary<Vector2i, Vector2i> verticalLines)
         {
-            horizontalLines = new Dictionary<Vector2i, Vector2i>();
-            verticalLines = new Dictionary<Vector2i, Vector2i>();
-
             var tmpReversedHorizontalLines = new Dictionary<Vector2i, Vector2i>();
             var tmpReversedVerticalLines = new Dictionary<Vector2i, Vector2i>();
             var tmpHorizontalLines = new Dictionary<Vector2i, Vector2i>();
             var tmpVerticalLines = new Dictionary<Vector2i, Vector2i>();
 
+            Vector2i start = default, end = default;
             for (var y = 0; y < Chunk.Size; ++y) // lines
             {
                 for (var x = 0; x < Chunk.Size; ++x) // columns
                 {
-                    if (Collides(y * Chunk.Size + x, blocks))
+                    if (!Collides(y * Chunk.Size + x, blocks))
+                        continue;
+
+                    // Check left neighbour
+                    if (x == 0)
                     {
-                        // Check left neighbour
-                        if (x == 0)
-                        {
-                            ExtendExistingOrAdd(new Vector2i(x, y), new Vector2i(x, y + 1),
-                            ref tmpReversedVerticalLines,
-                            ref tmpVerticalLines);
-                        }
-                        else if (!Collides(y * Chunk.Size + (x - 1), blocks))
-                        {
-                            ExtendExistingOrAdd(new Vector2i(x, y), new Vector2i(x, y + 1),
-                            ref tmpReversedVerticalLines,
-                            ref tmpVerticalLines);
-                        }
+                        start.Set(x, y);
+                        end.Set(x, y + 1);
+                        ExtendExistingOrAdd(start, end, ref tmpReversedVerticalLines, ref tmpVerticalLines);
+                    }
+                    else if (!Collides(y * Chunk.Size + (x - 1), blocks))
+                    {
+                        start.Set(x, y);
+                        end.Set(x, y + 1);
+                        ExtendExistingOrAdd(start, end, ref tmpReversedVerticalLines, ref tmpVerticalLines);
+                    }
 
-                        // Check right neighbour
-                        if (x == Chunk.Size - 1)
-                        {
-                            ExtendExistingOrAdd(new Vector2i(x + 1, y), new Vector2i(x + 1, y + 1),
-                            ref tmpReversedVerticalLines,
-                            ref tmpVerticalLines);
-                        }
-                        else if (!Collides(y * Chunk.Size + x + 1, blocks))
-                        {
-                            ExtendExistingOrAdd(new Vector2i(x + 1, y), new Vector2i(x + 1, y + 1),
-                            ref tmpReversedVerticalLines,
-                            ref tmpVerticalLines);
-                        }
+                    // Check right neighbour
+                    if (x == Chunk.Size - 1)
+                    {
+                        start.Set(x + 1, y);
+                        end.Set(x + 1, y + 1);
+                        ExtendExistingOrAdd(start, end, ref tmpReversedVerticalLines, ref tmpVerticalLines);
+                    }
+                    else if (!Collides(y * Chunk.Size + x + 1, blocks))
+                    {
+                        start.Set(x + 1, y);
+                        end.Set(x + 1, y + 1);
+                        ExtendExistingOrAdd(start, end, ref tmpReversedVerticalLines, ref tmpVerticalLines);
+                    }
 
-                        // Check down neighbour
-                        if (y == 0)
-                        {
-                            ExtendExistingOrAdd(new Vector2i(x, y), new Vector2i(x + 1, y),
-                            ref tmpReversedHorizontalLines,
-                            ref tmpHorizontalLines);
-                        }
-                        else if (!Collides((y - 1) * Chunk.Size + x, blocks))
-                        {
-                            ExtendExistingOrAdd(new Vector2i(x, y), new Vector2i(x + 1, y),
-                            ref tmpReversedHorizontalLines,
-                            ref tmpHorizontalLines);
-                        }
+                    // Check down neighbour
+                    if (y == 0)
+                    {
+                        start.Set(x, y);
+                        end.Set(x + 1, y);
+                        ExtendExistingOrAdd(start, end, ref tmpReversedHorizontalLines, ref tmpHorizontalLines);
+                    }
+                    else if (!Collides((y - 1) * Chunk.Size + x, blocks))
+                    {
+                        start.Set(x, y);
+                        end.Set(x + 1, y);
+                        ExtendExistingOrAdd(start, end, ref tmpReversedHorizontalLines, ref tmpHorizontalLines);
+                    }
 
-                        // Check up neighbour
-                        if (y == Chunk.Size - 1)
-                        {
-                            ExtendExistingOrAdd(new Vector2i(x, y + 1), new Vector2i(x + 1, y + 1),
-                            ref tmpReversedHorizontalLines,
-                            ref tmpHorizontalLines);
-                        }
-                        else if (!Collides((y + 1) * Chunk.Size + x, blocks))
-                        {
-                            ExtendExistingOrAdd(new Vector2i(x, y + 1), new Vector2i(x + 1, y + 1),
-                            ref tmpReversedHorizontalLines,
-                            ref tmpHorizontalLines);
-                        }
+                    // Check up neighbour
+                    if (y == Chunk.Size - 1)
+                    {
+                        start.Set(x, y + 1);
+                        end.Set(x + 1, y + 1);
+                        ExtendExistingOrAdd(start, end, ref tmpReversedHorizontalLines, ref tmpHorizontalLines);
+                    }
+                    else if (!Collides((y + 1) * Chunk.Size + x, blocks))
+                    {
+                        start.Set(x, y + 1);
+                        end.Set(x + 1, y + 1);
+                        ExtendExistingOrAdd(start, end, ref tmpReversedHorizontalLines, ref tmpHorizontalLines);
                     }
                 }
             }
 
             foreach (var horizontalLine in tmpReversedHorizontalLines)
             {
-                    horizontalLines.Add(horizontalLine.Key, horizontalLine.Value);
-                    horizontalLines.Add(horizontalLine.Value, horizontalLine.Key);
+                horizontalLines.Add(horizontalLine.Key, horizontalLine.Value);
+                horizontalLines.Add(horizontalLine.Value, horizontalLine.Key);
             }
 
             foreach (var verticalLine in tmpReversedVerticalLines)
             {
-                    verticalLines.Add(verticalLine.Key, verticalLine.Value);
-                    verticalLines.Add(verticalLine.Value, verticalLine.Key);
+                verticalLines.Add(verticalLine.Key, verticalLine.Value);
+                verticalLines.Add(verticalLine.Value, verticalLine.Key);
             }
         }
 
@@ -117,9 +116,7 @@ namespace Chunks.Collision
             Dictionary<Vector2i, Vector2i> verticalLines)
         {
             var colliderLists = new List<List<Vector2i>>();
-            // 0 is horizontal
-            // 1 is vertical
-            var lines = new [] {horizontalLines, verticalLines};
+            var lines = new [] { horizontalLines, verticalLines };
 
             while (horizontalLines.Count > 0)
             {
