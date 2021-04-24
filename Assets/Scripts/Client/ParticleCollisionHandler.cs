@@ -36,9 +36,9 @@ namespace Client
         {
             var count = _particleSystem.GetCollisionEvents(other, _events);
 
-            foreach (var e in _events)
+            for (var i = 0; i < count; ++i)
             {
-
+                var e = _events[i];
                 Vector2 worldPosition = e.intersection;
                 var blockWorldPosition = new Vector2i((int) Mathf.Floor((worldPosition.x + 0.5f) * Chunk.Size), (int) Mathf.Floor((worldPosition.y + 0.5f) * Chunk.Size));
                 var serverChunkPosition = GetChunkPosition(blockWorldPosition.x, blockWorldPosition.y);
