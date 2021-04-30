@@ -24,16 +24,16 @@ namespace Tiles
         public static Vector2i GetTilePositionFromChunkPosition(Vector2i position)
         {
             return new Vector2i(
-                (int) Mathf.Floor((float) position.x / Tile.HorizontalSize),
-                (int) Mathf.Floor((float) position.y / Tile.VerticalSize)
+                (int) Mathf.Floor((float) position.x / Tile.HorizontalChunkCount),
+                (int) Mathf.Floor((float) position.y / Tile.VerticalChunkCount)
             );
         }
 
         public static Vector2i GetTilePositionFromWorldPosition(Vector2 position)
         {
             return new Vector2i(
-                (int) Mathf.Floor((position.x + 0.5f) / Tile.HorizontalSize),
-                (int) Mathf.Floor((position.y + 0.5f) / Tile.VerticalSize)
+                (int) Mathf.Floor((position.x + 0.5f) / Tile.HorizontalChunkCount),
+                (int) Mathf.Floor((position.y + 0.5f) / Tile.VerticalChunkCount)
             );
         }
     }

@@ -6,9 +6,9 @@ namespace Tiles
 {
     public class Tile : IDisposable
     {
-        public const int HorizontalSize = 4;
-        public const int VerticalSize = 3;
-        public const int TotalSize = HorizontalSize * VerticalSize;
+        public const int HorizontalChunkCount = 4;
+        public const int VerticalChunkCount = 3;
+        public const int TotalSize = HorizontalChunkCount * VerticalChunkCount;
 
         // This does not correspond to the world position, but to the relative position in the tilemap
         public Vector2i Position;
@@ -20,9 +20,9 @@ namespace Tiles
 
         public IEnumerable<Vector2i> GetChunkPositions()
         {
-            for (var y = Position.y * VerticalSize; y < Position.y * VerticalSize + VerticalSize; ++y)
+            for (var y = Position.y * VerticalChunkCount; y < Position.y * VerticalChunkCount + VerticalChunkCount; ++y)
             {
-                for (var x = Position.x * HorizontalSize; x < Position.x * HorizontalSize + HorizontalSize; ++x)
+                for (var x = Position.x * HorizontalChunkCount; x < Position.x * HorizontalChunkCount + HorizontalChunkCount; ++x)
                 {
                     yield return new Vector2i(x, y);
                 }

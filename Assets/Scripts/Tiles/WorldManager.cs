@@ -430,14 +430,14 @@ namespace Tiles
                 var tileColor = colorsPerIdx[idx];
                 idx = (idx + 1) % 9;
 
-                var x = tile.Position.x * Tile.HorizontalSize;
-                var y = tile.Position.y * Tile.VerticalSize;
+                var x = tile.Position.x * Tile.HorizontalChunkCount;
+                var y = tile.Position.y * Tile.VerticalChunkCount;
 
                 // draw the tile borders
-                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset), tileColor);
-                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset, y - worldOffset + Tile.VerticalSize), tileColor);
-                Debug.DrawLine(new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset + Tile.VerticalSize), new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset), tileColor);
-                Debug.DrawLine(new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset + Tile.VerticalSize), new Vector3(x - worldOffset, y - worldOffset + Tile.VerticalSize), tileColor);
+                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset + Tile.HorizontalChunkCount, y - worldOffset), tileColor);
+                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset, y - worldOffset + Tile.VerticalChunkCount), tileColor);
+                Debug.DrawLine(new Vector3(x - worldOffset + Tile.HorizontalChunkCount, y - worldOffset + Tile.VerticalChunkCount), new Vector3(x - worldOffset + Tile.HorizontalChunkCount, y - worldOffset), tileColor);
+                Debug.DrawLine(new Vector3(x - worldOffset + Tile.HorizontalChunkCount, y - worldOffset + Tile.VerticalChunkCount), new Vector3(x - worldOffset, y - worldOffset + Tile.VerticalChunkCount), tileColor);
             }
         }
 
