@@ -115,8 +115,6 @@ namespace Chunks.Collision
             var colliderLists = new List<List<Vector2>>();
             var lines = new [] { horizontalLines, verticalLines };
 
-
-
             while (horizontalLines.Count > 0)
             {
                 var idx = 0;
