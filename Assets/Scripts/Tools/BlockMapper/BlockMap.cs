@@ -33,7 +33,7 @@ namespace Tools.BlockMapper
                 SpriteMeshType.FullRect);
             _blockMaskColors = new byte[sprite.texture.width * sprite.texture.height * 4];
             for (var i = 0; i < _blockMaskColors.Length / 4; i++)
-                AssignBlockColor(i, BlockConstants.GetBlockColor(entity.blocks[i].type));
+                AssignBlockColor(i, BlockConstants.GetBlockColor(entity.blocks[i].Type));
             Reload();
         }
 

@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
-using Chunks;
 using Serialized;
 
 namespace Tiles.Tasks
@@ -12,14 +11,8 @@ namespace Tiles.Tasks
         {
             TileData = new TileData
             {
-                chunkLayers = new BlockData[ChunkLayer.TotalChunkLayers][],
-                entities = new EntityData[ChunkLayer.TotalChunkLayers][]
+                // chunks = new BlockData[Tile.ChunkAmount],
             };
-
-            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
-            {
-                TileData.Value.chunkLayers[i] = new BlockData[Tile.TotalSize];
-            }
         }
 
         protected override void Execute()
@@ -27,7 +20,7 @@ namespace Tiles.Tasks
             using (var file = File.Open(TileFullFileName, FileMode.Create))
             using (var compressionStream = new GZipStream(file, CompressionMode.Compress))
             {
-                new BinaryFormatter().Serialize(compressionStream, TileData.Value);
+                new BinaryFormatter().Serialize(compressionStream, TileData);
                 compressionStream.Flush();
             }
         }

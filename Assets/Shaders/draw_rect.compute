@@ -1,0 +1,33 @@
+﻿#pragma kernel draw_rect
+#include "block.cginc"
+#include "color.cginc"
+
+int4 rect;
+int2 world_size;
+int type;
+int states;
+float lifetime;
+float4 color;
+float color_max_shift;
+RWTexture2D<float4> colors;
+RWStructuredBuffer<block> blocks;
+
+[numthreads(8,8,1)]
+void draw_rect(uint3 id : SV_DispatchThreadID)
+{
+    const int2 pos = int2(rect.x + id.x, world_size.y - (rect.y + id.y) - 1);
+    // check world bounds
+    if (pos.x >= 0 && pos.y >= 0 && pos.x < world_size.x && pos.y < world_size.y)
+    {
+        // check area bounds
+        if (id.x < rect.z && id.y < rect.w)
+        {
+            const int i = pos.y * world_size.x + pos.x;
+            blocks[i].lock = 0;
+            blocks[i].type = type;
+            blocks[i].states = states;
+            blocks[i].lifetime = lifetime;
+            colors[pos] = shift_color(color, color_max_shift, seed(id));
+        }
+    }
+}

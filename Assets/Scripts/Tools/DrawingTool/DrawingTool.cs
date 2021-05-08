@@ -28,10 +28,6 @@ namespace Tools.DrawingTool
         private Vector2i? _lastPointDrawn;
         private Vector2i? _lastPointDrawnForLine;
 
-        private readonly UniqueQueue<Vector2i> _blockQueue = new UniqueQueue<Vector2i>();
-
-        private ChunkLayerType _currentLayer = ChunkLayerType.Foreground;
-
         private void Awake()
         {
             parameters = GetComponent<DrawingParameters.DrawingParameters>();
@@ -42,23 +38,31 @@ namespace Tools.DrawingTool
             if (GlobalConfig.StaticGlobalConfig.disableDrawingTool)
                 return;
 
-            var blockPosition = GetWorldPositionFromMousePosition();
-
-            if (Input.GetKey(KeyCode.LeftControl))
-                _currentLayer = ChunkLayerType.Background;
-            else
-                _currentLayer = ChunkLayerType.Foreground;
-
+            Vector2i blockPosition;
             if (drawBrushSelection)
             {
+                blockPosition = GetWorldBlockPositionFromMousePosition();
                 parameters.DrawBrush(blockPosition.x - Chunk.Size / 2f, blockPosition.y - Chunk.Size / 2f, 1f / Chunk.Size);
                 PrintSelectedBlockInfo(blockPosition.x, blockPosition.y);
             }
 
-            if (GlobalConfig.StaticGlobalConfig.outlineChunks)
+            var chunkManagerPosition = worldManager.transform.position;
+            var worldTileSize = worldManager.tileGridThickness * 2 + 1;
+            var worldWidth = worldTileSize * Tile.HorizontalChunks;
+            var worldHeight = worldTileSize * Tile.VerticalChunks;
+            var x = chunkManagerPosition.x - worldWidth / 2.0f;
+            var y = chunkManagerPosition.y - worldHeight / 2.0f;
+
+            var mousePos = Input.mousePosition;
+            if (Camera.main is null)
             {
-                DrawChunkGrid(blockPosition.x, blockPosition.y);
+                throw new InvalidOperationException();
             }
+            var worldPos = Camera.main.ScreenToWorldPoint(mousePos);
+            blockPosition = new Vector2i(
+                (int) Mathf.Floor((worldPos.x - x + 0.5f) * Chunk.Size),
+                (int) Mathf.Floor((worldPos.y - y + 0.5f) * Chunk.Size)
+                );
 
             switch (parameters.tool)
             {
@@ -66,62 +70,36 @@ namespace Tools.DrawingTool
                     UpdateBrush(blockPosition);
                     break;
                 case DrawingToolType.Fill:
-                    UpdateFill(blockPosition);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private void DrawChunkGrid(float worldX, float worldY)
-        {
-            var chunk = worldManager.GetChunk(GetChunkPosition(worldX, worldY), _currentLayer);
-            if (chunk == null)
-                return;
-
-            DrawBlockGrid(chunk.Position);
-        }
-
-        private static void DrawBlockGrid(Vector2i chunkPos)
-        {
-            var gridColor = new Color32(255, 255, 255, 90);
-            for (var x = 0; x < Chunk.Size + 1; x++)
-            {
-                var xOffset = x / (float)Chunk.Size - 0.5f;
-                Debug.DrawLine(new Vector3(chunkPos.x + xOffset, chunkPos.y - 0.5f), new Vector3(chunkPos.x + xOffset, chunkPos.y + 0.5f), gridColor);
-            }
-
-            for (var y = 0; y < Chunk.Size + 1; y++)
-            {
-                var yOffset = y / (float)Chunk.Size - 0.5f;
-                Debug.DrawLine(new Vector3(chunkPos.x - 0.5f, chunkPos.y + yOffset), new Vector3(chunkPos.x + 0.5f, chunkPos.y + yOffset), gridColor);
-            }
-        }
-
         private void PrintSelectedBlockInfo(float worldX, float worldY)
         {
-            var chunk = worldManager.GetChunk(GetChunkPosition(worldX, worldY), _currentLayer);
-            if (chunk == null)
-                return;
-            var blockXInChunk = Helpers.Mod((int) worldX, Chunk.Size);
-            var blockYInChunk = Helpers.Mod((int) worldY, Chunk.Size);
-            var blockIndexInChunk = blockYInChunk * Chunk.Size + blockXInChunk;
-            ref var block = ref chunk.GetBlockInfo(blockIndexInChunk);
-            var r = chunk.Colors[blockIndexInChunk * 4];
-            var g = chunk.Colors[blockIndexInChunk * 4 + 1];
-            var b = chunk.Colors[blockIndexInChunk * 4 + 2];
-            var a = chunk.Colors[blockIndexInChunk * 4 + 3];
-
-            uiCoordText.text =
-                $"X: {blockXInChunk}, Y: {blockYInChunk}\n"
-                + $"Type: {BlockConstants.BlockNames[block.type]}\n"
-                + $"StateBitset: {block.states}\n"
-                + $"Health: {block.health}\n"
-                + $"Lifetime: {block.lifetime}\n"
-                + $"UpdatedFlag: {chunk.LastBlockUpdateFrame[blockIndexInChunk]}\n"
-                + $"Color: [{r},{g},{b},{a}]\n"
-                + $"Chunk X:{chunk.Position.x}, Chunk Y: {chunk.Position.y}\n"
-                + $"Current Frame: {WorldManager.CurrentFrame}";
+            // var chunk = worldManager.GetChunk(GetChunkPosition(worldX, worldY));
+            // if (chunk == null)
+            //     return;
+            // var blockXInChunk = Helpers.Mod((int) worldX, Chunk.Size);
+            // var blockYInChunk = Helpers.Mod((int) worldY, Chunk.Size);
+            // var blockIndexInChunk = blockYInChunk * Chunk.Size + blockXInChunk;
+            // ref var block = ref chunk.GetBlockInfo(blockIndexInChunk);
+            // var r = chunk.Colors[blockIndexInChunk * 4];
+            // var g = chunk.Colors[blockIndexInChunk * 4 + 1];
+            // var b = chunk.Colors[blockIndexInChunk * 4 + 2];
+            // var a = chunk.Colors[blockIndexInChunk * 4 + 3];
+            //
+            // uiCoordText.text =
+            //     $"X: {blockXInChunk}, Y: {blockYInChunk}\n"
+            //     + $"Type: {BlockConstants.BlockNames[block.type]}\n"
+            //     + $"StateBitset: {block.states}\n"
+            //     + $"Health: {block.health}\n"
+            //     + $"Lifetime: {block.lifetime}\n"
+            //     + $"UpdatedFlag: {chunk.LastBlockUpdateFrame[blockIndexInChunk]}\n"
+            //     + $"Color: [{r},{g},{b},{a}]\n"
+            //     + $"Chunk X:{chunk.Position.x}, Chunk Y: {chunk.Position.y}\n"
+            //     + $"Current Frame: {WorldManager.CurrentFrame}";
         }
 
         private void UpdateBrush(Vector2i blockPosition)
@@ -130,14 +108,14 @@ namespace Tools.DrawingTool
             {
                 if (_lastPointDrawnForLine != null && Input.GetKey(KeyCode.LeftShift))
                     Draw.Line(_lastPointDrawnForLine.Value.x, _lastPointDrawnForLine.Value.y,
-                        blockPosition.x, blockPosition.y, (x, y) => DrawBrush(x, y, false));
+                        blockPosition.x, blockPosition.y, (x, y) => DrawBrush(x, y));
             }
             else if (Input.GetMouseButton(0))
             {
                 if (_lastPointDrawn == null)
                     DrawBrush(blockPosition.x, blockPosition.y);
                 else
-                    Draw.Line(_lastPointDrawn.Value.x, _lastPointDrawn.Value.y, blockPosition.x, blockPosition.y, (x, y) => DrawBrush(x, y, false));
+                    Draw.Line(_lastPointDrawn.Value.x, _lastPointDrawn.Value.y, blockPosition.x, blockPosition.y, (x, y) => DrawBrush(x, y));
                 _lastPointDrawn = new Vector2i(blockPosition.x, blockPosition.y);
             }
             else if (Input.GetMouseButtonUp(0))
@@ -152,17 +130,6 @@ namespace Tools.DrawingTool
                     DrawDebugLine(_lastPointDrawnForLine.Value, blockPosition, UnityEngine.Color.white);
                 }
             }
-
-            Flush();
-        }
-
-        private void Flush()
-        {
-            while (_blockQueue.Count != 0)
-            {
-                var p = _blockQueue.Dequeue();
-                PutBlock(p.x, p.y);
-            }
         }
 
         private static void DrawDebugLine(Vector2i start, Vector2i end, Color32 color)
@@ -175,112 +142,55 @@ namespace Tools.DrawingTool
             Debug.DrawLine(new Vector2(xStart, yStart), new Vector2(xEnd, yEnd), color);
         }
 
-        private void UpdateFill(Vector2i blockPosition)
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                Draw.Fill(blockPosition.x, blockPosition.y, GetBlockType, (x, y) => PutBlock(x, y));
-            }
-        }
-
-        private static Vector2i GetWorldPositionFromMousePosition()
+        private Vector2i GetWorldBlockPositionFromMousePosition()
         {
             var mousePos = Input.mousePosition;
             if (Camera.main is null)
             {
                 throw new InvalidOperationException();
             }
+
             var worldPos = Camera.main.ScreenToWorldPoint(mousePos);
-            return new Vector2i((int) Mathf.Floor((worldPos.x + 0.5f) * Chunk.Size), (int) Mathf.Floor((worldPos.y + 0.5f) * Chunk.Size));
+            var worldBlockPosition = new Vector2i(
+                (int) Mathf.Floor((worldPos.x + 0.5f) * Chunk.Size),
+                (int) Mathf.Floor((worldPos.y + 0.5f) * Chunk.Size)
+            );
+            return worldBlockPosition;
         }
 
-        private void DrawBrush(int x, int y, bool immediate = true)
+        private void DrawBrush(int x, int y)
         {
             switch (parameters.brush)
             {
                 case DrawingBrushType.Box:
-                    Draw.Rectangle(x, y, parameters.size, parameters.size, (i, j) => PutBlock(i, j, immediate));
+                    DrawBlockRectangle(x - parameters.size / 2, y - parameters.size / 2, parameters.size, parameters.size);
                     break;
                 case DrawingBrushType.Circle:
-                    Draw.Circle(x, y, parameters.size, (i, j) => PutBlock(i, j, immediate));
+                    // Draw.Circle(x, y, parameters.size, (i, j) => PutBlock(i, j, immediate));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private void PutBlock(int worldX, int worldY, bool immediate = true)
+        private void DrawBlockRectangle(int worldX, int worldY, int width, int height)
         {
-            if (!immediate)
-            {
-                _blockQueue.Enqueue(new Vector2i(worldX, worldY));
-                return;
-            }
+            var blockColor = BlockConstants.BlockDescriptors[parameters.block].Color;;
 
-            var blockColor = GetBlockColor();
-
-            var r = (byte)(blockColor.r / ((int) _currentLayer + 1.0f));
-            var g = (byte)(blockColor.g / ((int)_currentLayer + 1.0f));
-            var b = (byte)(blockColor.b / ((int)_currentLayer + 1.0f));
             if (parameters.state == 1)
             {
                 var fireSpread = BlockConstants.BlockDescriptors[parameters.block].FireSpreader;
                 if (fireSpread != null && fireSpread.CombustionProbability > 0.0f)
                 {
                     blockColor = fireSpread.FireColor;
-                    blockColor.Shift(out r, out g, out b);
                 }
             }
 
-            var chunk = worldManager.GetChunk(GetChunkPosition(worldX, worldY), _currentLayer);
-            if (chunk == null)
-                return;
-
-            var blockXInChunk = Helpers.Mod(worldX, Chunk.Size);
-            var blockYInChunk = Helpers.Mod(worldY, Chunk.Size);
-
-            if (colorizeOnly)
-            {
-                var i = blockYInChunk * Chunk.Size + blockXInChunk;
-                chunk.Colors[i * 4] = (byte)(pixelColorOverride.r / ((int) _currentLayer + 1.0f));
-                chunk.Colors[i * 4 + 1] = (byte)(pixelColorOverride.g / ((int) _currentLayer + 1.0f));
-                chunk.Colors[i * 4 + 2] = (byte)(pixelColorOverride.b / ((int) _currentLayer + 1.0f));
-                chunk.Colors[i * 4 + 3] = pixelColorOverride.a;
-            }
-            else
-            {
-                var descriptor = BlockConstants.BlockDescriptors[parameters.block];
-                if (descriptor.InitialStates != 0 && parameters.state == 0)
-                    parameters.state = BlockConstants.BlockDescriptors[parameters.block].InitialStates;
-                chunk.PutBlock(blockXInChunk, blockYInChunk, parameters.block, r, g, b, blockColor.a,
-                    parameters.state, BlockConstants.BlockDescriptors[parameters.block].BaseHealth, 0, 0);
-                if (descriptor.PlantGrower != null)
-                {
-                    ref var plantBlockData = ref chunk.GetPlantBlockData(blockXInChunk, blockYInChunk, parameters.block);
-                    if (plantBlockData.id != 0)
-                        plantBlockData.Reset(parameters.block, UniqueIdGenerator.Next());
-                }
-            }
-
-            worldManager.QueueChunkForReload(chunk.Position, _currentLayer);
-        }
-
-        private int GetBlockType(int worldX, int worldY)
-        {
-            var chunk = worldManager.GetChunk(GetChunkPosition(worldX, worldY), _currentLayer);
-            if (chunk == null)
-                return -1;
-
-            var blockXInChunk = Helpers.Mod(worldX, Chunk.Size);
-            var blockYInChunk = Helpers.Mod(worldY, Chunk.Size);
-
-            return chunk.GetBlockType(blockYInChunk * Chunk.Size + blockXInChunk);
-        }
-
-        private Vector2i GetChunkPosition(float worldX, float worldY)
-        {
-            return new Vector2i((int) Mathf.Floor(worldX / Chunk.Size),
-                (int) Mathf.Floor(worldY / Chunk.Size));
+            worldManager.DrawRect(
+                worldX, worldY, width, height,
+                parameters.block, blockColor,
+                parameters.state, 0
+            );
         }
 
         private Color GetBlockColor()

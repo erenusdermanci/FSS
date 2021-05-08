@@ -1,17 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Blocks;
 using Chunks;
-using Chunks.Client;
-using Chunks.Server;
 using Entities;
-using Serialized;
 using Tiles.Tasks;
 using Tools;
 using UnityEngine;
 using Utils;
-using Utils.UnityHelpers;
 using Color = UnityEngine.Color;
 using Helpers = Utils.UnityHelpers.Helpers;
 
@@ -20,12 +15,25 @@ namespace Tiles
     public class WorldManager : MonoBehaviour
     {
         public int tileGridThickness; // the number of tiles in each direction around the central tile
-        private readonly TileMap _serverTileMap = new TileMap();
+
+        [NonSerialized] public Vector2i Position;
+        [NonSerialized] public int Width;
+        [NonSerialized] public int Height;
+
+        private readonly TileMap _tileMap = new TileMap();
         private int _maxLoadedTiles;
 
         private TileTaskScheduler _tileTaskScheduler;
 
-        public ChunkLayer[] ChunkLayers { get; private set; }
+        public ComputeShader swapBehaviorShader;
+        public ComputeShader drawRectShader;
+        public ComputeShader initColorsShader;
+        public int SwapBehaviorHandle { get; private set;  }
+        public int DrawRectHandle { get; private set;  }
+        public int InitColorsHandle { get; private set;  }
+
+        public ComputeBuffer BlocksBuffer { get; private set; }
+        public RenderTexture RenderTexture { get; private set; }
 
         public static int CurrentFrame;
 
@@ -37,36 +45,66 @@ namespace Tiles
         private Vector2i _oldCameraChunkPosition;
         private Vector2i _currentTilePosition;
 
-        private GameObjectPool[] _chunkPools;
+        public ComputeBuffer TileBlocksBuffer { get; private set; }
+        public Texture2D TileColors { get; private set; }
 
-        [NonSerialized]
-        public ClientCollisionManager CollisionManager;
+        public EntityManager EntityManager;
 
-        public EntityManager EntityManager { get; private set; }
-
-        private void Awake()
+        private unsafe void Awake()
         {
-            ChunkLayers = transform.GetComponentsInChildren<ChunkLayer>();
+            InitColorsHandle = initColorsShader.FindKernel("init_colors");
+            DrawRectHandle = drawRectShader.FindKernel("draw_rect");
+            SwapBehaviorHandle = swapBehaviorShader.FindKernel("swap_behavior");
 
-            EntityManager = transform.GetComponentInChildren<EntityManager>();
+            var worldTileSize = tileGridThickness * 2 + 1;
+            Width = worldTileSize * Tile.HorizontalChunks;
+            Height = worldTileSize * Tile.VerticalChunks;
+
+            BlocksBuffer = new ComputeBuffer(worldTileSize * worldTileSize * Tile.ChunkAmount * Chunk.Size * Chunk.Size, sizeof(Block));
+            RenderTexture = new RenderTexture(worldTileSize * Tile.HorizontalChunks * Chunk.Size, worldTileSize * Tile.VerticalChunks * Chunk.Size, 0)
+            {
+                enableRandomWrite = true,
+                autoGenerateMips = false,
+                useMipMap = false,
+                filterMode = FilterMode.Point
+            };
+            RenderTexture.Create();
+            var meshRenderer = GetComponent<MeshRenderer>();
+            meshRenderer.material.mainTexture = RenderTexture;
+            var xOffset = -0.5f - Width / 2.0f;
+            var yOffset = -0.5f - Height / 2.0f;
+            var vertices = new[]
+            {
+                new Vector3(xOffset, yOffset + Height),
+                new Vector3(xOffset + Width, yOffset + Height),
+                new Vector3(xOffset, yOffset),
+                new Vector3(xOffset + Width, yOffset)
+            };
+            var mesh = gameObject.GetComponent<MeshFilter>().mesh;
+            mesh.vertices = vertices;
 
             _tileTaskScheduler = new TileTaskScheduler();
-            _chunkPools = new GameObjectPool[ChunkLayer.TotalChunkLayers];
 
-            _maxLoadedTiles = (2 * tileGridThickness + 1) * (2 * tileGridThickness + 1);
-            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
+            var tileWidth = Tile.HorizontalChunks * Chunk.Size * Chunk.Size;
+            var tileHeight = Tile.VerticalChunks * Chunk.Size * Chunk.Size;
+            TileBlocksBuffer = new ComputeBuffer(tileWidth * tileHeight, sizeof(Block));
+            TileColors = new Texture2D(tileWidth, tileHeight, TextureFormat.RGBA32, false)
             {
-                _chunkPools[i] = new GameObjectPool(ChunkLayers[i],
-                    Tile.TotalSize * _maxLoadedTiles);
-            }
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Point
+            };
 
-            CollisionManager = new ClientCollisionManager(this);
+            var unityPosition = transform.position;
+            Position.Set(
+                (int) (unityPosition.x + xOffset),
+                (int) (unityPosition.y + yOffset)
+            );
         }
 
         private void Start()
         {
             _tileTaskScheduler.GetTaskManager(TileTaskTypes.Load).Processed += OnTileLoaded;
-            _tileTaskScheduler.GetTaskManager(TileTaskTypes.Save).Processed += OnTileSaved;
+            // _tileTaskScheduler.GetTaskManager(TileTaskTypes.Save).Processed += OnTileSaved;
 
             if (Camera.main != null)
             {
@@ -78,18 +116,14 @@ namespace Tiles
 
             InitializeTileMap();
 
-            GlobalConfig.DisableDirtyRectsChanged += DisableDirtyRectsChangedEvent;
-
             CurrentFrame = 1;
         }
 
         private void InitializeTileMap()
         {
-            var initialTilePos = TileHelpers.GetTilePositionFromChunkPosition(_cameraChunkPosition);
-            var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(initialTilePos, tileGridThickness);
-            foreach (var tilePos in newTilePositions)
+            foreach (var tilePos in TileHelpers.GetRelativeTilePositions(tileGridThickness))
             {
-                _tileTaskScheduler.QueueForLoad(tilePos);
+                _tileTaskScheduler.QueueForLoad(this, new Vector2i(tilePos.x, tilePos.y));
             }
 
             _tileTaskScheduler.ForceLoad();
@@ -98,25 +132,42 @@ namespace Tiles
         private void Update()
         {
             _tileTaskScheduler.Update();
+
+            if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
+                return;
+            if (GlobalConfig.StaticGlobalConfig.pauseSimulation)
+                return;
+            if (!GlobalConfig.StaticGlobalConfig.stepByStep
+            || GlobalConfig.StaticGlobalConfig.stepByStep && Input.GetKeyDown(KeyCode.Space))
+            {
+                foreach (var tile in _tileMap.Tiles())
+                {
+                    tile.Update();
+                }
+            }
         }
 
         private void FixedUpdate()
         {
             _mainCamera = Camera.main;
 
-            CollisionManager.Update();
-
             CurrentFrame++;
 
             _cameraHasMoved = UpdateCameraHasMoved();
 
+            var unityPosition = transform.position;
+            Position.Set(
+                (int) (unityPosition.x + -0.5f - Width / 2.0f),
+                (int) (unityPosition.y + -0.5f - Height / 2.0f)
+            );
+
             if (_cameraHasMoved && _mainCamera != null)
             {
                 MainCameraPosition = _mainCamera.transform.position;
-                HandleTileMapLoading();
+                // HandleTileMapLoading();
             }
 
-            HandleTileMapUnloading();
+            // HandleTileMapUnloading();
 
             if (GlobalConfig.StaticGlobalConfig.outlineTiles)
                 OutlineTiles();
@@ -135,243 +186,233 @@ namespace Tiles
             return true;
         }
 
-        private void HandleTileMapLoading()
-        {
-            var newTilePosition = TileHelpers.GetTilePositionFromChunkPosition(_cameraChunkPosition);
+        // private void HandleTileMapLoading()
+        // {
+        //     var newTilePosition = TileHelpers.GetTilePositionFromChunkPosition(_cameraChunkPosition);
+        //
+        //     if (newTilePosition != _currentTilePosition)
+        //     {
+        //         var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(newTilePosition, tileGridThickness);
+        //         foreach (var tilePosition in newTilePositions)
+        //         {
+        //             if (_serverTileMap.Contains(tilePosition))
+        //                 continue;
+        //
+        //             _tileTaskScheduler.QueueForLoad(tilePosition);
+        //         }
+        //
+        //         _currentTilePosition = newTilePosition;
+        //     }
+        // }
 
-            if (newTilePosition != _currentTilePosition)
-            {
-                var newTilePositions = TileHelpers.GetTilePositionsAroundCentralTilePosition(newTilePosition, tileGridThickness);
-                foreach (var tilePosition in newTilePositions)
-                {
-                    if (_serverTileMap.Contains(tilePosition))
-                        continue;
+        // private void HandleTileMapUnloading()
+        // {
+        //     // unload faraway tiles
+        //     foreach (var tile in _serverTileMap.Tiles())
+        //     {
+        //         if (Math.Abs(_currentTilePosition.x - tile.Position.x) >= tileGridThickness + 1
+        //             || Math.Abs(_currentTilePosition.y - tile.Position.y) >= tileGridThickness + 1)
+        //         {
+        //             QueueTileForSave(tile);
+        //         }
+        //     }
+        // }
 
-                    _tileTaskScheduler.QueueForLoad(tilePosition);
-                }
-
-                _currentTilePosition = newTilePosition;
-            }
-        }
-
-        private void HandleTileMapUnloading()
-        {
-            // unload faraway tiles
-            foreach (var tile in _serverTileMap.Tiles())
-            {
-                if (Math.Abs(_currentTilePosition.x - tile.Position.x) >= tileGridThickness + 1
-                    || Math.Abs(_currentTilePosition.y - tile.Position.y) >= tileGridThickness + 1)
-                {
-                    QueueTileForSave(tile);
-                }
-            }
-        }
-
-        private void QueueTileForSave(Tile tile)
-        {
-            var tileSaveTask = _tileTaskScheduler.QueueForSave(tile);
-            if (tileSaveTask == null)
-                return;
-
-            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
-            {
-                foreach (var position in tile.GetChunkPositions())
-                {
-                    if (ChunkLayers[i].chunkSimulator != null)
-                    {
-                        var chunk = ChunkLayers[i].ServerChunkMap[position];
-                        ChunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, false);
-                    }
-                }
-            }
-
-            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
-            {
-                var idx = 0;
-                foreach (var position in tileSaveTask.Tile.GetChunkPositions())
-                {
-                    if (ChunkLayers[i].ServerChunkMap.Contains(position))
-                    {
-                        var chunkToSave = ChunkLayers[i].ServerChunkMap[position];
-                        if (tileSaveTask.TileData != null && chunkToSave != null)
-                        {
-                            ref var blockData = ref tileSaveTask.TileData.Value.chunkLayers[i][idx];
-                            blockData.colors = chunkToSave.Colors.ToArray();
-                            blockData.types = new int[chunkToSave.Blocks.Length];
-                            blockData.states = new int[chunkToSave.Blocks.Length];
-                            blockData.healths = new float[chunkToSave.Blocks.Length];
-                            blockData.lifetimes = new float[chunkToSave.Blocks.Length];
-                            blockData.entityIds = new long[chunkToSave.Blocks.Length];
-                            for (var n = 0; n < chunkToSave.Blocks.Length; ++n)
-                            {
-                                blockData.types[n] = chunkToSave.Blocks[n].type;
-                                blockData.states[n] = chunkToSave.Blocks[n].states;
-                                blockData.healths[n] = chunkToSave.Blocks[n].health;
-                                blockData.lifetimes[n] = chunkToSave.Blocks[n].lifetime;
-                                blockData.entityIds[n] = chunkToSave.Blocks[n].entityId;
-                            }
-                        }
-
-                        var serverChunk = ChunkLayers[i].ServerChunkMap[position];
-                        serverChunk?.Dispose();
-                        ChunkLayers[i].ServerChunkMap.Remove(position);
-
-                        var clientChunk = ChunkLayers[i].ClientChunkMap[position];
-                        clientChunk?.Dispose();
-                        ChunkLayers[i].ClientChunkMap.Remove(position);
-                    }
-                    idx++;
-                }
-            }
-
-            var entitiesToSave = new List<EntityData>[ChunkLayer.TotalChunkLayers];
-            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
-                entitiesToSave[i] = new List<EntityData>();
-            var entitiesToDestroy = new List<Entity>();
-            foreach (var entity in EntityManager.Entities.Values)
-            {
-                var entityPosition = entity.transform.position;
-                if (TileHelpers.GetTilePositionFromWorldPosition(entityPosition) == tileSaveTask.Tile.Position)
-                {
-                    entitiesToSave[(int) entity.chunkLayerType].Add(new EntityData
-                    {
-                        x = entityPosition.x,
-                        y = entityPosition.y,
-                        id = entity.id,
-                        chunkLayer = (int) entity.chunkLayerType,
-                        dynamic = entity.dynamic,
-                        generateCollider = entity.generateCollider,
-                        resourceName = entity.resourceName
-                    });
-                    entitiesToDestroy.Add(entity);
-                }
-            }
-
-            foreach (var entity in entitiesToDestroy)
-                Destroy(entity.gameObject);
-
-            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
-            {
-                if (tileSaveTask.TileData != null)
-                    tileSaveTask.TileData.Value.entities[i] = entitiesToSave[i].ToArray();
-            }
-        }
+        // private void QueueTileForSave(Tile tile)
+        // {
+        //     var tileSaveTask = _tileTaskScheduler.QueueForSave(tile);
+        //     if (tileSaveTask == null)
+        //         return;
+        //
+        //     var idx = 0;
+        //     foreach (var position in tileSaveTask.Tile.GetChunkPositions())
+        //     {
+        //         if (ChunkManager.ChunkMap.Contains(position))
+        //         {
+        //             var chunkToSave = ChunkManager.ChunkMap[position];
+        //             if (tileSaveTask.TileData != null && chunkToSave != null)
+        //             {
+        //                 ref var blockData = ref tileSaveTask.TileData.blocks;
+        //                 var blocks = tileSaveTask.Tile.GetBlocks();
+        //                 blockData.colors = tileSaveTask.Tile.GetColorsAsBytes();
+        //                 blockData.types = new int[blocks.Length];
+        //                 blockData.states = new int[blocks.Length];
+        //                 blockData.lifetimes = new float[blocks.Length];
+        //                 for (var n = 0; n < blocks.Length; ++n)
+        //                 {
+        //                     blockData.types[n] = blocks[n].Type;
+        //                     blockData.states[n] = blocks[n].States;
+        //                     blockData.lifetimes[n] = blocks[n].Lifetime;
+        //                 }
+        //             }
+        //
+        //             ChunkManager.ChunkMap.Remove(position);
+        //         }
+        //         idx++;
+        //     }
+        //
+        //     var entitiesToSave = new List<EntityData>();
+        //     var entitiesToDestroy = new List<Entity>();
+        //     foreach (var entity in EntityManager.Entities.Values)
+        //     {
+        //         var entityPosition = entity.transform.position;
+        //         if (TileHelpers.GetTilePositionFromWorldPosition(entityPosition) == tileSaveTask.Tile.Position)
+        //         {
+        //             entitiesToSave.Add(new EntityData
+        //             {
+        //                 x = entityPosition.x,
+        //                 y = entityPosition.y,
+        //                 id = entity.id,
+        //                 dynamic = entity.dynamic,
+        //                 generateCollider = entity.generateCollider,
+        //                 resourceName = entity.resourceName
+        //             });
+        //             entitiesToDestroy.Add(entity);
+        //         }
+        //     }
+        //
+        //     foreach (var entity in entitiesToDestroy)
+        //         Destroy(entity.gameObject);
+        //
+        //     if (tileSaveTask.TileData != null)
+        //         tileSaveTask.TileData.entities = entitiesToSave.ToArray();
+        // }
 
         private void OnTileSaved(object sender, EventArgs e)
         {
             var tileTask = ((TileTaskEvent) e).Task;
 
-            _serverTileMap.Remove(tileTask.Tile.Position);
-            tileTask.Tile.Dispose();
+            _tileMap.Remove(tileTask.Tile.Position);
         }
 
         private void OnTileLoaded(object sender, EventArgs e)
         {
             var tileTask = ((TileTaskEvent) e).Task;
-            _serverTileMap.Add(tileTask.Tile);
+            _tileMap.Add(tileTask.Tile);
 
-            for (var i = 0; i < ChunkLayer.TotalChunkLayers; ++i)
-            {
-                var idx = 0;
-                foreach (var position in tileTask.Tile.GetChunkPositions())
-                {
-                    var chunk = new ChunkServer
-                    {
-                        Position = position
-                    };
-                    if (tileTask.TileData != null)
-                    {
-                        var blockData = tileTask.TileData.Value.chunkLayers[i][idx];
-                        chunk.Blocks = new Block[blockData.types.Length];
-                        for (var n = 0; n < blockData.types.Length; ++n)
-                        {
-                            chunk.Blocks[n].type = blockData.types[n];
-                            chunk.Blocks[n].states = blockData.states[n];
-                            chunk.Blocks[n].health = blockData.healths[n];
-                            chunk.Blocks[n].lifetime = blockData.lifetimes[n];
-                            chunk.Blocks[n].entityId = blockData.entityIds[n];
-                        }
-                        chunk.Colors = blockData.colors;
-                    }
-                    else
-                    {
-                        chunk.Initialize();
-                        chunk.GenerateEmpty();
-                    }
-                    ChunkLayers[i].ServerChunkMap.Add(chunk);
-                    if (ChunkLayers[i].chunkSimulator != null)
-                        ChunkLayers[i].chunkSimulator.UpdateSimulationPool(chunk, true);
+            // var idx = 0;
+            // foreach (var position in tileTask.Tile.GetChunkPositions())
+            // {
+            //     var chunk = ChunkManager.CreateChunk(position);
+            //     if (tileTask.TileData != null)
+            //     {
+            //         var blockData = tileTask.TileData.chunks[idx];
+            //         var blocks = new Block[blockData.types.Length];
+            //         for (var n = 0; n < blockData.types.Length; ++n)
+            //         {
+            //             blocks[n].Type = blockData.types[n];
+            //             blocks[n].States = blockData.states[n];
+            //             blocks[n].Lifetime = blockData.lifetimes[n];
+            //         }
+            //     }
+            //     else
+            //     {
+            //         // TODO: generate empty tile
+            //     }
+            //     idx++;
+            // }
 
-                    var clientChunk = CreateClientChunk(_chunkPools[i], chunk);
-                    ChunkLayers[i].ClientChunkMap.Add(clientChunk);
-
-                    if (i == (int) ChunkLayerType.Foreground)
-                        CollisionManager.QueueChunkCollisionGeneration(chunk);
-                    idx++;
-                }
-            }
+            const int emptyBlock = BlockConstants.Water;
+            var descriptor = BlockConstants.BlockDescriptors[emptyBlock];
+            DrawRect(
+                tileTask.Tile.Position.x * Tile.HorizontalChunks * Chunk.Size,
+                tileTask.Tile.Position.y * Tile.VerticalChunks * Chunk.Size,
+                Tile.HorizontalChunks * Chunk.Size,
+                Tile.VerticalChunks * Chunk.Size,
+                emptyBlock,
+                descriptor.Color,
+                descriptor.InitialStates,
+                0
+            );
 
             if (tileTask.TileData != null)
             {
-                foreach (var entityLayer in tileTask.TileData.Value.entities)
+                foreach (var entityData in tileTask.TileData.entities)
                 {
-                    foreach (var entityData in entityLayer)
+                    if (!GlobalConfig.StaticGlobalConfig.levelDesignMode && !entityData.dynamic)
+                        continue;
+                    var entityObject = Instantiate((GameObject) Resources.Load(entityData.resourceName), EntityManager.transform, true);
+                    entityObject.transform.position = new Vector2(entityData.x, entityData.y);
+                    var entity = entityObject.GetComponent<Entity>();
+                    entity.id = entityData.id;
+                    entity.dynamic = entityData.dynamic;
+                    entity.generateCollider = entityData.generateCollider;
+                    EntityManager.Entities.Add(entity.id, entity);
+                    if (GlobalConfig.StaticGlobalConfig.levelDesignMode && !entity.dynamic)
                     {
-                        if (!GlobalConfig.StaticGlobalConfig.levelDesignMode && !entityData.dynamic)
-                            continue;
-                        var entityObject = Instantiate((GameObject) Resources.Load(entityData.resourceName), EntityManager.transform, true);
-                        entityObject.transform.position = new Vector2(entityData.x, entityData.y);
-                        var entity = entityObject.GetComponent<Entity>();
-                        entity.id = entityData.id;
-                        entity.dynamic = entityData.dynamic;
-                        entity.generateCollider = entityData.generateCollider;
-                        entity.SetChunkLayerType((ChunkLayerType) entityData.chunkLayer);
-                        EntityManager.Entities.Add(entity.id, entity);
-                        if (GlobalConfig.StaticGlobalConfig.levelDesignMode && !entity.dynamic)
-                        {
-                            EntityManager.QueueEntityRemoveFromMap(entity);
-                        }
-                        // show the sprite so we can move the entity
-                        entity.spriteRenderer.enabled = true;
+                        EntityManager.QueueEntityRemoveFromMap(entity);
                     }
+                    // show the sprite so we can move the entity
+                    entity.spriteRenderer.enabled = true;
                 }
             }
         }
 
-        private static ChunkClient CreateClientChunk(GameObjectPool chunkPool, Chunk chunkServer)
+        public void DrawRect(int x, int y, int width, int height, int type, Utils.Color color, int states, float lifetime)
         {
-            var chunkGameObject = chunkPool.GetObject();
-            chunkGameObject.transform.position = new Vector3(chunkServer.Position.x, chunkServer.Position.y, 0);
-            var clientChunk = new ChunkClient
-            {
-                Position = chunkServer.Position,
-                Colors = chunkServer.Colors,
-                Blocks = chunkServer.Blocks,
-                GameObject = chunkGameObject,
-                Collider = chunkGameObject.GetComponent<PolygonCollider2D>(),
-                Texture = chunkGameObject.GetComponent<SpriteRenderer>().sprite.texture
-            };
-            chunkGameObject.SetActive(true);
-            clientChunk.UpdateTexture();
+            var threadGroupsX = (int) Math.Ceiling((float) width / Chunk.Size) * 8;
+            var threadGroupsY = (int) Math.Ceiling((float) height / Chunk.Size) * 8;
+            if (threadGroupsX <= 0 || threadGroupsY <= 0)
+                return;
 
-            return clientChunk;
+            var worldWidth = Width * Chunk.Size;
+            var worldHeight = Height * Chunk.Size;
+            drawRectShader.SetTexture(DrawRectHandle, "colors", RenderTexture);
+            drawRectShader.SetBuffer(DrawRectHandle, "blocks", BlocksBuffer);
+            drawRectShader.SetInts("rect", x, y, width, height);
+            drawRectShader.SetInts("world_size", worldWidth, worldHeight);
+            drawRectShader.SetInt("type", type);
+            drawRectShader.SetFloats("color", color.r / 255f, color.g / 255f, color.b / 255f, color.a / 255f);
+            drawRectShader.SetFloat("color_max_shift", color.MaxShift);
+            drawRectShader.SetInt("states", states);
+            drawRectShader.SetFloat("lifetime", lifetime);
+            drawRectShader.Dispatch(DrawRectHandle, threadGroupsX, threadGroupsY, 1);
         }
 
-        public ChunkServer GetChunk(Vector2i position, ChunkLayerType layerType)
-        {
-            var chunkMap = ChunkLayers[(int) layerType].ServerChunkMap;
-            return chunkMap.Contains(position) ? chunkMap[position] : null;
-        }
+        // public Chunk GetChunk(Vector3 position)
+        // {
+        //     var chunkMap = ChunkManager.ChunkMap;
+        //     return chunkMap.Contains(position) ? chunkMap[position] : null;
+        // }
+        //
+        // public UnityEngine.Color[] GetColors()
+        // {
+        //     var rect = new Rect(0, 0, Size, Size);
+        //
+        //     RenderTexture.active = _chunkManager.RenderTexture;
+        //
+        //     _texture2D.ReadPixels(rect, 0, 0);
+        //     _texture2D.Apply();
+        //
+        //     RenderTexture.active = null;
+        //
+        //     return _texture2D.GetPixels();
+        // }
 
-        public void QueueChunkForReload(Vector2i chunkPosition, ChunkLayerType layerType)
-        {
-            ChunkLayers[(int) layerType].QueueChunkForReload(chunkPosition);
-        }
-
-        private static void DisableDirtyRectsChangedEvent(object sender, EventArgs e)
-        {
-            SimulationTask.ResetKnuthShuffle();
-        }
+        // public byte[] GetColorsAsBytes()
+        // {
+        //     var colors = GetColors();
+        //     var colorsAsBytes = new byte[colors.Length * 4];
+        //     for (var i = 0; i < colors.Length; ++i)
+        //     {
+        //         colorsAsBytes[i * 4] = (byte) (colors[i].r * 255);
+        //         colorsAsBytes[i * 4 + 1] = (byte) (colors[i].g * 255);
+        //         colorsAsBytes[i * 4 + 2] = (byte) (colors[i].b * 255);
+        //         colorsAsBytes[i * 4 + 3] = (byte) (colors[i].a * 255);
+        //     }
+        //
+        //     return colorsAsBytes;
+        // }
+        //
+        // public void SetColors(byte[] colorsAsBytes)
+        // {
+        //     _texture2D.LoadRawTextureData(colorsAsBytes);
+        //     _texture2D.Apply();
+        //
+        //     _chunkManager.initColorsShader.SetTexture(_initColorsHandle, "initial_colors", _texture2D);
+        //     _chunkManager.initColorsShader.SetTexture(_initColorsHandle, "colors", _chunkManager.RenderTexture);
+        //     _chunkManager.initColorsShader.Dispatch(_initColorsHandle, 8, 8, 1);
+        // }
 
         // This is not multi-platform compatible, not reliable and not called between scene loads
         private void OnApplicationQuit()
@@ -383,10 +424,10 @@ namespace Tiles
                 if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
                     EntityManager.BlitStaticEntities();
 
-                var tiles = _serverTileMap.Tiles().ToList();
+                var tiles = _tileMap.Tiles().ToList();
                 foreach (var tile in tiles)
                 {
-                    QueueTileForSave(tile);
+                    // QueueTileForSave(tile);
                 }
 
                 _tileTaskScheduler.ForceSave();
@@ -408,11 +449,22 @@ namespace Tiles
             }
         }
 
+        private void OnDestroy()
+        {
+            BlocksBuffer.Release();
+            RenderTexture.Release();
+            TileBlocksBuffer.Release();
+        }
+
         #region Debug
 
         private void OutlineTiles()
         {
-            const float worldOffset = 0.5f;
+            var worldTileSize = tileGridThickness * 2 + 1;
+            var width = worldTileSize * Tile.HorizontalChunks;
+            var height = worldTileSize * Tile.VerticalChunks;
+            var worldOffsetX = -0.5f - width / 2.0f;
+            var worldOffsetY = -0.5f - height / 2.0f;
             var colorsPerIdx = new[] {Color.blue,
                 Color.red,
                 Color.cyan,
@@ -424,20 +476,21 @@ namespace Tiles
                 Color.white
             };
 
+            var chunkManagerPosition = transform.position;
             var idx = 0;
-            foreach (var tile in _serverTileMap.Tiles())
+            foreach (var tile in _tileMap.Tiles())
             {
                 var tileColor = colorsPerIdx[idx];
                 idx = (idx + 1) % 9;
 
-                var x = tile.Position.x * Tile.HorizontalSize;
-                var y = tile.Position.y * Tile.VerticalSize;
+                var x = chunkManagerPosition.x + tile.Position.x * Tile.HorizontalChunks;
+                var y = chunkManagerPosition.y + tile.Position.y * Tile.VerticalChunks;
 
                 // draw the tile borders
-                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset), tileColor);
-                Debug.DrawLine(new Vector3(x - worldOffset, y - worldOffset), new Vector3(x - worldOffset, y - worldOffset + Tile.VerticalSize), tileColor);
-                Debug.DrawLine(new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset + Tile.VerticalSize), new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset), tileColor);
-                Debug.DrawLine(new Vector3(x - worldOffset + Tile.HorizontalSize, y - worldOffset + Tile.VerticalSize), new Vector3(x - worldOffset, y - worldOffset + Tile.VerticalSize), tileColor);
+                Debug.DrawLine(new Vector3(x + worldOffsetX, y + worldOffsetY), new Vector3(x + worldOffsetX + Tile.HorizontalChunks, y + worldOffsetY), tileColor);
+                Debug.DrawLine(new Vector3(x + worldOffsetX, y + worldOffsetY), new Vector3(x + worldOffsetX, y + worldOffsetY + Tile.VerticalChunks), tileColor);
+                Debug.DrawLine(new Vector3(x + worldOffsetX + Tile.HorizontalChunks, y + worldOffsetY + Tile.VerticalChunks), new Vector3(x + worldOffsetX + Tile.HorizontalChunks, y + worldOffsetY), tileColor);
+                Debug.DrawLine(new Vector3(x + worldOffsetX + Tile.HorizontalChunks, y + worldOffsetY + Tile.VerticalChunks), new Vector3(x + worldOffsetX, y + worldOffsetY + Tile.VerticalChunks), tileColor);
             }
         }
 

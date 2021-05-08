@@ -3,9 +3,9 @@
 namespace Serialized
 {
     [Serializable]
-    public struct TileData
+    public class TileData
     {
-        public BlockData[][] chunkLayers;
-        public EntityData[][] entities;
+        public BlockData blocks;
+        public EntityData[] entities;
     }
 }

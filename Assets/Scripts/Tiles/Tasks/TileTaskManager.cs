@@ -63,9 +63,9 @@ namespace Tiles.Tasks
             return _tasks.ContainsKey(position);
         }
 
-        public TileTask Enqueue(Vector2i position)
+        public TileTask Enqueue(WorldManager worldManager, Vector2i position)
         {
-            return !_tasks.ContainsKey(position) ? Enqueue(new Tile(position)) : null;
+            return !_tasks.ContainsKey(position) ? Enqueue(new Tile(worldManager, position)) : null;
         }
 
         public TileTask Enqueue(Tile tile)

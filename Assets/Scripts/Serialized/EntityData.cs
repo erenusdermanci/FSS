@@ -8,7 +8,6 @@ namespace Serialized
         public float x;
         public float y;
         public long id;
-        public int chunkLayer;
         public bool dynamic;
         public bool generateCollider;
         public string resourceName;

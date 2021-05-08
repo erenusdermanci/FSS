@@ -35,7 +35,7 @@ namespace Tiles.Tasks
             }
         }
 
-        public TileLoadTask QueueForLoad(Vector2i position)
+        public TileLoadTask QueueForLoad(WorldManager worldManager, Vector2i position)
         {
             if (_tileTaskManagers[TileTaskTypes.Load].Pending(position)) // chunk is already being loaded or queued for loading
                 return null;
@@ -45,7 +45,7 @@ namespace Tiles.Tasks
                 _tileTaskManagers[TileTaskTypes.Save].Cancel(position);
             }
 
-            return (TileLoadTask)_tileTaskManagers[TileTaskTypes.Load].Enqueue(position);
+            return (TileLoadTask)_tileTaskManagers[TileTaskTypes.Load].Enqueue(worldManager, position);
         }
 
         public TileSaveTask QueueForSave(Tile tile)

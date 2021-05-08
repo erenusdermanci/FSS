@@ -39,11 +39,7 @@ namespace Blocks
         public const int Spark = 13;
         public const int Lava = 14;
         public const int HardenedLava = 15;
-        public const int Plant = 16;
-        public const int PlantRoot = 17;
-        public const int Grass = 18;
-        public const int Leaf = 19;
-        public const int NumberOfBlocks = 20;
+        public const int NumberOfBlocks = 16;
 
         private static readonly FireSpreader PlantFireSpreader = new FireSpreader(
             1.0f,
@@ -362,87 +358,6 @@ namespace Blocks
                         new[] { Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized, Randomized },
                         new[] { BlockTags.Solid, BlockTags.Vegetation }
                     )
-                }
-            ),
-            new BlockDescriptor(
-                "Plant",
-                BlockTags.Vegetation,
-                3.0f,
-                new Color(80, 160, 80, 255, 0.4f),
-                100.0f,
-                0,
-                new IBehavior[]
-                {
-                    new PlantGrower(0.0f,
-                        1.0f,
-                        2,
-                        0.5f,
-                        new[] { 0.1f, 0.1f },
-                        new [] { 32, 8 },
-                        new [] { 64, 16 },
-                        1,
-                        16,
-                        new [] { Air },
-                        PlantRoot),
-                    PlantFireSpreader
-                }
-            ),
-            new BlockDescriptor(
-                "PlantRoot",
-                BlockTags.Vegetation,
-                3.0f,
-                new Color(210, 180, 140, 255, 0.2f),
-                100.0f,
-                0,
-                new IBehavior[]
-                {
-                    new PlantGrower(0.0f,
-                        -1.0f,
-                        3,
-                        0.4f,
-                        new[] { 0.2f, 0.2f, 0.2f },
-                        new [] { 32, 16, 8 },
-                        new [] { 48, 32, 16 },
-                        1,
-                        16,
-                        new [] { Dirt, Sand },
-                        Plant),
-                    PlantFireSpreader
-                }
-            ),
-            new BlockDescriptor(
-                "Grass",
-                BlockTags.Vegetation,
-                3.0f,
-                new Color(42, 76, 0, 255, 0.2f),
-                100.0f,
-                0,
-                new IBehavior[]
-                {
-                    new PlantGrower(0.0f,
-                        1.0f,
-                        1,
-                        0.0f,
-                        new[] { 0.1f, 0.1f, 0.1f, 0.1f },
-                        new [] { 1 },
-                        new [] { 5 },
-                        1,
-                        16,
-                        new [] { Air },
-                        Border),
-                    PlantFireSpreader
-                }
-            ),
-            new BlockDescriptor(
-                "Leaf",
-                BlockTags.Vegetation,
-                3.0f,
-                new Color(80, 160, 80, 255, 0.4f),
-                100.0f,
-                0,
-                new IBehavior[]
-                {
-                    PlantFireSpreader
                 }
             )
         };

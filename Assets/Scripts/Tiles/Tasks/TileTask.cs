@@ -10,7 +10,7 @@ namespace Tiles.Tasks
     {
         public bool Done;
         public readonly Tile Tile;
-        public TileData? TileData;
+        public TileData TileData;
 
         protected readonly string TileFileName;
         protected string TileFullFileName;

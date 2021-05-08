@@ -1,10 +1,8 @@
 ﻿using System;
 using System.IO;
 using Tools;
-using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.SceneManagement; // using UnityEditor;
 
 namespace Utils.UnityHelpers
 {
@@ -52,8 +50,8 @@ namespace Utils.UnityHelpers
             {
                 if (!GUI.changed)
                     return;
-                EditorUtility.SetDirty(obj);
-                EditorSceneManager.MarkSceneDirty(obj.gameObject.scene);
+                // EditorUtility.SetDirty(obj);
+                // EditorSceneManager.MarkSceneDirty(obj.gameObject.scene);
             }
             catch (Exception)
             {

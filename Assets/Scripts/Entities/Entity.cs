@@ -1,16 +1,13 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Blocks;
-using Chunks;
 using Tools;
 using Tools.BlockMapper;
 using UnityEditor;
 using UnityEngine;
 using Utils;
-using Utils.Drawing;
 
 namespace Entities
 {
@@ -33,8 +30,6 @@ namespace Entities
         private int _width;
         private int _height;
 
-        [HideInInspector]
-        public ChunkLayerType chunkLayerType;
         public bool dynamic;
         public bool generateCollider;
         public bool enableBlockMap;
@@ -166,7 +161,7 @@ namespace Entities
                 FileOptions.SequentialScan | FileOptions.Asynchronous))
             using (var compressor = new GZipStream(file, CompressionMode.Compress))
             {
-                new BinaryFormatter().Serialize(compressor, blocks.Select(b => b.type).ToArray());
+                new BinaryFormatter().Serialize(compressor, blocks.Select(b => b.Type).ToArray());
                 compressor.Flush();
             }
         }
@@ -197,7 +192,7 @@ namespace Entities
             GetBlockColor(blockX, blockY, out _, out _, out _, out var a);
             if (a == 0)
                 type = BlockConstants.Air;
-            blocks[blockIndex].type = type;
+            blocks[blockIndex].Type = type;
             if (enableBlockMap)
                 _blockMap.AssignBlockColor(blockIndex, BlockConstants.GetBlockColor(type));
         }
@@ -206,7 +201,7 @@ namespace Entities
         {
             if (blockX < 0 || blockY < 0 || blockX >= _width || blockY >= _height)
                 return BlockConstants.UnassignedBlockType - 1;
-            return blocks[blockY * _width + blockX].type;
+            return blocks[blockY * _width + blockX].Type;
         }
 
         public void GetBlockColor(int blockX, int blockY, out byte r, out byte g, out byte b, out byte a)
@@ -219,25 +214,6 @@ namespace Entities
             a = color.a;
         }
 
-        public void SetChunkLayerType(ChunkLayerType layerType)
-        {
-            if (chunkLayerType == layerType)
-                return;
-            chunkLayerType = layerType;
-            spriteRenderer = spriteRenderer == null ? GetComponent<SpriteRenderer>() : spriteRenderer;
-            switch (layerType)
-            {
-                case ChunkLayerType.Foreground:
-                    spriteRenderer.sortingLayerName = "ForegroundEntities";
-                    break;
-                case ChunkLayerType.Background:
-                    spriteRenderer.sortingLayerName = "BackgroundEntities";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
         private void OnDestroy()
         {
             if (enableBlockMap)
@@ -248,18 +224,18 @@ namespace Entities
             }
         }
 
-        private void BlitIntoMap(Vector2 position)
-        {
-            var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - _width / 2;
-            var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - _height / 2;
-            Draw.Rectangle(_width / 2, _height / 2, _width, _height, (i, j) => _entityManager.PutEntityBlock(this, i, j, x, y));
-        }
-
-        private void RemoveFromMap(Vector2 position)
-        {
-            var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - _width / 2;
-            var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - _height / 2;
-            Draw.Rectangle(_width / 2, _height / 2, _width, _height, (i, j) => _entityManager.RemoveEntityBlock(this, i, j, x, y));
-        }
+        // private void BlitIntoMap(Vector2 position)
+        // {
+        //     var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - _width / 2;
+        //     var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - _height / 2;
+        //     Draw.Rectangle(_width / 2, _height / 2, _width, _height, (i, j) => _entityManager.PutEntityBlock(this, i, j, x, y));
+        // }
+        //
+        // private void RemoveFromMap(Vector2 position)
+        // {
+        //     var x = (int) Mathf.Floor((position.x + 0.5f) * Chunk.Size) - _width / 2;
+        //     var y = (int) Mathf.Floor((position.y + 0.5f) * Chunk.Size) - _height / 2;
+        //     Draw.Rectangle(_width / 2, _height / 2, _width, _height, (i, j) => _entityManager.RemoveEntityBlock(this, i, j, x, y));
+        // }
     }
 }

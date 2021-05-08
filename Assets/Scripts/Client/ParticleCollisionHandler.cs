@@ -76,27 +76,26 @@ namespace Client
                 Vector2 worldPosition = e.intersection;
                 var blockWorldPosition = new Vector2i((int) Mathf.Floor((worldPosition.x + 0.5f) * Chunk.Size), (int) Mathf.Floor((worldPosition.y + 0.5f) * Chunk.Size));
                 var serverChunkPosition = GetChunkPosition(blockWorldPosition.x, blockWorldPosition.y);
-                var serverChunk = worldManager.ChunkLayers[(int) ChunkLayerType.Foreground].ServerChunkMap[serverChunkPosition];
-                if (serverChunk == null)
-                    continue;
+                // var chunk = worldManager.ChunkManager.ChunkMap[serverChunkPosition];
+                // if (chunk == null)
+                    // continue;
                 var blockXInChunk = Helpers.Mod(blockWorldPosition.x, Chunk.Size);
                 var blockYInChunk = Helpers.Mod(blockWorldPosition.y, Chunk.Size);
-                if (serverChunk.GetBlockType(blockYInChunk * Chunk.Size + blockXInChunk) != BlockConstants.Air)
-                    continue;
+                // if (chunk.GetBlocks()[blockYInChunk * Chunk.Size + blockXInChunk].Type != BlockConstants.Air)
+                    // continue;
                 var blockDescriptor = BlockConstants.BlockDescriptors[blockToUse];
-                serverChunk.PutBlock(blockXInChunk, blockYInChunk, blockToUse,
-                    blockDescriptor.Color.r,
-                    blockDescriptor.Color.g,
-                    blockDescriptor.Color.b,
-                    blockDescriptor.Color.a,
-                    blockDescriptor.InitialStates,
-                    blockDescriptor.BaseHealth, 0f, 0);
+                // chunk.PutBlock(blockXInChunk, blockYInChunk, blockToUse,
+                //     blockDescriptor.Color.r,
+                //     blockDescriptor.Color.g,
+                //     blockDescriptor.Color.b,
+                //     blockDescriptor.Color.a,
+                //     blockDescriptor.InitialStates, 0f);
             }
         }
 
-        private Vector2i GetChunkPosition(float worldX, float worldY)
+        private Vector3 GetChunkPosition(float worldX, float worldY)
         {
-            return new Vector2i((int) Mathf.Floor(worldX / Chunk.Size),
+            return new Vector3((int) Mathf.Floor(worldX / Chunk.Size),
                 (int) Mathf.Floor(worldY / Chunk.Size));
         }
     }

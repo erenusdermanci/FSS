@@ -1,0 +1,101 @@
+﻿#pragma kernel swap_behavior
+#include "block.cginc"
+#include "constants.cginc"
+#include "random.cginc"
+
+int2 position;
+int2 world_size;
+uint frame_count;
+RWTexture2D<float4> colors;
+RWStructuredBuffer<block> blocks;
+
+int get_index(int2 pos)
+{
+    return pos.y * world_size.x + pos.x;
+}
+
+int get_valid_index(int2 pos)
+{
+    if (pos.x < 0 || pos.y < 0 || pos.x >= world_size.x || pos.y >= world_size.y)
+        return -1;
+    return get_index(pos);
+    // if (pos.x >= 0 && pos.y >= 0 && pos.x < world_size.x && pos.y < world_size.y)
+        // return get_index(pos);
+    // return -1;
+}
+
+int3 get_block_position(int2 pos)
+{
+    return int3(pos, get_index(pos));
+}
+
+int3 get_valid_block_position(int2 pos)
+{
+    return int3(pos, get_valid_index(pos));
+}
+
+void swap(int3 pos, int3 npos)
+{
+    const block pos_block = blocks[pos.z];
+    const block npos_block = blocks[npos.z];
+    blocks[npos.z].type = pos_block.type;
+    blocks[npos.z].lifetime = pos_block.lifetime;
+    blocks[npos.z].states = pos_block.states;
+    blocks[pos.z].type = npos_block.type;
+    blocks[pos.z].lifetime = npos_block.lifetime;
+    blocks[pos.z].states = npos_block.states;
+    const float4 neighbor_color = colors[npos.xy];
+    colors[npos.xy] = colors[pos.xy];
+    colors[pos.xy] = neighbor_color;
+
+    // reset locks when we're done
+    blocks[pos.z].lock = 0;
+    blocks[npos.z].lock = 0;
+}
+
+bool try_swap(int3 src, int2 dest)
+{
+    const int3 neighbour = get_valid_block_position(dest);
+    if (neighbour.z != -1 && blocks[neighbour.z].type == air)
+    {
+        int old_lock = 0;
+        InterlockedAdd(blocks[neighbour.z].lock, 1, old_lock);
+        if (old_lock != 0)
+            return false;
+        swap(src, neighbour);
+        return true;
+    }
+    return false;
+}
+
+[numthreads(8,8,1)]
+void swap_behavior(uint3 id : SV_DispatchThreadID)
+{
+    const int3 pos = get_block_position(position.xy + id.xy);
+
+    // colors[pos.xy] = float4(rand(seed(pos + frame_count)), rand(seed(pos + frame_count + 1)), rand(seed(pos + frame_count + 2)), 1.0f);
+    if (blocks[pos.z].type != water)
+    {
+        // colors[pos.xy] = float4(0.0f, 0.0f, 0.0f, 0.0f);
+        return;
+    }
+    // else
+    // {
+    //     colors[pos.xy] = float4(0.0f, 0.0f, 1.0f, 1.0f);
+    // }
+    int old_lock;
+    InterlockedAdd(blocks[pos.z].lock, 1, old_lock);
+    if (old_lock != 0)
+        return;
+    if (try_swap(pos, int2(pos.x, pos.y + 1)))
+        return;
+    // if (rand(seed(pos) + frame_count) < 0.5f && try_swap(pos, int2(pos.x - 1, pos.y + 1)))
+    //     return;
+    // if (try_swap(pos, int2(pos.x + 1, pos.y + 1)))
+    //     return;
+    if (rand(seed(pos) + frame_count) < 0.5f && try_swap(pos, int2(pos.x - 1, pos.y)))
+        return;
+    if (try_swap(pos, int2(pos.x + 1, pos.y)))
+        return;
+    blocks[pos.z].lock = 0;
+}

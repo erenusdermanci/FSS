@@ -41,7 +41,7 @@ namespace Entities
 
             if (moved)
             {
-                ChunkHelpers.GetNeighborhoodChunkPositions(ChunkPosition, chunkNeighborhoodPositions);
+                // ChunkHelpers.GetNeighborhoodChunkPositions(ChunkPosition, chunkNeighborhoodPositions);
                 for (var i = 0; i < neighborChunkColliderGenerated.Length; ++i)
                     neighborChunkColliderGenerated[i] = false;
                 if (Collider != null)
