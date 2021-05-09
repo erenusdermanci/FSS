@@ -73,29 +73,35 @@ void swap_behavior(uint3 id : SV_DispatchThreadID)
 {
     const int3 pos = get_block_position(position.xy + id.xy);
 
-    // colors[pos.xy] = float4(rand(seed(pos + frame_count)), rand(seed(pos + frame_count + 1)), rand(seed(pos + frame_count + 2)), 1.0f);
     if (blocks[pos.z].type != water)
     {
-        // colors[pos.xy] = float4(0.0f, 0.0f, 0.0f, 0.0f);
         return;
     }
-    // else
-    // {
-    //     colors[pos.xy] = float4(0.0f, 0.0f, 1.0f, 1.0f);
-    // }
     int old_lock;
     InterlockedAdd(blocks[pos.z].lock, 1, old_lock);
     if (old_lock != 0)
         return;
     if (try_swap(pos, int2(pos.x, pos.y + 1)))
         return;
-    // if (rand(seed(pos) + frame_count) < 0.5f && try_swap(pos, int2(pos.x - 1, pos.y + 1)))
-    //     return;
-    // if (try_swap(pos, int2(pos.x + 1, pos.y + 1)))
-    //     return;
-    if (rand(seed(pos) + frame_count) < 0.5f && try_swap(pos, int2(pos.x - 1, pos.y)))
-        return;
-    if (try_swap(pos, int2(pos.x + 1, pos.y)))
-        return;
+    if (rand(seed(pos) + frame_count + 1) < 0.5f)
+    {
+        if (try_swap(pos, int2(pos.x - 1, pos.y + 1)))
+            return;
+    }
+    else
+    {
+        if (try_swap(pos, int2(pos.x + 1, pos.y + 1)))
+            return;
+    }
+    if (rand(seed(pos) + frame_count + 2) < 0.5f)
+    {
+        if (try_swap(pos, int2(pos.x - 1, pos.y)))
+            return;
+    }
+    else
+    {
+        if (try_swap(pos, int2(pos.x + 1, pos.y)))
+            return;
+    }
     blocks[pos.z].lock = 0;
 }
