@@ -132,19 +132,6 @@ namespace Tiles
         private void Update()
         {
             _tileTaskScheduler.Update();
-
-            if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
-                return;
-            if (GlobalConfig.StaticGlobalConfig.pauseSimulation)
-                return;
-            if (!GlobalConfig.StaticGlobalConfig.stepByStep
-            || GlobalConfig.StaticGlobalConfig.stepByStep && Input.GetKeyDown(KeyCode.Space))
-            {
-                foreach (var tile in _tileMap.Tiles())
-                {
-                    tile.Update();
-                }
-            }
         }
 
         private void FixedUpdate()
@@ -160,6 +147,19 @@ namespace Tiles
                 (int) (unityPosition.x + -0.5f - Width / 2.0f),
                 (int) (unityPosition.y + -0.5f - Height / 2.0f)
             );
+
+            if (GlobalConfig.StaticGlobalConfig.levelDesignMode)
+                return;
+            if (GlobalConfig.StaticGlobalConfig.pauseSimulation)
+                return;
+            if (!GlobalConfig.StaticGlobalConfig.stepByStep
+                || GlobalConfig.StaticGlobalConfig.stepByStep && Input.GetKeyDown(KeyCode.Space))
+            {
+                foreach (var tile in _tileMap.Tiles())
+                {
+                    tile.Update();
+                }
+            }
 
             if (_cameraHasMoved && _mainCamera != null)
             {

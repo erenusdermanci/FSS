@@ -19,9 +19,6 @@ int get_valid_index(int2 pos)
     if (pos.x < 0 || pos.y < 0 || pos.x >= world_size.x || pos.y >= world_size.y)
         return -1;
     return get_index(pos);
-    // if (pos.x >= 0 && pos.y >= 0 && pos.x < world_size.x && pos.y < world_size.y)
-        // return get_index(pos);
-    // return -1;
 }
 
 int3 get_block_position(int2 pos)
@@ -44,9 +41,9 @@ void swap(int3 pos, int3 npos)
     blocks[pos.z].type = npos_block.type;
     blocks[pos.z].lifetime = npos_block.lifetime;
     blocks[pos.z].states = npos_block.states;
-    const float4 neighbor_color = colors[npos.xy];
-    colors[npos.xy] = colors[pos.xy];
-    colors[pos.xy] = neighbor_color;
+    // const float4 neighbor_color = colors[npos.xy];
+    // colors[npos.xy] = colors[pos.xy];
+    // colors[pos.xy] = neighbor_color;
 
     // reset locks when we're done
     blocks[pos.z].lock = 0;
@@ -68,6 +65,8 @@ bool try_swap(int3 src, int2 dest)
     return false;
 }
 
+
+
 [numthreads(8,8,1)]
 void swap_behavior(uint3 id : SV_DispatchThreadID)
 {
@@ -75,33 +74,52 @@ void swap_behavior(uint3 id : SV_DispatchThreadID)
 
     if (blocks[pos.z].type != water)
     {
+        colors[pos.xy] = float4(0.0f, 0.0f, 0.0f, 0.0f);
         return;
     }
+    else
+        colors[pos.xy] = float4(15.0f/255.0f, 94.0f/255.0f, 156.0f/255.0f, 125.0f/255.0f);
     int old_lock;
     InterlockedAdd(blocks[pos.z].lock, 1, old_lock);
     if (old_lock != 0)
         return;
-    if (try_swap(pos, int2(pos.x, pos.y + 1)))
-        return;
-    if (rand(seed(pos) + frame_count + 1) < 0.5f)
+    uint s = seed(pos) + frame_count;
+    float r = rand(s);
+    if (r < 0.25f)
     {
-        if (try_swap(pos, int2(pos.x - 1, pos.y + 1)))
+        if (try_swap(pos, int2(pos.x, pos.y + 4)))
+            return;
+    }
+    else if (r < 0.5f)
+    {
+        if (try_swap(pos, int2(pos.x, pos.y + 3)))
+            return;
+    }
+    else if (r < 0.75f)
+    {
+        if (try_swap(pos, int2(pos.x, pos.y + 2)))
             return;
     }
     else
     {
-        if (try_swap(pos, int2(pos.x + 1, pos.y + 1)))
+        if (try_swap(pos, int2(pos.x, pos.y + 1)))
             return;
     }
-    if (rand(seed(pos) + frame_count + 2) < 0.5f)
+    if (rand(s + 2) < 0.5f)
     {
-        if (try_swap(pos, int2(pos.x - 1, pos.y)))
-            return;
+        for (int i = 0; i < 16; ++i)
+        {
+            if (try_swap(pos, int2(pos.x - i, pos.y)))
+                return;
+        }
     }
     else
     {
-        if (try_swap(pos, int2(pos.x + 1, pos.y)))
-            return;
+        for (int i = 0; i < 16; ++i)
+        {
+            if (try_swap(pos, int2(pos.x + i, pos.y)))
+                return;
+        }
     }
     blocks[pos.z].lock = 0;
 }
