@@ -41,20 +41,6 @@ namespace Blocks
         public const int HardenedLava = 15;
         public const int NumberOfBlocks = 16;
 
-        private static readonly FireSpreader PlantFireSpreader = new FireSpreader(
-            1.0f,
-            FireColor,
-            new Color(150, 150, 150, 255, 0.3f),
-            5.0f,
-            new[]
-            {
-                new BlockPotential(Flame, 1.0f)
-            },
-            new BlockPotential(Smoke, 1.0f),
-            true,
-            false
-        );
-
         public static readonly BlockDescriptor[] BlockDescriptors = {
             new BlockDescriptor(
                 "Air",

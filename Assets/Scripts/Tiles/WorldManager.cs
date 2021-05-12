@@ -50,6 +50,8 @@ namespace Tiles
 
         public EntityManager EntityManager;
 
+        private bool _spacePressed;
+
         private unsafe void Awake()
         {
             InitColorsHandle = initColorsShader.FindKernel("init_colors");
@@ -132,6 +134,8 @@ namespace Tiles
         private void Update()
         {
             _tileTaskScheduler.Update();
+            if (Input.GetKeyDown(KeyCode.Space))
+                _spacePressed = true;
         }
 
         private void FixedUpdate()
@@ -153,8 +157,9 @@ namespace Tiles
             if (GlobalConfig.StaticGlobalConfig.pauseSimulation)
                 return;
             if (!GlobalConfig.StaticGlobalConfig.stepByStep
-                || GlobalConfig.StaticGlobalConfig.stepByStep && Input.GetKeyDown(KeyCode.Space))
+                || GlobalConfig.StaticGlobalConfig.stepByStep && _spacePressed)
             {
+                _spacePressed = false;
                 foreach (var tile in _tileMap.Tiles())
                 {
                     tile.Update();

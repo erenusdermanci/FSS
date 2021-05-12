@@ -1,7 +1,7 @@
 ﻿#pragma kernel swap_behavior
-#include "block.cginc"
-#include "constants.cginc"
-#include "random.cginc"
+#include "../block.cginc"
+#include "../constants.cginc"
+#include "../random.cginc"
 
 int2 position;
 int2 world_size;
@@ -41,9 +41,6 @@ void swap(int3 pos, int3 npos)
     blocks[pos.z].type = npos_block.type;
     blocks[pos.z].lifetime = npos_block.lifetime;
     blocks[pos.z].states = npos_block.states;
-    // const float4 neighbor_color = colors[npos.xy];
-    // colors[npos.xy] = colors[pos.xy];
-    // colors[pos.xy] = neighbor_color;
 
     // reset locks when we're done
     blocks[pos.z].lock = 0;
@@ -105,9 +102,19 @@ void swap_behavior(uint3 id : SV_DispatchThreadID)
         if (try_swap(pos, int2(pos.x, pos.y + 1)))
             return;
     }
+    if (rand(s + 1) < 0.5f)
+    {
+        if (try_swap(pos, int2(pos.x - 1, pos.y + 1)))
+            return;
+    }
+    else
+    {
+        if (try_swap(pos, int2(pos.x + 1, pos.y + 1)))
+            return;
+    }
     if (rand(s + 2) < 0.5f)
     {
-        for (int i = 0; i < 16; ++i)
+        for (int i = 0; i < 4; ++i)
         {
             if (try_swap(pos, int2(pos.x - i, pos.y)))
                 return;
@@ -115,7 +122,7 @@ void swap_behavior(uint3 id : SV_DispatchThreadID)
     }
     else
     {
-        for (int i = 0; i < 16; ++i)
+        for (int i = 0; i < 4; ++i)
         {
             if (try_swap(pos, int2(pos.x + i, pos.y)))
                 return;

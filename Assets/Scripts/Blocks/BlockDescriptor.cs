@@ -19,7 +19,6 @@ namespace Blocks
         public readonly FireSpreader FireSpreader;
         public readonly Despawner Despawner;
         public readonly Swapper Swapper;
-        public readonly PlantGrower PlantGrower;
         #endregion
 
         public BlockDescriptor(string name,
@@ -41,7 +40,6 @@ namespace Blocks
             FireSpreader = null;
             Despawner = null;
             Swapper = null;
-            PlantGrower = null;
 
             foreach (var behavior in behaviors)
             {
@@ -58,9 +56,6 @@ namespace Blocks
                         break;
                     case Swapper swap:
                         Swapper = swap;
-                        break;
-                    case PlantGrower plantGrower:
-                        PlantGrower = plantGrower;
                         break;
                 }
             }
