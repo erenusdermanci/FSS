@@ -69,7 +69,16 @@ namespace Tiles
             Width = worldTileSize * Tile.HorizontalChunks;
             Height = worldTileSize * Tile.VerticalChunks;
 
-            BlocksBuffer = new ComputeBuffer(worldTileSize * worldTileSize * Tile.ChunkAmount * Chunk.Size * Chunk.Size, sizeof(Block));
+            /*
+             * SEE GPU BLOCK
+             ** int lock;
+             ** int type;
+             ** int states;
+             ** float lifetime;
+             ** float4 color;
+             */
+            var stride = sizeof(int) * 3 + sizeof(float) * 5;
+            BlocksBuffer = new ComputeBuffer(worldTileSize * worldTileSize * Tile.ChunkAmount * Chunk.Size * Chunk.Size, stride);
             for (var i = 0; i < _textures.Length; ++i)
             {
                 _textures[i] = new RenderTexture(worldTileSize * Tile.HorizontalChunks * Chunk.Size,
