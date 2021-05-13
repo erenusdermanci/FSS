@@ -77,7 +77,7 @@ namespace Tiles
              ** float lifetime;
              ** float4 color;
              */
-            var stride = sizeof(int) * 3 + sizeof(float) * 5;
+            var stride = sizeof(int) * 3 + sizeof(float) * 7;
             BlocksBuffer = new ComputeBuffer(worldTileSize * worldTileSize * Tile.ChunkAmount * Chunk.Size * Chunk.Size, stride);
             for (var i = 0; i < _textures.Length; ++i)
             {

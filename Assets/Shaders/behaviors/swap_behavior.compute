@@ -1,55 +1,150 @@
 ﻿#pragma kernel swap_behavior
 #include "../constants.cginc"
-#include "../random.cginc"
 #include "../blocks/block.cginc"
 #include "../blocks/block_helpers.cginc"
+#include "Assets/Shaders/random.cginc"
 
 int2 position;
 int2 world_size;
 uint frame_count;
 RWStructuredBuffer<block> blocks;
 
-void swap(int3 pos, int3 npos)
+void swap(int pos, int npos)
 {
-    const int type = blocks[pos.z].type;
-    const int states = blocks[pos.z].states;
-    const float lifetime = blocks[pos.z].lifetime;
-    const float4 color = blocks[pos.z].color;
+    // int lock;
+    // int type;
+    // int states;
+    // float lifetime;
+    // float2 velocity;
+    // float4 color;
+    const int type = blocks[pos].type;
+    const int states = blocks[pos].states;
+    const float lifetime = blocks[pos].lifetime;
+    const float2 velocity = blocks[pos].velocity;
+    const float4 color = blocks[pos].color;
 
-    blocks[pos.z].type = blocks[npos.z].type;
-    blocks[pos.z].lifetime = blocks[npos.z].lifetime;
-    blocks[pos.z].states = blocks[npos.z].states;
-    blocks[pos.z].color = blocks[npos.z].color;
+    blocks[pos].type = blocks[npos].type;
+    blocks[pos].lifetime = blocks[npos].lifetime;
+    blocks[pos].states = blocks[npos].states;
+    blocks[pos].velocity = blocks[npos].velocity;
+    blocks[pos].color = blocks[npos].color;
 
-    blocks[npos.z].type = type;
-    blocks[npos.z].lifetime = lifetime;
-    blocks[npos.z].states = states;
-    blocks[npos.z].color = color;
+    blocks[npos].type = type;
+    blocks[npos].lifetime = lifetime;
+    blocks[npos].states = states;
+    blocks[npos].velocity = velocity;
+    blocks[npos].color = color;
+}
+//
+// bool try_swap(int src, int2 dest)
+// {
+//     const int3 neighbour = get_valid_index(dest, world_size);
+//     if (neighbour.z != -1)
+//     {
+//         int old_lock = 0;
+//         InterlockedAdd(blocks[neighbour.z].lock, 1, old_lock);
+//         if (old_lock != 0)
+//             return false;
+//         if (blocks[neighbour.z].type == air)
+//         {
+//             swap(src, neighbour);
+//             return true;
+//         }
+//
+//         blocks[neighbour.z].lock = 0;
+//         return false;
+//     }
+//     return false;
+// }
 
-    // release locks when we're done
-    blocks[pos.z].lock = 0;
-    blocks[npos.z].lock = 0;
+bool lock(int index)
+{
+    int old_lock;
+    InterlockedAdd(blocks[index].lock, 1, old_lock);
+    if (old_lock != 0)
+        return false;
+    return true;
 }
 
-bool try_swap(int3 src, int2 dest)
+void release(int index)
 {
-    const int3 neighbour = get_valid_block_position(dest, world_size);
-    if (neighbour.z != -1)
-    {
-        int old_lock = 0;
-        InterlockedAdd(blocks[neighbour.z].lock, 1, old_lock);
-        if (old_lock != 0)
-            return false;
-        if (blocks[neighbour.z].type == air)
-        {
-            swap(src, neighbour);
-            return true;
-        }
+    blocks[index].lock = 0;
+}
 
-        blocks[neighbour.z].lock = 0;
-        return false;
+void move(in int3 pos, in int2 world_size)
+{
+    // check down neighbours
+    // add gravity
+    // move according to new velocity
+    // reset velocity when we hit an obstacle
+    block self = blocks[pos.z];
+    int3 down = get_valid_block_position(int2(pos.x, pos.y + 1), world_size);
+    int3 down_right = get_valid_block_position(int2(pos.x + 1, pos.y + 1), world_size);
+    int3 down_left = get_valid_block_position(int2(pos.x - 1, pos.y + 1), world_size);
+    if (down.z != -1)
+    {
+        if (blocks[down.z].type == air)
+            self.velocity.y += gravity;
+        else
+        {
+            float r = rand(seed(pos));
+            if (r > 0.5f)
+            {
+                if (down_right.z != -1 && blocks[down_right.z].type == air)
+                    self.velocity += float2(0.7f * gravity, 0.7f * gravity);
+                else if (down_left.z != -1 && blocks[down_left.z].type == air)
+                    self.velocity += float2(-0.7f * gravity, 0.7f * gravity);
+            }
+            else
+            {
+                if (down_left.z != -1 && blocks[down_left.z].type == air)
+                    self.velocity += float2(-0.7f * gravity, 0.7f * gravity);
+                else if (down_right.z != -1 && blocks[down_right.z].type == air)
+                    self.velocity += float2(0.7f * gravity, 0.7f * gravity);
+            }
+        }
     }
-    return false;
+    else
+    {
+        self.velocity.y = 0.0f;
+    }
+    if (self.velocity.x != 0.0f || self.velocity.y != 0.0f)
+    {
+        float2 dir = normalize(self.velocity);
+        int3 last_pos = int3(0, 0, -1);
+        int i = 1;
+        bool obstacle = false;
+        while (true)
+        {
+            const float2 checked_vel = i * dir;
+            if (length(checked_vel) > length(self.velocity))
+                break;
+            const int3 next_pos = get_valid_block_position(pos.xy + floor(checked_vel), world_size);
+            if (next_pos.z == -1)
+                break;
+            if (next_pos.x != pos.x || next_pos.y != pos.y)
+            {
+                if (blocks[next_pos.z].type != air)
+                {
+                    obstacle = true;
+                    break;
+                }
+            }
+            last_pos = next_pos;
+            ++i;
+        }
+        if (obstacle)
+            self.velocity = float2(0.0f, 0.0f);
+        blocks[pos.z] = self;
+        if (last_pos.z != -1)
+        {
+            if (lock(last_pos.z))
+            {
+                swap(pos.z, last_pos.z);
+                release(last_pos.z);
+            }
+        }
+    }
 }
 
 [numthreads(8,8,1)]
@@ -59,62 +154,15 @@ void swap_behavior(uint3 id : SV_DispatchThreadID)
 
     if (blocks[pos.z].type != water)
         return;
-    int old_lock;
-    InterlockedAdd(blocks[pos.z].lock, 1, old_lock);
-    if (old_lock != 0)
+    if (!lock(pos.z))
         return;
     if (blocks[pos.z].type != water)
     {
         blocks[pos.z].lock = 0;
         return;
     }
-    uint s = seed(pos) + frame_count;
-    float r = rand(s);
-    if (r < 0.25f)
-    {
-        if (try_swap(pos, int2(pos.x, pos.y + 4)))
-            return;
-    }
-    else if (r < 0.5f)
-    {
-        if (try_swap(pos, int2(pos.x, pos.y + 3)))
-            return;
-    }
-    else if (r < 0.75f)
-    {
-        if (try_swap(pos, int2(pos.x, pos.y + 2)))
-            return;
-    }
-    else
-    {
-        if (try_swap(pos, int2(pos.x, pos.y + 1)))
-            return;
-    }
-    if (rand(s + 1) < 0.5f)
-    {
-        if (try_swap(pos, int2(pos.x - 1, pos.y + 1)))
-            return;
-    }
-    else
-    {
-        if (try_swap(pos, int2(pos.x + 1, pos.y + 1)))
-            return;
-    }
-    if (rand(s + 2) < 0.5f)
-    {
-        for (int i = 0; i < 4; ++i)
-        {
-            if (try_swap(pos, int2(pos.x - i, pos.y)))
-                return;
-        }
-    }
-    else
-    {
-        for (int i = 0; i < 4; ++i)
-        {
-            if (try_swap(pos, int2(pos.x + i, pos.y)))
-                return;
-        }
-    }
-    blocks[pos.z].lock = 0;
+    move(pos, world_size);
+    // if (try_swap(pos, int2(pos.x, pos.y + 4)))
+    //     return;
+    release(pos.z);
 }
