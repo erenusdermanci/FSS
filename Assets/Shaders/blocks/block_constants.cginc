@@ -3,6 +3,5 @@
 static block_descriptor block_descriptors[] =
 {
     {
-
     },
 };

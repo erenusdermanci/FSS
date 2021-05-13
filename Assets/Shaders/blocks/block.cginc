@@ -5,4 +5,5 @@ struct block
     int type;
     int states;
     float lifetime;
+    float4 color;
 };

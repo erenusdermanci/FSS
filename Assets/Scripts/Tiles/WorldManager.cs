@@ -28,12 +28,17 @@ namespace Tiles
         public ComputeShader swapBehaviorShader;
         public ComputeShader drawRectShader;
         public ComputeShader initColorsShader;
+        public ComputeShader applyColorsShader;
+
         public int SwapBehaviorHandle { get; private set;  }
         public int DrawRectHandle { get; private set;  }
         public int InitColorsHandle { get; private set;  }
+        public int ApplyColorsHandle { get; private set; }
 
         public ComputeBuffer BlocksBuffer { get; private set; }
-        public RenderTexture RenderTexture { get; private set; }
+        private readonly RenderTexture[] _textures = new RenderTexture[2];
+        private int _textureIndex;
+        private MeshRenderer _meshRenderer;
 
         public static int CurrentFrame;
 
@@ -54,25 +59,32 @@ namespace Tiles
 
         private unsafe void Awake()
         {
+            _meshRenderer = GetComponent<MeshRenderer>();
             InitColorsHandle = initColorsShader.FindKernel("init_colors");
             DrawRectHandle = drawRectShader.FindKernel("draw_rect");
             SwapBehaviorHandle = swapBehaviorShader.FindKernel("swap_behavior");
+            ApplyColorsHandle = applyColorsShader.FindKernel("apply_colors");
 
             var worldTileSize = tileGridThickness * 2 + 1;
             Width = worldTileSize * Tile.HorizontalChunks;
             Height = worldTileSize * Tile.VerticalChunks;
 
             BlocksBuffer = new ComputeBuffer(worldTileSize * worldTileSize * Tile.ChunkAmount * Chunk.Size * Chunk.Size, sizeof(Block));
-            RenderTexture = new RenderTexture(worldTileSize * Tile.HorizontalChunks * Chunk.Size, worldTileSize * Tile.VerticalChunks * Chunk.Size, 0)
+            for (var i = 0; i < _textures.Length; ++i)
             {
-                enableRandomWrite = true,
-                autoGenerateMips = false,
-                useMipMap = false,
-                filterMode = FilterMode.Point
-            };
-            RenderTexture.Create();
-            var meshRenderer = GetComponent<MeshRenderer>();
-            meshRenderer.material.mainTexture = RenderTexture;
+                _textures[i] = new RenderTexture(worldTileSize * Tile.HorizontalChunks * Chunk.Size,
+                    worldTileSize * Tile.VerticalChunks * Chunk.Size, 0)
+                {
+                    enableRandomWrite = true,
+                    autoGenerateMips = false,
+                    useMipMap = false,
+                    filterMode = FilterMode.Point
+                };
+                _textures[i].Create();
+            }
+
+            _textureIndex = 0;
+            _meshRenderer.material.mainTexture = _textures[1];
             var xOffset = -0.5f - Width / 2.0f;
             var yOffset = -0.5f - Height / 2.0f;
             var vertices = new[]
@@ -136,6 +148,30 @@ namespace Tiles
             _tileTaskScheduler.Update();
             if (Input.GetKeyDown(KeyCode.Space))
                 _spacePressed = true;
+            if (!GlobalConfig.StaticGlobalConfig.stepByStep
+                || GlobalConfig.StaticGlobalConfig.stepByStep && _spacePressed)
+            {
+                _spacePressed = false;
+                foreach (var tile in _tileMap.Tiles())
+                {
+                    tile.Update();
+                }
+                GL.Flush();
+                // render the next texture while we draw in the current
+                _textureIndex = (_textureIndex + 1) % _textures.Length;
+                _meshRenderer.material.mainTexture = _textures[(_textureIndex + 1) % _textures.Length];
+                ApplyColors();
+            }
+        }
+
+        private void ApplyColors()
+        {
+            var worldWidth = Width * Chunk.Size;
+            var worldHeight = Height * Chunk.Size;
+            applyColorsShader.SetInts("texture_size", worldWidth, worldHeight);
+            applyColorsShader.SetTexture(ApplyColorsHandle, "colors", _textures[_textureIndex]);
+            applyColorsShader.SetBuffer(ApplyColorsHandle, "blocks", BlocksBuffer);
+            applyColorsShader.Dispatch(ApplyColorsHandle, worldWidth / 8, worldHeight / 8, 1);
         }
 
         private void FixedUpdate()
@@ -156,15 +192,6 @@ namespace Tiles
                 return;
             if (GlobalConfig.StaticGlobalConfig.pauseSimulation)
                 return;
-            if (!GlobalConfig.StaticGlobalConfig.stepByStep
-                || GlobalConfig.StaticGlobalConfig.stepByStep && _spacePressed)
-            {
-                _spacePressed = false;
-                foreach (var tile in _tileMap.Tiles())
-                {
-                    tile.Update();
-                }
-            }
 
             if (_cameraHasMoved && _mainCamera != null)
             {
@@ -362,7 +389,6 @@ namespace Tiles
 
             var worldWidth = Width * Chunk.Size;
             var worldHeight = Height * Chunk.Size;
-            drawRectShader.SetTexture(DrawRectHandle, "colors", RenderTexture);
             drawRectShader.SetBuffer(DrawRectHandle, "blocks", BlocksBuffer);
             drawRectShader.SetInts("rect", x, y, width, height);
             drawRectShader.SetInts("world_size", worldWidth, worldHeight);
@@ -371,6 +397,9 @@ namespace Tiles
             drawRectShader.SetFloat("color_max_shift", color.MaxShift);
             drawRectShader.SetInt("states", states);
             drawRectShader.SetFloat("lifetime", lifetime);
+            drawRectShader.SetTexture(DrawRectHandle, "colors", _textures[0]);
+            drawRectShader.Dispatch(DrawRectHandle, threadGroupsX, threadGroupsY, 1);
+            drawRectShader.SetTexture(DrawRectHandle, "colors", _textures[1]);
             drawRectShader.Dispatch(DrawRectHandle, threadGroupsX, threadGroupsY, 1);
         }
 
@@ -457,7 +486,8 @@ namespace Tiles
         private void OnDestroy()
         {
             BlocksBuffer.Release();
-            RenderTexture.Release();
+            foreach (var texture in _textures)
+                texture.Release();
             TileBlocksBuffer.Release();
         }
 

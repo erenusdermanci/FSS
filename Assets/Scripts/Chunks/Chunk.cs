@@ -27,16 +27,15 @@ namespace Chunks
         {
             var x = (_tile.Position.x * Tile.HorizontalChunks + Position.x) * Size;
             var y = (_tile.Position.y * Tile.VerticalChunks + Position.y) * Size;
-            // if (x != 0 || y != 0)
-                // return;
+            if (x != 0 || y != 0)
+                return;
             var worldWidth = _worldManager.Width * Size;
             var worldHeight = _worldManager.Height * Size;
             _worldManager.swapBehaviorShader.SetInts("position", x, y);
             _worldManager.swapBehaviorShader.SetInts("world_size", worldWidth, worldHeight);
             _worldManager.swapBehaviorShader.SetInt("frame_count", WorldManager.CurrentFrame);
-            _worldManager.swapBehaviorShader.SetTexture(_worldManager.SwapBehaviorHandle, "colors", _worldManager.RenderTexture);
             _worldManager.swapBehaviorShader.SetBuffer(_worldManager.SwapBehaviorHandle, "blocks", _worldManager.BlocksBuffer);
-            _worldManager.swapBehaviorShader.Dispatch(_worldManager.SwapBehaviorHandle, /*worldWidth / */8, /*worldHeight / */8, 1);
+            _worldManager.swapBehaviorShader.Dispatch(_worldManager.SwapBehaviorHandle, worldWidth / 8, worldHeight / 8, 1);
 
             if (GlobalConfig.StaticGlobalConfig.outlineChunks)
                 Outline();

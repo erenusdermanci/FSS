@@ -1,6 +1,6 @@
 ﻿#pragma kernel draw_rect
-#include "block.cginc"
 #include "color.cginc"
+#include "blocks/block.cginc"
 
 int4 rect;
 int2 world_size;
@@ -9,7 +9,6 @@ int states;
 float lifetime;
 float4 color;
 float color_max_shift;
-RWTexture2D<float4> colors;
 RWStructuredBuffer<block> blocks;
 
 [numthreads(8,8,1)]
@@ -27,7 +26,7 @@ void draw_rect(uint3 id : SV_DispatchThreadID)
             blocks[i].type = type;
             blocks[i].states = states;
             blocks[i].lifetime = lifetime;
-            colors[pos] = shift_color(color, color_max_shift, seed(id));
+            blocks[i].color = shift_color(color, color_max_shift, seed(id));
         }
     }
 }

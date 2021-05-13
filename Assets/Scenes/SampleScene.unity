@@ -29859,6 +29859,7 @@ MonoBehaviour:
   swapBehaviorShader: {fileID: 7200000, guid: 32db52ed32a95044bbdb198156ecd1f5, type: 3}
   drawRectShader: {fileID: 7200000, guid: ed8d2ec02148518408d14f3bbd87d4fe, type: 3}
   initColorsShader: {fileID: 7200000, guid: 7647ec1e949c1e44091760aec1f59e7a, type: 3}
+  applyColorsShader: {fileID: 7200000, guid: 43c79033618d4810919fc721c835b666, type: 3}
   EntityManager: {fileID: 1732822346}
 --- !u!33 &1956363112
 MeshFilter:
