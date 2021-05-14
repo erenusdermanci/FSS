@@ -175,7 +175,7 @@ namespace Tools.DrawingTool
 
         private void DrawBlockRectangle(int worldX, int worldY, int width, int height)
         {
-            var blockColor = BlockConstants.BlockDescriptors[parameters.block].Color;;
+            var blockColor = BlockConstants.BlockDescriptors[parameters.block].Color;
 
             if (parameters.state == 1)
             {

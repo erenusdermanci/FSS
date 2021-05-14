@@ -27,7 +27,8 @@ void draw_rect(uint3 id : SV_DispatchThreadID)
             blocks[i].states = states;
             blocks[i].lifetime = lifetime;
             blocks[i].velocity = float2(0.0f, 0.0f);
-            blocks[i].color = shift_color(color, color_max_shift, seed(id));
+            // blocks[i].color = shift_color(color, color_max_shift, seed(id));
+            blocks[i].color = float4(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f);
         }
     }
 }
