@@ -186,10 +186,13 @@ namespace Tools.DrawingTool
                 }
             }
 
+            if (colorizeOnly || overrideDefaultColors)
+                blockColor = new Color(pixelColorOverride.r, pixelColorOverride.g, pixelColorOverride.b, pixelColorOverride.a);
+
             worldManager.DrawRect(
                 worldX, worldY, width, height,
                 parameters.block, blockColor,
-                parameters.state, 0
+                parameters.state, 0, colorizeOnly
             );
         }
 

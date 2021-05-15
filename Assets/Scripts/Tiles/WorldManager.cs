@@ -376,7 +376,8 @@ namespace Tiles
                 emptyBlock,
                 descriptor.Color,
                 descriptor.InitialStates,
-                0
+                0,
+                false
             );
 
             if (tileTask.TileData != null)
@@ -402,7 +403,7 @@ namespace Tiles
             }
         }
 
-        public void DrawRect(int x, int y, int width, int height, int type, Utils.Color color, int states, float lifetime)
+        public void DrawRect(int x, int y, int width, int height, int type, Utils.Color color, int states, float lifetime, bool color_only)
         {
             var threadGroupsX = (int) Math.Ceiling((float) width / Chunk.Size) * 8;
             var threadGroupsY = (int) Math.Ceiling((float) height / Chunk.Size) * 8;
@@ -419,6 +420,7 @@ namespace Tiles
             drawRectShader.SetFloats("color", color.r, color.g, color.b, color.a);
             // drawRectShader.SetFloats("color", color.r / 255f, color.g / 255f, color.b / 255f, color.a / 255f);
             drawRectShader.SetFloat("color_max_shift", color.MaxShift);
+            drawRectShader.SetBool("color_only", color_only);
             drawRectShader.SetInt("states", states);
             drawRectShader.SetFloat("lifetime", lifetime);
             drawRectShader.SetTexture(DrawRectHandle, "colors", _textures[0]);
