@@ -45,7 +45,7 @@ void compute_velocity(const in int3 pos, inout block self)
 {
     uint s = seed(pos);
     const int3 down = get_valid_block_position(int2(pos.x, pos.y + 1), world_size);
-    bool try_horizontally = false;
+    bool try_horizontally;
     if (down.z != -1)
     {
         if (lock(down.z))
@@ -61,7 +61,7 @@ void compute_velocity(const in int3 pos, inout block self)
         }
 
         const int inc[2] = { 1, -1 };
-        const uint r = rand(s) > 0.5f ? 0 : 1;
+        const uint r = rand(s + 1) > 0.5f ? 0 : 1;
         for (uint i = 0; i < 2; ++i)
         {
             const int dir = inc[(r + i) % 2];
@@ -97,7 +97,7 @@ void compute_velocity(const in int3 pos, inout block self)
         return;
 
     const int inc[2] = { 1, -1 };
-    const uint r = rand(s) > 0.5f ? 0 : 1;
+    const uint r = rand(s + 2) > 0.5f ? 0 : 1;
     const int3 up = get_valid_block_position(int2(pos.x, pos.y - 1), world_size);
     if (up.z != -1)
     {
