@@ -48,16 +48,11 @@ void compute_velocity(const in int3 pos, inout block self)
     bool try_horizontally;
     if (down.z != -1)
     {
-        if (lock(down.z))
+        if (get_block(down.z).type == air && self.velocity.y < 5.0f)
         {
-            if (get_block(down.z).type == air && self.velocity.y < 5.0f)
-            {
-                self.velocity.y += gravity * (1 + 0.1 * (rand(s) - 0.5f) * 2.0f);
-                self.velocity.x *= 0.1f;
-                release(down.z);
-                return;
-            }
-            release(down.z);
+            self.velocity.y += gravity * (1 + 0.1 * (rand(s) - 0.5f) * 2.0f);
+            self.velocity.x *= 0.1f;
+            return;
         }
 
         const int inc[2] = { 1, -1 };
@@ -69,15 +64,10 @@ void compute_velocity(const in int3 pos, inout block self)
 
             if (npos.z != -1)
             {
-                if (lock(npos.z))
+                if (get_block(npos.z).type == air)
                 {
-                    if (get_block(npos.z).type == air)
-                    {
-                        self.velocity += float2(dir * 0.7f * gravity, 0.7f * gravity);
-                        release(npos.z);
-                        return;
-                    }
-                    release(npos.z);
+                    self.velocity += float2(dir * 0.7f * gravity, 0.7f * gravity);
+                    return;
                 }
             }
         }
@@ -101,15 +91,8 @@ void compute_velocity(const in int3 pos, inout block self)
     const int3 up = get_valid_block_position(int2(pos.x, pos.y - 1), world_size);
     if (up.z != -1)
     {
-        if (lock(up.z))
-        {
-            if (get_block(up.z).type == water)
-            {
-                release(up.z);
-                return;
-            }
-            release(up.z);
-        }
+        if (get_block(up.z).type == water)
+            return;
     }
     for (uint i = 0; i < 2; ++i)
     {
@@ -118,16 +101,11 @@ void compute_velocity(const in int3 pos, inout block self)
 
         if (npos.z != -1)
         {
-            if (lock(npos.z))
+            if (get_block(npos.z).type == air && abs(self.velocity.x) < 5.0f)
             {
-                if (get_block(npos.z).type == air && abs(self.velocity.x) < 5.0f)
-                {
-                    self.velocity.y = 0;
-                    self.velocity.x += dir * 1.0f;
-                    release(npos.z);
-                    return;
-                }
-                release(npos.z);
+                self.velocity.y = 0;
+                self.velocity.x += dir * 1.0f;
+                return;
             }
         }
     }
@@ -157,18 +135,9 @@ void move(const in int3 pos, in block self)
                 break;
             if (next_pos.x != pos.x || next_pos.y != pos.y)
             {
-                if (lock(next_pos.z))
+                if (get_block(next_pos.z).type != air)
                 {
-                    if (get_block(next_pos.z).type != air)
-                    {
-                        obstacle = true;
-                        release(next_pos.z);
-                        break;
-                    }
-                    release(next_pos.z);
-                }
-                else
-                {
+                    obstacle = true;
                     break;
                 }
             }
