@@ -51,7 +51,7 @@ void compute_velocity(const in int3 pos, inout block self)
         if (get_block(down.z).type == air && self.velocity.y < 5.0f)
         {
             self.velocity.y += gravity * (1 + 0.1 * (rand(s) - 0.5f) * 2.0f);
-            self.velocity.x *= 0.1f;
+            self.velocity.x *= 0.9f;
             return;
         }
 
@@ -94,15 +94,16 @@ void compute_velocity(const in int3 pos, inout block self)
 
         if (ndir.z != -1)
         {
-            if (get_block(ndir.z).type == air && (ndir_up.z == -1 || get_block(ndir_up.z).type == air)
-            && abs(self.velocity.x) < 5.0f)
+            if (get_block(ndir.z).type == air && (ndir_up.z == -1 || get_block(ndir_up.z).type == air))
+            //&& abs(self.velocity.x) < 5.0f)
             {
-                self.velocity.y = 0;
-                self.velocity.x = dir * 1.0f;
+                self.velocity.y = 0.0f;
+                self.velocity.x += dir * 1.0f;
                 return;
             }
         }
     }
+    self.velocity.x = 0.0f;
 }
 
 void move(const in int3 pos, in block self)
@@ -145,7 +146,7 @@ void move(const in int3 pos, in block self)
             ++i;
         }
         if (obstacle)
-            self.velocity = float2(0.0f, 0.0f);
+            self.velocity.x = 0.0f;
         set_block(pos.z, self);
         if (last_pos.z != -1)
         {
@@ -162,6 +163,10 @@ void move(const in int3 pos, in block self)
             }
         }
     }
+    else
+    {
+        set_block(pos.z, self);
+    }
 }
 
 [numthreads(8,8,1)]
@@ -169,8 +174,8 @@ void swap_behavior(const uint3 id : SV_DispatchThreadID)
 {
     const int3 pos = get_block_position(position.xy + id.xy, world_size);
 
-    if (get_block(pos.z).type != water)
-        return;
+    // if (get_block(pos.z).type != water)
+        // return;
     if (!lock(pos.z))
         return;
     const block self = get_block(pos.z);
