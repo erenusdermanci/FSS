@@ -60,11 +60,12 @@ void compute_velocity(const in int3 pos, inout block self)
         for (uint i = 0; i < 2; ++i)
         {
             const int dir = inc[(r + i) % 2];
-            const int3 npos = get_valid_block_position(int2(pos.x + dir, pos.y + 1), world_size);
+            const int3 ndir_down = get_valid_block_position(int2(pos.x + dir, pos.y + 1), world_size);
+            const int3 ndir = get_valid_block_position(int2(pos.x + dir, pos.y), world_size);
 
-            if (npos.z != -1)
+            if (ndir_down.z != -1)
             {
-                if (get_block(npos.z).type == air)
+                if (get_block(ndir_down.z).type == air && get_block(ndir.z).type == air)
                 {
                     self.velocity += float2(dir * 0.7f * gravity, 0.7f * gravity);
                     return;
@@ -83,28 +84,21 @@ void compute_velocity(const in int3 pos, inout block self)
     if (!try_horizontally)
         return;
 
-    if (self.velocity.y == 0.0f && (self.velocity.x < 0.0f || self.velocity.x > 0.0f))
-        return;
-
     const int inc[2] = { 1, -1 };
     const uint r = rand(s + 2) > 0.5f ? 0 : 1;
-    const int3 up = get_valid_block_position(int2(pos.x, pos.y - 1), world_size);
-    if (up.z != -1)
-    {
-        if (get_block(up.z).type == water)
-            return;
-    }
     for (uint i = 0; i < 2; ++i)
     {
         const int dir = inc[(r + i) % 2];
-        const int3 npos = get_valid_block_position(int2(pos.x + dir, pos.y), world_size);
+        const int3 ndir = get_valid_block_position(int2(pos.x + dir, pos.y), world_size);
+        const int3 ndir_up = get_valid_block_position(int2(pos.x + dir, pos.y - 1), world_size);
 
-        if (npos.z != -1)
+        if (ndir.z != -1)
         {
-            if (get_block(npos.z).type == air && abs(self.velocity.x) < 5.0f)
+            if (get_block(ndir.z).type == air && (ndir_up.z == -1 || get_block(ndir_up.z).type == air)
+            && abs(self.velocity.x) < 5.0f)
             {
                 self.velocity.y = 0;
-                self.velocity.x += dir * 1.0f;
+                self.velocity.x = dir * 1.0f;
                 return;
             }
         }
@@ -135,7 +129,13 @@ void move(const in int3 pos, in block self)
                 break;
             if (next_pos.x != pos.x || next_pos.y != pos.y)
             {
-                if (get_block(next_pos.z).type != air)
+                const int next_block_type = get_block(next_pos.z).type;
+                if (next_block_type == self.type)
+                {
+                    ++i;
+                    continue;
+                }
+                if (next_block_type != air)
                 {
                     obstacle = true;
                     break;
@@ -149,13 +149,16 @@ void move(const in int3 pos, in block self)
         set_block(pos.z, self);
         if (last_pos.z != -1)
         {
-            if (lock(last_pos.z))
+            if (get_block(last_pos.z).type == air)
             {
-                if (get_block(last_pos.z).type == air)
+                if (lock(last_pos.z))
                 {
-                    swap(pos.z, last_pos.z);
+                    if (get_block(last_pos.z).type == air)
+                    {
+                        swap(pos.z, last_pos.z);
+                    }
+                    release(last_pos.z);
                 }
-                release(last_pos.z);
             }
         }
     }
@@ -166,6 +169,8 @@ void swap_behavior(const uint3 id : SV_DispatchThreadID)
 {
     const int3 pos = get_block_position(position.xy + id.xy, world_size);
 
+    if (get_block(pos.z).type != water)
+        return;
     if (!lock(pos.z))
         return;
     const block self = get_block(pos.z);

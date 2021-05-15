@@ -12,6 +12,7 @@ float color_max_shift;
 bool color_only;
 RWStructuredBuffer<block> blocks;
 RWStructuredBuffer<lockedIndex> indices;
+RWTexture2D<float4> colors;
 
 [numthreads(8,8,1)]
 void draw_rect(uint3 id : SV_DispatchThreadID)
@@ -34,6 +35,7 @@ void draw_rect(uint3 id : SV_DispatchThreadID)
             }
             // blocks[indices[i].index].color = shift_color(color, color_max_shift, seed(id));
             blocks[indices[i].index].color = float4(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f);
+            colors[pos.xy] = blocks[indices[i].index].color;
         }
     }
 }
