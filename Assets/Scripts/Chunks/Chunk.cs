@@ -35,6 +35,7 @@ namespace Chunks
             _worldManager.swapBehaviorShader.SetInts("world_size", worldWidth, worldHeight);
             _worldManager.swapBehaviorShader.SetInt("frame_count", WorldManager.CurrentFrame);
             _worldManager.swapBehaviorShader.SetBuffer(_worldManager.SwapBehaviorHandle, "blocks", _worldManager.BlocksBuffer);
+            _worldManager.swapBehaviorShader.SetBuffer(_worldManager.SwapBehaviorHandle, "indices", _worldManager.IndicesBuffer);
             _worldManager.swapBehaviorShader.Dispatch(_worldManager.SwapBehaviorHandle, /*worldWidth / */8, /*worldHeight / */8, 1);
 
             if (GlobalConfig.StaticGlobalConfig.outlineChunks)

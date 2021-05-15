@@ -36,6 +36,7 @@ namespace Tiles
         public int ApplyColorsHandle { get; private set; }
 
         public ComputeBuffer BlocksBuffer { get; private set; }
+        public ComputeBuffer IndicesBuffer { get; private set; }
         private readonly RenderTexture[] _textures = new RenderTexture[2];
         private int _textureIndex;
         private MeshRenderer _meshRenderer;
@@ -77,8 +78,19 @@ namespace Tiles
              ** float lifetime;
              ** float4 color;
              */
-            var stride = sizeof(int) * 3 + sizeof(float) * 7;
-            BlocksBuffer = new ComputeBuffer(worldTileSize * worldTileSize * Tile.ChunkAmount * Chunk.Size * Chunk.Size, stride);
+            var blocksStride = sizeof(int) * 2 + sizeof(float) * 7;
+            var indexesStride = sizeof(int) * 2;
+            var blockCount = worldTileSize * worldTileSize * Tile.ChunkAmount * Chunk.Size * Chunk.Size;
+            var lockIndexInit = new lockIndex[blockCount];
+            for (var i = 0; i < blockCount; ++i)
+            {
+                lockIndexInit[i] = new lockIndex();
+                lockIndexInit[i].lockValue = 0;
+                lockIndexInit[i].index = i;
+            }
+            BlocksBuffer = new ComputeBuffer(blockCount, blocksStride);
+            IndicesBuffer = new ComputeBuffer(blockCount, indexesStride);
+            IndicesBuffer.SetData(lockIndexInit);
             for (var i = 0; i < _textures.Length; ++i)
             {
                 _textures[i] = new RenderTexture(worldTileSize * Tile.HorizontalChunks * Chunk.Size,
@@ -126,6 +138,7 @@ namespace Tiles
 
         private void Start()
         {
+            Application.targetFrameRate = 60;
             _tileTaskScheduler.GetTaskManager(TileTaskTypes.Load).Processed += OnTileLoaded;
             // _tileTaskScheduler.GetTaskManager(TileTaskTypes.Save).Processed += OnTileSaved;
 
@@ -180,6 +193,7 @@ namespace Tiles
             applyColorsShader.SetInts("texture_size", worldWidth, worldHeight);
             applyColorsShader.SetTexture(ApplyColorsHandle, "colors", _textures[_textureIndex]);
             applyColorsShader.SetBuffer(ApplyColorsHandle, "blocks", BlocksBuffer);
+            applyColorsShader.SetBuffer(ApplyColorsHandle, "indices", IndicesBuffer);
             applyColorsShader.Dispatch(ApplyColorsHandle, worldWidth / 8, worldHeight / 8, 1);
         }
 
@@ -399,6 +413,7 @@ namespace Tiles
             var worldWidth = Width * Chunk.Size;
             var worldHeight = Height * Chunk.Size;
             drawRectShader.SetBuffer(DrawRectHandle, "blocks", BlocksBuffer);
+            drawRectShader.SetBuffer(DrawRectHandle, "indices", IndicesBuffer);
             drawRectShader.SetInts("rect", x, y, width, height);
             drawRectShader.SetInts("world_size", worldWidth, worldHeight);
             drawRectShader.SetInt("type", type);
@@ -496,9 +511,16 @@ namespace Tiles
         private void OnDestroy()
         {
             BlocksBuffer.Release();
+            IndicesBuffer.Release();
             foreach (var texture in _textures)
                 texture.Release();
             TileBlocksBuffer.Release();
+        }
+
+        public struct lockIndex
+        {
+            public int lockValue;
+            public int index;
         }
 
         #region Debug

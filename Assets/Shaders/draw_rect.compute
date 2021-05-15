@@ -10,6 +10,7 @@ float lifetime;
 float4 color;
 float color_max_shift;
 RWStructuredBuffer<block> blocks;
+RWStructuredBuffer<lockedIndex> indices;
 
 [numthreads(8,8,1)]
 void draw_rect(uint3 id : SV_DispatchThreadID)
@@ -22,13 +23,13 @@ void draw_rect(uint3 id : SV_DispatchThreadID)
         if (id.x < rect.z && id.y < rect.w)
         {
             const int i = pos.y * world_size.x + pos.x;
-            blocks[i].lock = 0;
-            blocks[i].type = type;
-            blocks[i].states = states;
-            blocks[i].lifetime = lifetime;
-            blocks[i].velocity = float2(0.0f, 0.0f);
-            // blocks[i].color = shift_color(color, color_max_shift, seed(id));
-            blocks[i].color = float4(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f);
+            indices[i].lock = 0;
+            blocks[indices[i].index].type = type;
+            blocks[indices[i].index].states = states;
+            blocks[indices[i].index].lifetime = lifetime;
+            blocks[indices[i].index].velocity = float2(0.0f, 0.0f);
+            // blocks[indices[i].index].color = shift_color(color, color_max_shift, seed(id));
+            blocks[indices[i].index].color = float4(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f);
         }
     }
 }

@@ -8,18 +8,19 @@ int2 position;
 int2 world_size;
 uint frame_count;
 RWStructuredBuffer<block> blocks;
+RWStructuredBuffer<lockedIndex> indices;
 
 void swap(const in int pos, const in int npos)
 {
-    const block tmp_block = blocks[pos];
-    blocks[pos] = blocks[npos];
-    blocks[npos] = tmp_block;
+    const int tmp_idx = indices[pos].index;
+    indices[pos].index = indices[npos].index;
+    indices[npos].index = tmp_idx;
 }
 
 bool lock(const in int index)
 {
     int old_lock;
-    InterlockedAdd(blocks[index].lock, 1, old_lock);
+    InterlockedAdd(indices[index].lock, 1, old_lock);
     if (old_lock != 0)
         return false;
     return true;
@@ -27,7 +28,17 @@ bool lock(const in int index)
 
 void release(const in int index)
 {
-    blocks[index].lock = 0;
+    indices[index].lock = 0;
+}
+
+block get_block(const in int index)
+{
+    return blocks[indices[index].index];
+}
+
+void set_block(const in int index, const in block new_block)
+{
+    blocks[indices[index].index] = new_block;
 }
 
 void compute_velocity(const in int3 pos, inout block self)
@@ -39,7 +50,7 @@ void compute_velocity(const in int3 pos, inout block self)
     {
         if (lock(down.z))
         {
-            if (blocks[down.z].type == air && self.velocity.y < 5.0f)
+            if (get_block(down.z).type == air && self.velocity.y < 5.0f)
             {
                 self.velocity.y += gravity * (1 + 0.1 * (rand(s) - 0.5f) * 2.0f);
                 self.velocity.x *= 0.1f;
@@ -60,7 +71,7 @@ void compute_velocity(const in int3 pos, inout block self)
             {
                 if (lock(npos.z))
                 {
-                    if (blocks[npos.z].type == air)
+                    if (get_block(npos.z).type == air)
                     {
                         self.velocity += float2(dir * 0.7f * gravity, 0.7f * gravity);
                         release(npos.z);
@@ -92,7 +103,7 @@ void compute_velocity(const in int3 pos, inout block self)
     {
         if (lock(up.z))
         {
-            if (blocks[up.z].type == water)
+            if (get_block(up.z).type == water)
             {
                 release(up.z);
                 return;
@@ -109,7 +120,7 @@ void compute_velocity(const in int3 pos, inout block self)
         {
             if (lock(npos.z))
             {
-                if (blocks[npos.z].type == air && abs(self.velocity.x) < 5.0f)
+                if (get_block(npos.z).type == air && abs(self.velocity.x) < 5.0f)
                 {
                     self.velocity.y = 0;
                     self.velocity.x += dir * 1.0f;
@@ -148,7 +159,7 @@ void move(const in int3 pos, in block self)
             {
                 if (lock(next_pos.z))
                 {
-                    if (blocks[next_pos.z].type != air)
+                    if (get_block(next_pos.z).type != air)
                     {
                         obstacle = true;
                         release(next_pos.z);
@@ -166,12 +177,12 @@ void move(const in int3 pos, in block self)
         }
         if (obstacle)
             self.velocity = float2(0.0f, 0.0f);
-        blocks[pos.z] = self;
+        set_block(pos.z, self);
         if (last_pos.z != -1)
         {
             if (lock(last_pos.z))
             {
-                if (blocks[last_pos.z].type == air)
+                if (get_block(last_pos.z).type == air)
                 {
                     swap(pos.z, last_pos.z);
                 }
@@ -188,7 +199,7 @@ void swap_behavior(const uint3 id : SV_DispatchThreadID)
 
     if (!lock(pos.z))
         return;
-    const block self = blocks[pos.z];
+    const block self = get_block(pos.z);
     if (self.type != water)
     {
         release(pos.z);
