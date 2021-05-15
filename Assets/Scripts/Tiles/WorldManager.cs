@@ -84,7 +84,6 @@ namespace Tiles
             var lockIndexInit = new lockIndex[blockCount];
             for (var i = 0; i < blockCount; ++i)
             {
-                lockIndexInit[i] = new lockIndex();
                 lockIndexInit[i].lockValue = 0;
                 lockIndexInit[i].index = i;
             }
@@ -519,8 +518,8 @@ namespace Tiles
 
         public struct lockIndex
         {
-            public int lockValue;
             public int index;
+            public int lockValue;
         }
 
         #region Debug
